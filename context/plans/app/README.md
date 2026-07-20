@@ -20,15 +20,25 @@ Why it matters: without this, the two things you want — giving agents total ac
 
 ## Approach
 
-TBD.
+Sealed files are standard age v1 files with an scrypt passphrase recipient, produced via the maintained `age` Rust crate and written in place of the plaintext at the file's own path as an opaque blob. Because the format is standard age, any sealed file is recoverable with ordinary age tooling and the password, independent of Seal itself. The password model is one master password for everything by default, with an optional per-repo override; passwords exist only in the user's head, never on the machine. Whether sealed files are committed to git or ignored is the responsibility of the repo itself, not of Seal — the application manages no git state.
+
+Runtime resolution is a standalone CLI: a script asks it for a sealed file's contents, it prompts for the password in the terminal on every invocation, and it writes the plaintext to stdout for the caller to consume at the moment of use. The CLI holds no session and never shares the app's unlocked state.
+
+The desktop application is Tauri 2 with a React + TypeScript (Vite) frontend. The UI runs an unlocked session that ends by quitting the application or by an explicit seal action in the UI; within a session the user manages repos and files and edits env files through the dedicated environment-variables UI.
+
+The work decomposes into the children below: the sealing engine is the seam everything else consumes, the registry holds the cross-repo state, the CLI and the desktop application are the two consumers, and publishing covers everything around the code.
 
 # Plans
 
-No child plans yet.
+- [ ] engine/ -> the sealing engine: age-based seal/unseal, the password model, session and key-handling semantics
+- [ ] registry.md -> the registry of seal repos and their managed files, including the import scan
+- [ ] cli.md -> the standalone CLI resolver
+- [ ] desktop/ -> the Tauri desktop application: shell, IPC surface, and the management UI
+- [ ] publishing/ -> everything around the code: repo docs, CI, packaging, releases, maintainability
 
 # Cursor
 
-Blocked — awaiting answers in `QUESTIONS.md`. The research pass is done: the tooling/crypto landscape survey landed in [_docs/secrets-landscape.md](_docs/secrets-landscape.md), the Tauri/Rust grounding in [_docs/tauri-rust-practices.md](_docs/tauri-rust-practices.md), and the seven major design forks (crypto foundation, password scope, sealed-file form, git stance, resolution surface, unlock model, frontend stack) are raised as blocking questions in `QUESTIONS.md`. Next session: act on the answers, distill the chosen directions into the Approach, then carve the first child plans from the shape the answers reveal. No building until then.
+Design forks answered and distilled into the Approach; five children framed, none started. Next: solution `engine/` first — its sealed-file and password/session contract is the seam the registry, the CLI, and the desktop app all consume. The landscape grounding for that design sits in [_docs/secrets-landscape.md](_docs/secrets-landscape.md).
 
 # Open threads
 

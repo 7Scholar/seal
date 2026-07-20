@@ -1,0 +1,113 @@
+:root {
+  --bg: #16161a;
+  --panel: #1e1e24;
+  --line: #2e2e38;
+  --text: #e8e8ee;
+  --muted: #9a9aa8;
+  --accent: #7aa2f7;
+  --danger: #f7768e;
+  --danger-bg: #2a1a20;
+  --ok: #9ece6a;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.55 ui-sans-serif, -apple-system, system-ui, sans-serif;
+}
+
+h1 { font-size: 1.25rem; margin: 0 0 0.25rem; }
+h2 { font-size: 1rem; margin: 0 0 0.25rem; }
+
+button {
+  font: inherit;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+}
+button:hover:not(:disabled) { border-color: var(--accent); }
+button:disabled { opacity: 0.45; cursor: not-allowed; }
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+input {
+  font: inherit;
+  color: var(--text);
+  background: #101014;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.35rem 0.5rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.repos, .import, .env-editor, .opaque, .unlock { padding: 1.25rem; max-width: 62rem; margin: 0 auto; }
+
+.repos__header, .env-editor__header { display: flex; gap: 0.6rem; align-items: center; margin-bottom: 1rem; }
+.repos__header h1, .env-editor__header h1 { flex: 1; }
+
+.repo { border: 1px solid var(--line); border-radius: 8px; padding: 0.9rem; margin-bottom: 0.9rem; background: var(--panel); }
+.repo__root { color: var(--muted); font-size: 0.8rem; margin: 0 0 0.6rem; }
+.repo ul, .import ul, .env-editor__rows { list-style: none; margin: 0; padding: 0; }
+.repo__file, .env-editor__row { display: flex; gap: 0.6rem; align-items: center; padding: 0.4rem 0; border-top: 1px solid var(--line); }
+.repo__path, .env-editor__key { flex: 1; font-family: ui-monospace, SFMono-Regular, monospace; }
+.repo__state { color: var(--muted); font-size: 0.8rem; }
+.repo__state[data-state="sealed"] { color: var(--ok); }
+.repo__file[data-alert="true"] .repo__state { color: var(--danger); font-weight: 600; }
+
+.exposure-alert {
+  border: 1px solid var(--danger);
+  background: var(--danger-bg);
+  border-radius: 8px;
+  padding: 0.9rem;
+  margin-bottom: 1rem;
+}
+.exposure-alert__heading { color: var(--danger); }
+.exposure-alert__item { display: flex; gap: 0.6rem; align-items: center; padding: 0.3rem 0; }
+.exposure-alert__path { flex: 1; font-family: ui-monospace, monospace; }
+
+.secret-value { display: flex; gap: 0.5rem; align-items: center; flex: 2; }
+.secret-value__text { font-family: ui-monospace, monospace; color: var(--muted); flex: 1; overflow-wrap: anywhere; }
+.secret-value__text[data-revealed="true"] { color: var(--text); }
+
+.import__group { border: 1px solid var(--line); border-radius: 8px; margin: 0 0 0.9rem; }
+.import__blurb, .import__assurance { color: var(--muted); font-size: 0.85rem; }
+.import__group label { display: flex; gap: 0.6rem; align-items: center; padding: 0.25rem 0; }
+.import__path { font-family: ui-monospace, monospace; flex: 1; }
+.import__reason, .import__managed { color: var(--muted); font-size: 0.8rem; }
+.import__bulk { display: flex; gap: 0.4rem; margin-bottom: 0.5rem; }
+.import__actions, .env-editor__actions { display: flex; gap: 0.6rem; align-items: center; }
+.import__assurance, .env-editor__dirty { flex: 1; }
+
+.env-editor__notice { color: var(--muted); font-size: 0.85rem; border-left: 2px solid var(--line); padding-left: 0.6rem; }
+
+.confirm {
+  position: fixed; inset: 0; margin: auto;
+  width: min(34rem, 92vw); height: fit-content; max-height: 88vh; overflow: auto;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+  padding: 1.1rem; box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+}
+.confirm__actions { display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 1rem; }
+.confirm__danger { border-color: var(--danger); color: var(--danger); }
+.confirm__gate { display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.8rem; }
+
+.unlock { max-width: 22rem; margin-top: 18vh; display: flex; flex-direction: column; gap: 0.5rem; }
+.unlock__status { color: var(--muted); min-height: 1.4rem; font-size: 0.85rem; }

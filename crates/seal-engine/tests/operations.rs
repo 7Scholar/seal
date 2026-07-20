@@ -259,3 +259,53 @@ fn an_operation_is_refused_while_the_file_is_locked_elsewhere() {
     operations::seal(&fixture.path, &pass("pw"), MINIMUM_WORK_FACTOR)
         .expect("the operation must succeed once the lock is released");
 }
+
+#[test]
+fn no_error_message_leaks_secret_material() {
+    let fixture = Fixture::new();
+    let secret_passphrase = "unmistakable-passphrase-marker";
+    let secret_content = std::str::from_utf8(PLAINTEXT).unwrap();
+
+    seal(&fixture, secret_passphrase);
+
+    let mut errors: Vec<String> = Vec::new();
+
+    let mut sink = Vec::new();
+    errors.push(
+        operations::unseal_to(&fixture.path, &mut sink, &[pass("wrong")])
+            .unwrap_err()
+            .to_string(),
+    );
+    errors.push(
+        operations::seal(&fixture.path, &pass(secret_passphrase), MINIMUM_WORK_FACTOR)
+            .unwrap_err()
+            .to_string(),
+    );
+    errors.push(
+        operations::verify(&fixture.path, &[pass(secret_passphrase), pass("other")])
+            .map(|_| String::new())
+            .unwrap_or_else(|err| err.to_string()),
+    );
+
+    let dir = tempfile::tempdir().unwrap();
+    let plain = dir.path().join("plain.env");
+    fs::write(&plain, PLAINTEXT).unwrap();
+    errors.push(
+        operations::unseal_to(&plain, &mut Vec::new(), &[pass(secret_passphrase)])
+            .unwrap_err()
+            .to_string(),
+    );
+
+    for message in &errors {
+        assert!(
+            !message.contains(secret_passphrase),
+            "an error message leaked the passphrase: {message}"
+        );
+        for line in secret_content.lines().filter(|line| !line.is_empty()) {
+            assert!(
+                !message.contains(line),
+                "an error message leaked plaintext content: {message}"
+            );
+        }
+    }
+}

@@ -176,3 +176,35 @@ fn classify_handle(path: &Path, file: &mut File) -> Result<Classification, Opera
     file.rewind().map_err(io_error)?;
     Ok(classification)
 }
+
+#[cfg(test)]
+mod payload_safety {
+    use super::*;
+
+    trait CannotCarrySecrets {}
+    impl CannotCarrySecrets for PathBuf {}
+    impl CannotCarrySecrets for io::Error {}
+
+    fn assert_safe<T: CannotCarrySecrets>(_: &T) {}
+
+    #[test]
+    fn every_error_variant_carries_only_payloads_that_cannot_hold_secrets() {
+        let path = PathBuf::from("/tmp/example");
+        let sample = OperationError::Absent { path: path.clone() };
+
+        match &sample {
+            OperationError::AlreadySealed { path }
+            | OperationError::NotSealed { path }
+            | OperationError::Absent { path }
+            | OperationError::Busy { path }
+            | OperationError::NoMatchingPassphrase { path }
+            | OperationError::Damaged { path }
+            | OperationError::UnacceptableWork { path }
+            | OperationError::SymlinkTarget { path } => assert_safe(path),
+            OperationError::Io { path, source } => {
+                assert_safe(path);
+                assert_safe(source);
+            }
+        }
+    }
+}

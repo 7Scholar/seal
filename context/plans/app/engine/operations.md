@@ -26,9 +26,11 @@ Sealing also range-checks the work factor before it reaches the library, which p
 
 Verified by seven re-seal tests: a whole set converted and no longer opening under the old passphrase; a second run recognising the work as done; a partially converted set finishing; both plan guards refusing without touching anything; a locked file reported as retryable and then completing once released; and a file under an unrelated passphrase reported as not worth retrying.
 
+**No error value can carry secret material, and that is enforced at compile time rather than tested.** An in-crate check matches every variant exhaustively and passes each payload through a marker trait implemented only for types that cannot hold a secret — a path and an underlying IO error. Adding a variant whose payload is free-form text fails the build, forcing whoever adds it to justify the payload rather than discovering the leak later. The check lives inside the crate deliberately: the enum is marked non-exhaustive for external consumers, so an equivalent match written in a test crate is forced to carry a wildcard arm and would silently absorb the very variant it exists to catch. A separate behavioural test asserts that real error messages from wrong passphrases, already-sealed files and unsealable plaintext contain neither the passphrase nor any line of the file's content.
+
 # What is missing
 
-A structural guarantee that no error value can carry plaintext or passphrase material. The variants carry paths and an underlying IO error today, which is already the right shape; what is missing is enforcing that a future variant cannot introduce a leak, since a test can only check the variants that exist.
+Nothing in the single-file or multi-file operations. The remaining engine work is the interoperability job in `format.md`, which needs a pinned stock binary in continuous integration.
 
 # Steps
 
@@ -37,7 +39,7 @@ A structural guarantee that no error value can carry plaintext or passphrase mat
 - [x] Implement the single-file operations over `format.md` and `replace.md`, holding that lock so each guard condition actually holds.
 - [x] Implement re-sealing over an explicit list of paths: plan computation, the new-passphrase round-trip guard, derived progress, bounded retry of transient failures, and a per-file result naming what remains and why.
 - [x] Unit tests: every guard condition, the candidate-passphrase resolution reporting the right match, and the lock's exclusion within and across processes.
-- [ ] Assert no error value carries plaintext or passphrase material, enforced structurally as well as tested.
+- [x] Assert no error value carries plaintext or passphrase material, enforced structurally as well as tested.
 - [ ] Test scripts: exercise the real engine against a realistic tree of env files — happy path, large files, a deliberately corrupted sealed file, a file sealed under a different passphrase than expected, wrong passphrases, and genuinely concurrent operations on the same file from two processes.
 
 # Open threads

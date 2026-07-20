@@ -12,12 +12,14 @@ Nothing; no code exists yet anywhere in the project.
 
 Everything: the shape of the registry data (repos, managed files, tags), where and how it persists, how it stays truthful when files move or vanish underneath it, and the scan that proposes candidate secret files during import.
 
+One requirement is already fixed by evidence rather than open to design. **The registry owns detecting that a sealed file was replaced from outside**, and it is not an edge case: an editor holding a file open when it is sealed will, on its next save, silently overwrite the sealed file with plaintext — verified empirically, with no error and no conflict, because the editor is working from a buffer it read before the seal. This is the most likely way a seal is destroyed in ordinary use. The engine returns an identity fingerprint from every operation; the registry records it at seal time and re-checks it, and a managed file that has flipped from sealed to plaintext is an alert the user must see rather than a state quietly absorbed. Two constraints on how that check is built are recorded in the engine's `MEMORY.md`: the comparison uses the whole identity tuple rather than any single field, and filesystem watching targets the containing directory rather than the file, because a file-level watch is destroyed by the very replacement it should catch. Because a watch reports the damage only after it happens, the fingerprint is re-checked on read as well, not only on events.
+
 # Steps
 
 TBD — first: research and design the registry model; the Approach lands here before any implementation.
 
 # Open threads
 
-- Where registry state lives (per-user app data dir vs anything in-repo) and in what format; settle during design.
-- How the registry detects and represents a managed file that was deleted, moved, or modified outside Seal; settle during design.
-- What the import scan considers a candidate secret file beyond env-file name patterns; settle during design.
+- Where registry state lives (per-user app data dir vs anything in-repo) and in what format; settle during design. The state holds no secrets but is security-relevant, since it names exactly where every secret file on the machine is.
+- How the registry represents a managed file that was deleted, moved, or externally re-sealed, and what reconciliation between recorded state and observed disk looks like as an explicit operation; settle during design.
+- What the import scan considers a candidate secret file beyond env-file name patterns, and how it avoids proposing the conventionally-committed templates (`.env.example` and its variants) as secrets.

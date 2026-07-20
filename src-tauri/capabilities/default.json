@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "The minimum the interface needs: its own window, and Seal's own commands.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

@@ -17,3 +17,10 @@ nul
 
 # Seal replacement temporaries, should a run be interrupted
 .*.seal.tmp.*
+
+# Frontend build output and dependencies
+/dist
+node_modules
+
+# Tauri generated schemas
+src-tauri/gen

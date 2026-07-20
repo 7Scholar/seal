@@ -1,0 +1,29 @@
+[package]
+name = "seal-desktop"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lib]
+name = "seal_desktop"
+crate-type = ["lib", "cdylib", "staticlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+age = { workspace = true }
+
+seal-engine = { path = "../crates/seal-engine" }
+seal-registry = { path = "../crates/seal-registry" }
+seal-session = { path = "../crates/seal-session" }
+seal-dotenv = { path = "../crates/seal-dotenv" }
+
+[lints]
+workspace = true

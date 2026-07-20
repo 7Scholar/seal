@@ -1,7 +1,10 @@
 {
   "include": [
     "Cargo.toml",
-    "crates"
+    "crates",
+    "src-tauri"
   ],
-  "exclude": []
+  "exclude": [
+    "src-tauri/icons"
+  ]
 }

@@ -8,6 +8,10 @@ This folder is **not** part of the implementation tree. It carries no coverage, 
 
 **The product is production-ready when every journey below is satisfied** — driven end to end in the real application, with no open findings, against a build anyone could install. Every plan being `[x]` is a prerequisite for that, never a substitute. A journey being broken makes the product not done, whatever the plan tree says.
 
+## Before any journey can be satisfied
+
+[HARNESS.md](HARNESS.md) — the harness that drives the real application. Every journey is blocked on it, and it is the first thing to build.
+
 ## The journeys
 
 Ordered as a person meets them.

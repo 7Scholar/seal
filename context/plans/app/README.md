@@ -78,6 +78,14 @@ What remains of `desktop/` is the interface. `publishing/` has not started.
 
 No open threads yet.
 
+# The journeys axis
+
+Plan completeness is **not** the definition of done for this product. [context/journeys/](../../journeys/README.md) holds the user-facing axis: one document per end-to-end path a real person takes, each satisfied only by driving the real application rather than by tests passing.
+
+Every child below is `[x]` and **every journey is unsatisfied** — the first person to open the built application could not get past the first screen. Both defects sat between plans that were individually correct and individually tested, which is precisely the blind spot that axis exists to close.
+
+Read [docs/plans/JOURNEYS.md](../../../docs/plans/JOURNEYS.md) before working one.
+
 # Supporting docs
 
 - Before writing any Rust or Tauri code, follow [_docs/tauri-rust-practices.md](_docs/tauri-rust-practices.md).

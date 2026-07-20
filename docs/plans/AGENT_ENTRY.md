@@ -6,6 +6,7 @@ You are doing **implementation work**: writing or editing application code, or w
 
 1. Read the operating manual: [docs/plans/INSTRUCTIONS.md](INSTRUCTIONS.md). It tells you how the plans are organized, how to find where work stands, and what to do in every situation. **Exception:** when the work is UI improvements — a declared session ("we're going to do UI improvements") **or** any small ad-hoc change to existing frontend code (a component rename, a copy tweak, a styling fix) — read [docs/plans/UI_IMPROVEMENTS.md](UI_IMPROVEMENTS.md) instead; it is that mode's operating manual. The mode is defined by the work's shape, not by the words the request arrives in.
 2. Read the root plan: [context/plans/app/README.md](../../context/plans/app/README.md). Start at its **Cursor** and follow the cursor path to the active leaf.
+3. **If the product has a user-facing surface, read [context/journeys/README.md](../../context/journeys/README.md)** and the manual behind it, [docs/plans/JOURNEYS.md](JOURNEYS.md). Journeys are the axis the plan tree cannot state about itself: the implementation tree verifies each concern against its own contract, while a journey asks whether a person can actually get through the product. **An unsatisfied journey means the product is not done, however many plans are `[x]`** — so if the work you are picking up is "make this production-ready," "the UI feels unfinished," or anything about how the product is experienced, the journeys are your entry point rather than the cursor.
 
 ## Before writing or editing code
 

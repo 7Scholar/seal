@@ -41,4 +41,4 @@ Nothing. The remaining engine work sits in `operations.md`.
 # Open threads
 
 - Continuous integration must install the stock `age` binary and pin its version, otherwise the interoperability tests will skip there and the guarantee will go unverified precisely where it matters most. Pin the version when the pipeline is written, since a floating version turns an upstream change into a mysterious failure.
-- Classification currently takes a reader. The Approach calls for it to operate on an already-open handle shared with the subsequent operation, so that a file cannot be swapped between classifying and acting; wire that through when the operations layer opens files.
+- Classification takes a reader, and the operations layer passes it the same open handle it goes on to use, rewinding afterwards — so the Approach's requirement is met at the layer that opens files rather than by the format module holding a handle it does not own.

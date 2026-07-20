@@ -48,7 +48,7 @@ The work decomposes into the children below: the sealing engine is the seam ever
 
 # Plans
 
-- [~] engine/ -> the sealing engine: age-based seal/unseal, the password model, session and key-handling semantics
+- [x] engine/ -> the sealing engine: age-based seal/unseal, the password model, session and key-handling semantics
 - [~] registry.md -> the registry of seal repos and their managed files, including the import scan
 - [ ] cli.md -> the standalone CLI resolver
 - [ ] desktop/ -> the Tauri desktop application: shell, IPC surface, and the management UI
@@ -56,11 +56,11 @@ The work decomposes into the children below: the sealing engine is the seam ever
 
 # Cursor
 
-`engine/` is in flight and partly blocked. Its design was solutioned, then revised after an adversarial review found real errors while they were still cheap to fix — the seam now takes plural candidate passphrases, durability is directional, concurrent operations are locked rather than left to last-writer-wins, and the replace sequence exposes a fault-injection seam. Two of its three children are unblocked and ready to build; the third waits on the two product decisions in `QUESTIONS.md` here at the root, which is why this node shows work continuing rather than stopped. The threat model above was written in the same pass and is what those decisions answer to.
+`engine/` is complete. It seals a real env file in place and unseals it back, refuses every unsafe case it was designed to refuse — an already-sealed file, a symbolic link, a file another process is working on — changes a passphrase across many files with derived progress and bounded retry, and interoperates with the reference `age` implementation in both directions. Sixty-six tests cover it, and every load-bearing guard was confirmed non-vacuous by breaking it and watching the matching test fail.
 
-`registry.md` is now solutioned too, with its own research behind it — the state shape and its evolution, compare-and-retry over file locking, reconciliation as a first-class operation rather than a repair path, and an import scan that deliberately ignores gitignore rules because a measured scan that respected them found only the committed template and hid every real secret.
+Several defects were caught before they could ship, each recorded in the engine's `MEMORY.md` because each looks like tidy-up to a later reader: sealing through a symbolic link would have left the real secret unprotected; deleting the lock file on release would have broken mutual exclusion while appearing to preserve it; and an out-of-range work factor crashes the underlying library rather than returning an error.
 
-Next: implement the engine's atomic replacement, whose contract is settled and independent of the open questions.
+`registry.md` is designed and unstarted, and is the natural next step — the desktop application needs both seams before its own design can settle. `cli.md`, `desktop/` and `publishing/` remain framed.
 
 # Open threads
 

@@ -88,17 +88,19 @@ Two of the properties above are invisible to ordinary assertions and are therefo
 
 # Plans
 
-- [ ] format.md -> sealed-file format, classification, and the age binding
+- [x] format.md -> sealed-file format, classification, and the age binding
 - [x] replace.md -> atomic identity-preserving file replacement
-- [~] operations.md -> the engine's public operations, passphrase resolution, and error taxonomy (single-file operations and the lock are done; multi-file re-sealing remains)
+- [x] operations.md -> the engine's public operations, passphrase resolution, and error taxonomy
 
 # Cursor
 
 Solutioned, then revised after an adversarial review of the design found real errors before any code was written. The Approach specifies plural candidate passphrases at the seam, directional durability, an advisory lock across classify-and-replace, classification over an open handle, an explicit syscall seam for fault injection, observed post-state returns with an identity fingerprint, and a two-track interoperability strategy. A subsequent product decision removed any operation that writes plaintext to a managed file's path: unsealing is a memory concept, so a managed file's on-disk state moves from plaintext to sealed and never back.
 
-`replace.md` is finished. `format.md` is finished apart from interoperability tests against a real stock `age` binary, which need a pinned binary installed in continuous integration rather than assumed present. `operations.md` now has the advisory lock and every single-file operation, so the engine can seal a real env file in place and unseal it back, with the guard conditions genuinely enforced rather than racing.
+All three children are complete. The engine seals a real env file in place and unseals it back, refuses every unsafe case it was designed to refuse, changes a passphrase across many files with derived progress and bounded retry, and interoperates with the reference implementation in both directions. Sixty-six tests cover it, and every load-bearing guard was confirmed non-vacuous by breaking it and watching the matching test fail.
 
-Nothing here is blocked. Next: multi-file re-sealing, which is the last piece of the engine's public surface and the one the master-passphrase change depends on.
+One thread remains for whoever writes the pipeline: continuous integration must install and pin the stock `age` binary, or the interoperability tests will skip there and the format guarantee will go unverified where it matters most.
+
+Next: the engine is done, so work moves up to the root's other children — `registry.md` is designed and ready to implement, and it is what the desktop application needs before its own design can settle.
 
 # Open threads
 

@@ -11,12 +11,21 @@ repository = "https://github.com/7scholar/seal"
 
 [workspace.dependencies]
 thiserror = "2"
+age = { version = "0.12", features = ["armor"] }
+secrecy = "0.10"
+zeroize = { version = "1", features = ["zeroize_derive"] }
 
 [profile.release]
 panic = "unwind"
 
 [profile.dev]
 panic = "unwind"
+
+[profile.dev.package."*"]
+opt-level = 2
+
+[profile.test.package."*"]
+opt-level = 2
 
 [workspace.lints.rust]
 unsafe_op_in_unsafe_fn = "deny"

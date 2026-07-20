@@ -64,7 +64,11 @@ Several defects were caught before they could ship, each recorded in the engine'
 
 `cli.md` is complete: a script can resolve a sealed file at the moment of use, with the password typed on the terminal and only the secret reaching standard output. Its contract was designed against measured behaviour of the reference tools and improves on them where they are weak — notably exit codes, which one reference tool flattens so far that a wrong password cannot be told from a missing file.
 
-`desktop/` and `publishing/` remain. The desktop application is the larger piece and now has every seam it needs: the engine for sealing, the registry for state and reconciliation, and a working reference for how a consumer drives them.
+`desktop/` is most of the way through its Rust side: the session with its dual-clock fail-closed expiry, the Tauri shell with the wipe on exit and a webview that persists nothing, and the per-file command surface whose shape enforces what may cross the boundary — masked structure on open, one value per explicit reveal, edits rather than files on save, and an error type the compiler forbids from carrying secret material. The application builds and links, verified from a clean clone.
+
+An audit of the code against this intent then found the honest gap: **the per-file surface was built while the surface that gets files into management was not**, so a fresh install can currently unlock and lock and nothing else. Import, removal from management, the pre-seal check for a file open elsewhere, and the irreversibility acknowledgements this Approach requires before a first seal are now carved as `desktop/lifecycle.md`. The same audit caught and fixed two real defects — a managed non-env file was being parsed and re-rendered as an env file, measured corrupting a Terraform `.tfvars` on save, and a per-repo password override never reached any file inside the repo.
+
+`desktop/` and `publishing/` remain. What is left of the desktop is the lifecycle surface and the interface; the seams beneath them are all in place and tested.
 
 # Open threads
 

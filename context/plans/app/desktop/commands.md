@@ -14,7 +14,9 @@ Capabilities grant the window only the core defaults plus Seal's own commands, r
 
 ## What may cross, expressed as the shape of the API
 
-**Opening a file returns structure, not content.** The returned view carries each variable's name, a fixed mask in place of its value, and whether the value is empty — plus the file's duplicate keys and a count of lines that could not be parsed. It never carries a value. The plaintext itself stays in the session in Rust.
+**Only env files are editable, and the shape of the open result says so.** Opening a managed file returns either an editable env view or an opaque one carrying nothing but the path and the plaintext's length. The distinction is drawn from the file's name, and reveal and save both refuse anything that is not an editable env file. This is the root intent's rule — a non-env managed file is stored and encrypted as-is, never edited — enforced at the boundary rather than trusted to the interface. An `.envrc` is deliberately opaque despite the name: it is a shell script, and presenting it as key-value rows would corrupt it on save. Measured before the guard existed: a Terraform `.tfvars` opened as two editable rows and saving rewrote `secret_key = "x"` as `secret_key="x"`, dropping the spacing and quoting the format requires.
+
+**Opening an env file returns structure, not content.** The returned view carries each variable's name, a fixed mask in place of its value, and whether the value is empty — plus the file's duplicate keys and a count of lines that could not be parsed. It never carries a value. The plaintext itself stays in the session in Rust.
 
 **A value crosses only one at a time, and only when asked for.** Reveal takes a single key and returns that value's bytes. It reads exclusively from plaintext the session already holds, so a reveal on a file that is not open fails rather than silently unsealing it — exposure is bounded to what the user explicitly asked to see, and there is no path by which the interface can pull a file's contents without the user opening it first.
 
@@ -38,13 +40,15 @@ Commands that change managed state write through the registry's compare-and-retr
 
 The domain layer and the command layer, plus the Tauri shell wiring that `shell.md` was waiting on: managed state, the wipe on the application-level exit request, the background sweep, the registered handler, and the hardened window configuration.
 
-Nineteen tests cover the surface against a real engine and registry — masking, per-key reveal, reveal refused when the file is not open, unmanaged paths refused, a save that preserves comments and changes exactly one value, files staying sealed on disk throughout, errors that never echo a passphrase or a value, and the wipe the exit handler calls.
+Twenty-four tests cover the surface against a real engine and registry — masking, per-key reveal, reveal refused when the file is not open, unmanaged paths refused, a save that preserves comments and changes exactly one value, files staying sealed on disk throughout, errors that never echo a passphrase or a value, the wipe the exit handler calls, and a managed non-env file opening as opaque with save and reveal refused.
 
-Guards confirmed non-vacuous by breaking them: returning real values in place of the mask fails 2 tests, removing the managed-path check fails 1, and a no-op exit wipe fails 1. The compile-time error-payload check was confirmed by adding a `String` field, which fails to build.
+Guards confirmed non-vacuous by breaking them: returning real values in place of the mask fails 2 tests, removing the managed-path check fails 1, a no-op exit wipe fails 1, and treating every file as editable fails 4. The compile-time error-payload check was confirmed by adding a `String` field, which fails to build.
 
 # What is missing
 
-Nothing on this plan's own surface. Two commands the root intent needs are deliberately deferred until the interface exists to drive them: importing a repo from a scan, and the supervised master-password change. Both have their behaviour fixed by the [desktop Approach](README.md) and the engine already implements the hard part of the second.
+The per-file surface is complete. What this plan does **not** provide, and must not be read as providing, is any way to get a file into management in the first place, or the safety gates the root intent attaches to sealing — those are `lifecycle.md`, and until they exist the commands here operate on a registry nothing can populate.
+
+The supervised master-password change is deferred into `ui/`, since its behaviour is mostly the flow around it; the engine already implements the hard part.
 
 # Steps
 
@@ -54,7 +58,6 @@ Nothing on this plan's own surface. Two commands the root intent needs are delib
 - [x] Make it impossible for an error to carry secret material, checked at compile time.
 - [x] Configure capabilities so the interface is granted only what it needs.
 - [x] Tests against a real engine and registry, with each guard confirmed non-vacuous.
-- [ ] The import command, once the interface exists to confirm candidates.
 - [ ] The password-change command with progress and per-file retry, once the interface exists to supervise it.
 
 # Open threads

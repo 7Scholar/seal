@@ -54,12 +54,12 @@ Candidates are classified into three confidence levels rather than presented as 
 
 # Steps
 
-- [ ] Define the state shape, the versioning and migration mechanism, and the unknown-field passthrough.
-- [ ] Implement load and store: atomic replacement, owner-only permissions, previous-good copy, and the revision compare-and-retry.
-- [ ] Implement reconciliation against disk, returning a structured difference including the sealed-became-plaintext alert.
-- [ ] Implement the import scan with the three-way candidate classification.
-- [ ] Unit tests: migration from each historical version, unknown-field round-trip, concurrent-writer lost-update prevention, permission assertions, and reconciliation against every divergence shape.
-- [ ] Test scripts: a realistic multi-repo tree exercising import, reconciliation after external mutation, and a state file from a future version.
+- [x] Define the state shape, the versioning and migration mechanism, and the unknown-field passthrough.
+- [x] Implement load and store: atomic replacement, owner-only permissions, previous-good copy, and the revision compare-and-retry.
+- [x] Implement reconciliation against disk, returning a structured difference including the sealed-became-plaintext alert.
+- [x] Implement the import scan with the three-way candidate classification.
+- [x] Unit tests: migration from each historical version, unknown-field round-trip, concurrent-writer lost-update prevention, permission assertions, and reconciliation against every divergence shape.
+- [x] Test scripts: a realistic multi-repo tree exercising import, reconciliation after external mutation, and a state file from a future version.
 
 # Open threads
 

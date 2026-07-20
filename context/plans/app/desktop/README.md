@@ -65,6 +65,7 @@ Two flows carry more weight than their screens suggest, and their behaviour is f
 - [x] shell.md -> the Tauri shell: session state, secret lifetimes and clearing, lifecycle hooks, window and webview hardening
 - [x] commands.md -> the IPC surface: the command set, what may cross the boundary, and how blocking work is dispatched
 - [x] dotenv.md -> lossless env-file parsing and rendering, so saving preserves comments, order and formatting
+- [ ] lifecycle.md -> import, removal from management, the pre-seal open-file check, and the irreversibility acknowledgements
 - [ ] ui/ -> the interface: the cross-repo view, the import flow, the environment-variables editor, and the two flows that must insist
 
 # Cursor
@@ -77,7 +78,11 @@ Solutioned, and decomposed into four children. The design is grounded in researc
 
 The webview's memory-only data store was confirmed at the platform layer rather than trusted from documentation — it resolves to the non-persistent website data store on macOS, ahead of every other branch.
 
-Nothing is blocked. Next: `ui/`, the last desktop child, which now has a running application and a typed command surface to build against. Two commands are deliberately deferred into it — importing a repo and the supervised password change — because both are shaped by the flow around them.
+An audit against the root intent found that the per-file surface was built while the surface that gets files *into* management was not, so a fresh install can currently unlock and lock and nothing else. That gap is now carved as `lifecycle.md` rather than left implicit: import, removal from management, the pre-seal open-file check, and the irreversibility acknowledgements the intent requires before a first seal.
+
+The same audit caught two defects that are now fixed: a managed non-env file was parsed and re-rendered as an env file — measured corrupting a Terraform `.tfvars` on save — and a per-repo password override never reached any file inside the repo.
+
+Nothing is blocked. Next: `lifecycle.md`, whose first step is research rather than building, since what can honestly be detected about a file being open elsewhere bounds what that check may promise. `ui/` follows, and the supervised password change is deferred into it.
 
 # Open threads
 

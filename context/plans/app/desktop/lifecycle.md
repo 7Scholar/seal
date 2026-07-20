@@ -49,22 +49,26 @@ Removing the last file from a repo removes the repo record too, so the registry 
 
 # What exists
 
-Nothing implemented. The research above is done and it fixed the design of the pre-seal check.
+All of the Approach. A repo can now enter the application, files can leave it, and both gates sit on the paths that seal.
 
-The pieces underneath exist: the registry implements the import scan in full and is tested against the failure that motivated it, and the engine implements sealing and unsealing.
+Nineteen tests cover it, including the two that matter most for trust: the acknowledgement gate refusing on the **real** seal command rather than only in isolation, and the acknowledgement surviving a store round trip. A registry file written before the acknowledgement field existed loads and defaults to not-acknowledged, so an upgrading user is asked once rather than silently treated as having agreed.
+
+Guards confirmed non-vacuous by breaking each and watching the matching tests fail: a gate that always passes fails 2, an import that never merges fails 1, a release that ignores the caller's choice fails 1, a warning that never fires fails 1, and dropping the path-traversal guard fails 1.
+
+The engine gained one operation for this: releasing a sealed file back to plaintext through the same locked, atomic, metadata-preserving replacement that sealing uses, rather than a plain write.
 
 # What is missing
 
-Everything in the Approach. Stated plainly: **the application currently has no way to add a repo**, so a fresh install can unlock and lock and nothing else.
+Nothing on this plan. The interface that drives these flows is `ui/`.
 
 # Steps
 
 - [x] Research what can actually be detected about a file being open elsewhere. Settled: descriptor checks do not work for the case that matters, and the check becomes a recency warning with detection-after-the-fact as the real safety net.
-- [ ] Add the acknowledgement record to the registry state, forward-compatibly.
-- [ ] Implement import: scan, candidates, confirm a selection, merge into the registry.
-- [ ] Implement removal from management, in both the unseal-in-place and leave-sealed forms.
-- [ ] Implement the recency warning and the acknowledgement gate on sealing.
-- [ ] Tests: a fresh registry gains a repo through import; importing twice merges rather than duplicates; a removed file is released with its plaintext restored deliberately; sealing refuses until acknowledged; a recently-modified file warns; and each guard confirmed non-vacuous.
+- [x] Add the acknowledgement record to the registry state, forward-compatibly.
+- [x] Implement import: scan, candidates, confirm a selection, merge into the registry.
+- [x] Implement removal from management, in both the unseal-in-place and leave-sealed forms.
+- [x] Implement the recency warning and the acknowledgement gate on sealing.
+- [x] Tests: a fresh registry gains a repo through import; importing twice merges rather than duplicates; a removed file is released with its plaintext restored deliberately; sealing refuses until acknowledged; a recently-modified file warns; and each guard confirmed non-vacuous.
 
 # Open threads
 

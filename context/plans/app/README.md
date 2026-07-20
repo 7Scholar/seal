@@ -68,9 +68,11 @@ Several defects were caught before they could ship, each recorded in the engine'
 
 `desktop/` is most of the way through its Rust side: the session with its dual-clock fail-closed expiry, the Tauri shell with the wipe on exit and a webview that persists nothing, and the per-file command surface whose shape enforces what may cross the boundary — masked structure on open, one value per explicit reveal, edits rather than files on save, and an error type the compiler forbids from carrying secret material. The application builds and links, verified from a clean clone.
 
-An audit of the code against this intent then found the honest gap: **the per-file surface was built while the surface that gets files into management was not**, so a fresh install can currently unlock and lock and nothing else. Import, removal from management, the pre-seal check for a file open elsewhere, and the irreversibility acknowledgements this Approach requires before a first seal are now carved as `desktop/lifecycle.md`. The same audit caught and fixed two real defects — a managed non-env file was being parsed and re-rendered as an env file, measured corrupting a Terraform `.tfvars` on save, and a per-repo password override never reached any file inside the repo.
+An audit of the code against this intent found that the per-file surface had been built while the surface that gets files *into* management had not, so a fresh install could unlock and lock and nothing else. That is now closed: `desktop/lifecycle.md` implements import, removal from management, and the two gates on sealing. The same audit caught and fixed two real defects — a managed non-env file was being parsed and re-rendered as an env file, measured corrupting a Terraform `.tfvars` on save, and a per-repo password override never reached any file inside the repo.
 
-`desktop/` and `publishing/` remain. What is left of the desktop is the lifecycle surface and the interface; the seams beneath them are all in place and tested.
+Research for that plan also corrected this Approach: the requirement to "notice when a file is open in an editor" cannot be met by checking descriptors, since editors hold none on files open in tabs. Sealing now warns on recency and states its own limit, with reconciliation as the real safety net.
+
+What remains of `desktop/` is the interface. `publishing/` has not started.
 
 # Open threads
 

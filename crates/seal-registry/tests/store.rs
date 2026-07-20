@@ -258,3 +258,25 @@ fn a_contended_update_succeeds_when_allowed_to_retry() {
         "the retry must re-read the other writer's change and add to it rather than replace it"
     );
 }
+
+#[test]
+fn a_registry_written_before_the_acknowledgement_existed_still_loads() {
+    let dir = tempfile::tempdir().unwrap();
+    let store = Store::new(dir.path().to_path_buf());
+
+    std::fs::write(
+        store.path(),
+        r#"{"version":1,"revision":3,"repos":[{"root":"/repos/app","files":[]}]}"#,
+    )
+    .unwrap();
+
+    let loaded = store.load().unwrap();
+
+    assert_eq!(loaded.revision, 3);
+    assert_eq!(loaded.repos.len(), 1);
+    assert!(
+        !loaded.acknowledged_irreversibility,
+        "a registry predating the acknowledgement must default to not acknowledged, \
+         so an existing user is asked once rather than silently treated as having agreed"
+    );
+}

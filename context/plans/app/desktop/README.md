@@ -65,7 +65,7 @@ Two flows carry more weight than their screens suggest, and their behaviour is f
 - [x] shell.md -> the Tauri shell: session state, secret lifetimes and clearing, lifecycle hooks, window and webview hardening
 - [x] commands.md -> the IPC surface: the command set, what may cross the boundary, and how blocking work is dispatched
 - [x] dotenv.md -> lossless env-file parsing and rendering, so saving preserves comments, order and formatting
-- [ ] lifecycle.md -> import, removal from management, the pre-seal open-file check, and the irreversibility acknowledgements
+- [x] lifecycle.md -> import, removal from management, the pre-seal open-file check, and the irreversibility acknowledgements
 - [ ] ui/ -> the interface: the cross-repo view, the import flow, the environment-variables editor, and the two flows that must insist
 
 # Cursor
@@ -82,7 +82,9 @@ An audit against the root intent found that the per-file surface was built while
 
 The same audit caught two defects that are now fixed: a managed non-env file was parsed and re-rendered as an env file — measured corrupting a Terraform `.tfvars` on save — and a per-repo password override never reached any file inside the repo.
 
-Nothing is blocked. Next: `lifecycle.md`, whose first step is research rather than building, since what can honestly be detected about a file being open elsewhere bounds what that check may promise. `ui/` follows, and the supervised password change is deferred into it.
+`lifecycle.md` is now complete, and with it the gap the audit found: a folder can be imported, a file can be released from management, and sealing is gated on acknowledging the two consequences that cannot be undone. Its research changed the design — the "notice a file is open in an editor" requirement cannot be met by checking descriptors, because editors hold none on files open in tabs, so it became a recency warning that states its own limit with reconciliation as the real safety net.
+
+Nothing is blocked. Next: `ui/`, the last desktop child, which now has every command it needs. The supervised password change is deferred into it, since its behaviour is mostly the flow around it.
 
 # Open threads
 

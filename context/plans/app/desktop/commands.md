@@ -46,7 +46,7 @@ Guards confirmed non-vacuous by breaking them: returning real values in place of
 
 # What is missing
 
-The per-file surface is complete. What this plan does **not** provide, and must not be read as providing, is any way to get a file into management in the first place, or the safety gates the root intent attaches to sealing — those are `lifecycle.md`, and until they exist the commands here operate on a registry nothing can populate.
+The per-file surface is complete. Getting a file into management, and the gates on sealing, are `lifecycle.md` — now complete too, so the registry these commands read can be populated.
 
 The supervised master-password change is deferred into `ui/`, since its behaviour is mostly the flow around it; the engine already implements the hard part.
 

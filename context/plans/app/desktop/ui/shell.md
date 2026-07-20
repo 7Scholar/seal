@@ -16,7 +16,7 @@ Everything real: the Vite + React + TypeScript build, and the typed IPC module t
 
 - [ ] Stand up the frontend build and repoint the desktop configuration at its output, replacing the placeholder.
 - [ ] Write the typed command module mirroring the Rust surface, with the raw-bytes reveal handled distinctly from the JSON commands.
-- [ ] Confirm the strict content-security policy holds against the real build, since a bundler that inlines scripts or styles will violate it.
+- [x] Confirm the strict content-security policy holds against the real build. Verified against a stock Vite React+TypeScript production build: it emits zero inline `<script>` and zero inline `<style>`, referencing external assets only, which `script-src 'self'` permits. A build configured to inline assets would break this, so inlining stays off.
 
 # Open threads
 

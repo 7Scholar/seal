@@ -10,11 +10,15 @@ TBD. The behavioural constraints are already fixed by the [desktop Approach](../
 
 # Plans
 
-No child plans yet.
+- [~] shell.md -> the frontend's own shell: the page the webview loads, the build that produces it, and the typed command module
 
 # Cursor
 
-Freshly framed. Deliberately last: it depends on the shell, the commands, and the env parser existing, and its design benefits from being able to run the thing. Next once those land: sketch the cross-repo view and the import flow, then the editor.
+Framed, and now unblocked: the shell, the command surface and the env parser are all complete, so there is a running application and a typed boundary to build against.
+
+A placeholder page currently stands in for the frontend, purely so a fresh clone compiles — `generate_context!` fails at build time when the configured frontend directory is missing. Replacing it with the real build output, and repointing the configuration at it, is the first step here.
+
+Next: sketch the cross-repo view and the import flow, then the editor. Two commands are deliberately deferred into this plan — importing a repo and the supervised password change — because both are shaped by the flow around them rather than by the boundary.
 
 # Open threads
 

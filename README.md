@@ -24,7 +24,13 @@ Before anything is sealed for the first time the application asks you to acknowl
 
 ### Resolving a secret in a script
 
-Once the command-line tool is installed, a deploy script asks for a file's contents at the moment of use:
+The command-line tool ships inside the application bundle. On macOS, put it on your path with:
+
+```bash
+sudo ln -s /Applications/Seal.app/Contents/MacOS/seal /usr/local/bin/seal
+```
+
+A deploy script then asks for a file's contents at the moment of use:
 
 ```bash
 value=$(seal resolve .env.production)

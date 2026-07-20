@@ -24,3 +24,6 @@ node_modules
 
 # Tauri generated schemas
 src-tauri/gen
+
+# Sidecar binaries, produced by scripts/build-sidecar.sh
+src-tauri/binaries

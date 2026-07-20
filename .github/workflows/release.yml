@@ -1,0 +1,68 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bundle:
+    name: Bundle for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the pinned toolchain
+        run: rustup show
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install the desktop system libraries
+        if: runner.os == 'Linux'
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            patchelf
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Install exactly what the lockfile pins
+        run: npm ci
+
+      - name: Build the command-line tool into the bundle
+        run: ./scripts/build-sidecar.sh
+
+      - name: Bundle
+        run: npx --yes @tauri-apps/cli@2 build
+
+      - name: Checksum every artefact
+        run: |
+          set -euo pipefail
+          mkdir -p artefacts
+          find target/release/bundle -type f \
+            \( -name '*.dmg' -o -name '*.deb' -o -name '*.AppImage' -o -name '*.rpm' \) \
+            -exec cp {} artefacts/ \;
+          cd artefacts
+          shasum -a 256 * > SHA256SUMS
+          cat SHA256SUMS
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: seal-${{ matrix.os }}
+          path: artefacts/

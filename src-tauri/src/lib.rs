@@ -1,6 +1,7 @@
 pub mod app;
 pub mod commands;
 pub mod error;
+pub mod lifecycle;
 pub mod view;
 
 use std::time::Duration;
@@ -40,6 +41,12 @@ pub fn run() {
             commands::seal_file,
             commands::close_file,
             commands::open_paths,
+            commands::scan_folder,
+            commands::import,
+            commands::release,
+            commands::seal_warning,
+            commands::has_acknowledged,
+            commands::acknowledge,
         ])
         .setup(move |app| {
             app.manage(Held::new(store, state));

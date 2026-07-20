@@ -51,6 +51,7 @@ fn fixture() -> Fixture {
             }],
             unknown: Default::default(),
         }],
+        acknowledged_irreversibility: true,
         ..Default::default()
     };
 
@@ -454,6 +455,7 @@ fn managed_non_env(name: &str, content: &[u8]) -> Fixture {
             }],
             unknown: Default::default(),
         }],
+        acknowledged_irreversibility: true,
         ..Default::default()
     };
 

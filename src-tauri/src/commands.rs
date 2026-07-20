@@ -9,6 +9,7 @@ use tauri::State as Managed;
 
 use crate::app;
 use crate::error::{CommandError, Kind};
+use crate::lifecycle::{self, ScanView};
 use crate::view::{OpenedFile, RepoView};
 
 pub const RETRY_ATTEMPTS: u8 = 5;
@@ -52,10 +53,11 @@ impl Held {
             .map_err(|_| CommandError::new(Kind::Registry))
     }
 
-    fn persist(&self, state: &State) -> Result<(), CommandError> {
+    pub fn persist(&self, state: &State) -> Result<(), CommandError> {
         let replacement = state.clone();
         self.store.update(RETRY_ATTEMPTS, |on_disk| {
             on_disk.repos = replacement.repos.clone();
+            on_disk.acknowledged_irreversibility |= replacement.acknowledged_irreversibility;
         })?;
         Ok(())
     }
@@ -134,4 +136,58 @@ pub async fn close_file(held: Managed<'_, Held>, path: PathBuf) -> Result<(), Co
 pub async fn open_paths(held: Managed<'_, Held>) -> Result<Vec<PathBuf>, CommandError> {
     let mut session = held.session()?;
     Ok(session.open_paths())
+}
+
+#[tauri::command]
+pub async fn scan_folder(held: Managed<'_, Held>, root: PathBuf) -> Result<ScanView, CommandError> {
+    let registry = held.registry()?;
+    lifecycle::scan_folder(&root, &registry)
+}
+
+#[tauri::command]
+pub async fn import(
+    held: Managed<'_, Held>,
+    root: PathBuf,
+    selected: Vec<PathBuf>,
+) -> Result<usize, CommandError> {
+    let mut registry = held.registry()?;
+    let added = lifecycle::import(&mut registry, &root, &selected)?;
+    held.persist(&registry)?;
+    Ok(added)
+}
+
+#[tauri::command]
+pub async fn release(
+    held: Managed<'_, Held>,
+    path: PathBuf,
+    how: lifecycle::Release,
+) -> Result<(), CommandError> {
+    let mut session = held.session()?;
+    let passphrase = session.passphrase_for(&path)?;
+    let mut registry = held.registry()?;
+    lifecycle::release(&mut registry, &path, how, &passphrase)?;
+    session.close(&path)?;
+    held.persist(&registry)
+}
+
+#[tauri::command]
+pub async fn seal_warning(
+    held: Managed<'_, Held>,
+    path: PathBuf,
+) -> Result<Option<lifecycle::SealWarning>, CommandError> {
+    let _registry = held.registry()?;
+    Ok(lifecycle::seal_warning(&path))
+}
+
+#[tauri::command]
+pub async fn has_acknowledged(held: Managed<'_, Held>) -> Result<bool, CommandError> {
+    let registry = held.registry()?;
+    Ok(registry.acknowledged_irreversibility)
+}
+
+#[tauri::command]
+pub async fn acknowledge(held: Managed<'_, Held>) -> Result<(), CommandError> {
+    let mut registry = held.registry()?;
+    lifecycle::acknowledge(&mut registry);
+    held.persist(&registry)
 }

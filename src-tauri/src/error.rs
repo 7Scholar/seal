@@ -17,6 +17,7 @@ pub enum Kind {
     SymlinkTarget,
     UnknownKey,
     NotAnEnvFile,
+    NotAcknowledged,
     Io,
     Registry,
 }

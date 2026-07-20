@@ -68,6 +68,8 @@ pub struct State {
     pub revision: u64,
     #[serde(default)]
     pub repos: Vec<Repo>,
+    #[serde(default)]
+    pub acknowledged_irreversibility: bool,
     #[serde(flatten, default, skip_serializing_if = "BTreeMap::is_empty")]
     pub unknown: BTreeMap<String, serde_json::Value>,
 }
@@ -78,6 +80,7 @@ impl Default for State {
             version: CURRENT_VERSION,
             revision: 0,
             repos: Vec::new(),
+            acknowledged_irreversibility: false,
             unknown: BTreeMap::new(),
         }
     }

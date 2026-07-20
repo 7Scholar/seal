@@ -49,6 +49,7 @@ pub fn seal_file(
     state: &mut State,
 ) -> Result<(), CommandError> {
     require_managed(state, path)?;
+    crate::lifecycle::require_acknowledgement(state)?;
     let passphrase = session.passphrase_for(path)?;
 
     match operations::classify(path)? {
@@ -105,6 +106,7 @@ pub fn save(
     state: &mut State,
 ) -> Result<(), CommandError> {
     require_managed(state, path)?;
+    crate::lifecycle::require_acknowledgement(state)?;
     if !view::is_editable(path) {
         return Err(CommandError::at(Kind::NotAnEnvFile, path));
     }

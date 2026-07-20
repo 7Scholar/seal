@@ -149,6 +149,24 @@ pub fn reseal_from_memory(
     Ok(SealOutcome { identity })
 }
 
+pub fn release_to_plaintext(
+    path: &Path,
+    candidates: &[SecretString],
+) -> Result<Identity, OperationError> {
+    let _lock = FileLock::acquire(path).map_err(OperationError::from_lock)?;
+
+    let mut plaintext = Vec::new();
+    {
+        let sealed = open(path)?;
+        format::unseal(sealed, &mut plaintext, candidates)
+            .map_err(|err| OperationError::from_format(path, err))?;
+    }
+
+    Replacement::new(&RealFileSystem::new(), Durability::Full)
+        .run(path, |sink| sink.write_all(&plaintext))
+        .map_err(OperationError::from_replace)
+}
+
 pub fn verify(path: &Path, candidates: &[SecretString]) -> Result<usize, OperationError> {
     let outcome = unseal_to(path, io::sink(), candidates)?;
     Ok(outcome.candidate)

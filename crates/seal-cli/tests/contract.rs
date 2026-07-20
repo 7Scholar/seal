@@ -300,6 +300,16 @@ expect eof
         .expect("expect must run");
 
     let terminal = String::from_utf8_lossy(&output.stdout);
+    let diagnostics = String::from_utf8_lossy(&output.stderr);
+
+    if terminal.contains("no more ptys") || diagnostics.contains("no more ptys") {
+        if std::env::var_os("SEAL_REQUIRE_TERMINAL").is_some() {
+            panic!("a terminal was required but no pty could be allocated: {terminal:?}");
+        }
+        eprintln!("skipped: the environment allocates no pseudo-terminals");
+        return;
+    }
+
     assert!(
         terminal.contains("Password for"),
         "the prompt must appear on the terminal; saw {terminal:?}"

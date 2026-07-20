@@ -1420,6 +1420,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "seal-session"
+version = "0.1.0"
+dependencies = [
+ "age",
+ "thiserror 2.0.19",
+ "zeroize",
+]
+
+[[package]]
 name = "sec1"
 version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"

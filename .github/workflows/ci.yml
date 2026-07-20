@@ -33,6 +33,8 @@ jobs:
         run: cargo clippy --all-targets --all-features -- -D warnings
 
       - name: Tests
+        env:
+          SEAL_REQUIRE_TERMINAL: "1"
         run: cargo test --all-features
 
   interoperability:

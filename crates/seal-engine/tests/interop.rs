@@ -17,24 +17,53 @@ fn stock_age_available() -> bool {
         .unwrap_or(false)
 }
 
+fn terminals_available() -> bool {
+    let probe = Command::new("sh")
+        .arg("-c")
+        .arg("script -q /dev/null true")
+        .output();
+
+    match probe {
+        Ok(out) => !String::from_utf8_lossy(&out.stderr).contains("openpty"),
+        Err(_) => false,
+    }
+}
+
 fn skip_unless_available() -> bool {
-    if stock_age_available() {
-        return false;
+    let required = std::env::var_os("SEAL_REQUIRE_INTEROP").is_some();
+
+    if !stock_age_available() {
+        assert!(
+            !required,
+            "the stock `age` binary is missing while SEAL_REQUIRE_INTEROP is set. \
+             Continuous integration sets that variable so a broken install step fails loudly \
+             instead of skipping these tests and reporting a green run that verified nothing."
+        );
+
+        eprintln!(
+            "skipped: the stock `age` binary is not installed. \
+             These tests prove interoperability with the reference implementation; \
+             install age (for example `brew install age`) to run them."
+        );
+        return true;
     }
 
-    assert!(
-        std::env::var_os("SEAL_REQUIRE_INTEROP").is_none(),
-        "the stock `age` binary is missing while SEAL_REQUIRE_INTEROP is set. \
-         Continuous integration sets that variable so a broken install step fails loudly \
-         instead of skipping these tests and reporting a green run that verified nothing."
-    );
+    if !terminals_available() {
+        assert!(
+            !required,
+            "no pseudo-terminal could be allocated while SEAL_REQUIRE_INTEROP is set. \
+             These tests must drive the stock binary through a terminal, so a run that \
+             cannot allocate one verifies nothing and must not report success."
+        );
 
-    eprintln!(
-        "skipped: the stock `age` binary is not installed. \
-         These tests prove interoperability with the reference implementation; \
-         install age (for example `brew install age`) to run them."
-    );
-    true
+        eprintln!(
+            "skipped: this environment allocates no pseudo-terminals, which these tests \
+             need in order to drive the stock binary's passphrase prompt."
+        );
+        return true;
+    }
+
+    false
 }
 
 fn drive_with_terminal(input: &str, args: &[&str]) -> std::process::Output {

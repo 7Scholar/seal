@@ -64,14 +64,16 @@ Two flows carry more weight than their screens suggest, and their behaviour is f
 
 - [ ] shell.md -> the Tauri shell: session state, secret lifetimes and clearing, lifecycle hooks, window and webview hardening
 - [ ] commands.md -> the IPC surface: the command set, what may cross the boundary, and how blocking work is dispatched
-- [ ] dotenv.md -> lossless env-file parsing and rendering, so saving preserves comments, order and formatting
+- [x] dotenv.md -> lossless env-file parsing and rendering, so saving preserves comments, order and formatting
 - [ ] ui/ -> the interface: the cross-repo view, the import flow, the environment-variables editor, and the two flows that must insist
 
 # Cursor
 
 Solutioned, and decomposed into four children. The design is grounded in research and in one measurement that changed it: the monotonic clock underlying ordinary timers stops during system sleep — verified here as losing 7.26 hours overnight — so secret expiry is a wall-clock deadline checked on access rather than a timer.
 
-Nothing is blocked. Next: `dotenv.md`, which is self-contained, has no Tauri dependency, and is needed before the editor can be built; then `shell.md`, which everything else sits on.
+`dotenv.md` is complete: an untouched file round-trips byte-for-byte and an edit changes exactly one line, verified against a lossy renderer that fails seven of its fourteen tests.
+
+Nothing is blocked. Next: `shell.md`, which everything else sits on — the managed state, the two-clock expiry, the explicit wipe on exit, and the hardened window.
 
 # Open threads
 

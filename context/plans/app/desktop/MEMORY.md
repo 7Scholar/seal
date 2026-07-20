@@ -1,1 +1,9 @@
 # Memory
+
+## 2026-07-20 — Secret expiry never relies on a timer, and uses two clocks
+
+A held secret expires by comparing deadlines when it is accessed, against **both** a wall-clock and a monotonic deadline, expiring if either has passed or if reading elapsed time fails at all. **Why:** the monotonic clock underlying ordinary timers **stops while the machine sleeps** — the platform documents this, and it was measured here as losing 7.26 hours across one night on the development machine. A timer would therefore keep plaintext alive through a closed lid and wake believing a minute had passed, which is precisely the situation a fifteen-minute expiry exists to prevent. The wall clock covers that, but it can be moved backwards by a clock correction or deliberately, so the monotonic deadline covers the wall clock in turn. **Mistake it prevents:** replacing the two-clock check with a single sleeping timer or a single clock, both of which look simpler, test fine on a machine that never sleeps, and fail open in the field — the worst possible direction for a security timeout.
+
+## 2026-07-20 — Wiping secrets happens on the exit request, never on a window closing
+
+The explicit wipe of session and file secrets hangs off the application-level exit request, not off a window-close event, and is never left to values being dropped. **Why:** the normal quit path terminates the process without running destructors, so scope-based wiping silently never runs on the ordinary path; and the platform's quit shortcut can bypass window-close events entirely, so a wipe attached there does nothing for the most common way a user quits. **Mistake it prevents:** moving cleanup to a window event because that is where a window-shaped application seems to want it, or trusting a wipe-on-drop that never fires. Note that a force-quit runs nothing at all, which is why the expiry above must be short rather than merely present.

@@ -6,26 +6,75 @@ The desktop application is Seal's face and the reason it is an application at al
 
 ## Approach
 
-TBD, except for one part of it that is decided and constrains the rest.
+The application is the one place where secret material lives in memory for longer than a single operation, so its design is organised around that fact rather than around its screens. Everything below follows from where secrets are, how long they stay, and what crosses the boundary into the webview.
 
-**Unsealing in the user interface never writes plaintext to disk.** Viewing or editing a sealed file loads its plaintext into memory only; the file on disk stays sealed throughout. Plaintext held this way is discarded when the user seals it again, when the application quits, and automatically after fifteen minutes without further action — whichever comes first. Saving an edit re-seals from memory. There is no state in which a managed file sits decrypted at its path, and no user action that produces one, so the failure where somebody unseals a file to check a value and leaves production credentials in a repository cannot occur.
+### The session, and where secrets live
 
-Two consequences for the rest of the design. The fifteen-minute expiry is a property of the held plaintext rather than of the session as a whole, so it applies per file and a file whose time runs out while the application is still unlocked is cleared on its own. And because the application quitting is one of the clearing conditions, quitting must remain safe at any moment: unsaved edits are lost by design rather than flushed to disk, which is the correct trade for this product and must be made obvious in the interface rather than discovered.
+Passwords and decrypted plaintext live only in the Rust process, in state the application manages. Nothing secret is written to disk, and nothing secret is held by the frontend beyond what the user is actively looking at.
 
-**Changing the master password is a supervised operation, and an unfinished one is never left to sit.** The engine makes the work safe to interrupt and safe to repeat — every file is wholly under one password or the other, and progress is derived from the files themselves rather than from bookkeeping — but "safe to resume" is not the same as "fine to leave," and the interface must not imply it is. So the application does the work of getting to completion rather than reporting a count and handing the problem back.
+Two kinds of secret material are held, with different lifetimes. The **session** holds the master password and any per-repo overrides, from unlock until the session ends. An **open file** holds its decrypted plaintext, from the moment the user opens it until it expires, is sealed, or the application quits.
 
-Before starting, the interface asks — as a question needing an answer, not a warning to dismiss — whether the user has a backup, and states plainly that both the old and new passwords must be remembered until the operation finishes and that a forgotten old password cannot be rescued by it. During the run it shows real progress and does not present interruption as harmless. Files that fail transiently are retried by the engine without the user ever seeing them.
+**Every held secret carries a deadline, and expiry is decided by checking that deadline on access rather than by a timer firing.** This is not a stylistic choice. The monotonic clock that ordinary timers are built on **stops while the machine sleeps** — the platform's own documentation says so, and it was measured here as losing more than seven hours across a single night. A timer-based expiry would therefore hold plaintext through a closed lid and wake believing a minute had passed, failing in exactly the situation the fifteen-minute expiry exists for.
 
-What the user does see is the case that survives retries: a prominent, persistent banner naming the files still on the previous password, the reason each is stuck, and a single control that retries them. The banner stays until the operation is genuinely complete — it is not dismissible into oblivion, because a split left unattended is precisely the state that turns a recoverable situation into a confusing one months later when only one password is still remembered. Where the reason is actionable (a file open in an editor, a permission problem), the interface says so specifically rather than reporting a generic failure, since the user resolving it and clicking retry is the intended path.
+Each held secret carries **both** a wall-clock deadline and a monotonic one, and expires when **either** says it should. Neither alone is sufficient: the monotonic clock misses time spent asleep, and the wall clock can be moved backwards by a clock correction or by someone hoping to extend a secret's life. A check that fails closed on both cannot be defeated by either. Any error reading elapsed time is treated as expiry rather than as time remaining.
+
+Expiry is checked on the read path, so a secret is never handed out after its deadline regardless of whether any timer ran. A timer that never fires is a fail-open design; a deadline compared at the moment of access is fail-closed, which is the only acceptable posture for a security timeout.
+
+A coarse background sweep runs alongside, purely so the interface does not display a file as open after it has expired. It is never the mechanism correctness depends on; it only keeps the display honest.
+
+### Clearing, and what cannot be promised
+
+Secrets are wiped explicitly when the session ends, when a file is sealed or expires, and when the application exits. The exit case needs its own handling: **the normal quit path terminates the process without running destructors**, so a design that relies on values being wiped when they go out of scope would silently never wipe anything on the ordinary path. The wipe is therefore an explicit step in the exit handler, with scope-based wiping kept only as a backstop for the cases where it genuinely runs.
+
+The wipe hangs off the application-level exit request rather than a window closing, because the platform's quit shortcut can bypass window-close events entirely — cleaning up on a window event would silently do nothing for the most common way a user quits.
+
+What cannot be promised is stated rather than engineered around: a force-quit or a power loss runs nothing, so secrets remain in memory until the operating system reclaims those pages. This is the honest bound of any application of this kind, and it is the strongest argument for the expiry being short.
+
+### The boundary into the interface
+
+**Anything sent to the frontend has left Seal's control permanently.** Text in the webview cannot be reliably erased, so the design minimises what crosses rather than pretending it can be cleaned up afterwards.
+
+Concretely: the full plaintext of a file stays in Rust. The editor receives the *structure* of an env file — the variable names, and each value masked — and receives an actual value only when the user explicitly reveals that one row. Saving sends back the edits, and the file is re-sealed from the plaintext held in Rust, so the whole secret never makes the round trip. This is the pattern password managers converge on, and it is chosen for the same reason: it is the only part of the exposure that can actually be reduced.
+
+The hosted platforms this editor takes its shape from went further and made their most sensitive values **permanently unreadable once written** — no reveal at any price. That is the right answer for a service that stores a secret on your behalf, and the wrong one here: Seal is the editor of a file the user owns, and a value that cannot be read back cannot be corrected, only overwritten blind. Reveal-per-row is therefore a deliberate divergence, not an oversight, and the exposure it opens is bounded by revealing one value at a time rather than a file at a time.
+
+The window is configured so the webview persists nothing at all: its data store is memory-only, so no local storage, database, or cache written by the interface can reach the disk even by accident. A strict content-security policy bounds where the interface may send anything, and fields carrying secrets opt out of spellchecking and autofill. Developer tooling stays compiled out of release builds, which the platform then enforces by refusing inspection of a shipped application.
+
+Values that must cross the boundary are sent as raw bytes rather than as text, which keeps them out of the serialisation path and leaves them in memory the interface can actually overwrite. Detailed request and response tracing is never enabled in a release build, since that machinery records entire response bodies — which for this application means the secrets themselves.
+
+### Editing an env file without destroying it
+
+A managed env file belongs to the user's repository and is very often commented, ordered deliberately, and formatted by hand. **Saving an edit must return a file that differs only where the user changed something.** Every available parsing library parses to values and discards the rest, so round-tripping through one would silently strip every comment the first time a user saved — a data-loss bug in a tool whose whole job is guarding that file.
+
+The file is therefore modelled as a sequence of lines, each retaining its original text. Saving re-renders only the lines whose variable actually changed and emits every other line byte-for-byte as it was read, which makes an untouched round trip exact by construction rather than by care. Lines that cannot be parsed are preserved verbatim rather than dropped, since silently deleting what it does not understand is the worst thing an editor of somebody else's file can do. Duplicate keys are kept as distinct lines rather than collapsed, because implementations genuinely disagree on whether the first or last wins, and the honest response to that ambiguity is to show the user both rather than pick silently. Newline style and whether the file ends with one are preserved too, so saving does not produce a whole-file difference for a colleague on another platform.
+
+### Talking to the engine without freezing
+
+Every command that reaches the engine runs asynchronously and moves the blocking work off the interface thread, because a key derivation takes hundreds of milliseconds and would otherwise visibly hang the window on every unlock. Shared state uses a plain mutex whose guard never crosses an await point, which the compiler enforces rather than leaving to review.
+
+### What the interface must insist on
+
+Two flows carry more weight than their screens suggest, and their behaviour is fixed here rather than left to interface design.
+
+**A file found unsealed that Seal recorded as sealed is an alert, not a status.** The registry detects it; the application must surface it prominently and keep surfacing it, because it means a secret is sitting in the clear in a repository — most likely because an editor had the file open when it was sealed and later saved over it.
+
+**Changing the master password is supervised and never left half-done.** Before starting, the interface asks — as a question needing an answer, not a warning to dismiss — whether the user has a backup, and states plainly that both passwords must be remembered until it finishes and that a forgotten old password cannot be rescued by it. During the run it shows real progress. Files that fail transiently are retried by the engine without the user seeing them; what survives retries appears as a persistent banner naming each stuck file, the reason, and a control that retries it. The banner is not dismissible, because a half-converted set left unattended is what turns a recoverable situation into a confusing one months later when only one password is still remembered.
 
 # Plans
 
-No child plans yet.
+- [ ] shell.md -> the Tauri shell: session state, secret lifetimes and clearing, lifecycle hooks, window and webview hardening
+- [ ] commands.md -> the IPC surface: the command set, what may cross the boundary, and how blocking work is dispatched
+- [ ] dotenv.md -> lossless env-file parsing and rendering, so saving preserves comments, order and formatting
+- [ ] ui/ -> the interface: the cross-repo view, the import flow, the environment-variables editor, and the two flows that must insist
 
 # Cursor
 
-Freshly framed from the root's answered design forks; nothing designed yet. Blocked in practice on the engine and registry contracts taking shape first — its own design (IPC surface, view structure, env-editor UX) starts once those seams exist on paper.
+Solutioned, and decomposed into four children. The design is grounded in research and in one measurement that changed it: the monotonic clock underlying ordinary timers stops during system sleep — verified here as losing 7.26 hours overnight — so secret expiry is a wall-clock deadline checked on access rather than a timer.
+
+Nothing is blocked. Next: `dotenv.md`, which is self-contained, has no Tauri dependency, and is needed before the editor can be built; then `shell.md`, which everything else sits on.
 
 # Open threads
 
-No open threads yet.
+- Whether to treat system sleep and screen lock as immediate session-lock triggers. The platform exposes the notifications but the framework does not wrap them, so it is custom platform glue; it would strengthen the model but is an addition to the wall-clock check rather than a replacement, since a force-quit bypasses it either way.
+- Whether to lock the master password's memory pages against being written to swap. It is a small, bounded amount of material, and the platform encrypts swap by default, so this is a defence-in-depth question to settle with measurement rather than assumption.
+- The webview's non-persistent mode needs verifying on this platform specifically rather than trusted from documentation, since support differs by platform.

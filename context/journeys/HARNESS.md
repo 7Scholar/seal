@@ -4,6 +4,12 @@ Operated per [the journeys manual](../../docs/plans/JOURNEYS.md).
 
 Journeys are satisfied by driving the real application. This document states how, and it is the first thing to build — every journey is blocked on it, and without it the whole axis degrades into documents nobody runs.
 
+# Where this gets built
+
+This document is the **specification**, not the home. The harness is code, so it is framed in the implementation tree through intake ([INTAKE.md](../../docs/plans/INTAKE.md)) and built there under a plan that holds its coverage — `context/journeys/` carries no code and no coverage.
+
+Its technology is an **open design fork, and an unanswered one**: which driver, which client, which runner, and how it hooks into continuous integration. Choosing that silently would be exactly the kind of quiet answer intake forbids. Frame the plan, raise the fork as a blocking question, and wait — see [QUESTIONS.md](QUESTIONS.md) in this folder for the questions this axis has already surfaced.
+
 # What it must do
 
 Launch the **actual built application** — the same binary a user would install, not a component in a test environment — and drive it the way a person does: find controls by what they are called on screen, click them, type into them, and assert what appears.

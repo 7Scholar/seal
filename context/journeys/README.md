@@ -8,6 +8,10 @@ This folder is **not** part of the implementation tree. It carries no coverage, 
 
 **The product is production-ready when every journey below is satisfied** — driven end to end in the real application, with no open findings, against a build anyone could install. Every plan being `[x]` is a prerequisite for that, never a substitute. A journey being broken makes the product not done, whatever the plan tree says.
 
+## Blocked on answers
+
+[QUESTIONS.md](QUESTIONS.md) holds two design forks this axis surfaced that it cannot settle itself: what a first run should actually be, and what drives the harness. Both block the work below. Do not answer them by building.
+
 ## Before any journey can be satisfied
 
 [HARNESS.md](HARNESS.md) — the harness that drives the real application. Every journey is blocked on it, and it is the first thing to build.

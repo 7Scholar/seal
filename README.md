@@ -6,7 +6,9 @@ This exists to make two things coexist that otherwise cannot: giving tools and a
 
 ## Status
 
-Under active development. Everything is built and tested — the cryptographic engine, the cross-repo registry, the command-line resolver, and the desktop application.
+Under active development, and **the desktop application is not yet usable**. The engine, registry and command-line tool are built, tested and working; the application builds and its parts are individually tested, but the experience of actually using it is unfinished — a first-time user cannot currently get past the opening screen. That work is tracked as [journeys](context/journeys/README.md), and the application is not considered done until each one has been driven end to end in a real build.
+
+The command-line tool is usable today.
 
 Seal is **not code-signed**, which shapes how it is installed. macOS does not merely warn about unsigned software; it refuses to run it, behind a dialog that reads as a malware accusation and offers no override. So:
 

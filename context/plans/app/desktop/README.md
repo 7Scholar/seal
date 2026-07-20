@@ -86,7 +86,7 @@ The same audit caught two defects that are now fixed: a managed non-env file was
 
 `ui/` is complete: the frontend, every screen, and the supervised password change, designed from a survey of the products this interface will be judged against rather than invented. Seventy-six interface tests alongside the Rust suite, with each load-bearing rule confirmed by reintroducing the exact defect it prevents — including two that comparable products actually shipped.
 
-The desktop application is done. What remains for the project is `publishing/`.
+Every child here is complete **as code**, and the application is nonetheless not usable — a first-time user cannot get past the opening screen. Those defects live between these plans rather than inside any of them, which is the blind spot [the journeys axis](../../../journeys/README.md) exists to close. The desktop application is not done until its journeys are satisfied, whatever the markers below say.
 
 # Open threads
 

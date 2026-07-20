@@ -58,7 +58,7 @@ The frontend and every screen are built, on a design taken from [the research](_
 
 `password-change.md` is complete too, on a manifest that outlives the process: removing that durability fails eight of its ten Rust tests, which is the measure of how much the guarantee was carrying.
 
-The interface is done. What remains for the application as a whole is `publishing/`.
+Every child here is complete as code. The interface is **not** done in the sense that matters: driving the built application showed a first-time user cannot get past the opening screen, and the route into the product's core loop does nothing. See [the journeys axis](../../../../journeys/README.md), which governs whether this is finished.
 
 # Open threads
 

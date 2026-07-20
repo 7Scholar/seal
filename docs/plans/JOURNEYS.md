@@ -50,12 +50,22 @@ So a journey is satisfied only by **driving the real application**:
 
 **Automated demonstration is the default and manual is the exception**, because a manual demonstration proves the past, not the present.
 
+## The harness is code, and code is folded as code
+
+A journey owns no code — but the **harness that drives it does**, and that harness is ordinary application code subject to the ordinary rules. It is framed in the implementation tree through intake, carries coverage, and rides the close-out protocol like anything else.
+
+So "build the harness" does not mean build it here. It means **frame it as a plan first**, under the concern whose surface it drives, and build it there. `context/journeys/` states what the harness must do; the plan states how it is built and holds its coverage.
+
+The same is true of every finding. A journey never grows code, a plan never states user experience, and the two meet at intake.
+
 ## Working a journey
 
 1. **Read it whole first.** A journey is judged as a continuous experience; reading one step at a time reproduces exactly the blind spot the axis exists to close.
 2. **Drive it in the real application before changing anything.** Build it, launch it, and walk the path as the user. Write down what actually happened, including what was confusing rather than only what was broken — the bar is "feels like a finished product," not "does not crash."
 3. **Route every finding into the implementation tree** through intake ([INTAKE.md](INTAKE.md)). A finding that is a missing capability becomes a framed plan; a finding that is a defect goes to the plan that owns the code. **The journey never fixes code itself** — it is the standard, not the workshop.
 4. **A finding that reveals a missing concern is the most valuable output of this axis**, and it is expected rather than exceptional. When a journey shows the product has no notion of something a user obviously needs, that is the axis doing its job: raise it as a new plan, not as a bug.
+
+    Such a finding is usually **large**, and intake's rules then apply in full: frame it as a folder and raise its design forks as blocking questions rather than answering them silently. A missing concern that a journey surfaces has by definition never been designed, so it will carry forks — and a journey finding is not a licence to skip the question channel. **Expect to stop and ask** rather than to build straight through.
 5. **Re-drive after the fixes land, and update the Demonstration.** A journey is satisfied only when it was driven, end to end, against a build containing the fixes.
 
 ## What "production-ready" means here

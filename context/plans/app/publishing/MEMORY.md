@@ -1,1 +1,9 @@
 # Memory
+
+## 2026-07-20 — Unsigned macOS artefacts ship as `.tar.gz`, never as a bare binary or a `.zip`
+
+The release workflow packages the command-line tool as a gzipped tarball, and continuous integration asserts that a quarantined tarball extracts to a binary that runs. **Why:** macOS quarantine propagates through `.zip` extraction but **not** through `tar`. Measured, all three shapes: a downloaded bare binary and a binary extracted from a quarantined `.zip` both carry `com.apple.quarantine` and are **killed** — the user sees "Apple could not verify this app is free of malware", whose only buttons are Done and Move to Bin, with no override affordance at all. The same binary extracted from a quarantined `.tar.gz` carries only `com.apple.provenance` and runs normally. **Mistake it prevents:** switching the release artefact to a zip because it is friendlier on Windows, or publishing the bare binary because it saves a step — either silently turns a working download into one macOS refuses to run, with a dialog that reads as a malware accusation rather than a signing warning.
+
+## 2026-07-20 — An unsigned command-line binary is not exempt from Gatekeeper
+
+Being a plain executable rather than an application bundle does **not** avoid the signing problem, and the failure is worse rather than milder. Measured: an ad-hoc-signed `seal` binary is rejected by `spctl`, and when quarantined it is killed with exit 137 behind the malware dialog. An unsigned *bundle* at least offers the right-click-to-open override; an unsigned *binary* offers none. **Why:** the assumption that command-line tools sit outside Gatekeeper is widespread and was wrong here. **Mistake it prevents:** planning a release around "ship the CLI, it has no signing problem" — which is exactly the reasoning that was proposed and rejected here — and shipping a download that dies on first run.

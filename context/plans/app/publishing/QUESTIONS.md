@@ -21,3 +21,7 @@ Fixing it needs a signing identity, which costs money and is tied to a legal ide
 If you pick A, I will need to know whether you have or want an Apple Developer account, and the release workflow will need the certificate and an app-specific password as repository secrets. I will not need the secrets themselves — only to know they exist so I can write the workflow against them.
 
 Windows signing is the same question with a different certificate authority, and can be answered separately or deferred.
+
+**ANSWER**
+
+Let's do C.

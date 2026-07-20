@@ -14,7 +14,7 @@ TBD. The shape is partly forced already: the application is a Tauri desktop bund
 
 - [x] ci.md -> the automated checks that keep every claim in the repository true
 - [x] docs.md -> the README and the documents a stranger needs to trust and contribute
-- [!] packaging.md -> awaiting an answer in QUESTIONS.md on signing bundling, signing, notarisation, and the release process
+- [x] packaging.md -> bundling, distribution, and the release process bundling, signing, notarisation, and the release process
 
 # Cursor
 
@@ -22,11 +22,12 @@ Freshly framed, with `ci.md` already complete because the gap it closed was real
 
 `docs.md` is complete: the README now covers the application as well as the command-line tool, and every command it gives was verified against a clean clone — which caught a gitignored lockfile that would have made `npm ci` impossible. The security policy, contributing guide and both licence texts are in place.
 
-`packaging.md` is framed and partly blocked. Bundling already works — verified, a `Seal.app` and a 4 MB `.dmg` from a clean tree — but the result is ad-hoc signed and **Gatekeeper refuses it**, so a downloaded release would tell the user the application is damaged. Fixing that needs a signing identity, which is a decision about the project rather than the code, and is waiting in `QUESTIONS.md`.
+`packaging.md` is complete for the decision that was made: no signing identity for now, so the command-line tool is the released artefact and the desktop application is build-from-source.
 
-Two things in that plan are not blocked and can proceed: shipping the command-line tool inside the bundle, which measurement showed is currently missing entirely, and building artefacts on a tag with checksums.
+That decision was nearly implemented on a false premise. The question proposed shipping the CLI "because it has no signing problem, not being a bundled application" — measurement showed that is **wrong**, and the failure is worse than for a bundle: an unsigned binary is killed behind a malware dialog with no override button, where an unsigned bundle at least offers right-click-to-open. What actually works is the packaging shape: quarantine survives `.zip` extraction but not `tar`, so the release ships tarballs and continuous integration asserts a quarantined tarball still yields a runnable binary — verified to accept a tarball and reject a zip.
 
 # Open threads
 
+- A Homebrew formula is the natural primary route for the command-line tool, since a formula installs without setting quarantine at all. Not built yet.
 - Windows and Linux artefacts are unaddressed until the macOS path is proven end to end, since whatever is learned there mostly transfers.
 - **Tooling friction to raise:** `set_boundary` routes its `--include` patterns through the same path resolver that coverage arguments use, so a boundary pattern naming a file that also exists under `context/_scripts/` — `README.md` is the live case — is rejected as ambiguous even though a boundary pattern is unambiguously repo-relative. Absolute paths work around it. The resolver is right for coverage arguments and wrong here; the fix belongs in the script rather than in every caller.

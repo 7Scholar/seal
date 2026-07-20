@@ -9,8 +9,58 @@ permissions:
   contents: write
 
 jobs:
+  cli:
+    name: Command-line tool for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the pinned toolchain
+        run: rustup show
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build
+        run: cargo build --release -p seal-cli
+
+      - name: Package as a tarball, never a bare binary or a zip
+        run: |
+          set -euo pipefail
+          triple="$(rustc -vV | sed -n 's/^host: //p')"
+          mkdir -p artefacts
+          tar czf "artefacts/seal-$triple.tar.gz" -C target/release seal
+          cd artefacts
+          shasum -a 256 * > "SHA256SUMS-$triple"
+          cat "SHA256SUMS-$triple"
+
+      - name: The tarball must actually run after a simulated download
+        if: runner.os == 'macOS'
+        run: |
+          set -euo pipefail
+          triple="$(rustc -vV | sed -n 's/^host: //p')"
+          work="$(mktemp -d)"
+          cp "artefacts/seal-$triple.tar.gz" "$work/"
+          cd "$work"
+          xattr -w com.apple.quarantine "0083;00000000;Safari;" "seal-$triple.tar.gz"
+          tar xzf "seal-$triple.tar.gz"
+          if xattr seal | grep -q com.apple.quarantine; then
+            echo "The extracted binary carries quarantine and macOS will refuse to run it."
+            exit 1
+          fi
+          ./seal --version
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: seal-cli-${{ matrix.os }}
+          path: artefacts/
+
   bundle:
-    name: Bundle for ${{ matrix.os }}
+    name: Unsigned application bundle for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -52,6 +102,8 @@ jobs:
         run: npx --yes @tauri-apps/cli@2 build
 
       - name: Checksum every artefact
+        # These bundles are unsigned and macOS will refuse to open them. They exist so a
+        # contributor can check a build, not for users to download — see packaging.md.
         run: |
           set -euo pipefail
           mkdir -p artefacts
@@ -64,5 +116,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: seal-${{ matrix.os }}
+          name: seal-app-unsigned-${{ matrix.os }}
           path: artefacts/

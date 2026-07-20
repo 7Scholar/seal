@@ -6,7 +6,14 @@ This exists to make two things coexist that otherwise cannot: giving tools and a
 
 ## Status
 
-Under active development, and not yet packaged for installation. Everything is built and tested — the cryptographic engine, the cross-repo registry, the command-line resolver, and the desktop application — but there are no signed installers yet, so running it means building from source. The plan tree records exactly where everything stands.
+Under active development. Everything is built and tested — the cryptographic engine, the cross-repo registry, the command-line resolver, and the desktop application.
+
+Seal is **not code-signed**, which shapes how it is installed. macOS does not merely warn about unsigned software; it refuses to run it, behind a dialog that reads as a malware accusation and offers no override. So:
+
+- **The command-line tool** is released as a `.tar.gz` per platform. Extracted with `tar`, it runs normally — quarantine does not survive tar extraction, though it does survive a `.zip`, which is why no zip is published.
+- **The desktop application** is build-from-source for now. Unsigned bundles are produced on each tag so a contributor can check a build, but they will not open on a Mac without deliberately overriding the system, and that is not something a tool asking to hold your secrets should teach you to do.
+
+Signing is a matter of the project taking on a developer identity rather than a code change, and is revisited when that happens.
 
 ## How it works
 
@@ -24,11 +31,14 @@ Before anything is sealed for the first time the application asks you to acknowl
 
 ### Resolving a secret in a script
 
-The command-line tool ships inside the application bundle. On macOS, put it on your path with:
+Install the command-line tool from a release tarball:
 
 ```bash
-sudo ln -s /Applications/Seal.app/Contents/MacOS/seal /usr/local/bin/seal
+tar xzf seal-aarch64-apple-darwin.tar.gz
+sudo mv seal /usr/local/bin/
 ```
+
+Or build it yourself with `cargo build --release -p seal-cli`. It is also bundled inside the application, at `Seal.app/Contents/MacOS/seal`, if you built that.
 
 A deploy script then asks for a file's contents at the moment of use:
 

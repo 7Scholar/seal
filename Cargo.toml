@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/seal-engine", "crates/seal-registry", "crates/seal-cli"]
+members = ["crates/seal-engine", "crates/seal-registry", "crates/seal-cli", "crates/seal-dotenv"]
 
 [workspace.package]
 version = "0.1.0"

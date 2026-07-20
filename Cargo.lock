@@ -1390,6 +1390,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "seal-dotenv"
+version = "0.1.0"
+
+[[package]]
 name = "seal-engine"
 version = "0.1.0"
 dependencies = [

@@ -15,7 +15,7 @@
     "crates/seal-session/Cargo.toml": "a46c0f0c20c571b6d392647f98e9b5af1cd36fda",
     "crates/seal-session/src/clock.rs": "7131d870c6f35bb055fab8f123d0f282428e7283",
     "crates/seal-session/src/lib.rs": "f4bf1c7187ba306ec4cfe9d01e2d54d46cf4a7ca",
-    "crates/seal-session/tests/expiry.rs": "a46c0f0c20c571b6d392647f98e9b5af1cd36fda",
+    "crates/seal-session/tests/expiry.rs": "1dccc72fdda751566e3b51211c2b79561578d5d4",
     "src-tauri/Cargo.toml": "4aeac63208911fc6b387d55db0896ab1e705e90a",
     "src-tauri/build.rs": "4aeac63208911fc6b387d55db0896ab1e705e90a",
     "src-tauri/capabilities/default.json": "4aeac63208911fc6b387d55db0896ab1e705e90a",

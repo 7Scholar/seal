@@ -1,7 +1,7 @@
 {
   "format.md": {
-    "crates/seal-engine/src/format/mod.rs": "7fcfe395412645b115951d5b3e399785ebfc434f",
-    "crates/seal-engine/tests/format.rs": "7fcfe395412645b115951d5b3e399785ebfc434f",
+    "crates/seal-engine/src/format/mod.rs": "4609e00d5e6eafb233c6c9ad3ff5e4eb5085296e",
+    "crates/seal-engine/tests/format.rs": "4609e00d5e6eafb233c6c9ad3ff5e4eb5085296e",
     "crates/seal-engine/tests/vectors.rs": "7fcfe395412645b115951d5b3e399785ebfc434f",
     "crates/seal-engine/tests/vectors/armored_empty.age": "a827ba8a5bfcd6988000d7ffb81f6fa84ce888ab",
     "crates/seal-engine/tests/vectors/armored_env.age": "a827ba8a5bfcd6988000d7ffb81f6fa84ce888ab",
@@ -12,14 +12,16 @@
   },
   "operations.md": {
     "crates/seal-engine/src/lock.rs": "0fc05de2df77d9beb617819b8ba06c2df1099a93",
-    "crates/seal-engine/src/operations.rs": "0fc05de2df77d9beb617819b8ba06c2df1099a93",
+    "crates/seal-engine/src/operations.rs": "4609e00d5e6eafb233c6c9ad3ff5e4eb5085296e",
+    "crates/seal-engine/src/reseal.rs": "4609e00d5e6eafb233c6c9ad3ff5e4eb5085296e",
     "crates/seal-engine/tests/lock.rs": "0fc05de2df77d9beb617819b8ba06c2df1099a93",
-    "crates/seal-engine/tests/operations.rs": "0fc05de2df77d9beb617819b8ba06c2df1099a93"
+    "crates/seal-engine/tests/operations.rs": "0fc05de2df77d9beb617819b8ba06c2df1099a93",
+    "crates/seal-engine/tests/reseal.rs": "4609e00d5e6eafb233c6c9ad3ff5e4eb5085296e"
   },
   "replace.md": {
     "Cargo.toml": "a827ba8a5bfcd6988000d7ffb81f6fa84ce888ab",
     "crates/seal-engine/Cargo.toml": "a827ba8a5bfcd6988000d7ffb81f6fa84ce888ab",
-    "crates/seal-engine/src/lib.rs": "0fc05de2df77d9beb617819b8ba06c2df1099a93",
+    "crates/seal-engine/src/lib.rs": "4609e00d5e6eafb233c6c9ad3ff5e4eb5085296e",
     "crates/seal-engine/src/replace/fault.rs": "eb884b6a06a3cf664042d6e1f0d19dd3f9783532",
     "crates/seal-engine/src/replace/fs.rs": "eb884b6a06a3cf664042d6e1f0d19dd3f9783532",
     "crates/seal-engine/src/replace/fs/imp.rs": "eb884b6a06a3cf664042d6e1f0d19dd3f9783532",

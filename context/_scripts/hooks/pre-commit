@@ -1,0 +1,14 @@
+#!/bin/sh
+# plan-system pre-commit — auto-format hook placeholder (installed per-clone by
+# install_hook; local git state, not committed).
+#
+# Once the repo has formatters, this hook should format the staged files in place and
+# re-stage them before the commit captures their content, so committed content is always
+# formatted. That protects plan coverage from formatting churn: coverage is keyed on
+# committed file content, so a bulk format after the fact would make the post-commit
+# drift detector flag pure formatting as drift. See docs/plans/SYNC.md, "The two hooks",
+# for the full design.
+#
+# Until formatters are wired in, this hook is a deliberate no-op.
+
+exit 0

@@ -1,0 +1,16 @@
+#!/bin/sh
+# plan-system post-commit — drift detection hook (installed per-clone by install_hook;
+# local git state, not committed). Runs the plan-tree drift detector after every commit,
+# and may never wedge or corrupt a commit — all output and errors are swallowed.
+#
+# Plan-tree drift (run_coverage --all): refreshes every plan-root's DRIFT.md — written
+# when a root has drift, removed when in sync. Read-only against your code and the repo;
+# only ever touches the DRIFT.md files.
+
+repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+scripts_dir="$repo_root/context/_scripts"
+[ -d "$scripts_dir" ] || exit 0
+
+( cd "$scripts_dir" && uv run run_coverage --all ) >/dev/null 2>&1
+
+exit 0

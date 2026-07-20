@@ -81,4 +81,5 @@ No open threads yet.
 # Supporting docs
 
 - Before writing any Rust or Tauri code, follow [_docs/tauri-rust-practices.md](_docs/tauri-rust-practices.md).
+- Before designing any user-facing surface with prior art, follow the research procedure in [docs/UX_RESEARCH.md](../../../docs/UX_RESEARCH.md). Its product is a research document that becomes the design input, so it runs as its own phase before the Approach is committed.
 - When shaping the Approach or weighing the design forks, consult the tooling survey in [_docs/secrets-landscape.md](_docs/secrets-landscape.md).

@@ -39,6 +39,19 @@ pub struct EnvView {
     pub unparseable_lines: usize,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase", tag = "kind")]
+pub enum OpenedFile {
+    Env(EnvView),
+    Opaque { path: PathBuf, bytes: usize },
+}
+
+pub fn is_editable(path: &Path) -> bool {
+    path.file_name()
+        .map(|name| seal_registry::scan::is_editable_env_file(&name.to_string_lossy()))
+        .unwrap_or(false)
+}
+
 pub fn repo_name(root: &Path) -> String {
     root.file_name()
         .map(|name| name.to_string_lossy().into_owned())

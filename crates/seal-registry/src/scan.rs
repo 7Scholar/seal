@@ -157,3 +157,8 @@ pub fn classify_name(name: &str) -> Option<(Confidence, &'static str)> {
 fn is_env_like(lower: &str) -> bool {
     lower == ".env" || lower.starts_with(".env.") || lower.ends_with(".env") || lower == ".envrc"
 }
+
+pub fn is_editable_env_file(name: &str) -> bool {
+    let lower = name.to_ascii_lowercase();
+    lower != ".envrc" && is_env_like(&lower)
+}

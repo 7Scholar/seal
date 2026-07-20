@@ -9,7 +9,7 @@ use tauri::State as Managed;
 
 use crate::app;
 use crate::error::{CommandError, Kind};
-use crate::view::{EnvView, RepoView};
+use crate::view::{OpenedFile, RepoView};
 
 pub const RETRY_ATTEMPTS: u8 = 5;
 
@@ -86,7 +86,7 @@ pub async fn overview(held: Managed<'_, Held>) -> Result<Vec<RepoView>, CommandE
 }
 
 #[tauri::command]
-pub async fn open_file(held: Managed<'_, Held>, path: PathBuf) -> Result<EnvView, CommandError> {
+pub async fn open_file(held: Managed<'_, Held>, path: PathBuf) -> Result<OpenedFile, CommandError> {
     let mut session = held.session()?;
     let registry = held.registry()?;
     app::open_file(&mut session, &path, &registry)

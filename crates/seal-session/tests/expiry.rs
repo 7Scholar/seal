@@ -280,7 +280,7 @@ fn a_per_file_override_is_used_in_place_of_the_master_password() {
     let mut session = unlocked(clock);
 
     session
-        .set_override(
+        .set_repo_override(
             Path::new("/repo/legacy.env"),
             SecretString::from("older".to_owned()),
         )
@@ -300,7 +300,7 @@ fn unlocking_again_discards_everything_held_under_the_previous_unlock() {
     let mut session = unlocked(clock);
     open_a_file(&mut session);
     session
-        .set_override(
+        .set_repo_override(
             Path::new("/repo/legacy.env"),
             SecretString::from("older".to_owned()),
         )
@@ -360,4 +360,93 @@ fn wiping_plaintext_clears_the_bytes_it_held() {
         "wiping must leave nothing readable behind, found {:?}",
         plaintext.as_bytes()
     );
+}
+
+#[test]
+fn a_repo_override_applies_to_every_file_beneath_it() {
+    let clock = TestClock::new();
+    let mut session = unlocked(clock);
+
+    session
+        .set_repo_override(
+            Path::new("/repos/legacy"),
+            SecretString::from("older".to_owned()),
+        )
+        .unwrap();
+
+    assert_eq!(
+        secret_of(&mut session, "/repos/legacy/.env.production"),
+        "older",
+        "an override is set on a repo, so it must reach the files inside that repo"
+    );
+    assert_eq!(
+        secret_of(&mut session, "/repos/legacy/services/api/.env"),
+        "older",
+        "a file nested at any depth is still inside the repo"
+    );
+    assert_eq!(
+        secret_of(&mut session, "/repos/other/.env"),
+        "master",
+        "a repo without an override falls back to the master password"
+    );
+}
+
+#[test]
+fn the_most_specific_override_wins_for_a_nested_repo() {
+    let clock = TestClock::new();
+    let mut session = unlocked(clock);
+
+    session
+        .set_repo_override(Path::new("/repos"), SecretString::from("outer".to_owned()))
+        .unwrap();
+    session
+        .set_repo_override(
+            Path::new("/repos/inner"),
+            SecretString::from("inner".to_owned()),
+        )
+        .unwrap();
+
+    assert_eq!(
+        secret_of(&mut session, "/repos/inner/.env"),
+        "inner",
+        "the nearest enclosing override must win, never an ancestor's"
+    );
+    assert_eq!(secret_of(&mut session, "/repos/elsewhere/.env"), "outer");
+}
+
+#[test]
+fn a_sibling_path_sharing_a_name_prefix_is_not_covered() {
+    let clock = TestClock::new();
+    let mut session = unlocked(clock);
+
+    session
+        .set_repo_override(
+            Path::new("/repos/app"),
+            SecretString::from("app".to_owned()),
+        )
+        .unwrap();
+
+    assert_eq!(
+        secret_of(&mut session, "/repos/app-staging/.env"),
+        "master",
+        "a prefix match on the path string must not leak an override into a sibling repo"
+    );
+}
+
+#[test]
+fn clearing_a_repo_override_returns_it_to_the_master_password() {
+    let clock = TestClock::new();
+    let mut session = unlocked(clock);
+
+    session
+        .set_repo_override(
+            Path::new("/repos/legacy"),
+            SecretString::from("older".to_owned()),
+        )
+        .unwrap();
+    session
+        .clear_repo_override(Path::new("/repos/legacy"))
+        .unwrap();
+
+    assert_eq!(secret_of(&mut session, "/repos/legacy/.env"), "master");
 }

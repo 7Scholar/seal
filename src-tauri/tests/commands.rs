@@ -62,6 +62,13 @@ fn fixture() -> Fixture {
     }
 }
 
+fn env_of(opened: seal_desktop::view::OpenedFile) -> seal_desktop::view::EnvView {
+    match opened {
+        seal_desktop::view::OpenedFile::Env(view) => view,
+        other => panic!("expected an editable env file, got {other:?}"),
+    }
+}
+
 fn unlocked() -> Session {
     let mut session = Session::new();
     session
@@ -75,7 +82,7 @@ fn opening_a_file_returns_structure_with_every_value_masked() {
     let fixture = fixture();
     let mut session = unlocked();
 
-    let view = app::open_file(&mut session, &fixture.path, &fixture.state).unwrap();
+    let view = env_of(app::open_file(&mut session, &fixture.path, &fixture.state).unwrap());
 
     let keys: Vec<&str> = view.variables.iter().map(|v| v.key.as_str()).collect();
     assert_eq!(keys, vec!["DATABASE_URL", "API_KEY", "ENABLE_BETA"]);
@@ -93,7 +100,7 @@ fn no_secret_value_appears_anywhere_in_the_opened_view() {
     let fixture = fixture();
     let mut session = unlocked();
 
-    let view = app::open_file(&mut session, &fixture.path, &fixture.state).unwrap();
+    let view = env_of(app::open_file(&mut session, &fixture.path, &fixture.state).unwrap());
     let serialized = serde_json::to_string(&view).unwrap();
 
     for secret in ["postgres://user:pw@host/db", "sk-live-42", "pw", "sk-live"] {
@@ -420,4 +427,128 @@ fn saving_persists_through_the_compare_and_retry_store() {
         1,
         "the registry the interface reads must round-trip through the store"
     );
+}
+
+fn managed_non_env(name: &str, content: &[u8]) -> Fixture {
+    let dir = tempfile::tempdir().unwrap();
+    let root = dir.path().to_path_buf();
+    let path = root.join(name);
+    std::fs::write(&path, content).unwrap();
+
+    seal_engine::operations::seal(
+        &path,
+        &SecretString::from(PASSPHRASE.to_owned()),
+        seal_engine::format::MINIMUM_WORK_FACTOR,
+    )
+    .unwrap();
+
+    let state = State {
+        repos: vec![Repo {
+            root: root.clone(),
+            uses_override_passphrase: false,
+            files: vec![ManagedFile {
+                relative_path: PathBuf::from(name),
+                last_known: SealedState::Sealed,
+                fingerprint: None,
+                unknown: Default::default(),
+            }],
+            unknown: Default::default(),
+        }],
+        ..Default::default()
+    };
+
+    Fixture {
+        _dir: dir,
+        root,
+        path,
+        state,
+    }
+}
+
+const TFVARS: &[u8] = b"region = \"us-east-1\"\nsecret_key = \"AKIA-REAL-SECRET\"\n";
+
+#[test]
+fn a_managed_non_env_file_opens_as_opaque_rather_than_as_variables() {
+    let fixture = managed_non_env("prod.tfvars", TFVARS);
+    let mut session = unlocked();
+
+    let opened = app::open_file(&mut session, &fixture.path, &fixture.state).unwrap();
+
+    match opened {
+        seal_desktop::view::OpenedFile::Opaque { bytes, .. } => {
+            assert_eq!(bytes, TFVARS.len());
+        }
+        other => {
+            panic!("a non-env file must never be presented as editable variables, got {other:?}")
+        }
+    }
+}
+
+#[test]
+fn saving_a_non_env_file_is_refused_rather_than_rewritten() {
+    let mut fixture = managed_non_env("prod.tfvars", TFVARS);
+    let mut session = unlocked();
+    app::open_file(&mut session, &fixture.path, &fixture.state).unwrap();
+
+    let error = app::save(
+        &mut session,
+        &fixture.path,
+        &[("secret_key".to_owned(), "rotated".to_owned())],
+        &mut fixture.state,
+    )
+    .unwrap_err();
+
+    assert_eq!(
+        error.kind,
+        Kind::NotAnEnvFile,
+        "a non-env file is stored as-is and never edited, so a save must be refused"
+    );
+
+    let mut recovered = Vec::new();
+    seal_engine::operations::unseal_to(
+        &fixture.path,
+        &mut recovered,
+        &[SecretString::from(PASSPHRASE.to_owned())],
+    )
+    .unwrap();
+    assert_eq!(
+        recovered, TFVARS,
+        "the refused save must leave the file byte-for-byte unchanged"
+    );
+}
+
+#[test]
+fn revealing_from_a_non_env_file_is_refused() {
+    let fixture = managed_non_env("credentials.json", br#"{"apiKey":"sk-live-42"}"#);
+    let mut session = unlocked();
+    app::open_file(&mut session, &fixture.path, &fixture.state).unwrap();
+
+    let error = app::reveal(&mut session, &fixture.path, "apiKey").unwrap_err();
+    assert_eq!(error.kind, Kind::NotAnEnvFile);
+}
+
+#[test]
+fn an_envrc_is_managed_but_not_editable_since_it_is_a_shell_script() {
+    let fixture = managed_non_env(".envrc", b"export FOO=bar\nsource_up\n");
+    let mut session = unlocked();
+
+    let opened = app::open_file(&mut session, &fixture.path, &fixture.state).unwrap();
+    assert!(
+        matches!(opened, seal_desktop::view::OpenedFile::Opaque { .. }),
+        "an .envrc is a shell script, not a key-value file, so editing it as one would corrupt it"
+    );
+}
+
+#[test]
+fn every_env_naming_variation_is_still_editable() {
+    for name in [".env", ".env.production", ".env.local", "production.env"] {
+        let fixture = managed_non_env(name, b"KEY=value\n");
+        let mut session = unlocked();
+
+        let opened = app::open_file(&mut session, &fixture.path, &fixture.state).unwrap();
+        assert!(
+            matches!(opened, seal_desktop::view::OpenedFile::Env(_)),
+            "{name} must remain editable"
+        );
+    }
 }

@@ -1,13 +1,13 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use age::secrecy::SecretString;
 use seal_engine::operations;
+use seal_registry::reconcile;
 use seal_registry::state::{SealedState, State};
-use seal_registry::{reconcile, scan};
 use seal_session::{Plaintext, Session};
 
 use crate::error::{CommandError, Kind};
-use crate::view::{self, EnvView, FileView, RepoView};
+use crate::view::{self, FileView, OpenedFile, RepoView};
 
 pub const WORK_FACTOR: u8 = 18;
 
@@ -43,10 +43,6 @@ pub fn overview(state: &State) -> Vec<RepoView> {
         .collect()
 }
 
-pub fn candidates(root: &Path) -> Vec<scan::Candidate> {
-    scan::scan(root)
-}
-
 pub fn seal_file(
     session: &mut Session,
     path: &Path,
@@ -71,7 +67,7 @@ pub fn open_file(
     session: &mut Session,
     path: &Path,
     state: &State,
-) -> Result<EnvView, CommandError> {
+) -> Result<OpenedFile, CommandError> {
     require_managed_ref(state, path)?;
     let passphrase = session.passphrase_for(path)?;
 
@@ -79,13 +75,23 @@ pub fn open_file(
     operations::unseal_to(path, &mut plaintext, &[passphrase])?;
 
     let held = Plaintext::new(plaintext);
-    let rendered = view::env_view(path, held.as_bytes());
+    let opened = if view::is_editable(path) {
+        OpenedFile::Env(view::env_view(path, held.as_bytes()))
+    } else {
+        OpenedFile::Opaque {
+            path: path.to_path_buf(),
+            bytes: held.as_bytes().len(),
+        }
+    };
     session.open(path, held)?;
 
-    Ok(rendered)
+    Ok(opened)
 }
 
 pub fn reveal(session: &mut Session, path: &Path, key: &str) -> Result<Vec<u8>, CommandError> {
+    if !view::is_editable(path) {
+        return Err(CommandError::at(Kind::NotAnEnvFile, path));
+    }
     let plaintext = session.plaintext(path)?;
     view::value_of(plaintext, key)
         .map(String::into_bytes)
@@ -99,6 +105,9 @@ pub fn save(
     state: &mut State,
 ) -> Result<(), CommandError> {
     require_managed(state, path)?;
+    if !view::is_editable(path) {
+        return Err(CommandError::at(Kind::NotAnEnvFile, path));
+    }
     let passphrase = session.passphrase_for(path)?;
 
     let updated = {
@@ -144,16 +153,4 @@ fn record(state: &mut State, path: &Path, sealed: SealedState) {
 pub fn unlock(session: &mut Session, passphrase: String) -> Result<(), CommandError> {
     session.unlock(SecretString::from(passphrase))?;
     Ok(())
-}
-
-pub fn managed_paths(state: &State) -> Vec<PathBuf> {
-    state
-        .repos
-        .iter()
-        .flat_map(|repo| {
-            repo.files
-                .iter()
-                .map(|file| repo.root.join(&file.relative_path))
-        })
-        .collect()
 }

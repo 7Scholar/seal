@@ -106,18 +106,27 @@ impl Session {
         let unlocked = self.active()?;
         Ok(unlocked
             .overrides
-            .get(path)
+            .iter()
+            .filter(|(root, _)| path.starts_with(root))
+            .max_by_key(|(root, _)| root.as_os_str().len())
+            .map(|(_, passphrase)| passphrase)
             .unwrap_or(&unlocked.passphrase)
             .clone())
     }
 
-    pub fn set_override(
+    pub fn set_repo_override(
         &mut self,
-        path: impl Into<PathBuf>,
+        root: impl Into<PathBuf>,
         passphrase: SecretString,
     ) -> Result<(), SessionError> {
         let unlocked = self.active()?;
-        unlocked.overrides.insert(path.into(), passphrase);
+        unlocked.overrides.insert(root.into(), passphrase);
+        Ok(())
+    }
+
+    pub fn clear_repo_override(&mut self, root: &Path) -> Result<(), SessionError> {
+        let unlocked = self.active()?;
+        unlocked.overrides.remove(root);
         Ok(())
     }
 

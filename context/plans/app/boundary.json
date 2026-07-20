@@ -1,8 +1,15 @@
 {
   "include": [
+    ".github",
+    "CONTRIBUTING.md",
     "Cargo.toml",
+    "LICENSE-APACHE",
+    "LICENSE-MIT",
+    "README.md",
+    "SECURITY.md",
     "crates",
     "package.json",
+    "scripts",
     "src-tauri",
     "tsconfig.json",
     "ui",

@@ -49,7 +49,7 @@ The work decomposes into the children below: the sealing engine is the seam ever
 # Plans
 
 - [x] engine/ -> the sealing engine: age-based seal/unseal, the password model, session and key-handling semantics
-- [~] registry.md -> the registry of seal repos and their managed files, including the import scan
+- [x] registry.md -> the registry of seal repos and their managed files, including the import scan
 - [ ] cli.md -> the standalone CLI resolver
 - [ ] desktop/ -> the Tauri desktop application: shell, IPC surface, and the management UI
 - [ ] publishing/ -> everything around the code: repo docs, CI, packaging, releases, maintainability
@@ -60,7 +60,9 @@ The work decomposes into the children below: the sealing engine is the seam ever
 
 Several defects were caught before they could ship, each recorded in the engine's `MEMORY.md` because each looks like tidy-up to a later reader: sealing through a symbolic link would have left the real secret unprotected; deleting the lock file on release would have broken mutual exclusion while appearing to preserve it; and an out-of-range work factor crashes the underlying library rather than returning an error.
 
-`registry.md` is designed and unstarted, and is the natural next step — the desktop application needs both seams before its own design can settle. `cli.md`, `desktop/` and `publishing/` remain framed.
+`registry.md` is complete too: the state model with its forward-compatible persistence, reconciliation against disk, and the import scan. Its two most consequential behaviours were verified against the exact failures research had measured — a gitignore-respecting scan finding only the committed example while hiding every real secret, and a sealed file silently overwritten by an editor's atomic save.
+
+Both seams the desktop application needs now exist and are tested. `cli.md`, `desktop/` and `publishing/` remain framed; the CLI is the smaller of the two consumers and the natural next step, since it exercises the same seams the application will and has no interface design to settle first.
 
 # Open threads
 

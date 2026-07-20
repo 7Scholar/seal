@@ -1,1 +1,0 @@
-A minimal page so the Tauri crate builds before the interface exists: `generate_context!` fails at compile time when `frontendDist` points at a missing directory, which would make a fresh clone unbuildable. The `ui/` plan replaces this with the real frontend build output and repoints `frontendDist` at it.

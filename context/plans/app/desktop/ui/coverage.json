@@ -1,1 +1,11 @@
-{}
+{
+  "shell.md": {
+    "package.json": "1c1500f0dcd0679debced048c43e570e85081a3b",
+    "tsconfig.json": "1c1500f0dcd0679debced048c43e570e85081a3b",
+    "ui/App.tsx": "1c1500f0dcd0679debced048c43e570e85081a3b",
+    "ui/index.html": "1c1500f0dcd0679debced048c43e570e85081a3b",
+    "ui/ipc.ts": "1c1500f0dcd0679debced048c43e570e85081a3b",
+    "ui/main.tsx": "1c1500f0dcd0679debced048c43e570e85081a3b",
+    "vite.config.ts": "1c1500f0dcd0679debced048c43e570e85081a3b"
+  }
+}

@@ -2,7 +2,11 @@
   "include": [
     "Cargo.toml",
     "crates",
-    "src-tauri"
+    "package.json",
+    "src-tauri",
+    "tsconfig.json",
+    "ui",
+    "vite.config.ts"
   ],
   "exclude": [
     "src-tauri/icons"

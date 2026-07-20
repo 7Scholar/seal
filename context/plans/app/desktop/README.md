@@ -62,7 +62,7 @@ Two flows carry more weight than their screens suggest, and their behaviour is f
 
 # Plans
 
-- [ ] shell.md -> the Tauri shell: session state, secret lifetimes and clearing, lifecycle hooks, window and webview hardening
+- [~] shell.md -> the Tauri shell: session state, secret lifetimes and clearing, lifecycle hooks, window and webview hardening
 - [ ] commands.md -> the IPC surface: the command set, what may cross the boundary, and how blocking work is dispatched
 - [x] dotenv.md -> lossless env-file parsing and rendering, so saving preserves comments, order and formatting
 - [ ] ui/ -> the interface: the cross-repo view, the import flow, the environment-variables editor, and the two flows that must insist
@@ -73,7 +73,9 @@ Solutioned, and decomposed into four children. The design is grounded in researc
 
 `dotenv.md` is complete: an untouched file round-trips byte-for-byte and an edit changes exactly one line, verified against a lossy renderer that fails seven of its fourteen tests.
 
-Nothing is blocked. Next: `shell.md`, which everything else sits on — the managed state, the two-clock expiry, the explicit wipe on exit, and the hardened window.
+`shell.md` is in flight. Its core — the session, the two lifetimes, the dual-clock fail-closed expiry, the sweep and the explicit wipe — is built and tested in `seal-session`, which holds no Tauri types and is therefore testable without a running application. Each guard was confirmed non-vacuous by breaking it: the naive timer-shaped design fails four tests. What remains there is the Tauri wiring itself — managed state, the exit-request hook, the background sweep, and the hardened window — all of which need the Tauri dependency.
+
+Nothing is blocked. Next: `commands.md`, which introduces Tauri and lets the rest of `shell.md` close alongside it.
 
 # Open threads
 

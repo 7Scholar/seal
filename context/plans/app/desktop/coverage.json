@@ -3,5 +3,9 @@
     "crates/seal-dotenv/Cargo.toml": "c748b3d474ea5a614da765fa854050eb14b5a7b1",
     "crates/seal-dotenv/src/lib.rs": "c748b3d474ea5a614da765fa854050eb14b5a7b1",
     "crates/seal-dotenv/tests/roundtrip.rs": "c748b3d474ea5a614da765fa854050eb14b5a7b1"
+  },
+  "shell.md": {
+    "crates/seal-session/src/clock.rs": "7131d870c6f35bb055fab8f123d0f282428e7283",
+    "crates/seal-session/src/lib.rs": "7131d870c6f35bb055fab8f123d0f282428e7283"
   }
 }

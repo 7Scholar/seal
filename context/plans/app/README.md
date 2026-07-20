@@ -30,7 +30,7 @@ The work decomposes into the children below: the sealing engine is the seam ever
 
 # Plans
 
-- [ ] engine/ -> the sealing engine: age-based seal/unseal, the password model, session and key-handling semantics
+- [~] engine/ -> the sealing engine: age-based seal/unseal, the password model, session and key-handling semantics
 - [ ] registry.md -> the registry of seal repos and their managed files, including the import scan
 - [ ] cli.md -> the standalone CLI resolver
 - [ ] desktop/ -> the Tauri desktop application: shell, IPC surface, and the management UI
@@ -38,7 +38,7 @@ The work decomposes into the children below: the sealing engine is the seam ever
 
 # Cursor
 
-Design forks answered and distilled into the Approach; five children framed, none started. Next: solution `engine/` first — its sealed-file and password/session contract is the seam the registry, the CLI, and the desktop app all consume. The landscape grounding for that design sits in [_docs/secrets-landscape.md](_docs/secrets-landscape.md).
+`engine/` is solutioned and in flight: its Approach is designed and grounded in two sanity-tests, and it has carved three children of its own (format, atomic replacement, operations) — none implemented yet. The other four children remain framed and untouched. Next: implement `engine/`'s children in its stated order, starting with atomic replacement. `registry.md` is the natural follow-on, since the desktop app needs both seams before its own design can settle.
 
 # Open threads
 

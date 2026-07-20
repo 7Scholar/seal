@@ -6,7 +6,11 @@ The desktop application is Seal's face and the reason it is an application at al
 
 ## Approach
 
-TBD.
+TBD, except for one part of it that is decided and constrains the rest.
+
+**Unsealing in the user interface never writes plaintext to disk.** Viewing or editing a sealed file loads its plaintext into memory only; the file on disk stays sealed throughout. Plaintext held this way is discarded when the user seals it again, when the application quits, and automatically after fifteen minutes without further action — whichever comes first. Saving an edit re-seals from memory. There is no state in which a managed file sits decrypted at its path, and no user action that produces one, so the failure where somebody unseals a file to check a value and leaves production credentials in a repository cannot occur.
+
+Two consequences for the rest of the design. The fifteen-minute expiry is a property of the held plaintext rather than of the session as a whole, so it applies per file and a file whose time runs out while the application is still unlocked is cleared on its own. And because the application quitting is one of the clearing conditions, quitting must remain safe at any moment: unsaved edits are lost by design rather than flushed to disk, which is the correct trade for this product and must be made obvious in the interface rather than discovered.
 
 # Plans
 

@@ -26,7 +26,9 @@ Bulk classification over many paths is its own operation returning a per-path re
 
 `seal` requires the target to classify as plaintext and refuses a file that is already sealed, so that a double-seal can never silently produce doubly-encrypted content. `unseal_to_memory` returns the plaintext to the caller — the CLI's resolution path and the UI's editor both use it — and leaves the file on disk untouched, sealed. `verify` attempts the header key-unwrap only and reports whether a passphrase opens a given sealed file, without producing plaintext; its cost is one full derivation by construction, with no early-out, and it is never exposed unauthenticated or unthrottled to anything outside the app.
 
-Whether the engine offers an operation that leaves plaintext on disk permanently, and in what form, is **an open product decision** — see `QUESTIONS.md` at the root. The engine's write path supports it either way; what is undecided is whether Seal should offer it at all, and that is not a decision the engine layer gets to make quietly by exposing the verb.
+**The engine offers no operation that writes plaintext to a managed file's path.** Unsealing is a memory concept, not a disk one: `unseal_to_memory` is the only way plaintext ever leaves a sealed file, and the sealed file on disk is left untouched by it. A managed file's on-disk state moves in exactly one direction — plaintext becomes sealed, and never the reverse — so the class of accident where a user unseals a file to look at it and leaves production credentials sitting in a repository is not mitigated but structurally absent. Removing a file from Seal's management is the one operation that legitimately ends with plaintext on disk; it belongs to the layer that owns management, is explicit about what it does, and is not a mode of unsealing.
+
+This is why the write path takes a durability setting even though only one direction currently uses it: the setting exists because writing plaintext durably would be an anti-goal, and keeping the parameter explicit means a future addition cannot acquire that behavior by inheriting a default.
 
 Every operation returns an **observed post-state** — the resulting classification plus a file identity fingerprint (device and inode, size, and modification time) — rather than nothing. This is what lets a consumer detect that a file it sealed was later replaced by something else: the registry records the fingerprint at seal time and a mismatch on re-check means the file's identity changed underneath it. That detection is not a nicety, because the most likely real-world way a seal is destroyed is an editor that had the file open saving over it afterwards.
 
@@ -72,13 +74,15 @@ Two of the properties above are invisible to ordinary assertions and are therefo
 
 - [ ] format.md -> sealed-file format, classification, and the age binding
 - [ ] replace.md -> atomic identity-preserving file replacement
-- [!] operations.md -> the engine's public operations, passphrase resolution, and error taxonomy — blocked, awaiting answers in the root `QUESTIONS.md`
+- [ ] operations.md -> the engine's public operations, passphrase resolution, and error taxonomy (one step within it, multi-file re-sealing, waits on the master-passphrase question)
 
 # Cursor
 
-Solutioned, then revised after an adversarial review of the design found real errors before any code was written. The Approach now specifies plural candidate passphrases at the seam, directional durability, an advisory lock across classify-and-replace, classification over an open handle, an explicit syscall seam for fault injection, observed post-state returns with an identity fingerprint, and a two-track interoperability strategy. `format.md` and `replace.md` are unblocked and ready to implement in that order. `operations.md` is blocked on two product decisions in the root `QUESTIONS.md` — whether Seal offers permanent unsealing at all, and how master-password change behaves — because both change its public surface.
+Solutioned, then revised after an adversarial review of the design found real errors before any code was written. The Approach specifies plural candidate passphrases at the seam, directional durability, an advisory lock across classify-and-replace, classification over an open handle, an explicit syscall seam for fault injection, observed post-state returns with an identity fingerprint, and a two-track interoperability strategy. A subsequent product decision removed any operation that writes plaintext to a managed file's path: unsealing is a memory concept, so a managed file's on-disk state moves from plaintext to sealed and never back.
 
-Next: implement `replace.md`, whose contract is now settled and independent of the blocked questions.
+All three children are unblocked; only one step inside `operations.md` — re-sealing many files under a new passphrase — waits on the outstanding master-passphrase question, whose research is under way.
+
+Next: implement `replace.md`, whose contract is settled and independent of everything still open.
 
 # Open threads
 

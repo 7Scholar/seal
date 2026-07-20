@@ -50,7 +50,7 @@ The work decomposes into the children below: the sealing engine is the seam ever
 
 - [x] engine/ -> the sealing engine: age-based seal/unseal, the password model, session and key-handling semantics
 - [x] registry.md -> the registry of seal repos and their managed files, including the import scan
-- [ ] cli.md -> the standalone CLI resolver
+- [x] cli.md -> the standalone CLI resolver
 - [ ] desktop/ -> the Tauri desktop application: shell, IPC surface, and the management UI
 - [ ] publishing/ -> everything around the code: repo docs, CI, packaging, releases, maintainability
 
@@ -62,7 +62,9 @@ Several defects were caught before they could ship, each recorded in the engine'
 
 `registry.md` is complete too: the state model with its forward-compatible persistence, reconciliation against disk, and the import scan. Its two most consequential behaviours were verified against the exact failures research had measured — a gitignore-respecting scan finding only the committed example while hiding every real secret, and a sealed file silently overwritten by an editor's atomic save.
 
-Both seams the desktop application needs now exist and are tested. `cli.md`, `desktop/` and `publishing/` remain framed; the CLI is the smaller of the two consumers and the natural next step, since it exercises the same seams the application will and has no interface design to settle first.
+`cli.md` is complete: a script can resolve a sealed file at the moment of use, with the password typed on the terminal and only the secret reaching standard output. Its contract was designed against measured behaviour of the reference tools and improves on them where they are weak — notably exit codes, which one reference tool flattens so far that a wrong password cannot be told from a missing file.
+
+`desktop/` and `publishing/` remain. The desktop application is the larger piece and now has every seam it needs: the engine for sealing, the registry for state and reconciliation, and a working reference for how a consumer drives them.
 
 # Open threads
 

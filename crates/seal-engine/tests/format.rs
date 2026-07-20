@@ -156,18 +156,21 @@ fn a_wrong_passphrase_is_distinct_from_a_damaged_file() {
 }
 
 #[test]
-fn refuses_a_file_sealed_below_the_minimum_work_factor() {
-    let weak = MINIMUM_WORK_FACTOR - 1;
-    let sealed = seal_bytes(b"value\n", "pw", weak);
+fn refuses_to_write_a_file_outside_the_accepted_work_range() {
+    for factor in [0, MINIMUM_WORK_FACTOR - 1, 64, 200] {
+        let mut sink = Vec::new();
+        let error = format::seal(b"value\n".as_slice(), &mut sink, &pass("pw"), factor)
+            .expect_err("a work factor outside the range must be refused");
 
-    let mut sink = Vec::new();
-    let error =
-        format::unseal(std::io::Cursor::new(&sealed[..]), &mut sink, &[pass("pw")]).unwrap_err();
-
-    assert!(
-        matches!(error, FormatError::InsufficientWork),
-        "a weakly sealed file must be reported as such, got {error:?}"
-    );
+        assert!(
+            matches!(error, FormatError::UnsupportedWorkFactor { .. }),
+            "work factor {factor} must be refused rather than reaching the library, got {error:?}"
+        );
+        assert!(
+            sink.is_empty(),
+            "nothing may be written for a refused factor"
+        );
+    }
 }
 
 #[test]

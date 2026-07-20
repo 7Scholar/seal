@@ -42,9 +42,9 @@ impl OperationError {
             FormatError::NoMatchingPassphrase => Self::NoMatchingPassphrase { path },
             FormatError::NotSealed => Self::NotSealed { path },
             FormatError::Damaged => Self::Damaged { path },
-            FormatError::ExcessiveWork | FormatError::InsufficientWork => {
-                Self::UnacceptableWork { path }
-            }
+            FormatError::ExcessiveWork
+            | FormatError::InsufficientWork
+            | FormatError::UnsupportedWorkFactor { .. } => Self::UnacceptableWork { path },
             FormatError::Io(source) => Self::Io { path, source },
         }
     }
@@ -121,6 +121,32 @@ pub fn unseal_to<W: Write>(
         candidate: opened.candidate,
         work_factor: opened.work_factor,
     })
+}
+
+pub fn reseal_from_memory(
+    path: &Path,
+    plaintext: &[u8],
+    passphrase: &SecretString,
+    work_factor: u8,
+) -> Result<SealOutcome, OperationError> {
+    let _lock = FileLock::acquire(path).map_err(OperationError::from_lock)?;
+
+    let mut source = open(path)?;
+    if let Classification::Plaintext = classify_handle(path, &mut source)? {
+        return Err(OperationError::NotSealed {
+            path: path.to_path_buf(),
+        });
+    }
+    drop(source);
+
+    let identity = Replacement::new(&RealFileSystem::new(), Durability::Full)
+        .run(path, |sink| {
+            format::seal(plaintext, sink, passphrase, work_factor)
+                .map_err(|err| io::Error::other(err.to_string()))
+        })
+        .map_err(OperationError::from_replace)?;
+
+    Ok(SealOutcome { identity })
 }
 
 pub fn verify(path: &Path, candidates: &[SecretString]) -> Result<usize, OperationError> {

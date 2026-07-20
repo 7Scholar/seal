@@ -40,6 +40,8 @@ pub enum FormatError {
     ExcessiveWork,
     #[error("the sealed file was produced with a weaker work factor than is accepted")]
     InsufficientWork,
+    #[error("a work factor of {work_factor} is outside the range this engine will write")]
+    UnsupportedWorkFactor { work_factor: u8 },
     #[error("input or output failed")]
     Io(#[source] io::Error),
 }
@@ -56,6 +58,10 @@ pub fn seal<R: Read, W: Write>(
     passphrase: &SecretString,
     work_factor: u8,
 ) -> Result<(), FormatError> {
+    if !(MINIMUM_WORK_FACTOR..=MAXIMUM_WORK_FACTOR).contains(&work_factor) {
+        return Err(FormatError::UnsupportedWorkFactor { work_factor });
+    }
+
     let mut recipient = age::scrypt::Recipient::new(passphrase.clone());
     recipient.set_work_factor(work_factor);
 

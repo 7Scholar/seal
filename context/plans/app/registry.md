@@ -6,7 +6,15 @@ The registry is Seal's cross-repo state: which folders are registered as seal re
 
 # What exists
 
-Nothing implemented. The design below is settled and grounded in research whose load-bearing constraints are recorded in the root `MEMORY.md` and the engine's.
+The state model, the store, reconciliation, and the import scan, implemented and verified as a Rust library with no Tauri dependency and no path resolution of its own.
+
+**The store** holds one JSON file whose directory and contents are owner-only by explicit permission rather than umask default, since the registry names exactly where every secret on the machine lives. Unknown fields are carried through untouched and a file from a future version is readable but never rewritten, so an older Seal cannot destroy what a newer one recorded — live data loss on a machine where the application and the CLI can be at different versions. Writes replace the file atomically and keep the previous good copy. Updates guard against lost updates with a revision counter and retry, because atomic replacement prevents a torn file but not two writers each erasing the other's change.
+
+**Reconciliation** compares the record against disk and reports each divergence with the observed state. A file recorded as sealed that is now plaintext is the case that demands attention, and it is never absorbed into the record — that is the verified editor-clobber failure, and quietly recording it would replace an alert with a shrug. Benign divergences (a file gone missing, a file sealed outside Seal) can be applied to the record. The fingerprint comparison reports whether the file's identity changed, which distinguishes an external replacement from an in-place edit.
+
+**The import scan** walks with the ignore machinery disabled and prunes noise directories by filtering entries, for the two measured reasons in the root `MEMORY.md`. Candidates are classified secret, template, or ambiguous: env files and well-known credential files are pre-selected, the conventionally-committed example and sample variants are shown as recognised but never pre-selected, and genuinely contested names are surfaced unselected. A public key is never proposed as a private one.
+
+Verified by twenty-three tests, including the exact inversion that research measured — a repo whose gitignore hides four real secrets while exposing only the committed example — plus a sealed file overwritten by an editor's atomic save being reported as alarming with its identity change detected, and two deterministic concurrency tests that interleave a competing write inside the update. The gitignore behaviour, the alarm, and the lost-update guard were each confirmed non-vacuous by breaking them.
 
 # Approach
 
@@ -55,6 +63,6 @@ Candidates are classified into three confidence levels rather than presented as 
 
 # Open threads
 
-- Whether reconciliation should offer to re-seal a file it finds clobbered, or only report it. Leaning report-only in this plan, since re-sealing plaintext that an editor may still hold open invites a second clobber; settle when the desktop app's alert flow is designed.
-- The exact candidate pattern set: the shape is settled but the list needs assembling, and a published filename ruleset exists to seed it rather than inventing one.
+- Reconciliation reports a clobbered file and does not offer to re-seal it, since re-sealing plaintext an editor may still hold open invites a second clobber. Revisit when the desktop application's alert flow is designed, where the user can be told to close the file first.
+- The candidate pattern set covers env files, the common credential and key names, and the conventionally-committed template variants. A published filename ruleset exists and would broaden it; fold that in rather than inventing patterns, and weigh each addition against the cost of a false positive, which teaches users the scan cannot be trusted.
 - Whether the CLI should write state at all, or delegate every mutation to the running app when one is up. The revision counter makes concurrent writing correct either way, so this is a simplicity question rather than a correctness one.

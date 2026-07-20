@@ -1260,6 +1260,7 @@ dependencies = [
 name = "seal-registry"
 version = "0.1.0"
 dependencies = [
+ "age",
  "ignore",
  "seal-engine",
  "serde",

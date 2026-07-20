@@ -45,7 +45,7 @@ The work decomposes into the children below: the sealing engine is the seam ever
 # Plans
 
 - [~] engine/ -> the sealing engine: age-based seal/unseal, the password model, session and key-handling semantics
-- [ ] registry.md -> the registry of seal repos and their managed files, including the import scan
+- [~] registry.md -> the registry of seal repos and their managed files, including the import scan
 - [ ] cli.md -> the standalone CLI resolver
 - [ ] desktop/ -> the Tauri desktop application: shell, IPC surface, and the management UI
 - [ ] publishing/ -> everything around the code: repo docs, CI, packaging, releases, maintainability
@@ -54,7 +54,9 @@ The work decomposes into the children below: the sealing engine is the seam ever
 
 `engine/` is in flight and partly blocked. Its design was solutioned, then revised after an adversarial review found real errors while they were still cheap to fix — the seam now takes plural candidate passphrases, durability is directional, concurrent operations are locked rather than left to last-writer-wins, and the replace sequence exposes a fault-injection seam. Two of its three children are unblocked and ready to build; the third waits on the two product decisions in `QUESTIONS.md` here at the root, which is why this node shows work continuing rather than stopped. The threat model above was written in the same pass and is what those decisions answer to.
 
-Next: implement the engine's atomic replacement, whose contract is settled and independent of the open questions, and design `registry.md` alongside it — the desktop app needs both seams before its own design can settle.
+`registry.md` is now solutioned too, with its own research behind it — the state shape and its evolution, compare-and-retry over file locking, reconciliation as a first-class operation rather than a repair path, and an import scan that deliberately ignores gitignore rules because a measured scan that respected them found only the committed template and hid every real secret.
+
+Next: implement the engine's atomic replacement, whose contract is settled and independent of the open questions.
 
 # Open threads
 

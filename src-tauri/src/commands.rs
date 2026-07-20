@@ -1,0 +1,137 @@
+use std::path::PathBuf;
+use std::sync::Mutex;
+
+use seal_registry::state::State;
+use seal_registry::store::Store;
+use seal_session::Session;
+use tauri::ipc::Response;
+use tauri::State as Managed;
+
+use crate::app;
+use crate::error::{CommandError, Kind};
+use crate::view::{EnvView, RepoView};
+
+pub const RETRY_ATTEMPTS: u8 = 5;
+
+pub struct Held {
+    pub session: Mutex<Session>,
+    pub registry: Mutex<State>,
+    pub store: Store,
+}
+
+impl Held {
+    pub fn new(store: Store, registry: State) -> Self {
+        Self {
+            session: Mutex::new(Session::new()),
+            registry: Mutex::new(registry),
+            store,
+        }
+    }
+
+    pub fn wipe(&self) {
+        if let Ok(mut session) = self.session.lock() {
+            session.wipe();
+        }
+    }
+
+    pub fn sweep(&self) {
+        if let Ok(mut session) = self.session.lock() {
+            session.sweep();
+        }
+    }
+
+    fn session(&self) -> Result<std::sync::MutexGuard<'_, Session>, CommandError> {
+        self.session
+            .lock()
+            .map_err(|_| CommandError::new(Kind::Locked))
+    }
+
+    fn registry(&self) -> Result<std::sync::MutexGuard<'_, State>, CommandError> {
+        self.registry
+            .lock()
+            .map_err(|_| CommandError::new(Kind::Registry))
+    }
+
+    fn persist(&self, state: &State) -> Result<(), CommandError> {
+        let replacement = state.clone();
+        self.store.update(RETRY_ATTEMPTS, |on_disk| {
+            on_disk.repos = replacement.repos.clone();
+        })?;
+        Ok(())
+    }
+}
+
+#[tauri::command]
+pub async fn unlock(held: Managed<'_, Held>, passphrase: String) -> Result<(), CommandError> {
+    let mut session = held.session()?;
+    app::unlock(&mut session, passphrase)
+}
+
+#[tauri::command]
+pub async fn lock(held: Managed<'_, Held>) -> Result<(), CommandError> {
+    held.wipe();
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn is_unlocked(held: Managed<'_, Held>) -> Result<bool, CommandError> {
+    let mut session = held.session()?;
+    Ok(session.is_unlocked())
+}
+
+#[tauri::command]
+pub async fn overview(held: Managed<'_, Held>) -> Result<Vec<RepoView>, CommandError> {
+    let registry = held.registry()?;
+    Ok(app::overview(&registry))
+}
+
+#[tauri::command]
+pub async fn open_file(held: Managed<'_, Held>, path: PathBuf) -> Result<EnvView, CommandError> {
+    let mut session = held.session()?;
+    let registry = held.registry()?;
+    app::open_file(&mut session, &path, &registry)
+}
+
+#[tauri::command]
+pub async fn reveal(
+    held: Managed<'_, Held>,
+    path: PathBuf,
+    key: String,
+) -> Result<Response, CommandError> {
+    let mut session = held.session()?;
+    let value = app::reveal(&mut session, &path, &key)?;
+    Ok(Response::new(value))
+}
+
+#[tauri::command]
+pub async fn save(
+    held: Managed<'_, Held>,
+    path: PathBuf,
+    edits: Vec<(String, String)>,
+) -> Result<(), CommandError> {
+    let mut session = held.session()?;
+    let mut registry = held.registry()?;
+    app::save(&mut session, &path, &edits, &mut registry)?;
+    held.persist(&registry)
+}
+
+#[tauri::command]
+pub async fn seal_file(held: Managed<'_, Held>, path: PathBuf) -> Result<(), CommandError> {
+    let mut session = held.session()?;
+    let mut registry = held.registry()?;
+    app::seal_file(&mut session, &path, &mut registry)?;
+    held.persist(&registry)
+}
+
+#[tauri::command]
+pub async fn close_file(held: Managed<'_, Held>, path: PathBuf) -> Result<(), CommandError> {
+    let mut session = held.session()?;
+    session.close(&path)?;
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn open_paths(held: Managed<'_, Held>) -> Result<Vec<PathBuf>, CommandError> {
+    let mut session = held.session()?;
+    Ok(session.open_paths())
+}

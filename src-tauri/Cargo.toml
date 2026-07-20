@@ -6,6 +6,10 @@ rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
 
+[[bin]]
+name = "seal-desktop"
+path = "src/main.rs"
+
 [lib]
 name = "seal_desktop"
 crate-type = ["lib", "cdylib", "staticlib"]
@@ -24,6 +28,9 @@ seal-engine = { path = "../crates/seal-engine" }
 seal-registry = { path = "../crates/seal-registry" }
 seal-session = { path = "../crates/seal-session" }
 seal-dotenv = { path = "../crates/seal-dotenv" }
+
+[dev-dependencies]
+tempfile = "3"
 
 [lints]
 workspace = true

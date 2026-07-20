@@ -66,7 +66,7 @@ Two flows carry more weight than their screens suggest, and their behaviour is f
 - [x] commands.md -> the IPC surface: the command set, what may cross the boundary, and how blocking work is dispatched
 - [x] dotenv.md -> lossless env-file parsing and rendering, so saving preserves comments, order and formatting
 - [x] lifecycle.md -> import, removal from management, the pre-seal open-file check, and the irreversibility acknowledgements
-- [ ] ui/ -> the interface: the cross-repo view, the import flow, the environment-variables editor, and the two flows that must insist
+- [x] ui/ -> the interface: the cross-repo view, the import flow, the environment-variables editor, and the two flows that must insist
 
 # Cursor
 
@@ -84,7 +84,9 @@ The same audit caught two defects that are now fixed: a managed non-env file was
 
 `lifecycle.md` is now complete, and with it the gap the audit found: a folder can be imported, a file can be released from management, and sealing is gated on acknowledging the two consequences that cannot be undone. Its research changed the design — the "notice a file is open in an editor" requirement cannot be met by checking descriptors, because editors hold none on files open in tabs, so it became a recency warning that states its own limit with reconciliation as the real safety net.
 
-Nothing is blocked. Next: `ui/`, the last desktop child, which now has every command it needs. The supervised password change is deferred into it, since its behaviour is mostly the flow around it.
+`ui/` is complete: the frontend, every screen, and the supervised password change, designed from a survey of the products this interface will be judged against rather than invented. Seventy-six interface tests alongside the Rust suite, with each load-bearing rule confirmed by reintroducing the exact defect it prevents — including two that comparable products actually shipped.
+
+The desktop application is done. What remains for the project is `publishing/`.
 
 # Open threads
 

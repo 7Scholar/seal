@@ -50,13 +50,15 @@ Reveal is not an edit and must never mark a file dirty — a demonstrated failur
 
 - [x] shell.md -> the frontend's own shell: the page the webview loads, the build that produces it, and the typed command module
 - [x] screens.md -> the screens and the shared primitives that carry the behavioural rules
-- [ ] password-change.md -> the supervised master-password change, whose danger is the half-done state
+- [x] password-change.md -> the supervised master-password change, whose danger is the half-done state
 
 # Cursor
 
 The frontend and every screen are built, on a design taken from [the research](_docs/ux-research.md) rather than invented: unlock, the cross-repo view with its non-dismissible alert, the import flow, the environment-variables editor, and the first-seal acknowledgement. Sixty-three interface tests, with each load-bearing guard confirmed by reintroducing the exact defect it prevents.
 
-What remains is `password-change.md` — a flow rather than a screen, and the one operation whose failure mode is genuinely dangerous rather than merely annoying.
+`password-change.md` is complete too, on a manifest that outlives the process: removing that durability fails eight of its ten Rust tests, which is the measure of how much the guarantee was carrying.
+
+The interface is done. What remains for the application as a whole is `publishing/`.
 
 # Open threads
 

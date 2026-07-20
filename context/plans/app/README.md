@@ -53,7 +53,7 @@ The work decomposes into the children below: the sealing engine is the seam ever
 - [x] engine/ -> the sealing engine: age-based seal/unseal, the password model, session and key-handling semantics
 - [x] registry.md -> the registry of seal repos and their managed files, including the import scan
 - [x] cli.md -> the standalone CLI resolver
-- [ ] desktop/ -> the Tauri desktop application: shell, IPC surface, and the management UI
+- [x] desktop/ -> the Tauri desktop application: shell, IPC surface, and the management UI
 - [ ] publishing/ -> everything around the code: repo docs, CI, packaging, releases, maintainability
 
 # Cursor

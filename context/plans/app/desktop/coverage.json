@@ -1,15 +1,19 @@
 {
   "commands.md": {
-    "src-tauri/src/app.rs": "f4bf1c7187ba306ec4cfe9d01e2d54d46cf4a7ca",
-    "src-tauri/src/commands.rs": "f4bf1c7187ba306ec4cfe9d01e2d54d46cf4a7ca",
-    "src-tauri/src/error.rs": "f4bf1c7187ba306ec4cfe9d01e2d54d46cf4a7ca",
+    "src-tauri/src/app.rs": "bfb3565628e4ed202d1769fc8d272f6360e1b19e",
+    "src-tauri/src/commands.rs": "bfb3565628e4ed202d1769fc8d272f6360e1b19e",
+    "src-tauri/src/error.rs": "bfb3565628e4ed202d1769fc8d272f6360e1b19e",
     "src-tauri/src/view.rs": "f4bf1c7187ba306ec4cfe9d01e2d54d46cf4a7ca",
-    "src-tauri/tests/commands.rs": "f4bf1c7187ba306ec4cfe9d01e2d54d46cf4a7ca"
+    "src-tauri/tests/commands.rs": "bfb3565628e4ed202d1769fc8d272f6360e1b19e"
   },
   "dotenv.md": {
     "crates/seal-dotenv/Cargo.toml": "c748b3d474ea5a614da765fa854050eb14b5a7b1",
     "crates/seal-dotenv/src/lib.rs": "c748b3d474ea5a614da765fa854050eb14b5a7b1",
     "crates/seal-dotenv/tests/roundtrip.rs": "c748b3d474ea5a614da765fa854050eb14b5a7b1"
+  },
+  "lifecycle.md": {
+    "src-tauri/src/lifecycle.rs": "bfb3565628e4ed202d1769fc8d272f6360e1b19e",
+    "src-tauri/tests/lifecycle.rs": "bfb3565628e4ed202d1769fc8d272f6360e1b19e"
   },
   "shell.md": {
     "crates/seal-session/Cargo.toml": "a46c0f0c20c571b6d392647f98e9b5af1cd36fda",
@@ -19,7 +23,7 @@
     "src-tauri/Cargo.toml": "4aeac63208911fc6b387d55db0896ab1e705e90a",
     "src-tauri/build.rs": "4aeac63208911fc6b387d55db0896ab1e705e90a",
     "src-tauri/capabilities/default.json": "4aeac63208911fc6b387d55db0896ab1e705e90a",
-    "src-tauri/src/lib.rs": "4aeac63208911fc6b387d55db0896ab1e705e90a",
+    "src-tauri/src/lib.rs": "bfb3565628e4ed202d1769fc8d272f6360e1b19e",
     "src-tauri/src/main.rs": "4aeac63208911fc6b387d55db0896ab1e705e90a",
     "src-tauri/tauri.conf.json": "91e9c3b4e70a475fb230f7a4a92ff69f871983ff"
   }

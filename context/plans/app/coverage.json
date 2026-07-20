@@ -1,0 +1,13 @@
+{
+  "registry.md": {
+    "crates/seal-registry/Cargo.toml": "d57c2fb4ca4b0833add9b7ca2484b60b37dff269",
+    "crates/seal-registry/src/lib.rs": "d57c2fb4ca4b0833add9b7ca2484b60b37dff269",
+    "crates/seal-registry/src/reconcile.rs": "d57c2fb4ca4b0833add9b7ca2484b60b37dff269",
+    "crates/seal-registry/src/scan.rs": "d57c2fb4ca4b0833add9b7ca2484b60b37dff269",
+    "crates/seal-registry/src/state.rs": "d57c2fb4ca4b0833add9b7ca2484b60b37dff269",
+    "crates/seal-registry/src/store.rs": "d57c2fb4ca4b0833add9b7ca2484b60b37dff269",
+    "crates/seal-registry/tests/reconcile.rs": "d57c2fb4ca4b0833add9b7ca2484b60b37dff269",
+    "crates/seal-registry/tests/scan.rs": "d57c2fb4ca4b0833add9b7ca2484b60b37dff269",
+    "crates/seal-registry/tests/store.rs": "d57c2fb4ca4b0833add9b7ca2484b60b37dff269"
+  }
+}

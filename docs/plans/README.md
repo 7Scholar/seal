@@ -343,8 +343,6 @@ How the system ensures the plan files and the code they cover are in sync: see *
 
 How work moves through git — branches off `main`, the merge-commit guarantee that keeps coverage stamps valid across a merge, and the partition rule for concurrent tasks: see **[GIT_WORKFLOW.md](GIT_WORKFLOW.md)**.
 
-How several child branches under one concern come back together — why the roll-up makes the parent's plan files a shared-state hotspot, why union is the default resolution, and how the merge agent runs the pass: see **[MERGE.md](MERGE.md)**.
-
 ---
 
 ## 5. Intake: placing an unplaced request

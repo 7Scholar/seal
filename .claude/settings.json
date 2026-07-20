@@ -1,0 +1,34 @@
+{
+    "hooks": {
+        "SessionStart": [
+            {
+                "matcher": "startup",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "if [ -d \"$CLAUDE_PROJECT_DIR/.agents/skills\" ]; then cp -r \"$CLAUDE_PROJECT_DIR/.agents/skills/.\" \"$CLAUDE_PROJECT_DIR/.claude/skills/\"; fi && if [ -f \"$CLAUDE_PROJECT_DIR/AGENTS.md\" ]; then cat \"$CLAUDE_PROJECT_DIR/AGENTS.md\"; fi"
+                    }
+                ]
+            }
+        ]
+    },
+    "permissions": {
+        "allow": [
+            "Bash(find:*)",
+            "Bash(bun lint:*)",
+            "Bash(bun check-types:*)",
+            "Bash(bun run:*)",
+            "Bash(uv run python:*)",
+            "Bash(mkdir:*)",
+            "Bash(cat:*)",
+            "Bash(dir:*)",
+            "Bash(bun test:*)",
+            "Bash(bun format:check:*)"
+        ],
+        "deny": [
+            "Bash(python:*)",
+            "Bash(npm run check-types:*)"
+        ],
+        "ask": []
+    }
+}

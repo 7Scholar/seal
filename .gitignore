@@ -1,1 +1,13 @@
+# OS files
 .DS_Store
+
+# Claude files
+.claude/settings.local.json
+
+# Local env files
+.env
+.env.*
+*.env
+
+# Windows device files
+nul

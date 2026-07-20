@@ -12,15 +12,18 @@ Nothing implemented. The operations, their invariants, and the error taxonomy ar
 
 The implementation and its verification: the guard conditions (seal refuses an already-sealed file; the unseal operations refuse a file that is not sealed), the secret-material handling at the API boundary, the error enum, and the re-seal operation's partial-failure reporting.
 
+Two parts of the public surface are **undecided at the product level**, which is why this plan is blocked rather than merely unstarted: whether Seal offers an operation that leaves plaintext on disk permanently and in what form, and how changing the master passphrase behaves across every repo. Both are raised in the root `QUESTIONS.md`. They are not implementation details — the first decides whether a verb exists at all, and the second decides whether re-sealing needs a resumable journal or only a report.
+
 # Steps
 
-- [ ] Define the error enum and the public function signatures, including the secret-carrying types at the boundary.
-- [ ] Implement the four single-file operations over `format.md` and `replace.md`.
-- [ ] Implement repo re-seal with per-file partial-failure reporting.
-- [ ] Unit tests: every guard condition, every error variant, and assertions that no error value carries plaintext or passphrase material.
-- [ ] Test scripts: exercise the real engine against a realistic tree of env files — happy path, large files, a deliberately corrupted sealed file, wrong passphrases, and concurrent operations on the same file.
+- [!] Blocked — awaiting answers in the root `QUESTIONS.md` on permanent unsealing and master-passphrase change.
+- [ ] Define the error enum and the public function signatures: candidate-plural passphrases reporting which one matched, observed post-state returns carrying the identity fingerprint, and secret-carrying types at the boundary.
+- [ ] Implement the single-file operations over `format.md` and `replace.md`, acquiring the advisory lock before the classifying open so each guard condition actually holds.
+- [ ] Implement re-sealing over an explicit list of paths with a per-file report, shaped by the answer on master-passphrase change.
+- [ ] Unit tests: every guard condition, every error variant, the candidate-passphrase resolution reporting the right match, and assertions that no error value carries plaintext or passphrase material.
+- [ ] Test scripts: exercise the real engine against a realistic tree of env files — happy path, large files, a deliberately corrupted sealed file, a file sealed under a different passphrase than expected, wrong passphrases, and genuinely concurrent operations on the same file from two processes.
 
 # Open threads
 
-- Re-seal atomicity across many files: a mid-run failure leaves a repo split across two passphrases, so the operation must report precisely which files moved and which did not, and be safely re-runnable. Design the report shape before implementing.
-- Whether concurrent operations on the same path need explicit locking or whether the atomic replace makes last-writer-wins acceptable; determine by testing before finalizing.
+- The report shape for a multi-file re-seal: it must name precisely which files moved and which did not, and be safely re-runnable so a file already under the new passphrase is skipped rather than failed. Design it before implementing, against whichever answer the master-change question returns.
+

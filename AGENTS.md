@@ -6,6 +6,11 @@ Seal is a standalone Tauri application for encrypting and managing secret files 
 
 - The plan-system tooling under `context/_scripts/` is Python and uses `uv`. Do not use pip, pipenv, or poetry. Run its verbs with `uv run <verb> …` from that directory; tests with `uv run pytest`.
 
+## Code style
+
+- **Code is for code; documentation is for the plans.** Code carries no comments and no docstrings — none. Everything a reader might want explained lives in the plan tree ([context/plans/app/](context/plans/app/README.md)): behavior in a plan's Approach, mistake-preventing constraints in `MEMORY.md`.
+- The single exception is a rare comment marking a decision so counterintuitive that a reader would otherwise "correct" it on sight — and such a decision usually also warrants a `MEMORY.md` entry. If a comment merely explains what code does, the fix is clearer code, not the comment.
+
 ## Writing style
 
 - **Document the current design only.** Do not write about historical decisions or rejected alternatives.

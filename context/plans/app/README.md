@@ -28,8 +28,13 @@ No child plans yet.
 
 # Cursor
 
-Freshly framed from the founding intent; no work started. Approach is TBD, so the next move is research and brainstorming of solution directions — never building. This is a large concern (scope assessment, [docs/plans/README.md](../../../docs/plans/README.md) section 1): the first working session should surface the major design forks it exposes as blocking questions in `QUESTIONS.md` here at the root, rather than carving deep or committing a design alone.
+Blocked — awaiting answers in `QUESTIONS.md`. The research pass is done: the tooling/crypto landscape survey landed in [_docs/secrets-landscape.md](_docs/secrets-landscape.md), the Tauri/Rust grounding in [_docs/tauri-rust-practices.md](_docs/tauri-rust-practices.md), and the seven major design forks (crypto foundation, password scope, sealed-file form, git stance, resolution surface, unlock model, frontend stack) are raised as blocking questions in `QUESTIONS.md`. Next session: act on the answers, distill the chosen directions into the Approach, then carve the first child plans from the shape the answers reveal. No building until then.
 
 # Open threads
 
 No open threads yet.
+
+# Supporting docs
+
+- Before writing any Rust or Tauri code, follow [_docs/tauri-rust-practices.md](_docs/tauri-rust-practices.md).
+- When shaping the Approach or weighing the design forks, consult the tooling survey in [_docs/secrets-landscape.md](_docs/secrets-landscape.md).

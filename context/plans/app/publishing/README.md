@@ -13,14 +13,16 @@ TBD. The shape is partly forced already: the application is a Tauri desktop bund
 # Plans
 
 - [x] ci.md -> the automated checks that keep every claim in the repository true
-- [ ] docs.md -> the README and the documents a stranger needs to trust and contribute
+- [x] docs.md -> the README and the documents a stranger needs to trust and contribute
 - [ ] packaging.md -> bundling, signing, notarisation, and the release process
 
 # Cursor
 
 Freshly framed, with `ci.md` already complete because the gap it closed was real and immediate: seventy-six interface tests and a typecheck existed that **no automated run executed at all**.
 
-Next: `docs.md`, since the README is what a stranger meets first and it currently describes only the command-line tool. Then `packaging.md`, which is the one part of this tree that may need decisions only the project's owner can make.
+`docs.md` is complete: the README now covers the application as well as the command-line tool, and every command it gives was verified against a clean clone — which caught a gitignored lockfile that would have made `npm ci` impossible. The security policy, contributing guide and both licence texts are in place.
+
+Next: `packaging.md`. It is the one part of this tree likely to need decisions only the project's owner can make, since signing and notarisation require an Apple Developer identity and a Windows certificate.
 
 # Open threads
 

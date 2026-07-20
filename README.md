@@ -6,13 +6,21 @@ This exists to make two things coexist that otherwise cannot: giving tools and a
 
 ## Status
 
-Under active development, and not yet ready to install. The cryptographic engine, the cross-repo registry, and the command-line resolver are implemented and tested; the desktop application is being built. The plan tree records exactly where everything stands.
+Under active development, and not yet packaged for installation. Everything is built and tested — the cryptographic engine, the cross-repo registry, the command-line resolver, and the desktop application — but there are no signed installers yet, so running it means building from source. The plan tree records exactly where everything stands.
 
 ## How it works
 
 A sealed file is a **standard [age](https://age-encryption.org) file** with a passphrase — nothing proprietary. This matters more than it sounds: if Seal disappeared tomorrow, every sealed file would still open with the stock `age` tool and your password. That guarantee is verified in both directions by the test suite against the reference implementation.
 
 Sealing replaces the file atomically and preserves its permissions, so a `0600` secrets file stays `0600` rather than being quietly widened. A crash at any moment leaves either the complete old file or the complete new one, never a half-written one.
+
+### Managing files in the application
+
+The desktop application is where files are managed. You point it at a repository, and it looks for files that hold secrets — env files, key files, credential files — classifying each as a likely secret, a possible one, or a template that is meant to stay readable. Only the likely secrets are pre-selected, because managing a file that was meant to be readable encrypts it and breaks your build. Importing a folder never encrypts anything; sealing stays a separate, deliberate action.
+
+Env files get a per-variable editor. Values are masked, and a value is fetched only when you ask to see that one row — the application holds no more of the file than the row on screen. Saving preserves your comments, ordering, quoting and line endings exactly, changing only the lines whose value you changed. Files that are not env files are stored and encrypted as they are, never edited.
+
+Before anything is sealed for the first time the application asks you to acknowledge two facts it cannot soften: that a forgotten password loses the data permanently, and that sealing cannot protect a secret that was already exposed.
 
 ### Resolving a secret in a script
 
@@ -54,17 +62,29 @@ Two consequences worth stating plainly:
 
 ## Building from source
 
-Requires a recent Rust toolchain; the repository pins the version it needs.
+Requires a recent Rust toolchain and Node 22. The repository pins the Rust version it needs, and `npm ci` installs exactly what the lockfile pins.
 
 ```bash
-cargo build --release
-cargo test
+npm ci
+npm run build          # the interface
+cargo build --release  # the engine, the CLI and the application
 ```
 
-The test suite runs without any external tools. Tests that verify interoperability with the reference `age` implementation skip themselves unless that binary is installed (`brew install age`), so a fresh clone is green either way.
+To run the tests:
+
+```bash
+cargo test    # the Rust suite
+npm test      # the interface suite
+```
+
+On Linux the desktop application additionally needs the system webview libraries — `libwebkit2gtk-4.1-dev`, `libgtk-3-dev`, `libayatana-appindicator3-dev`, `librsvg2-dev` and `patchelf`. The engine and the command-line tool build without them.
+
+The test suite runs without any external tools. Tests that need something the environment may not provide skip themselves with a message — the reference `age` binary for the interoperability proof (`brew install age`), and a pseudo-terminal for the password-prompt test, which some sandboxes refuse. Continuous integration sets the variables that turn each of those skips into a failure, so a fresh clone is green either way while nothing goes silently unverified.
 
 ## Contributing and project layout
 
 The project is plan-driven: the founding intent, every design decision, and the current state of all work live in the plan tree at [context/plans/app/](context/plans/app/README.md), operated per [docs/plans/](docs/plans/README.md). Anyone — human or agent — picking up work starts at [AGENTS.md](AGENTS.md) and follows the entry manual from there.
 
 Code carries no comments; the explanation lives in the plans, where it can be read as a whole and kept honest.
+
+Two conventions are worth knowing before sending a change. Every load-bearing guard is expected to be **confirmed non-vacuous** — break it deliberately, watch the matching test fail, restore it — because a test that passes whether or not the code works is worse than no test. And a design decision that a later reader would reasonably try to "simplify" back out belongs in the relevant `MEMORY.md` with the mistake it prevents, not in a comment.

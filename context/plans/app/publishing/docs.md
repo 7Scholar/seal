@@ -1,0 +1,40 @@
+Part of [the publishing plan](README.md).
+
+# Scope
+
+The documents a stranger needs in order to trust the project, use it, and change it: the README, the security policy, the contribution guidance, and the licences. Out of scope: the plan tree, which documents the design and is governed by its own manual, and packaging instructions, which belong with `packaging.md`.
+
+# Approach
+
+Four documents, each answering a question a newcomer actually has.
+
+**The README** answers *what is this and can I trust it*. It states what Seal does, how a sealed file is a standard age file so the recovery story does not depend on Seal existing, how to use both the application and the command-line tool, and — at length, without softening — what Seal does not protect against. The two absolute limits are stated as limits rather than as caveats: a forgotten password is unrecoverable, and sealing cannot reach backwards over an already-exposed secret.
+
+Its status section says plainly that the project is not yet packaged, so nobody is misled into looking for an installer that does not exist.
+
+**Every command in the README is verified rather than believed.** The build and test instructions were run against a clean clone of the repository, which is what catches instructions that rot silently — and did catch one, since a gitignored lockfile would have left `npm ci` unable to run at all.
+
+**The security policy** states the threat model, names what is in scope and what is not, and gives a private reporting route. It is explicit that attacks requiring an adversary who can already read process memory during an unlocked session are out of scope by design, so a reporter is not left guessing whether the limit is a bug.
+
+**The contributing guide** names the two conventions a newcomer would otherwise violate: that code carries no comments because the plans hold the explanation, and that **every load-bearing guard must be confirmed non-vacuous** by breaking it and watching the matching test fail. The second is stated with its reason — tests in this repository have passed with the code they guarded entirely removed — because a convention without its reason reads as ceremony and gets dropped.
+
+**The licences** are both present, because the package manifests declare a dual MIT and Apache-2.0 licence and a declaration without the text is a false claim.
+
+# What exists
+
+All four, with the README's instructions verified against a clean clone.
+
+# What is missing
+
+Nothing on this plan. Installation instructions will need a line once there are artefacts to install, which is `packaging.md`.
+
+# Steps
+
+- [x] Bring the README up to date with the application, and verify every command it gives against a clean clone.
+- [x] The security policy, with the threat model and a private reporting route.
+- [x] The contributing guide, naming the conventions and their reasons.
+- [x] Both licence texts, matching what the manifests declare.
+
+# Open threads
+
+- The README has no screenshots, which is a real gap for an application whose whole argument is that it is easier than a command-line tool. Worth adding once the interface is stable enough that images will not immediately go stale.

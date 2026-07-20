@@ -23,9 +23,5 @@
 
 - crates/seal-session/Cargo.toml
   7131d87 (born) "desktop/shell: the session — dual-clock expiry, fail-closed access, explicit wipe"
-- crates/seal-session/src/clock.rs
-  7131d87 (born) "desktop/shell: the session — dual-clock expiry, fail-closed access, explicit wipe"
-- crates/seal-session/src/lib.rs
-  7131d87 (born) "desktop/shell: the session — dual-clock expiry, fail-closed access, explicit wipe"
 - crates/seal-session/tests/expiry.rs
   7131d87 (born) "desktop/shell: the session — dual-clock expiry, fail-closed access, explicit wipe"

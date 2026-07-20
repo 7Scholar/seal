@@ -11,3 +11,9 @@
 
 # Windows device files
 nul
+
+# Rust build output
+/target
+
+# Seal replacement temporaries, should a run be interrupted
+.*.seal.tmp.*

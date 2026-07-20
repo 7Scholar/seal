@@ -85,16 +85,16 @@ Two of the properties above are invisible to ordinary assertions and are therefo
 # Plans
 
 - [ ] format.md -> sealed-file format, classification, and the age binding
-- [ ] replace.md -> atomic identity-preserving file replacement
+- [x] replace.md -> atomic identity-preserving file replacement
 - [ ] operations.md -> the engine's public operations, passphrase resolution, and error taxonomy (one step within it, multi-file re-sealing, waits on the master-passphrase question)
 
 # Cursor
 
 Solutioned, then revised after an adversarial review of the design found real errors before any code was written. The Approach specifies plural candidate passphrases at the seam, directional durability, an advisory lock across classify-and-replace, classification over an open handle, an explicit syscall seam for fault injection, observed post-state returns with an identity fingerprint, and a two-track interoperability strategy. A subsequent product decision removed any operation that writes plaintext to a managed file's path: unsealing is a memory concept, so a managed file's on-disk state moves from plaintext to sealed and never back.
 
-All three children are unblocked; only one step inside `operations.md` — re-sealing many files under a new passphrase — waits on the outstanding master-passphrase question, whose research is under way.
+`replace.md` is implemented and verified: the syscall seam, the fault-injecting implementation, the replacement sequence, and ten tests covering the crash contract at every step, metadata preservation, and both durability directions. Both metadata tests were checked for vacuity by breaking each restore path and confirming the matching test fails. The advisory lock moved to `operations.md`, which owns the span it must cover.
 
-Next: implement `replace.md`, whose contract is settled and independent of everything still open.
+Nothing here is blocked. Next: `format.md` — measure a derivation in release build to pin the work-factor constant and its minimum floor, then the encrypt and decrypt wrappers, classification over an open handle, and the static test-vector corpus.
 
 # Open threads
 

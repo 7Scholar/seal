@@ -17,7 +17,8 @@ The public surface is settled. Unsealing is a memory operation only — there is
 # Steps
 
 - [ ] Define the error enum and the public function signatures: candidate-plural passphrases reporting which one matched, observed post-state returns carrying the identity fingerprint, and secret-carrying types at the boundary.
-- [ ] Implement the single-file operations over `format.md` and `replace.md`, acquiring the advisory lock before the classifying open so each guard condition actually holds.
+- [ ] Implement the advisory sibling lock, acquired before the classifying open and released after the rename, returning a busy result rather than blocking. It lives here rather than in `replace.md` because it must span classification as well as replacement.
+- [ ] Implement the single-file operations over `format.md` and `replace.md`, holding that lock so each guard condition actually holds.
 - [ ] Implement re-sealing over an explicit list of paths: plan computation, the new-passphrase round-trip guard, derived progress, bounded retry of transient failures, and a per-file result naming what remains and why.
 - [ ] Unit tests: every guard condition, every error variant, the candidate-passphrase resolution reporting the right match, and assertions that no error value carries plaintext or passphrase material.
 - [ ] Test scripts: exercise the real engine against a realistic tree of env files — happy path, large files, a deliberately corrupted sealed file, a file sealed under a different passphrase than expected, wrong passphrases, and genuinely concurrent operations on the same file from two processes.

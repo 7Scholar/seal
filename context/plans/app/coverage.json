@@ -8,7 +8,7 @@
     "crates/seal-registry/Cargo.toml": "d57c2fb4ca4b0833add9b7ca2484b60b37dff269",
     "crates/seal-registry/src/lib.rs": "d57c2fb4ca4b0833add9b7ca2484b60b37dff269",
     "crates/seal-registry/src/reconcile.rs": "d57c2fb4ca4b0833add9b7ca2484b60b37dff269",
-    "crates/seal-registry/src/scan.rs": "d57c2fb4ca4b0833add9b7ca2484b60b37dff269",
+    "crates/seal-registry/src/scan.rs": "f4bf1c7187ba306ec4cfe9d01e2d54d46cf4a7ca",
     "crates/seal-registry/src/state.rs": "d57c2fb4ca4b0833add9b7ca2484b60b37dff269",
     "crates/seal-registry/src/store.rs": "d57c2fb4ca4b0833add9b7ca2484b60b37dff269",
     "crates/seal-registry/tests/reconcile.rs": "d57c2fb4ca4b0833add9b7ca2484b60b37dff269",

@@ -23,7 +23,12 @@ fn round_trips_through_the_sealed_format() {
     let sealed = seal_bytes(plaintext, "correct horse", TEST_WORK_FACTOR);
 
     let mut opened = Vec::new();
-    let report = format::unseal(&sealed[..], &mut opened, &[pass("correct horse")]).unwrap();
+    let report = format::unseal(
+        std::io::Cursor::new(&sealed[..]),
+        &mut opened,
+        &[pass("correct horse")],
+    )
+    .unwrap();
 
     assert_eq!(opened, plaintext);
     assert_eq!(report.candidate, 0);
@@ -61,7 +66,12 @@ fn reports_the_work_factor_the_file_actually_carries() {
 fn round_trips_an_empty_file() {
     let sealed = seal_bytes(b"", "pw", TEST_WORK_FACTOR);
     let mut opened = Vec::new();
-    format::unseal(&sealed[..], &mut opened, &[pass("pw")]).unwrap();
+    format::unseal(
+        std::io::Cursor::new(&sealed[..]),
+        &mut opened,
+        &[pass("pw")],
+    )
+    .unwrap();
     assert!(opened.is_empty());
 }
 
@@ -71,7 +81,12 @@ fn round_trips_content_larger_than_one_stream_chunk() {
     let sealed = seal_bytes(&plaintext, "pw", TEST_WORK_FACTOR);
 
     let mut opened = Vec::new();
-    format::unseal(&sealed[..], &mut opened, &[pass("pw")]).unwrap();
+    format::unseal(
+        std::io::Cursor::new(&sealed[..]),
+        &mut opened,
+        &[pass("pw")],
+    )
+    .unwrap();
     assert_eq!(opened, plaintext);
 }
 
@@ -81,7 +96,7 @@ fn reports_which_candidate_opened_the_file() {
 
     let mut opened = Vec::new();
     let report = format::unseal(
-        &sealed[..],
+        std::io::Cursor::new(&sealed[..]),
         &mut opened,
         &[pass("first"), pass("second"), pass("third")],
     )
@@ -99,7 +114,12 @@ fn a_wrong_passphrase_is_distinct_from_a_damaged_file() {
     let sealed = seal_bytes(b"value\n", "right", TEST_WORK_FACTOR);
 
     let mut sink = Vec::new();
-    let error = format::unseal(&sealed[..], &mut sink, &[pass("wrong")]).unwrap_err();
+    let error = format::unseal(
+        std::io::Cursor::new(&sealed[..]),
+        &mut sink,
+        &[pass("wrong")],
+    )
+    .unwrap_err();
     assert!(
         matches!(error, FormatError::NoMatchingPassphrase),
         "expected a passphrase failure, got {error:?}"
@@ -123,7 +143,12 @@ fn a_wrong_passphrase_is_distinct_from_a_damaged_file() {
     let damaged = format!("{}\n", lines.join("\n"));
 
     let mut sink = Vec::new();
-    let error = format::unseal(damaged.as_bytes(), &mut sink, &[pass("right")]).unwrap_err();
+    let error = format::unseal(
+        std::io::Cursor::new(damaged.as_bytes()),
+        &mut sink,
+        &[pass("right")],
+    )
+    .unwrap_err();
     assert!(
         matches!(error, FormatError::Damaged),
         "a corrupted payload must be reported as damage, not as a wrong passphrase, got {error:?}"
@@ -136,7 +161,8 @@ fn refuses_a_file_sealed_below_the_minimum_work_factor() {
     let sealed = seal_bytes(b"value\n", "pw", weak);
 
     let mut sink = Vec::new();
-    let error = format::unseal(&sealed[..], &mut sink, &[pass("pw")]).unwrap_err();
+    let error =
+        format::unseal(std::io::Cursor::new(&sealed[..]), &mut sink, &[pass("pw")]).unwrap_err();
 
     assert!(
         matches!(error, FormatError::InsufficientWork),
@@ -147,8 +173,12 @@ fn refuses_a_file_sealed_below_the_minimum_work_factor() {
 #[test]
 fn plaintext_input_is_not_mistaken_for_a_sealed_file() {
     let mut sink = Vec::new();
-    let error =
-        format::unseal(b"DATABASE_URL=plain\n".as_slice(), &mut sink, &[pass("pw")]).unwrap_err();
+    let error = format::unseal(
+        std::io::Cursor::new(b"DATABASE_URL=plain\n"),
+        &mut sink,
+        &[pass("pw")],
+    )
+    .unwrap_err();
 
     assert!(
         matches!(error, FormatError::NotSealed),
@@ -200,3 +230,44 @@ const _: () = assert!(
     WORK_FACTOR >= MINIMUM_WORK_FACTOR,
     "files Seal writes must not be rejected by Seal's own floor"
 );
+
+#[test]
+fn unsealing_streams_rather_than_buffering_the_whole_file() {
+    struct CountingSink {
+        largest_write: usize,
+        total: usize,
+    }
+
+    impl std::io::Write for CountingSink {
+        fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+            self.largest_write = self.largest_write.max(buf.len());
+            self.total += buf.len();
+            Ok(buf.len())
+        }
+        fn flush(&mut self) -> std::io::Result<()> {
+            Ok(())
+        }
+    }
+
+    let plaintext: Vec<u8> = (0..2_000_000u32).map(|i| (i % 251) as u8).collect();
+    let sealed = seal_bytes(&plaintext, "pw", TEST_WORK_FACTOR);
+
+    let mut sink = CountingSink {
+        largest_write: 0,
+        total: 0,
+    };
+    format::unseal(std::io::Cursor::new(&sealed[..]), &mut sink, &[pass("pw")]).unwrap();
+
+    assert_eq!(
+        sink.total,
+        plaintext.len(),
+        "all content must reach the sink"
+    );
+    assert!(
+        sink.largest_write < plaintext.len() / 4,
+        "plaintext must arrive in chunks rather than one buffer holding the whole file; \
+         largest single write was {} of {} bytes",
+        sink.largest_write,
+        plaintext.len()
+    );
+}

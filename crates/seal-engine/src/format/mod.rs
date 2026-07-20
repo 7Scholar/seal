@@ -1,4 +1,4 @@
-use std::io::{self, BufRead, BufReader, Read, Write};
+use std::io::{self, BufRead, BufReader, Read, Seek, Write};
 use std::iter;
 
 use age::secrecy::SecretString;
@@ -11,6 +11,7 @@ pub const MAXIMUM_WORK_FACTOR: u8 = 22;
 const ARMOR_MARKER: &[u8] = b"-----BEGIN AGE ENCRYPTED FILE-----";
 const BINARY_MARKER: &[u8] = b"age-encryption.org/v1";
 const PROBE_BYTES: usize = 64;
+const COPY_CHUNK: usize = 64 * 1024;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[non_exhaustive]
@@ -81,19 +82,20 @@ pub struct Opened {
     pub work_factor: u8,
 }
 
-pub fn unseal<R: Read, W: Write>(
+pub fn unseal<R: Read + Seek, W: Write>(
     mut sealed: R,
     mut sink: W,
     candidates: &[SecretString],
 ) -> Result<Opened, FormatError> {
-    let mut bytes = Zeroizing::new(Vec::new());
-    sealed.read_to_end(&mut bytes)?;
-
-    if classify_head(&bytes) == Classification::Plaintext {
+    sealed.rewind()?;
+    let mut head = [0u8; PROBE_BYTES];
+    let filled = fill(&mut sealed, &mut head)?;
+    if classify_head(&head[..filled]) == Classification::Plaintext {
         return Err(FormatError::NotSealed);
     }
 
-    let work_factor = work_factor_of(&bytes[..])
+    sealed.rewind()?;
+    let work_factor = work_factor_of(&mut sealed)
         .map_err(|_| FormatError::Damaged)?
         .ok_or(FormatError::Damaged)?;
     if work_factor < MINIMUM_WORK_FACTOR {
@@ -106,7 +108,8 @@ pub fn unseal<R: Read, W: Write>(
         let mut identity = age::scrypt::Identity::new(passphrase.clone());
         identity.set_max_work_factor(MAXIMUM_WORK_FACTOR);
 
-        let decryptor = match age::Decryptor::new(age::armor::ArmoredReader::new(&bytes[..])) {
+        sealed.rewind()?;
+        let decryptor = match age::Decryptor::new(age::armor::ArmoredReader::new(&mut sealed)) {
             Ok(decryptor) => decryptor,
             Err(age::DecryptError::InvalidHeader) => return Err(FormatError::NotSealed),
             Err(age::DecryptError::ExcessiveWork { .. }) => return Err(FormatError::ExcessiveWork),
@@ -125,13 +128,7 @@ pub fn unseal<R: Read, W: Write>(
             }
         };
 
-        let mut plaintext = Zeroizing::new(Vec::new());
-        match reader.read_to_end(&mut plaintext) {
-            Ok(_) => {}
-            Err(_) => return Err(FormatError::Damaged),
-        }
-
-        sink.write_all(&plaintext)?;
+        copy_secret(&mut reader, &mut sink)?;
         sink.flush()?;
         return Ok(Opened {
             candidate,
@@ -146,18 +143,39 @@ pub fn unseal<R: Read, W: Write>(
     }
 }
 
-pub fn classify<R: Read>(source: R) -> io::Result<Classification> {
-    let mut head = [0u8; PROBE_BYTES];
-    let mut reader = BufReader::new(source);
+fn fill<R: Read>(source: &mut R, buffer: &mut [u8]) -> io::Result<usize> {
     let mut filled = 0;
-
-    while filled < PROBE_BYTES {
-        match reader.read(&mut head[filled..])? {
+    while filled < buffer.len() {
+        match source.read(&mut buffer[filled..])? {
             0 => break,
             n => filled += n,
         }
     }
+    Ok(filled)
+}
 
+fn copy_secret<R: Read, W: Write>(source: &mut R, sink: &mut W) -> Result<u64, FormatError> {
+    let mut buffer = Zeroizing::new(vec![0u8; COPY_CHUNK]);
+    let mut total = 0u64;
+
+    loop {
+        let read = match source.read(&mut buffer) {
+            Ok(0) => break,
+            Ok(n) => n,
+            Err(err) if err.kind() == io::ErrorKind::Interrupted => continue,
+            Err(_) => return Err(FormatError::Damaged),
+        };
+        sink.write_all(&buffer[..read])?;
+        total += read as u64;
+    }
+
+    Ok(total)
+}
+
+pub fn classify<R: Read>(source: R) -> io::Result<Classification> {
+    let mut head = [0u8; PROBE_BYTES];
+    let mut reader = BufReader::new(source);
+    let filled = fill(&mut reader, &mut head)?;
     Ok(classify_head(&head[..filled]))
 }
 

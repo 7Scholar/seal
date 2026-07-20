@@ -20,8 +20,12 @@ fn passphrase() -> SecretString {
 fn open(name: &str) -> Vec<u8> {
     let sealed = vector(name);
     let mut plaintext = Vec::new();
-    format::unseal(&sealed[..], &mut plaintext, &[passphrase()])
-        .unwrap_or_else(|err| panic!("vector {name} must open: {err}"));
+    format::unseal(
+        std::io::Cursor::new(&sealed[..]),
+        &mut plaintext,
+        &[passphrase()],
+    )
+    .unwrap_or_else(|err| panic!("vector {name} must open: {err}"));
     plaintext
 }
 
@@ -65,7 +69,12 @@ fn opens_a_file_containing_multibyte_text() {
 fn refuses_a_vector_sealed_below_the_minimum_work_factor() {
     let sealed = vector("armored_weak_work_factor.age");
     let mut sink = Vec::new();
-    let error = format::unseal(&sealed[..], &mut sink, &[passphrase()]).unwrap_err();
+    let error = format::unseal(
+        std::io::Cursor::new(&sealed[..]),
+        &mut sink,
+        &[passphrase()],
+    )
+    .unwrap_err();
 
     assert!(
         matches!(error, FormatError::InsufficientWork),
@@ -94,7 +103,7 @@ fn a_wrong_passphrase_against_a_stored_vector_is_reported_as_such() {
     let sealed = vector("armored_env.age");
     let mut sink = Vec::new();
     let error = format::unseal(
-        &sealed[..],
+        std::io::Cursor::new(&sealed[..]),
         &mut sink,
         &[SecretString::from("not the passphrase".to_owned())],
     )

@@ -12,6 +12,12 @@ TBD, except for one part of it that is decided and constrains the rest.
 
 Two consequences for the rest of the design. The fifteen-minute expiry is a property of the held plaintext rather than of the session as a whole, so it applies per file and a file whose time runs out while the application is still unlocked is cleared on its own. And because the application quitting is one of the clearing conditions, quitting must remain safe at any moment: unsaved edits are lost by design rather than flushed to disk, which is the correct trade for this product and must be made obvious in the interface rather than discovered.
 
+**Changing the master password is a supervised operation, and an unfinished one is never left to sit.** The engine makes the work safe to interrupt and safe to repeat — every file is wholly under one password or the other, and progress is derived from the files themselves rather than from bookkeeping — but "safe to resume" is not the same as "fine to leave," and the interface must not imply it is. So the application does the work of getting to completion rather than reporting a count and handing the problem back.
+
+Before starting, the interface asks — as a question needing an answer, not a warning to dismiss — whether the user has a backup, and states plainly that both the old and new passwords must be remembered until the operation finishes and that a forgotten old password cannot be rescued by it. During the run it shows real progress and does not present interruption as harmless. Files that fail transiently are retried by the engine without the user ever seeing them.
+
+What the user does see is the case that survives retries: a prominent, persistent banner naming the files still on the previous password, the reason each is stuck, and a single control that retries them. The banner stays until the operation is genuinely complete — it is not dismissible into oblivion, because a split left unattended is precisely the state that turns a recoverable situation into a confusing one months later when only one password is still remembered. Where the reason is actionable (a file open in an editor, a permission problem), the interface says so specifically rather than reporting a generic failure, since the user resolving it and clicking retry is the intended path.
+
 # Plans
 
 No child plans yet.

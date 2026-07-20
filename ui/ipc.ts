@@ -52,6 +52,19 @@ export interface SealWarning {
 
 export type Release = "restorePlaintext" | "leaveSealed";
 
+export type Standing = "pending" | "converted" | "failed";
+
+export interface ManifestEntry {
+  path: string;
+  standing: Standing;
+  reason?: string;
+}
+
+export interface Manifest {
+  workFactor: number;
+  entries: ManifestEntry[];
+}
+
 export type ErrorKind =
   | "locked"
   | "wrongPassphrase"
@@ -66,6 +79,8 @@ export type ErrorKind =
   | "unknownKey"
   | "notAnEnvFile"
   | "notAcknowledged"
+  | "rekeyInFlight"
+  | "noRekey"
   | "io"
   | "registry";
 
@@ -101,6 +116,12 @@ export const sealWarning = (path: string) =>
   invoke<SealWarning | null>("seal_warning", { path });
 export const hasAcknowledged = () => invoke<boolean>("has_acknowledged");
 export const acknowledge = () => invoke<void>("acknowledge");
+
+export const rekeyStatus = () => invoke<Manifest | null>("rekey_status");
+export const rekeyBegin = () => invoke<Manifest>("rekey_begin");
+export const rekeyRun = (current: string, replacement: string) =>
+  invoke<Manifest>("rekey_run", { current, replacement });
+export const rekeyAbandon = () => invoke<void>("rekey_abandon");
 
 export async function reveal(path: string, key: string): Promise<Uint8Array> {
   const bytes = await invoke<ArrayBuffer>("reveal", { path, key });

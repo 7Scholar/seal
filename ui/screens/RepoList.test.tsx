@@ -115,3 +115,41 @@ describe("RepoList", () => {
     expect(onLock).toHaveBeenCalledOnce();
   });
 });
+
+describe("RepoList and an unfinished password change", () => {
+  it("surfaces an unfinished run on the main surface, not only in a dialog", () => {
+    const onChangePassword = vi.fn();
+    render(
+      <RepoList
+        repos={repos}
+        onImport={vi.fn()}
+        onOpen={vi.fn()}
+        onSeal={vi.fn()}
+        onRelease={vi.fn()}
+        onLock={vi.fn()}
+        onChangePassword={onChangePassword}
+        unfinishedRekey
+      />,
+    );
+
+    const alert = screen.getByRole("alert");
+    expect(alert).toHaveTextContent(/was not finished/i);
+    expect(alert).toHaveTextContent(/keep both/i);
+    expect(screen.getByRole("button", { name: "Finish it" })).toBeInTheDocument();
+  });
+
+  it("says nothing about a password change when none is pending", () => {
+    render(
+      <RepoList
+        repos={repos}
+        onImport={vi.fn()}
+        onOpen={vi.fn()}
+        onSeal={vi.fn()}
+        onRelease={vi.fn()}
+        onLock={vi.fn()}
+        onChangePassword={vi.fn()}
+      />,
+    );
+    expect(screen.queryByText(/was not finished/i)).not.toBeInTheDocument();
+  });
+});

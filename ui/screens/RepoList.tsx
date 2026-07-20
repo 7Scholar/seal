@@ -8,6 +8,8 @@ interface Props {
   onSeal: (path: string) => void | Promise<void>;
   onRelease: (path: string) => void;
   onLock: () => void;
+  onChangePassword?: () => void;
+  unfinishedRekey?: boolean;
 }
 
 const LABELS: Record<SealedState, string> = {
@@ -24,6 +26,8 @@ export function RepoList({
   onSeal,
   onRelease,
   onLock,
+  onChangePassword,
+  unfinishedRekey = false,
 }: Props) {
   const exposures = repos.flatMap((repo) =>
     repo.files
@@ -57,10 +61,27 @@ export function RepoList({
         <button type="button" onClick={onImport}>
           Import a folder
         </button>
+        {onChangePassword ? (
+          <button type="button" onClick={onChangePassword}>
+            Change password
+          </button>
+        ) : null}
         <button type="button" onClick={onLock}>
           Lock Seal
         </button>
       </header>
+
+      {unfinishedRekey && onChangePassword ? (
+        <div className="repos__rekey" role="alert">
+          <span>
+            A password change was not finished. Some files are on the old
+            password and some on the new — keep both until it completes.
+          </span>
+          <button type="button" onClick={onChangePassword}>
+            Finish it
+          </button>
+        </div>
+      ) : null}
 
       <ExposureAlert exposures={exposures} onSeal={onSeal} />
 

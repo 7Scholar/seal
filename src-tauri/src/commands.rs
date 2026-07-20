@@ -10,6 +10,7 @@ use tauri::State as Managed;
 use crate::app;
 use crate::error::{CommandError, Kind};
 use crate::lifecycle::{self, ScanView};
+use crate::rekey;
 use crate::view::{OpenedFile, RepoView};
 
 pub const RETRY_ATTEMPTS: u8 = 5;
@@ -18,14 +19,21 @@ pub struct Held {
     pub session: Mutex<Session>,
     pub registry: Mutex<State>,
     pub store: Store,
+    pub directory: PathBuf,
 }
 
 impl Held {
     pub fn new(store: Store, registry: State) -> Self {
+        let directory = store
+            .path()
+            .parent()
+            .map(std::path::Path::to_path_buf)
+            .unwrap_or_default();
         Self {
             session: Mutex::new(Session::new()),
             registry: Mutex::new(registry),
             store,
+            directory,
         }
     }
 
@@ -51,6 +59,10 @@ impl Held {
         self.registry
             .lock()
             .map_err(|_| CommandError::new(Kind::Registry))
+    }
+
+    pub fn ledger(&self) -> rekey::Ledger {
+        rekey::Ledger::new(&self.directory)
     }
 
     pub fn persist(&self, state: &State) -> Result<(), CommandError> {
@@ -190,4 +202,41 @@ pub async fn acknowledge(held: Managed<'_, Held>) -> Result<(), CommandError> {
     let mut registry = held.registry()?;
     lifecycle::acknowledge(&mut registry);
     held.persist(&registry)
+}
+
+#[tauri::command]
+pub async fn rekey_status(
+    held: Managed<'_, Held>,
+) -> Result<Option<rekey::Manifest>, CommandError> {
+    held.ledger().read()
+}
+
+#[tauri::command]
+pub async fn rekey_begin(held: Managed<'_, Held>) -> Result<rekey::Manifest, CommandError> {
+    let registry = held.registry()?;
+    rekey::begin(&held.ledger(), &registry, app::WORK_FACTOR)
+}
+
+#[tauri::command]
+pub async fn rekey_run(
+    held: Managed<'_, Held>,
+    current: String,
+    replacement: String,
+) -> Result<rekey::Manifest, CommandError> {
+    let from = age::secrecy::SecretString::from(current);
+    let to = age::secrecy::SecretString::from(replacement);
+
+    let manifest = rekey::run(&held.ledger(), &from, &to)?;
+
+    if manifest.is_complete() {
+        let mut session = held.session()?;
+        session.unlock(to)?;
+    }
+
+    Ok(manifest)
+}
+
+#[tauri::command]
+pub async fn rekey_abandon(held: Managed<'_, Held>) -> Result<(), CommandError> {
+    held.ledger().clear()
 }

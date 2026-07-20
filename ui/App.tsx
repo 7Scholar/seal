@@ -5,6 +5,7 @@ import { EnvEditor } from "./screens/EnvEditor";
 import { ImportFlow } from "./screens/ImportFlow";
 import { RepoList } from "./screens/RepoList";
 import { Unlock } from "./screens/Unlock";
+import { PasswordChange } from "./screens/PasswordChange";
 import { Confirm } from "./components/Confirm";
 import { fileName } from "./format";
 
@@ -12,7 +13,8 @@ type Screen =
   | { name: "repos" }
   | { name: "import"; scan: ipc.ScanView }
   | { name: "editor"; file: ipc.EnvView }
-  | { name: "opaque"; path: string; bytes: number };
+  | { name: "opaque"; path: string; bytes: number }
+  | { name: "rekey" };
 
 export function App() {
   const [unlocked, setUnlocked] = useState(false);
@@ -20,6 +22,7 @@ export function App() {
   const [screen, setScreen] = useState<Screen>({ name: "repos" });
   const [acknowledging, setAcknowledging] = useState<null | (() => void)>(null);
   const [releasing, setReleasing] = useState<string | null>(null);
+  const [rekey, setRekey] = useState<ipc.Manifest | null>(null);
 
   const refresh = useCallback(async () => {
     setRepos(await ipc.overview());
@@ -33,7 +36,9 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    if (unlocked) void refresh();
+    if (!unlocked) return;
+    void refresh();
+    ipc.rekeyStatus().then(setRekey).catch(() => setRekey(null));
   }, [unlocked, refresh]);
 
   async function withAcknowledgement(action: () => Promise<void>) {
@@ -89,6 +94,8 @@ export function App() {
           onOpen={open}
           onSeal={seal}
           onRelease={setReleasing}
+          unfinishedRekey={rekey !== null}
+          onChangePassword={() => setScreen({ name: "rekey" })}
           onLock={async () => {
             await ipc.lock();
             setUnlocked(false);
@@ -145,6 +152,26 @@ export function App() {
             Close
           </button>
         </section>
+      ) : null}
+
+      {screen.name === "rekey" ? (
+        <PasswordChange
+          manifest={rekey}
+          onBegin={async () => {
+            setRekey(await ipc.rekeyBegin());
+          }}
+          onRun={async (current, replacement) => {
+            const outcome = await ipc.rekeyRun(current, replacement);
+            const done = outcome.entries.every((e) => e.standing === "converted");
+            setRekey(done ? null : outcome);
+            if (done) setScreen({ name: "repos" });
+          }}
+          onAbandon={async () => {
+            await ipc.rekeyAbandon();
+            setRekey(null);
+          }}
+          onClose={() => setScreen({ name: "repos" })}
+        />
       ) : null}
 
       {acknowledging ? (

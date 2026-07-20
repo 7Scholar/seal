@@ -2,6 +2,7 @@ pub mod app;
 pub mod commands;
 pub mod error;
 pub mod lifecycle;
+pub mod rekey;
 pub mod view;
 
 use std::time::Duration;
@@ -47,6 +48,10 @@ pub fn run() {
             commands::seal_warning,
             commands::has_acknowledged,
             commands::acknowledge,
+            commands::rekey_status,
+            commands::rekey_begin,
+            commands::rekey_run,
+            commands::rekey_abandon,
         ])
         .setup(move |app| {
             app.manage(Held::new(store, state));

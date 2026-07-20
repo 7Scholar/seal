@@ -18,6 +18,8 @@ pub enum Kind {
     UnknownKey,
     NotAnEnvFile,
     NotAcknowledged,
+    RekeyInFlight,
+    NoRekey,
     Io,
     Registry,
 }
@@ -30,6 +32,20 @@ pub struct CommandError {
 }
 
 impl CommandError {
+    pub fn kind_of(error: &seal_engine::operations::OperationError) -> Kind {
+        use seal_engine::operations::OperationError as Op;
+        match error {
+            Op::AlreadySealed { .. } => Kind::AlreadySealed,
+            Op::NotSealed { .. } => Kind::NotSealed,
+            Op::Absent { .. } => Kind::Absent,
+            Op::Busy { .. } => Kind::Busy,
+            Op::NoMatchingPassphrase { .. } => Kind::WrongPassphrase,
+            Op::Damaged { .. } | Op::UnacceptableWork { .. } => Kind::Damaged,
+            Op::SymlinkTarget { .. } => Kind::SymlinkTarget,
+            _ => Kind::Io,
+        }
+    }
+
     pub fn new(kind: Kind) -> Self {
         Self { kind, path: None }
     }

@@ -14,7 +14,7 @@ TBD. The shape is partly forced already: the application is a Tauri desktop bund
 
 - [x] ci.md -> the automated checks that keep every claim in the repository true
 - [x] docs.md -> the README and the documents a stranger needs to trust and contribute
-- [ ] packaging.md -> bundling, signing, notarisation, and the release process
+- [!] packaging.md -> awaiting an answer in QUESTIONS.md on signing bundling, signing, notarisation, and the release process
 
 # Cursor
 
@@ -22,8 +22,10 @@ Freshly framed, with `ci.md` already complete because the gap it closed was real
 
 `docs.md` is complete: the README now covers the application as well as the command-line tool, and every command it gives was verified against a clean clone — which caught a gitignored lockfile that would have made `npm ci` impossible. The security policy, contributing guide and both licence texts are in place.
 
-Next: `packaging.md`. It is the one part of this tree likely to need decisions only the project's owner can make, since signing and notarisation require an Apple Developer identity and a Windows certificate.
+`packaging.md` is framed and partly blocked. Bundling already works — verified, a `Seal.app` and a 4 MB `.dmg` from a clean tree — but the result is ad-hoc signed and **Gatekeeper refuses it**, so a downloaded release would tell the user the application is damaged. Fixing that needs a signing identity, which is a decision about the project rather than the code, and is waiting in `QUESTIONS.md`.
+
+Two things in that plan are not blocked and can proceed: shipping the command-line tool inside the bundle, which measurement showed is currently missing entirely, and building artefacts on a tag with checksums.
 
 # Open threads
 
-- Signing and notarisation need an Apple Developer identity, and Windows signing needs a certificate. Both are decisions about the project's identity rather than its code, and both may need to be raised as questions rather than chosen.
+- Windows and Linux artefacts are unaddressed until the macOS path is proven end to end, since whatever is learned there mostly transfers.

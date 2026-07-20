@@ -62,8 +62,8 @@ Two flows carry more weight than their screens suggest, and their behaviour is f
 
 # Plans
 
-- [~] shell.md -> the Tauri shell: session state, secret lifetimes and clearing, lifecycle hooks, window and webview hardening
-- [ ] commands.md -> the IPC surface: the command set, what may cross the boundary, and how blocking work is dispatched
+- [x] shell.md -> the Tauri shell: session state, secret lifetimes and clearing, lifecycle hooks, window and webview hardening
+- [x] commands.md -> the IPC surface: the command set, what may cross the boundary, and how blocking work is dispatched
 - [x] dotenv.md -> lossless env-file parsing and rendering, so saving preserves comments, order and formatting
 - [ ] ui/ -> the interface: the cross-repo view, the import flow, the environment-variables editor, and the two flows that must insist
 
@@ -73,12 +73,13 @@ Solutioned, and decomposed into four children. The design is grounded in researc
 
 `dotenv.md` is complete: an untouched file round-trips byte-for-byte and an edit changes exactly one line, verified against a lossy renderer that fails seven of its fourteen tests.
 
-`shell.md` is in flight. Its core — the session, the two lifetimes, the dual-clock fail-closed expiry, the sweep and the explicit wipe — is built and tested in `seal-session`, which holds no Tauri types and is therefore testable without a running application. Each guard was confirmed non-vacuous by breaking it: the naive timer-shaped design fails four tests. What remains there is the Tauri wiring itself — managed state, the exit-request hook, the background sweep, and the hardened window — all of which need the Tauri dependency.
+`shell.md` and `commands.md` are both complete, and the application builds and links as a real Tauri app. The session, the dual-clock fail-closed expiry, the explicit wipe on the exit request, the background sweep and the hardened window are all in place, as is the command surface: masked structure on open, a per-key reveal returning raw bytes, edits rather than files on save, and an error type the compiler forbids from carrying secret material.
 
-Nothing is blocked. Next: `commands.md`, which introduces Tauri and lets the rest of `shell.md` close alongside it.
+The webview's memory-only data store was confirmed at the platform layer rather than trusted from documentation — it resolves to the non-persistent website data store on macOS, ahead of every other branch.
+
+Nothing is blocked. Next: `ui/`, the last desktop child, which now has a running application and a typed command surface to build against. Two commands are deliberately deferred into it — importing a repo and the supervised password change — because both are shaped by the flow around them.
 
 # Open threads
 
 - Whether to treat system sleep and screen lock as immediate session-lock triggers. The platform exposes the notifications but the framework does not wrap them, so it is custom platform glue; it would strengthen the model but is an addition to the wall-clock check rather than a replacement, since a force-quit bypasses it either way.
 - Whether to lock the master password's memory pages against being written to swap. It is a small, bounded amount of material, and the platform encrypts swap by default, so this is a defence-in-depth question to settle with measurement rather than assumption.
-- The webview's non-persistent mode needs verifying on this platform specifically rather than trusted from documentation, since support differs by platform.

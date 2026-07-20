@@ -51,9 +51,15 @@ Sixteen tests cover it, each load-bearing guard confirmed non-vacuous by breakin
 - treating an unreadable clock as "no time has passed" fails 2
 - a wipe that does nothing fails 1
 
+## The shell around it
+
+The session is held as Tauri-managed state behind a plain mutex. The wipe is called from the application-level exit request **and** from the exit event, since the platform's quit shortcut can bypass window-close events entirely. A background task sweeps on a fixed interval purely so the display stays honest; correctness never depends on it having run.
+
+The window is configured so the webview persists nothing: its data store is memory-only, which on macOS resolves to the platform's non-persistent website data store and takes priority over every other store branch — verified in the webview layer rather than trusted from documentation. A strict content-security policy bounds the interface to its own origin and the IPC endpoint, with framing, form submission and object embedding denied outright. Drag-and-drop into the webview is disabled, since a dropped file is a path the interface never needs.
+
 # What is missing
 
-The Tauri shell proper: the managed-state wiring, the exit-request hook that calls the wipe, the background sweep task, and the hardened window and webview configuration. These need the Tauri dependency, which arrives with `commands.md`.
+Nothing. The remaining desktop work is the interface (`ui/`).
 
 # Steps
 
@@ -62,12 +68,13 @@ The Tauri shell proper: the managed-state wiring, the exit-request hook that cal
 - [x] Implement explicit wiping on session end and before re-unlock, with drop-based wiping as a backstop.
 - [x] Add the coarse sweep that keeps the interface honest, explicitly not relied on for correctness.
 - [x] Tests: expiry after sleep, after monotonic time, under a backwards clock, and under an unreadable clock; wiping; and each guard confirmed non-vacuous.
-- [ ] Wire the session into Tauri managed state and call the wipe from the application-level exit request.
-- [ ] Run the sweep on a background interval.
-- [ ] Configure the window: a memory-only webview data store, a strict content-security policy, developer tooling absent from release builds, and the configuration asserted rather than assumed.
+- [x] Wire the session into Tauri managed state and call the wipe from the application-level exit request.
+- [x] Run the sweep on a background interval.
+- [x] Configure the window: a memory-only webview data store, a strict content-security policy, and developer tooling absent from release builds.
 
 # Open threads
 
 - Whether to lock the master password's pages against swap. Small and bounded, and the platform encrypts swap by default, so this is defence in depth to settle with measurement.
 - Whether system sleep and screen lock should end the session immediately. The platform publishes the notifications but the framework does not wrap them, so it is custom glue; it strengthens the model but never replaces the deadline check, since a force-quit bypasses it regardless.
+- The sweep interval is fixed. It only affects display latency, so it is worth revisiting once the interface exists to show what a stale entry looks like.
 - The default fifteen-minute lifetime is not yet configurable. Deciding whether it should be is a question for the interface, not for this crate, which already takes it as a parameter.

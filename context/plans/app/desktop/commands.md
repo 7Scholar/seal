@@ -4,22 +4,60 @@ Part of [the desktop plan](README.md).
 
 The command surface between the interface and Rust: which operations the interface may invoke, what each is permitted to return, and how blocking work is dispatched so the window never freezes. Out of scope: the state those commands read and write (`shell.md`) and the interface that calls them (`ui/`).
 
+# Approach
+
+## The surface is specific, never general
+
+The interface is granted a small set of purpose-built operations — unlock, lock, ask whether unlocked, the cross-repo overview, open a managed file, reveal one value, save edits, seal a file, close a file, and list what is open. There is deliberately no "read this path" or "decrypt these bytes" command: every path-taking command first checks the path against the registry and refuses anything not already managed, so a compromised interface cannot use Seal as a general-purpose file reader.
+
+Capabilities grant the window only the core defaults plus Seal's own commands, rather than a broad permission set.
+
+## What may cross, expressed as the shape of the API
+
+**Opening a file returns structure, not content.** The returned view carries each variable's name, a fixed mask in place of its value, and whether the value is empty — plus the file's duplicate keys and a count of lines that could not be parsed. It never carries a value. The plaintext itself stays in the session in Rust.
+
+**A value crosses only one at a time, and only when asked for.** Reveal takes a single key and returns that value's bytes. It reads exclusively from plaintext the session already holds, so a reveal on a file that is not open fails rather than silently unsealing it — exposure is bounded to what the user explicitly asked to see, and there is no path by which the interface can pull a file's contents without the user opening it first.
+
+Revealed bytes are returned as a raw response rather than as a serialised string, which keeps the value out of the JSON serialisation path.
+
+**Saving sends back edits, never the file.** The interface sends key-value pairs; the plaintext held in Rust is edited through the lossless env model and re-sealed from memory. The whole secret never makes the round trip. An edit naming a key the file does not contain is refused rather than silently adding it, since a typo would otherwise create a new variable rather than change the intended one.
+
+**Errors carry no secret material, and this is checked by the compiler.** The error crossing the boundary is a kind plus an optional path — nothing else. A private in-crate assertion destructures the error type and requires every field's type to implement a marker trait implemented only for types proven secret-free. Adding a free-form `String` field fails to compile even when every construction site is updated, so an error can never grow a field carrying a passphrase, a value, or an underlying error's text. The assertion lives **inside** the crate: an equivalent check in a test crate cannot work, because a `#[non_exhaustive]` type forces a wildcard arm that silently absorbs new variants.
+
+## Keeping the window responsive
+
+Every command is `async`, so it runs on the runtime rather than the interface thread — a key derivation of several hundred milliseconds would otherwise visibly hang the window on every unlock.
+
+Shared state is a plain mutex, and **the guard must never be held across an await**. This is enforced by the compiler rather than by review: Tauri's async command path requires the returned future to be `Send`, a `MutexGuard` is not `Send`, so a guard that lives across an await fails to build with a message naming the guard and the await. The check only arms once a command is registered in the handler — an unregistered command with the same defect compiles silently, so a command is not considered checked until it is wired in.
+
+## Persisting registry changes
+
+Commands that change managed state write through the registry's compare-and-retry update rather than storing a snapshot. The application holds an in-memory mirror for display, but a save re-reads the on-disk state, applies the change, and retries on a revision mismatch, so a concurrent writer is never clobbered by a stale mirror.
+
 # What exists
 
-Nothing implemented. The design is settled in the [desktop Approach](README.md).
+The domain layer and the command layer, plus the Tauri shell wiring that `shell.md` was waiting on: managed state, the wipe on the application-level exit request, the background sweep, the registered handler, and the hardened window configuration.
+
+Nineteen tests cover the surface against a real engine and registry — masking, per-key reveal, reveal refused when the file is not open, unmanaged paths refused, a save that preserves comments and changes exactly one value, files staying sealed on disk throughout, errors that never echo a passphrase or a value, and the wipe the exit handler calls.
+
+Guards confirmed non-vacuous by breaking them: returning real values in place of the mask fails 2 tests, removing the managed-path check fails 1, and a no-op exit wipe fails 1. The compile-time error-payload check was confirmed by adding a `String` field, which fails to build.
 
 # What is missing
 
-Everything: the command set, the boundary rules about what may cross, and the dispatch of blocking work.
+Nothing on this plan's own surface. Two commands the root intent needs are deliberately deferred until the interface exists to drive them: importing a repo from a scan, and the supervised master-password change. Both have their behaviour fixed by the [desktop Approach](README.md) and the engine already implements the hard part of the second.
 
 # Steps
 
-- [ ] Define the command set: unlocking and ending a session, listing repos and managed files with their state, importing a repo, sealing a file, opening a file for editing, revealing one value, saving edits, running reconciliation, and changing the master password.
-- [ ] Implement each command asynchronously with the blocking engine work moved off the interface thread, since a key derivation of several hundred milliseconds would otherwise visibly hang the window.
-- [ ] Enforce the boundary rule in the shape of the commands themselves: opening a file returns structure with values masked, and only an explicit single-value reveal returns a secret, as raw bytes rather than serialised text.
-- [ ] Configure capabilities so the interface is granted only the commands it needs, rather than a broad permission set.
-- [ ] Tests: every command exercised against a real engine and registry; a command that would return a whole file's plaintext does not exist; blocking work does not run on the interface thread; and errors reaching the interface carry no secret material.
+- [x] Define the command set and implement each over the domain layer.
+- [x] Implement each command asynchronously with shared state behind a mutex whose guard cannot cross an await.
+- [x] Enforce the boundary rule in the shape of the commands: masked structure on open, per-key reveal as raw bytes, edits rather than files on save.
+- [x] Make it impossible for an error to carry secret material, checked at compile time.
+- [x] Configure capabilities so the interface is granted only what it needs.
+- [x] Tests against a real engine and registry, with each guard confirmed non-vacuous.
+- [ ] The import command, once the interface exists to confirm candidates.
+- [ ] The password-change command with progress and per-file retry, once the interface exists to supervise it.
 
 # Open threads
 
 - Whether reveal should be rate-limited or bounded in number, so a compromised interface cannot walk a whole file one value at a time. The cost is a full derivation per file rather than per value, so it is cheap to consider once the interface exists.
+- The registry directory is currently derived from the home directory directly. If a platform-conventional configuration location is wanted instead, that is a one-line change here and a question for packaging rather than for this plan.

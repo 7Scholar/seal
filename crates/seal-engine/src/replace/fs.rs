@@ -3,7 +3,9 @@ use std::io;
 use std::path::{Path, PathBuf};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Step {
+    InspectTarget,
     CaptureMetadata,
     CreateTemp,
     Write,
@@ -12,6 +14,7 @@ pub enum Step {
     Rename,
     SyncDir,
     RemoveTemp,
+    Identity,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -35,6 +38,7 @@ pub struct Identity {
 }
 
 pub trait FileSystem {
+    fn is_symlink(&self, path: &Path) -> io::Result<bool>;
     fn capture_metadata(&self, path: &Path) -> io::Result<Metadata>;
     fn create_temp(&self, dir: &Path, prefix: &str) -> io::Result<(File, PathBuf)>;
     fn restore_metadata(&self, file: &File, path: &Path, metadata: &Metadata) -> io::Result<()>;

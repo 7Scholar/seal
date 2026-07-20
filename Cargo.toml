@@ -12,6 +12,12 @@ repository = "https://github.com/7scholar/seal"
 [workspace.dependencies]
 thiserror = "2"
 
+[profile.release]
+panic = "unwind"
+
+[profile.dev]
+panic = "unwind"
+
 [workspace.lints.rust]
 unsafe_op_in_unsafe_fn = "deny"
 

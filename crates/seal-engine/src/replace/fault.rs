@@ -10,6 +10,7 @@ pub struct FaultyFileSystem {
     inner: RealFileSystem,
     fail_at: Option<Step>,
     observed: RefCell<Vec<Step>>,
+    flushed: RefCell<Vec<Durability>>,
 }
 
 impl FaultyFileSystem {
@@ -18,6 +19,7 @@ impl FaultyFileSystem {
             inner: RealFileSystem::new(),
             fail_at: Some(step),
             observed: RefCell::new(Vec::new()),
+            flushed: RefCell::new(Vec::new()),
         }
     }
 
@@ -26,11 +28,16 @@ impl FaultyFileSystem {
             inner: RealFileSystem::new(),
             fail_at: None,
             observed: RefCell::new(Vec::new()),
+            flushed: RefCell::new(Vec::new()),
         }
     }
 
     pub fn observed(&self) -> Vec<Step> {
         self.observed.borrow().clone()
+    }
+
+    pub fn flushed(&self) -> Vec<Durability> {
+        self.flushed.borrow().clone()
     }
 
     fn check(&self, step: Step) -> io::Result<()> {
@@ -43,6 +50,11 @@ impl FaultyFileSystem {
 }
 
 impl FileSystem for FaultyFileSystem {
+    fn is_symlink(&self, path: &Path) -> io::Result<bool> {
+        self.check(Step::InspectTarget)?;
+        self.inner.is_symlink(path)
+    }
+
     fn capture_metadata(&self, path: &Path) -> io::Result<Metadata> {
         self.check(Step::CaptureMetadata)?;
         self.inner.capture_metadata(path)
@@ -60,6 +72,7 @@ impl FileSystem for FaultyFileSystem {
 
     fn flush(&self, file: &File, durability: Durability) -> io::Result<()> {
         self.check(Step::Flush)?;
+        self.flushed.borrow_mut().push(durability);
         self.inner.flush(file, durability)
     }
 

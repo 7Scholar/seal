@@ -37,6 +37,10 @@ fn random_seed() -> u64 {
 }
 
 impl FileSystem for RealFileSystem {
+    fn is_symlink(&self, path: &Path) -> io::Result<bool> {
+        Ok(std::fs::symlink_metadata(path)?.file_type().is_symlink())
+    }
+
     fn capture_metadata(&self, path: &Path) -> io::Result<Metadata> {
         let mode = std::fs::metadata(path)?.permissions().mode() & 0o7777;
 
@@ -44,8 +48,11 @@ impl FileSystem for RealFileSystem {
         match xattr::list(path) {
             Ok(names) => {
                 for name in names {
-                    if let Some(value) = xattr::get(path, &name)? {
-                        xattrs.push((name, value));
+                    match xattr::get(path, &name) {
+                        Ok(Some(value)) => xattrs.push((name, value)),
+                        Ok(None) => {}
+                        Err(err) if err.kind() == io::ErrorKind::NotFound => {}
+                        Err(err) => return Err(err),
                     }
                 }
             }
@@ -86,11 +93,7 @@ impl FileSystem for RealFileSystem {
         for (name, value) in &platform.xattrs {
             match xattr::set(path, name.as_os_str(), value) {
                 Ok(()) => {}
-                Err(err)
-                    if matches!(
-                        err.raw_os_error(),
-                        Some(libc::ENOTSUP) | Some(libc::EPERM) | Some(libc::EACCES)
-                    ) => {}
+                Err(err) if err.raw_os_error() == Some(libc::ENOTSUP) => {}
                 Err(err) => return Err(err),
             }
         }

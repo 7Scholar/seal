@@ -21,6 +21,14 @@ fn skip_unless_available() -> bool {
     if stock_age_available() {
         return false;
     }
+
+    assert!(
+        std::env::var_os("SEAL_REQUIRE_INTEROP").is_none(),
+        "the stock `age` binary is missing while SEAL_REQUIRE_INTEROP is set. \
+         Continuous integration sets that variable so a broken install step fails loudly \
+         instead of skipping these tests and reporting a green run that verified nothing."
+    );
+
     eprintln!(
         "skipped: the stock `age` binary is not installed. \
          These tests prove interoperability with the reference implementation; \

@@ -21,6 +21,6 @@
     "src-tauri/capabilities/default.json": "4aeac63208911fc6b387d55db0896ab1e705e90a",
     "src-tauri/src/lib.rs": "4aeac63208911fc6b387d55db0896ab1e705e90a",
     "src-tauri/src/main.rs": "4aeac63208911fc6b387d55db0896ab1e705e90a",
-    "src-tauri/tauri.conf.json": "4aeac63208911fc6b387d55db0896ab1e705e90a"
+    "src-tauri/tauri.conf.json": "91e9c3b4e70a475fb230f7a4a92ff69f871983ff"
   }
 }

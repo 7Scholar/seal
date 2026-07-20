@@ -49,6 +49,42 @@ jobs:
           SEAL_REQUIRE_TERMINAL: "1"
         run: cargo test --all-features
 
+  frontend:
+    name: Interface types and tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install exactly what the lockfile pins
+        run: npm ci
+
+      - name: Types
+        run: npm run typecheck
+
+      - name: Tests
+        run: npm test
+
+      - name: Build
+        run: npx vite build
+
+      - name: The build must stay within the content-security policy
+        run: |
+          set -euo pipefail
+          if grep -q '<script>' dist/index.html || grep -q '<style>' dist/index.html; then
+            echo "The build emitted an inline script or style, which the strict policy blocks."
+            exit 1
+          fi
+          if grep -rq 'data:' dist/index.html; then
+            echo "The build emitted a data URI, which the strict policy blocks."
+            exit 1
+          fi
+
   interoperability:
     name: Interoperability with the reference implementation
     runs-on: ubuntu-latest

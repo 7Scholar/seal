@@ -1,1 +1,13 @@
 # Memory
+
+## 2026-07-20 — Revealing a value is not an edit, and the two use separate state
+
+The environment editor keeps revealed values and pending edits in two separate maps, and only the edit map feeds the unsaved-changes count and the save payload. **Why:** reveal and edit are different operations on the same row, and conflating them corrupts dirty-state tracking. This is not hypothetical — a comparable product shipped exactly this bug when it added click-to-reveal, and its users hit a stale unsaved-changes counter telling them to refresh. Verified here: routing reveal through the edit map fails the two tests that name the rule. **Mistake it prevents:** merging the two maps because a revealed value and an edited value are both "the value for this row", which is true and still wrong — it makes merely looking at a secret mark the file as changed.
+
+## 2026-07-20 — The reveal control's state lives in `aria-pressed`, never in its label or icon
+
+Each reveal toggle is a `<button>` carrying `aria-pressed`, with an accessible name that is **constant across states** and **names its variable**, plus a live region announcing the change. **Why:** a screen-reader user cannot see the glyph, so state conveyed by icon alone is invisible to them — a real product shipped this defect on two clients, and separately shipped the eye icon inverted between two field types, which shows the glyph convention is not reliable even for sighted users. The name must carry the variable because every row has one of these buttons, and identical names leave a screen-reader user unable to tell which field they are toggling. **Mistake it prevents:** flipping the label between "Show" and "Hide" — which seems more informative and instead destroys the `aria-pressed` contract — or shortening the name to a generic one during a tidy-up.
+
+## 2026-07-20 — Import preselects only what the scan judged genuinely secret
+
+The import flow preselects candidates classified as secrets and nothing else; ambiguous files are shown unchecked and templates are shown unchecked. **Why:** the asymmetry of the mistake runs one way. A backup tool selects everything by default because over-inclusion merely costs storage. Here, managing a file that was meant to stay readable means encrypting it, which breaks the user's build with no obvious cause. Under-inclusion is a file the user adds later; over-inclusion is a broken repository. **Mistake it prevents:** adopting the select-everything default as friendlier, which fails five tests here and is actively harmful in this domain.

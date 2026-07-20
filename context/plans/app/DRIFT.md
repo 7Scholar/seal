@@ -8,6 +8,10 @@
 
 - changed package.json
   37ab17c (10 files) "ui: the shared primitives, with their behavioural rules pinned by test"
+- changed ui/App.tsx
+  191126f (11 files) "ui: the screens — repo list, unlock, acknowledgement, and the app shell"
+- changed ui/main.tsx
+  191126f (11 files) "ui: the screens — repo list, unlock, acknowledgement, and the app shell"
 - changed vite.config.ts
   37ab17c (10 files) "ui: the shared primitives, with their behavioural rules pinned by test"
 
@@ -25,8 +29,14 @@
   37ab17c (born) "ui: the shared primitives, with their behavioural rules pinned by test"
 - ui/components/SecretValue.tsx
   37ab17c (born) "ui: the shared primitives, with their behavioural rules pinned by test"
+- ui/env.d.ts
+  191126f (born) "ui: the screens — repo list, unlock, acknowledgement, and the app shell"
 - ui/format.ts
   37ab17c (born) "ui: the shared primitives, with their behavioural rules pinned by test"
+- ui/screens/Acknowledge.test.tsx
+  191126f (born) "ui: the screens — repo list, unlock, acknowledgement, and the app shell"
+- ui/screens/Acknowledge.tsx
+  191126f (born) "ui: the screens — repo list, unlock, acknowledgement, and the app shell"
 - ui/screens/EnvEditor.test.tsx
   a178e82 (born) "ui: the env editor and the import flow"
 - ui/screens/EnvEditor.tsx
@@ -35,5 +45,15 @@
   a178e82 (born) "ui: the env editor and the import flow"
 - ui/screens/ImportFlow.tsx
   a178e82 (born) "ui: the env editor and the import flow"
+- ui/screens/RepoList.test.tsx
+  191126f (born) "ui: the screens — repo list, unlock, acknowledgement, and the app shell"
+- ui/screens/RepoList.tsx
+  191126f (born) "ui: the screens — repo list, unlock, acknowledgement, and the app shell"
+- ui/screens/Unlock.test.tsx
+  191126f (born) "ui: the screens — repo list, unlock, acknowledgement, and the app shell"
+- ui/screens/Unlock.tsx
+  191126f (born) "ui: the screens — repo list, unlock, acknowledgement, and the app shell"
+- ui/styles.css
+  191126f (born) "ui: the screens — repo list, unlock, acknowledgement, and the app shell"
 - ui/test-setup.ts
   37ab17c (born) "ui: the shared primitives, with their behavioural rules pinned by test"

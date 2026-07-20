@@ -48,15 +48,15 @@ Reveal is not an edit and must never mark a file dirty — a demonstrated failur
 
 # Plans
 
-- [~] shell.md -> the frontend's own shell: the page the webview loads, the build that produces it, and the typed command module
+- [x] shell.md -> the frontend's own shell: the page the webview loads, the build that produces it, and the typed command module
+- [x] screens.md -> the screens and the shared primitives that carry the behavioural rules
+- [ ] password-change.md -> the supervised master-password change, whose danger is the half-done state
 
 # Cursor
 
-Framed, and now unblocked: the shell, the command surface and the env parser are all complete, so there is a running application and a typed boundary to build against.
+The frontend and every screen are built, on a design taken from [the research](_docs/ux-research.md) rather than invented: unlock, the cross-repo view with its non-dismissible alert, the import flow, the environment-variables editor, and the first-seal acknowledgement. Sixty-three interface tests, with each load-bearing guard confirmed by reintroducing the exact defect it prevents.
 
-A placeholder page currently stands in for the frontend, purely so a fresh clone compiles — `generate_context!` fails at build time when the configured frontend directory is missing. Replacing it with the real build output, and repointing the configuration at it, is the first step here.
-
-Next: sketch the cross-repo view and the import flow, then the editor. Two commands are deliberately deferred into this plan — importing a repo and the supervised password change — because both are shaped by the flow around them rather than by the boundary.
+What remains is `password-change.md` — a flow rather than a screen, and the one operation whose failure mode is genuinely dangerous rather than merely annoying.
 
 # Open threads
 

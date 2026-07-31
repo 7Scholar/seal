@@ -357,6 +357,7 @@ fn opening_prefers_the_application_beside_the_running_binary() {
     let output = Command::new(&placed)
         .arg("open")
         .env("PATH", "/nonexistent")
+        .env("SEAL_IGNORE_INSTALLED_APP", "1")
         .output()
         .unwrap();
 
@@ -393,6 +394,7 @@ fn opening_without_an_application_reports_a_distinct_failure() {
         .arg("open")
         .env("PATH", "/nonexistent")
         .env("HOME", "/nonexistent")
+        .env("SEAL_IGNORE_INSTALLED_APP", "1")
         .output()
         .unwrap();
 
@@ -433,6 +435,7 @@ fn opening_through_a_symbolic_link_finds_the_real_neighbour() {
         .arg("open")
         .env("PATH", "/nonexistent")
         .env("HOME", "/nonexistent")
+        .env("SEAL_IGNORE_INSTALLED_APP", "1")
         .output()
         .unwrap();
 

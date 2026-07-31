@@ -21,9 +21,16 @@ enum Target {
 }
 
 fn locate() -> Option<Target> {
-    beside_this_binary()
-        .or_else(registered)
-        .or_else(conventional)
+    let beside = beside_this_binary();
+    if beside.is_some() || installed_search_is_disabled() {
+        return beside;
+    }
+
+    registered().or_else(conventional)
+}
+
+fn installed_search_is_disabled() -> bool {
+    std::env::var_os("SEAL_IGNORE_INSTALLED_APP").is_some()
 }
 
 fn beside_this_binary() -> Option<Target> {

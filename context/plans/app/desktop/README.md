@@ -66,7 +66,7 @@ Two flows carry more weight than their screens suggest, and their behaviour is f
 - [x] commands.md -> the IPC surface: the command set, what may cross the boundary, and how blocking work is dispatched
 - [x] dotenv.md -> lossless env-file parsing and rendering, so saving preserves comments, order and formatting
 - [x] lifecycle.md -> import, removal from management, the pre-seal open-file check, and the irreversibility acknowledgements
-- [x] ui/ -> the interface: the cross-repo view, the import flow, the environment-variables editor, and the two flows that must insist
+- [~] ui/ -> the interface: the cross-repo view, the import flow, the environment-variables editor, and the two flows that must insist. Reopened for the application shell, which is blocked on design forks
 - [x] first-open.md -> establishing the master password on the first open, verifying it on every open after, and the empty state's onboarding weight
 - [~] journey-harness.md -> the harness that drives the built application for the journeys axis; macOS first
 
@@ -93,6 +93,8 @@ Every child above the last two is complete **as code**, and the application is n
 The journeys' first answers landed and are built. `first-open.md` is complete: a sealed sentinel records that a master password exists, establishment demands the password twice and states unrecoverability at the choosing moment, unlock verifies against the sentinel instead of accepting anything, the password change carries the sentinel as its first manifest entry — and the first-run journey was driven end to end by the automated harness, which is what closed it. The unhappy paths got their surface too: every command failure reaches the user in plain language (`ui/errors.md`), a locked session re-locks to the shield with a notice, sealing warns on a freshly-modified file, and the folder pick is a purpose-built native-dialog command.
 
 `journey-harness.md` is in flight: WebdriverIO driving the real release build through an embedded WebDriver bridge that exists only in harness builds, with `first-run` green across three consecutive runs, the non-vacuity proof done, and continuous integration gated on it. Its cursor holds the one live defect — an embedded-bridge freeze that blocks the extended scenario's tail — and what remains undriven.
+
+`ui/` is reopened for a concern its children never held: the **shell**. Every screen was built as a full-screen replacement, so there is no persistent frame, no navigation, and no way to work in one repository — which does not scale to the cross-repo span the root intent promises. `ui/shell-layout.md` frames a repository sidebar with a detail surface, and with it the disclosure architecture deciding what the interface shows against what it collapses. It is `[!]`, blocked on four design forks in `ui/QUESTIONS.md`; its research is done and is the design input waiting on those answers.
 
 # Open threads
 

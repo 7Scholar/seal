@@ -45,6 +45,8 @@ Reveal is not an edit and must never mark a file dirty — a demonstrated failur
 # Supporting docs
 
 - Before designing or changing any screen, follow [_docs/ux-research.md](_docs/ux-research.md) — it holds the tiered findings, the behavioural rules, and the out-of-scope decisions with their reasons.
+- Before changing the shell, the navigation between screens, or anything about what is shown versus collapsed, follow [_docs/shell-research.md](_docs/shell-research.md) — it holds the disclosure rules and where disclosure stops.
+- When placing an operation on any surface, follow [_docs/shell-operations.md](_docs/shell-operations.md) — it assigns every operation a scope, a home, and a disclosure posture.
 
 # Plans
 
@@ -52,6 +54,7 @@ Reveal is not an edit and must never mark a file dirty — a demonstrated failur
 - [x] screens.md -> the screens and the shared primitives that carry the behavioural rules
 - [x] password-change.md -> the supervised master-password change, whose danger is the half-done state
 - [x] errors.md -> how a command failure reaches the user: plain language for every kind, the problem banner, and the re-lock on an ended session
+- [!] shell-layout.md -> the application shell: the repository sidebar, the detail surface, and the disclosure architecture. Blocked — awaiting answers in QUESTIONS.md
 
 # Cursor
 
@@ -59,7 +62,9 @@ The frontend and every screen are built: the unlock sand shield, the cross-repo 
 
 `password-change.md` is complete too, on a manifest that outlives the process: removing that durability fails eight of its ten Rust tests, which is the measure of how much the guarantee was carrying.
 
-Every child here is complete as code. The interface is **not** done in the sense that matters: driving the built application showed a first-time user cannot get past the opening screen, and the route into the product's core loop does nothing. See [the journeys axis](../../../../journeys/README.md), which governs whether this is finished.
+Every child above `shell-layout.md` is complete as code. The interface is **not** done in the sense that matters: driving the built application showed a first-time user cannot get past the opening screen, and the route into the product's core loop does nothing. See [the journeys axis](../../../../journeys/README.md), which governs whether this is finished.
+
+`shell-layout.md` is newly framed and blocked. The screens were built as full-screen replacements with no persistent frame, which does not scale past a couple of repositories and gives the user no sense of place — so the shell itself is now a concern: a repository sidebar, a detail surface, and the disclosure architecture governing what is shown against what is collapsed. Its two research documents are written and are the design input; four design forks the research surfaced are the user's to settle and sit in [QUESTIONS.md](QUESTIONS.md), which is where that plan stops.
 
 # Open threads
 

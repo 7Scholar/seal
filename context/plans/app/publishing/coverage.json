@@ -1,16 +1,19 @@
 {
   "ci.md": {
-    ".github/workflows/ci.yml": "82a179cb55c8522f8a05dc3055d4a35546502551"
+    ".github/workflows/ci.yml": "9409506b9afed6817cacde673a228074081aeb0b"
   },
   "docs.md": {
     "CONTRIBUTING.md": "82a179cb55c8522f8a05dc3055d4a35546502551",
     "LICENSE-APACHE": "82a179cb55c8522f8a05dc3055d4a35546502551",
     "LICENSE-MIT": "82a179cb55c8522f8a05dc3055d4a35546502551",
-    "README.md": "559b4aaace1ee418d53bcd6a768527fec35dbd54",
-    "SECURITY.md": "82a179cb55c8522f8a05dc3055d4a35546502551"
+    "README.md": "9409506b9afed6817cacde673a228074081aeb0b",
+    "SECURITY.md": "82a179cb55c8522f8a05dc3055d4a35546502551",
+    "docs/RELEASING.md": "9409506b9afed6817cacde673a228074081aeb0b"
   },
   "packaging.md": {
-    ".github/workflows/release.yml": "e1d2b479d830af9b4b00e06ab5c6f66e1192acef",
-    "scripts/build-sidecar.sh": "e1d2b479d830af9b4b00e06ab5c6f66e1192acef"
+    ".github/workflows/release.yml": "9409506b9afed6817cacde673a228074081aeb0b",
+    "scripts/build-sidecar.sh": "e1d2b479d830af9b4b00e06ab5c6f66e1192acef",
+    "scripts/install.sh": "9409506b9afed6817cacde673a228074081aeb0b",
+    "scripts/render-formula.sh": "9409506b9afed6817cacde673a228074081aeb0b"
   }
 }

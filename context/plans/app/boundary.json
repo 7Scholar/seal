@@ -8,6 +8,7 @@
     "README.md",
     "SECURITY.md",
     "crates",
+    "docs/RELEASING.md",
     "e2e",
     "package.json",
     "scripts",

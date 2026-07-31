@@ -74,7 +74,7 @@ Research for that plan also corrected this Approach: the requirement to "notice 
 
 What remains of `desktop/` is the journey-driven work its cursor names: the harness's extended scenarios and the bridge defect blocking their tail. The first-run journey is satisfied on macOS — driven end to end by the automated harness against a release build — which is the axis this plan was reopened for.
 
-Alongside it, `desktop/ui/` is reopened for the **application shell**. The screens were each built as a full-screen replacement, so the product has no persistent frame and no navigation — a shape that cannot carry the cross-repo span this intent promises. `desktop/ui/shell-layout.md` is solutioned and in flight: a repository sidebar that stays present while a file is edited, and the disclosure architecture deciding what the interface shows against what it collapses, bounded by the rule that disclosure never defers an alert, a state, or a consequence.
+`desktop/ui/` gained the **application shell** it had been missing. The screens were each built as a full-screen replacement, so the product had no persistent frame and no navigation — a shape that cannot carry the cross-repo span this intent promises. `desktop/ui/shell-layout.md` is complete: a repository sidebar that stays present while a file is edited, and the disclosure architecture deciding what the interface shows against what it collapses, bounded by the rule that disclosure never defers an alert, a state, or a consequence. It also brought sealing a chosen set of files in one action, which the interface reports per file rather than as a count.
 
 # Open threads
 

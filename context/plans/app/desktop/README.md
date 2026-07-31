@@ -66,7 +66,7 @@ Two flows carry more weight than their screens suggest, and their behaviour is f
 - [x] commands.md -> the IPC surface: the command set, what may cross the boundary, and how blocking work is dispatched
 - [x] dotenv.md -> lossless env-file parsing and rendering, so saving preserves comments, order and formatting
 - [x] lifecycle.md -> import, removal from management, the pre-seal open-file check, and the irreversibility acknowledgements
-- [~] ui/ -> the interface: the cross-repo view, the import flow, the environment-variables editor, and the two flows that must insist. Reopened for the application shell, which is blocked on design forks
+- [x] ui/ -> the interface: the application shell, the cross-repo view, the import flow, the environment-variables editor, and the two flows that must insist
 - [x] first-open.md -> establishing the master password on the first open, verifying it on every open after, and the empty state's onboarding weight
 - [~] journey-harness.md -> the harness that drives the built application for the journeys axis; macOS first
 
@@ -94,9 +94,9 @@ The journeys' first answers landed and are built. `first-open.md` is complete: a
 
 `journey-harness.md` is in flight: WebdriverIO driving the real release build through an embedded WebDriver bridge that exists only in harness builds, with `first-run` green across three consecutive runs, the non-vacuity proof done, and continuous integration gated on it. Its cursor holds the one live defect — an embedded-bridge freeze that blocks the extended scenario's tail — and what remains undriven.
 
-`ui/` is reopened for a concern its children never held: the **shell**. Every screen was built as a full-screen replacement, so there is no persistent frame, no navigation, and no way to work in one repository — which does not scale to the cross-repo span the root intent promises. `ui/shell-layout.md` is solutioned and in flight: a two-level repository sidebar that stays present while a file is edited, a detail surface with a stable selection model, and the disclosure architecture deciding what the interface shows against what it collapses — bounded by the rule that disclosure never defers an alert, a state, or a consequence.
+`ui/` gained the concern its children never held: the **shell**. Every screen had been built as a full-screen replacement, so there was no persistent frame, no navigation, and no way to work in one repository — which does not scale to the cross-repo span the root intent promises. `ui/shell-layout.md` is complete: a two-level repository sidebar that stays present while a file is edited, a detail surface with a stable selection model, and the disclosure architecture deciding what the interface shows against what it collapses — bounded by the rule that disclosure never defers an alert, a state, or a consequence.
 
-That plan adds the one piece of Rust scope outstanding here: a **batch seal** command taking an explicitly selected set of paths, checking each against the registry as the command-surface rules require, and returning a per-path outcome rather than a count. It is a command rather than an interface loop so the acknowledgement gate and the per-path check stay enforced where the interface cannot forget them.
+It brought the last piece of Rust scope here with it: a **batch seal** command taking an explicitly selected set of paths, running each through the same guarded single-file path so the managed-path check and the acknowledgement gate hold per file, and returning a per-path outcome rather than a count. It is a command rather than an interface loop so both gates stay where the interface cannot forget them. Releasing a whole repository follows the same shape.
 
 # Open threads
 

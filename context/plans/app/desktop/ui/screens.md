@@ -20,7 +20,7 @@ Three shared components exist because their rules are easy to violate independen
 
 ## Where each screen's weight sits
 
-**The repo list** treats its empty state as the import action itself, since nothing else is possible until a repo exists. Its alert is derived from the per-file flag rather than from the file's state, which is what keeps the treatment reserved for the genuine regression — a file recorded sealed and found readable — and away from a missing file or one the user never sealed. Sealing is offered only where it applies, and stopping management is offered per file.
+**The cross-repo view** treats its empty state as the import action itself, since nothing else is possible until a repo exists. Its alert is derived from the per-file flag rather than from the file's state, which is what keeps the treatment reserved for the genuine regression — a file recorded sealed and found readable — and away from a missing file or one the user never sealed. Sealing is offered only where it applies, and stopping management is offered per file. That view is realized by the shell's sidebar and detail surface, whose layout and disclosure rules are [shell-layout.md](shell-layout.md)'s; the behavioural rules stated here hold wherever it is rendered.
 
 **The import flow** groups candidates by classification with counts, preselects only what the scan judged genuinely secret, and scopes select-all to a group. The conservative preselection is load-bearing rather than timid: over-inclusion here encrypts a file that was meant to stay readable and breaks the user's build. It states plainly that importing encrypts nothing, and shows why each candidate was proposed.
 
@@ -42,7 +42,7 @@ A revealed value lives in component state for the row displaying it and nowhere 
 
 # What exists
 
-All of the above, with seventy-four tests.
+All of the above, with sixty-two tests. The cross-repo view's own assertions — the alert derived from the per-file flag, sealing offered only where it applies, a missing file never treated as an exposure — moved with it onto the shell's surfaces and are asserted under [shell-layout.md](shell-layout.md).
 
 Three guards were confirmed non-vacuous by reintroducing the exact defect each prevents:
 

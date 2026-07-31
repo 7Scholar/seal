@@ -54,7 +54,7 @@ Reveal is not an edit and must never mark a file dirty — a demonstrated failur
 - [x] screens.md -> the screens and the shared primitives that carry the behavioural rules
 - [x] password-change.md -> the supervised master-password change, whose danger is the half-done state
 - [x] errors.md -> how a command failure reaches the user: plain language for every kind, the problem banner, and the re-lock on an ended session
-- [~] shell-layout.md -> the application shell: the repository sidebar, the detail surface, and the disclosure architecture
+- [x] shell-layout.md -> the application shell: the repository sidebar, the detail surface, and the disclosure architecture
 
 # Cursor
 
@@ -64,7 +64,11 @@ The frontend and every screen are built: the unlock sand shield, the cross-repo 
 
 Every child above `shell-layout.md` is complete as code. The interface is **not** done in the sense that matters: driving the built application showed a first-time user cannot get past the opening screen, and the route into the product's core loop does nothing. See [the journeys axis](../../../../journeys/README.md), which governs whether this is finished.
 
-`shell-layout.md` is solutioned and in flight. The screens were built as full-screen replacements with no persistent frame, which does not scale past a couple of repositories and gives the user no sense of place — so the shell itself is now a concern: a repository sidebar, a detail surface, and the disclosure architecture governing what is shown against what is collapsed. Its two research documents are the design input, and its four design forks are settled: the editor keeps the sidebar, the sidebar is a two-level tree of repositories expanding to their files, sealing several files at once is offered as explicit selection followed by one action, and removing a repository is a single operation. The batch seal is the one part that adds Rust scope rather than re-homing what exists.
+`shell-layout.md` is complete. The screens had been built as full-screen replacements with no persistent frame, which does not scale past a couple of repositories and gives the user no sense of place. The shell now holds them: a two-level sidebar of repositories expanding to their files, present for the whole session including while a file is open; a detail surface that is never blank; a selection model no operation moves; and the disclosure architecture, bounded by the rule that disclosure defers explanation and secondary action but never an alert, a state, or a consequence.
+
+Its two research documents are the design input rather than invention, and the four forks its research surfaced were settled by the product owner. The batch seal was the one part that added Rust scope: an explicitly chosen set, each member through the same guarded single-file path, reported per path.
+
+Every child here is complete as code. What that does **not** mean is stated below.
 
 # Open threads
 

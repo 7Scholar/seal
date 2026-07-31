@@ -1,12 +1,12 @@
 {
   "password-change.md": {
-    "src-tauri/src/rekey.rs": "1eab399fd6a1899dbb0776148134f34aa3da6a7a",
-    "src-tauri/tests/rekey.rs": "1eab399fd6a1899dbb0776148134f34aa3da6a7a",
+    "src-tauri/src/rekey.rs": "875bdd49ba74166fc6d213ac9b9906685fbafc7a",
+    "src-tauri/tests/rekey.rs": "875bdd49ba74166fc6d213ac9b9906685fbafc7a",
     "ui/screens/PasswordChange.test.tsx": "1eab399fd6a1899dbb0776148134f34aa3da6a7a",
     "ui/screens/PasswordChange.tsx": "1eab399fd6a1899dbb0776148134f34aa3da6a7a"
   },
   "screens.md": {
-    "ui/App.tsx": "1eab399fd6a1899dbb0776148134f34aa3da6a7a",
+    "ui/App.tsx": "875bdd49ba74166fc6d213ac9b9906685fbafc7a",
     "ui/components/Confirm.test.tsx": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b",
     "ui/components/Confirm.tsx": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b",
     "ui/components/ExposureAlert.test.tsx": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b",
@@ -23,8 +23,8 @@
     "ui/screens/ImportFlow.tsx": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b",
     "ui/screens/RepoList.test.tsx": "1eab399fd6a1899dbb0776148134f34aa3da6a7a",
     "ui/screens/RepoList.tsx": "1eab399fd6a1899dbb0776148134f34aa3da6a7a",
-    "ui/screens/Unlock.test.tsx": "2b72f4a1974077a8a59db94f8a5910edade8369b",
-    "ui/screens/Unlock.tsx": "2b72f4a1974077a8a59db94f8a5910edade8369b",
+    "ui/screens/Unlock.test.tsx": "875bdd49ba74166fc6d213ac9b9906685fbafc7a",
+    "ui/screens/Unlock.tsx": "875bdd49ba74166fc6d213ac9b9906685fbafc7a",
     "ui/screens/sandShield.ts": "2b72f4a1974077a8a59db94f8a5910edade8369b",
     "ui/styles.css": "2b72f4a1974077a8a59db94f8a5910edade8369b",
     "ui/test-setup.ts": "2b72f4a1974077a8a59db94f8a5910edade8369b"
@@ -33,7 +33,7 @@
     "package.json": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b",
     "tsconfig.json": "1c1500f0dcd0679debced048c43e570e85081a3b",
     "ui/index.html": "1c1500f0dcd0679debced048c43e570e85081a3b",
-    "ui/ipc.ts": "1eab399fd6a1899dbb0776148134f34aa3da6a7a",
+    "ui/ipc.ts": "875bdd49ba74166fc6d213ac9b9906685fbafc7a",
     "ui/main.tsx": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b",
     "vite.config.ts": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b"
   }

@@ -1,8 +1,8 @@
 {
   "commands.md": {
-    "src-tauri/src/app.rs": "bfb3565628e4ed202d1769fc8d272f6360e1b19e",
-    "src-tauri/src/commands.rs": "1eab399fd6a1899dbb0776148134f34aa3da6a7a",
-    "src-tauri/src/error.rs": "1eab399fd6a1899dbb0776148134f34aa3da6a7a",
+    "src-tauri/src/app.rs": "875bdd49ba74166fc6d213ac9b9906685fbafc7a",
+    "src-tauri/src/commands.rs": "875bdd49ba74166fc6d213ac9b9906685fbafc7a",
+    "src-tauri/src/error.rs": "875bdd49ba74166fc6d213ac9b9906685fbafc7a",
     "src-tauri/src/view.rs": "f4bf1c7187ba306ec4cfe9d01e2d54d46cf4a7ca",
     "src-tauri/tests/commands.rs": "bfb3565628e4ed202d1769fc8d272f6360e1b19e"
   },
@@ -10,6 +10,15 @@
     "crates/seal-dotenv/Cargo.toml": "c748b3d474ea5a614da765fa854050eb14b5a7b1",
     "crates/seal-dotenv/src/lib.rs": "c748b3d474ea5a614da765fa854050eb14b5a7b1",
     "crates/seal-dotenv/tests/roundtrip.rs": "c748b3d474ea5a614da765fa854050eb14b5a7b1"
+  },
+  "first-open.md": {
+    "src-tauri/src/app.rs": "875bdd49ba74166fc6d213ac9b9906685fbafc7a",
+    "src-tauri/src/commands.rs": "875bdd49ba74166fc6d213ac9b9906685fbafc7a",
+    "src-tauri/tests/first_open.rs": "875bdd49ba74166fc6d213ac9b9906685fbafc7a",
+    "ui/App.tsx": "875bdd49ba74166fc6d213ac9b9906685fbafc7a",
+    "ui/ipc.ts": "875bdd49ba74166fc6d213ac9b9906685fbafc7a",
+    "ui/screens/Unlock.test.tsx": "875bdd49ba74166fc6d213ac9b9906685fbafc7a",
+    "ui/screens/Unlock.tsx": "875bdd49ba74166fc6d213ac9b9906685fbafc7a"
   },
   "lifecycle.md": {
     "src-tauri/src/lifecycle.rs": "bfb3565628e4ed202d1769fc8d272f6360e1b19e",
@@ -23,7 +32,7 @@
     "src-tauri/Cargo.toml": "4aeac63208911fc6b387d55db0896ab1e705e90a",
     "src-tauri/build.rs": "4aeac63208911fc6b387d55db0896ab1e705e90a",
     "src-tauri/capabilities/default.json": "4aeac63208911fc6b387d55db0896ab1e705e90a",
-    "src-tauri/src/lib.rs": "1eab399fd6a1899dbb0776148134f34aa3da6a7a",
+    "src-tauri/src/lib.rs": "875bdd49ba74166fc6d213ac9b9906685fbafc7a",
     "src-tauri/src/main.rs": "4aeac63208911fc6b387d55db0896ab1e705e90a",
     "src-tauri/tauri.conf.json": "82a179cb55c8522f8a05dc3055d4a35546502551"
   }

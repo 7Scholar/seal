@@ -1,9 +1,9 @@
 {
   "cli.md": {
     "crates/seal-cli/Cargo.toml": "b11283f21942219e32449fc1b3e79fb698b78767",
-    "crates/seal-cli/src/main.rs": "559b4aaace1ee418d53bcd6a768527fec35dbd54",
-    "crates/seal-cli/src/open.rs": "4f6dbbbaaedb0e85f16f7aa396d2ed8676f07ffa",
-    "crates/seal-cli/tests/contract.rs": "4f6dbbbaaedb0e85f16f7aa396d2ed8676f07ffa"
+    "crates/seal-cli/src/main.rs": "40cd3f67e2e44b529590db3ede8868c7fd0eaa6c",
+    "crates/seal-cli/src/open.rs": "40cd3f67e2e44b529590db3ede8868c7fd0eaa6c",
+    "crates/seal-cli/tests/contract.rs": "40cd3f67e2e44b529590db3ede8868c7fd0eaa6c"
   },
   "registry.md": {
     "crates/seal-registry/Cargo.toml": "d57c2fb4ca4b0833add9b7ca2484b60b37dff269",

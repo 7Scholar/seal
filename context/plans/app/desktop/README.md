@@ -94,7 +94,9 @@ The journeys' first answers landed and are built. `first-open.md` is complete: a
 
 `journey-harness.md` is in flight: WebdriverIO driving the real release build through an embedded WebDriver bridge that exists only in harness builds, with `first-run` green across three consecutive runs, the non-vacuity proof done, and continuous integration gated on it. Its cursor holds the one live defect — an embedded-bridge freeze that blocks the extended scenario's tail — and what remains undriven.
 
-`ui/` is reopened for a concern its children never held: the **shell**. Every screen was built as a full-screen replacement, so there is no persistent frame, no navigation, and no way to work in one repository — which does not scale to the cross-repo span the root intent promises. `ui/shell-layout.md` frames a repository sidebar with a detail surface, and with it the disclosure architecture deciding what the interface shows against what it collapses. It is `[!]`, blocked on four design forks in `ui/QUESTIONS.md`; its research is done and is the design input waiting on those answers.
+`ui/` is reopened for a concern its children never held: the **shell**. Every screen was built as a full-screen replacement, so there is no persistent frame, no navigation, and no way to work in one repository — which does not scale to the cross-repo span the root intent promises. `ui/shell-layout.md` is solutioned and in flight: a two-level repository sidebar that stays present while a file is edited, a detail surface with a stable selection model, and the disclosure architecture deciding what the interface shows against what it collapses — bounded by the rule that disclosure never defers an alert, a state, or a consequence.
+
+That plan adds the one piece of Rust scope outstanding here: a **batch seal** command taking an explicitly selected set of paths, checking each against the registry as the command-surface rules require, and returning a per-path outcome rather than a count. It is a command rather than an interface loop so the acknowledgement gate and the per-path check stay enforced where the interface cannot forget them.
 
 # Open threads
 

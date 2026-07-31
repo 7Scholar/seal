@@ -412,3 +412,46 @@ fn opening_without_an_application_reports_a_distinct_failure() {
         "the failure must name what was missing; saw {diagnostics:?}"
     );
 }
+
+#[test]
+fn opening_through_a_symbolic_link_finds_the_real_neighbour() {
+    let dir = tempfile::tempdir().unwrap();
+    let real = dir.path().join("real");
+    let elsewhere = dir.path().join("elsewhere");
+    fs::create_dir_all(&real).unwrap();
+    fs::create_dir_all(&elsewhere).unwrap();
+
+    let marker = dir.path().join("launched");
+    fs::copy(binary(), real.join("seal")).unwrap();
+    stub_desktop(&real, &marker);
+
+    let link = elsewhere.join("seal");
+    #[cfg(unix)]
+    std::os::unix::fs::symlink(real.join("seal"), &link).unwrap();
+
+    let output = Command::new(&link)
+        .arg("open")
+        .env("PATH", "/nonexistent")
+        .env("HOME", "/nonexistent")
+        .output()
+        .unwrap();
+
+    assert_eq!(
+        output.status.code(),
+        Some(0),
+        "a symlinked seal must still find its neighbour; stderr was {:?}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+
+    for _ in 0..50 {
+        if marker.exists() {
+            break;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(20));
+    }
+
+    assert!(
+        marker.exists(),
+        "the application beside the link's target must be the one launched"
+    );
+}

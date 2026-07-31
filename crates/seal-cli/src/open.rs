@@ -27,7 +27,8 @@ fn locate() -> Option<Target> {
 }
 
 fn beside_this_binary() -> Option<Target> {
-    let mut directory = std::env::current_exe().ok()?;
+    let exe = std::env::current_exe().ok()?;
+    let mut directory = std::fs::canonicalize(&exe).unwrap_or(exe);
     directory.pop();
 
     if let Some(bundle) = enclosing_bundle(&directory) {

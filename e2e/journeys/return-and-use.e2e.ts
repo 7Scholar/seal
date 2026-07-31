@@ -9,7 +9,7 @@ const ARMOR = "-----BEGIN AGE ENCRYPTED FILE-----";
 const repo = () => process.env.SEAL_E2E_PICK_FOLDER ?? "";
 const status = () => $('[role="status"][aria-label="Unlock status"]');
 const repoName = () => repo().split("/").pop() ?? "";
-const repoInSidebar = () => $(`[role="treeitem"] span=${repoName()}`);
+const repoInSidebar = () => $('[role="tree"]').$(`span=${repoName()}`);
 
 async function openTheRepository() {
   await repoInSidebar().waitForClickable();

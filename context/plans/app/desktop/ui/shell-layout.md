@@ -120,7 +120,7 @@ One defect was caught by a test rather than by review, and it is the same defect
 
 # What is missing
 
-Nothing on this plan. The journeys' harness cannot currently drive it end to end — the embedded WebDriver bridge fails to start, which is [journey-harness.md](../journey-harness.md)'s open defect and predates this work; verified by reproducing the identical failure on the tree without these changes.
+Nothing on this plan. The journey harness drives this layout end to end: the first-run journey passes all eight checks against a release build carrying it — establishment through the shield, import into the sidebar tree, the acknowledged seal, and the lock cycle. (A bridge that fails to *start* is a stale harness binary, not the harness defect — [docs/RUNNING.md](../../../../../docs/RUNNING.md) covers it; [journey-harness.md](../journey-harness.md)'s open defect is a mid-run freeze in the extended scenario only.)
 
 # Steps
 

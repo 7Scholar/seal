@@ -11,7 +11,7 @@ use crate::app;
 use crate::error::{CommandError, Kind};
 use crate::lifecycle::{self, ScanView};
 use crate::rekey;
-use crate::view::{OpenedFile, RepoView};
+use crate::view::{OpenedFile, RepoView, SealOutcome};
 
 pub const RETRY_ATTEMPTS: u8 = 5;
 
@@ -172,6 +172,71 @@ pub async fn seal_file(held: Managed<'_, Held>, path: PathBuf) -> Result<(), Com
     let mut registry = held.registry()?;
     app::seal_file(&mut session, &path, &mut registry)?;
     held.persist(&registry)
+}
+
+#[tauri::command]
+pub async fn seal_files(
+    held: Managed<'_, Held>,
+    paths: Vec<PathBuf>,
+) -> Result<Vec<SealOutcome>, CommandError> {
+    let mut session = held.session()?;
+    let mut registry = held.registry()?;
+    let outcomes = app::seal_files(&mut session, &paths, &mut registry);
+    held.persist(&registry)?;
+    Ok(outcomes)
+}
+
+#[tauri::command]
+pub async fn release_repo(
+    held: Managed<'_, Held>,
+    root: PathBuf,
+    how: lifecycle::Release,
+) -> Result<Vec<SealOutcome>, CommandError> {
+    let mut session = held.session()?;
+    let mut registry = held.registry()?;
+
+    let paths: Vec<PathBuf> = registry
+        .repos
+        .iter()
+        .filter(|repo| repo.root == root)
+        .flat_map(|repo| {
+            repo.files
+                .iter()
+                .map(|file| repo.root.join(&file.relative_path))
+        })
+        .collect();
+
+    if paths.is_empty() {
+        return Err(CommandError::new(Kind::NotManaged));
+    }
+
+    let mut outcomes = Vec::new();
+    for path in paths {
+        let released = session
+            .passphrase_for(&path)
+            .map_err(CommandError::from)
+            .and_then(|passphrase| lifecycle::release(&mut registry, &path, how, &passphrase));
+
+        let outcome = match released {
+            Ok(()) => {
+                session.close(&path).ok();
+                SealOutcome {
+                    path,
+                    sealed: true,
+                    reason: None,
+                }
+            }
+            Err(error) => SealOutcome {
+                path,
+                sealed: false,
+                reason: Some(error.kind),
+            },
+        };
+        outcomes.push(outcome);
+    }
+
+    held.persist(&registry)?;
+    Ok(outcomes)
 }
 
 #[tauri::command]

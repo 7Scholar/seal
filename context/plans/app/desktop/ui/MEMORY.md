@@ -1,5 +1,13 @@
 # Memory
 
+## 2026-07-31 — The toggletip claims `role="status"` only while it is open
+
+The disclosure bubble's wrapper carries `role="status"` when open and no role at all when closed. **Why:** a live region that exists permanently on every disclosure means one surface carries as many status regions as it has explanations, and assistive technology then has several competing status sources — the same defect this plan group already caught once, when the unsaved-changes indicator and the reveal announcement both claimed one region. Here it surfaced as an ambiguous `getByRole("status")` the moment a batch-seal report shared a screen with a toggletip. **Mistake it prevents:** hoisting the role onto the always-rendered wrapper because a live region "should exist before the content arrives" — which is true for regions that announce updates in place, and wrong for a disclosure whose content only exists once the user asks for it.
+
+## 2026-07-31 — Sidebar expansion and selection are separate, and deliberately so
+
+Clicking a repository's name selects it; clicking its twisty expands it. Neither triggers the other, and the keyboard splits the same way — arrows move and expand, Enter selects. **Why:** conflating them makes two ordinary things impossible: reading a repository's summary while its file list stays collapsed, and browsing a file list without navigating away from what is currently open. **Mistake it prevents:** "simplifying" selection to also expand, which feels tidier, matches a naive reading of a tree, and fails the test that names the rule.
+
 ## 2026-07-31 — The unlock input submits on its own Enter keydown, not on implicit form submission
 
 The hidden password input handles Enter in a keydown handler that prevents the default and submits; the surrounding form's submit handler is a backstop, never the mechanism. **Why:** synthesized key events — which is what the journey harness sends — are untrusted, and untrusted Enter never triggers a form's implicit submission in the real webview, so relying on the form alone makes the driven journeys hang at the first Enter while working fine under a human keyboard. The preventDefault is what stops a human's trusted Enter from submitting twice. **Mistake it prevents:** deleting the keydown handler as redundant with the form, which passes every unit test and breaks every automated journey.

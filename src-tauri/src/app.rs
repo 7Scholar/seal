@@ -66,6 +66,28 @@ pub fn seal_file(
     Ok(())
 }
 
+pub fn seal_files(
+    session: &mut Session,
+    paths: &[PathBuf],
+    state: &mut State,
+) -> Vec<view::SealOutcome> {
+    paths
+        .iter()
+        .map(|path| match seal_file(session, path, state) {
+            Ok(()) => view::SealOutcome {
+                path: path.clone(),
+                sealed: true,
+                reason: None,
+            },
+            Err(error) => view::SealOutcome {
+                path: path.clone(),
+                sealed: false,
+                reason: Some(error.kind),
+            },
+        })
+        .collect()
+}
+
 pub fn open_file(
     session: &mut Session,
     path: &Path,

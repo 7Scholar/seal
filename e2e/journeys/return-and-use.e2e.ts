@@ -8,6 +8,13 @@ const ARMOR = "-----BEGIN AGE ENCRYPTED FILE-----";
 
 const repo = () => process.env.SEAL_E2E_PICK_FOLDER ?? "";
 const status = () => $('[role="status"][aria-label="Unlock status"]');
+const repoName = () => repo().split("/").pop() ?? "";
+const repoInSidebar = () => $(`[role="treeitem"] span=${repoName()}`);
+
+async function openTheRepository() {
+  await repoInSidebar().waitForClickable();
+  await repoInSidebar().click();
+}
 
 describe("returning: unlock, use a secret, catch an exposure, rotate the password", () => {
   before(async () => {
@@ -38,6 +45,7 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
       await $("button=Manage 1 file").waitForClickable();
       await $("button=Manage 1 file").click();
       step("waiting for repo list");
+      await openTheRepository();
       await $('button[aria-label="Seal .env"]').waitForClickable();
       await $('button[aria-label="Seal .env"]').click();
       step("seal clicked");
@@ -60,7 +68,7 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
       } catch (error) {
         const page = await browser.execute(() => ({
           h1: document.querySelector("h1")?.textContent,
-          states: [...document.querySelectorAll(".repo__state")].map((s) => s.textContent),
+          states: [...document.querySelectorAll(".detail__state")].map((s) => s.textContent),
           alerts: [...document.querySelectorAll('[role="alert"]')].map((a) =>
             a.textContent?.slice(0, 200),
           ),
@@ -82,7 +90,8 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
   it("unlocks into the repository view with the sealed file", async () => {
     await browser.keys([...PASSWORD]);
     await browser.keys("Enter");
-    await expect($("h1=Your repositories")).toBeDisplayed();
+    await expect($('[role="tree"]')).toBeDisplayed();
+    await openTheRepository();
     await expect($("span=Sealed")).toBeDisplayed();
   });
 
@@ -130,7 +139,7 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
       throw new Error("saving left the file readable on disk");
     }
     await $("button=Close").click();
-    await expect($("h1=Your repositories")).toBeDisplayed();
+    await expect($('button[aria-label="Open .env"]')).toBeDisplayed();
   });
 
   it("notices a sealed file replaced by readable text, and insists on it", async () => {
@@ -140,7 +149,7 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
     await expect($("h1=Seal is locked")).toBeDisplayed();
     await browser.keys([...PASSWORD]);
     await browser.keys("Enter");
-    await expect($("h1=Your repositories")).toBeDisplayed();
+    await openTheRepository();
 
     const alert = $(".exposure-alert");
     await expect(alert).toBeDisplayed();
@@ -165,7 +174,8 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
   });
 
   it("changes the master password under supervision, and the old one stops opening Seal", async () => {
-    await $("button=Change password").click();
+    await $('button[aria-label="Seal settings"]').click();
+    await $("button=Change master password").click();
     await expect($("h1=Change your master password")).toBeDisplayed();
     await expect($("p*=Both passwords must be remembered")).toBeDisplayed();
 
@@ -175,7 +185,7 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
     await $("#phrase").setValue("CHANGE MY PASSWORD");
     await $("button=Change the password").click();
 
-    await expect($("h1=Your repositories")).toBeDisplayed();
+    await expect($('[role="tree"]')).toBeDisplayed();
 
     await $("button=Lock Seal").click();
     await expect($("h1=Seal is locked")).toBeDisplayed();
@@ -188,7 +198,8 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
 
     await browser.keys([...NEW_PASSWORD]);
     await browser.keys("Enter");
-    await expect($("h1=Your repositories")).toBeDisplayed();
+    await expect($('[role="tree"]')).toBeDisplayed();
+    await openTheRepository();
     await expect($("span=Sealed")).toBeDisplayed();
   });
 });

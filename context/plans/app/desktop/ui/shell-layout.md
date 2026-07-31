@@ -102,18 +102,38 @@ Applied consistently: an information affordance on some titles and not others pr
 
 Row-level actions may de-emphasise until hover, and doing so is how the file rows stay quiet. Two rules bound it. Anything revealed on `:hover` is revealed identically on `:focus`, so a keyboard user sees exactly what a pointer user sees. And nothing is reachable **only** by hover — hover-revealed affordances are undiscoverable, since no visual convention announces that an element is hoverable, and they exclude keyboard, touch and assistive-technology users entirely. Where hover-reveal is used, detection is on hover *capability*, never on viewport width.
 
+# What exists
+
+All of the Approach. The shell is the frame the application runs in: the two-level sidebar, the detail surface with its three modes, the selection model with its fallbacks, the toggletip and overflow disclosures, the batch seal, and repository removal. Every existing screen was re-homed into the detail surface with its internals untouched.
+
+Thirty-eight interface tests across the sidebar, the detail surface, the toggletip and the shell itself, alongside the four Rust tests the batch seal added. The shell's own tests drive the composed application rather than a component in isolation, which is what proves the sidebar actually survives opening a file rather than each piece being correct alone.
+
+Five load-bearing guards were confirmed non-vacuous by reintroducing the exact defect each prevents:
+
+- describing the toggletip's trigger with `aria-describedby` instead of carrying state in `aria-expanded` — the shape that makes the button a no-op for a screen-reader user — fails 2 tests
+- making selection also expand, conflating navigation with disclosure, fails 1
+- sealing every readable file instead of the chosen set fails 2
+- reporting a bare count instead of naming each failed file and why fails 1
+- removing the acknowledgement gate fails 1 on the batch path, confirming the gate holds for a batch rather than only for a single file
+
+One defect was caught by a test rather than by review, and it is the same defect this plan group caught once before: the batch report and the toggletip both claimed `role="status"`, leaving two competing live regions on one surface. The toggletip now claims the role only while open.
+
+# What is missing
+
+Nothing on this plan. The journeys' harness cannot currently drive it end to end — the embedded WebDriver bridge fails to start, which is [journey-harness.md](../journey-harness.md)'s open defect and predates this work; verified by reproducing the identical failure on the tree without these changes.
+
 # Steps
 
 - [x] Research the prior art and fix the behavioural rules — [shell-research.md](_docs/shell-research.md).
 - [x] Inventory the operations and assign each a scope and a disclosure posture — [shell-operations.md](_docs/shell-operations.md).
 - [x] Settle the four design forks and write the Approach.
-- [ ] The toggletip primitive, with its `aria-expanded` contract and dismissal behaviour asserted separately.
-- [ ] The sidebar: the two-level tree, expansion separate from selection, the state summary, and the keyboard model.
-- [ ] The detail surface with its three modes, and the selection model with its fallbacks.
-- [ ] Re-home the existing screens into the detail surface without changing their internals.
-- [ ] The batch seal: the Rust command with its per-path registry check and per-path outcome, and the selection surface that drives it.
-- [ ] Removing a repository as one operation, with its disk-consequence choice.
-- [ ] Tests, with each load-bearing rule confirmed non-vacuous.
+- [x] The toggletip primitive, with its `aria-expanded` contract and dismissal behaviour asserted separately.
+- [x] The sidebar: the two-level tree, expansion separate from selection, the state summary, and the keyboard model.
+- [x] The detail surface with its three modes, and the selection model with its fallbacks.
+- [x] Re-home the existing screens into the detail surface without changing their internals.
+- [x] The batch seal: the Rust command with its per-path registry check and per-path outcome, and the selection surface that drives it.
+- [x] Removing a repository as one operation, with its disk-consequence choice.
+- [x] Tests, with each load-bearing rule confirmed non-vacuous.
 
 # Open threads
 

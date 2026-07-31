@@ -554,3 +554,120 @@ fn every_env_naming_variation_is_still_editable() {
         );
     }
 }
+
+fn plaintext_fixture(names: &[&str]) -> Fixture {
+    let dir = tempfile::tempdir().unwrap();
+    let root = dir.path().to_path_buf();
+
+    let files = names
+        .iter()
+        .map(|name| {
+            std::fs::write(root.join(name), CONTENT).unwrap();
+            ManagedFile {
+                relative_path: PathBuf::from(name),
+                last_known: SealedState::Plaintext,
+                fingerprint: None,
+                unknown: Default::default(),
+            }
+        })
+        .collect();
+
+    let state = State {
+        repos: vec![Repo {
+            root: root.clone(),
+            uses_override_passphrase: false,
+            files,
+            unknown: Default::default(),
+        }],
+        acknowledged_irreversibility: true,
+        ..Default::default()
+    };
+
+    Fixture {
+        path: root.join(names[0]),
+        _dir: dir,
+        root,
+        state,
+    }
+}
+
+#[test]
+fn sealing_a_chosen_set_seals_exactly_those_files() {
+    let mut fixture = plaintext_fixture(&[".env", ".env.staging", ".env.production"]);
+    let mut session = unlocked();
+    let chosen = vec![fixture.root.join(".env"), fixture.root.join(".env.staging")];
+
+    let outcomes = app::seal_files(&mut session, &chosen, &mut fixture.state);
+
+    assert!(outcomes.iter().all(|outcome| outcome.sealed));
+    assert!(matches!(
+        seal_engine::operations::classify(&fixture.root.join(".env")).unwrap(),
+        seal_engine::format::Classification::Sealed { .. }
+    ));
+    assert!(
+        !matches!(
+            seal_engine::operations::classify(&fixture.root.join(".env.production")).unwrap(),
+            seal_engine::format::Classification::Sealed { .. }
+        ),
+        "a file the user did not choose must be left readable"
+    );
+}
+
+#[test]
+fn one_failure_does_not_stop_the_rest_and_is_reported_per_path() {
+    let mut fixture = plaintext_fixture(&[".env", ".env.staging"]);
+    let mut session = unlocked();
+    let stranger = fixture.root.join("not-managed.env");
+    std::fs::write(&stranger, CONTENT).unwrap();
+
+    let chosen = vec![
+        stranger.clone(),
+        fixture.root.join(".env"),
+        fixture.root.join(".env.staging"),
+    ];
+    let outcomes = app::seal_files(&mut session, &chosen, &mut fixture.state);
+
+    assert_eq!(outcomes[0].reason, Some(Kind::NotManaged));
+    assert!(!outcomes[0].sealed);
+    assert!(
+        outcomes[1].sealed && outcomes[2].sealed,
+        "a failure on one file must not abort the files after it"
+    );
+}
+
+#[test]
+fn a_batch_seal_is_refused_entirely_until_the_consequences_are_acknowledged() {
+    let mut fixture = plaintext_fixture(&[".env", ".env.staging"]);
+    fixture.state.acknowledged_irreversibility = false;
+    let mut session = unlocked();
+    let chosen = vec![fixture.root.join(".env"), fixture.root.join(".env.staging")];
+
+    let outcomes = app::seal_files(&mut session, &chosen, &mut fixture.state);
+
+    assert!(
+        outcomes
+            .iter()
+            .all(|outcome| outcome.reason == Some(Kind::NotAcknowledged)),
+        "the acknowledgement gate must hold for every file in a batch"
+    );
+    assert!(
+        !matches!(
+            seal_engine::operations::classify(&fixture.root.join(".env")).unwrap(),
+            seal_engine::format::Classification::Sealed { .. }
+        ),
+        "nothing may be sealed before the acknowledgement"
+    );
+}
+
+#[test]
+fn a_batch_outcome_never_carries_secret_material() {
+    let mut fixture = plaintext_fixture(&[".env"]);
+    let mut session = unlocked();
+    let chosen = vec![fixture.root.join(".env")];
+
+    let outcomes = app::seal_files(&mut session, &chosen, &mut fixture.state);
+    let serialized = serde_json::to_string(&outcomes).unwrap();
+
+    assert!(!serialized.contains("sk-live-42"));
+    assert!(!serialized.contains(PASSPHRASE));
+}

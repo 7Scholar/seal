@@ -31,6 +31,11 @@ const CAUSES: Record<string, string> = {
     "Seal's own records could not be updated. Nothing in your repositories was touched.",
 };
 
+export function reason(kind: string | null): string {
+  if (kind === null) return "";
+  return CAUSES[kind] ?? "Something unexpected went wrong.";
+}
+
 export function explain(doing: string, error: unknown): string {
   if (isCommandError(error)) {
     const where = error.path ? ` (${fileName(error.path)})` : "";

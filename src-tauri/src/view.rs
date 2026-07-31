@@ -46,6 +46,14 @@ pub enum OpenedFile {
     Opaque { path: PathBuf, bytes: usize },
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SealOutcome {
+    pub path: PathBuf,
+    pub sealed: bool,
+    pub reason: Option<crate::error::Kind>,
+}
+
 pub fn is_editable(path: &Path) -> bool {
     path.file_name()
         .map(|name| seal_registry::scan::is_editable_env_file(&name.to_string_lossy()))

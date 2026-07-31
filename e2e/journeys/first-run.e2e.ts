@@ -73,7 +73,7 @@ describe("first run: install, choose a password, protect a first file", () => {
     await expect($("button=Manage 1 file")).toBeEnabled();
     await $("button=Manage 1 file").click();
 
-    await expect($("h1=Your repositories")).toBeDisplayed();
+    await expect($('[role="treeitem"] span=' + repo.split("/").pop())).toBeDisplayed();
     await expect($("span=.env")).toBeDisplayed();
   });
 
@@ -120,7 +120,8 @@ describe("first run: install, choose a password, protect a first file", () => {
 
     await browser.keys([...PASSWORD]);
     await browser.keys("Enter");
-    await expect($("h1=Your repositories")).toBeDisplayed();
+    await expect($('[role="tree"]')).toBeDisplayed();
+    await $(`[role="treeitem"] span=${repo.split("/").pop()}`).click();
     await expect($("span=Sealed")).toBeDisplayed();
   });
 });

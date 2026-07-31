@@ -22,6 +22,8 @@ The fork matters beyond the screen: A implies the product knows it has never bee
 
 **ANSWER**
 
+None of the above. I want the product to be exactly the same on the first open as it is on the 100th open. So, show the shield. If the user has no master password yet, the first open SETS the master password. Otherwise, it checks the master password. Afterwards, I want the main part of the application to be in the first open as it would be on the 100th open, just a single UX, with a proper empty state. It is the empty state that allows "onboarding".
+
 ## 2. What drives the harness?
 
 **Status:** awaiting an answer. Blocks [HARNESS.md](HARNESS.md), and therefore every journey's automated demonstration.
@@ -37,3 +39,5 @@ The fork matters beyond the screen: A implies the product knows it has never bee
 **My recommendation: A.** It is the maintained path, and the Linux gap on macOS-specific behaviour is real but small compared to having no gate at all. C is how this happened in the first place.
 
 **ANSWER**
+
+It definitely needs to work on MacOs first. The other considerations are that it needs to be long-term stable and maintainable and robust. With that, you can choose.

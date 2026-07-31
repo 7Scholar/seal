@@ -96,10 +96,9 @@ jobs:
       - name: Install the pinned toolchain
         run: rustup show
 
-      - uses: actions/setup-node@v4
+      - uses: oven-sh/setup-bun@v2
         with:
-          node-version: 22
-          cache: npm
+          bun-version: latest
 
       - name: Install the desktop system libraries
         if: runner.os == 'Linux'
@@ -116,13 +115,13 @@ jobs:
       - uses: Swatinem/rust-cache@v2
 
       - name: Install exactly what the lockfile pins
-        run: npm ci
+        run: bun install --frozen-lockfile
 
       - name: Build the command-line tool into the bundle
         run: ./scripts/build-sidecar.sh
 
       - name: Bundle
-        run: npx --yes @tauri-apps/cli@2 build
+        run: bun x @tauri-apps/cli@2 build
 
       - name: Checksum every artefact
         # These bundles are unsigned and macOS will refuse to open them. They exist so a

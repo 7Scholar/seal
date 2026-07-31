@@ -12,7 +12,7 @@ Four documents, each answering a question a newcomer actually has.
 
 Its installation section is the first thing after the status, because it is what a stranger came for. It gives the two one-command routes for the command-line tool, the source build for the application, and — as a named section rather than a footnote — what being unsigned actually means for the reader: that the install routes work because `curl`, `tar` and Homebrew do not set quarantine while a browser download does, and that Seal deliberately does not teach the `xattr` override. Every command in it is verified against a real run.
 
-**Every command in the README is verified rather than believed.** The build and test instructions were run against a clean clone of the repository, which is what catches instructions that rot silently — and did catch one, since a gitignored lockfile would have left `npm ci` unable to run at all.
+**Every command in the README is verified rather than believed.** The build and test instructions were run against a clean clone of the repository, which is what catches instructions that rot silently — and did catch one, since a gitignored lockfile would have left `bun install` unable to run at all.
 
 **The security policy** states the threat model, names what is in scope and what is not, and gives a private reporting route. It is explicit that attacks requiring an adversary who can already read process memory during an unlocked session are out of scope by design, so a reporter is not left guessing whether the limit is a bug.
 

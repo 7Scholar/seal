@@ -24,7 +24,7 @@ Everything the documentation claims is verified rather than believed: the README
 
 Freshly framed, with `ci.md` already complete because the gap it closed was real and immediate: seventy-six interface tests and a typecheck existed that **no automated run executed at all**.
 
-`docs.md` is complete: the README now covers the application as well as the command-line tool, and every command it gives was verified against a clean clone — which caught a gitignored lockfile that would have made `npm ci` impossible. The security policy, contributing guide and both licence texts are in place.
+`docs.md` is complete: the README now covers the application as well as the command-line tool, and every command it gives was verified against a clean clone — which caught a gitignored lockfile that would have made `bun install` impossible. The security policy, contributing guide and both licence texts are in place.
 
 `packaging.md` is complete, and now covers installation rather than only what gets built. Its earlier state settled the signing question but left the tool as a tarball a user had to find, extract and move by hand — from a workflow that published its artefacts nowhere a stranger could reach.
 

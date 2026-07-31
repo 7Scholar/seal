@@ -23,3 +23,11 @@ A tagged release attaches the four command-line tarballs and their checksums; th
 ## 2026-07-31 — The tap push degrades to a no-op instead of failing
 
 When `SEAL_TAP_TOKEN` is absent the tap step renders the formula, prints it, and exits successfully without pushing. **Why:** the token grants write access to a second repository, which a fork will never have, and a release that fails on a missing secret would make the project unreleasable by anyone but its owner. **Mistake it prevents:** "fixing" the conditional into a hard failure because a silent skip looks like a bug — it is the fork path working as intended.
+
+## 2026-07-31 — Bun runs the scripts; Vite and Vitest still do the work
+
+The interface toolchain uses Bun as package manager and script runner only. `bun run test` invokes **Vitest**, not `bun test`, and `bun run build` invokes **Vite**. **Why:** the suite relies on the jsdom environment, global test APIs, setup file and React transform configured in `vite.config.ts`, and Bun's own test runner reads none of that — switching to it would mean rewriting all 129 tests for no gain. **Mistake it prevents:** "finishing" the migration by replacing `vitest run` with `bun test` because the project already uses Bun, which breaks the entire interface suite at once.
+
+## 2026-07-31 — `bun.lock` is the only lockfile
+
+`package-lock.json` is deliberately absent rather than merely unused. **Why:** two lockfiles drift, and the one CI does not read is the one that silently goes stale, so a contributor running the other package manager installs a different tree from the one the checks proved. Bun migrated the original resolutions when the lockfile was created, so nothing was re-resolved in the switch. **Mistake it prevents:** restoring `package-lock.json` for the convenience of contributors who prefer npm, which reintroduces exactly the divergence having one lockfile removes.

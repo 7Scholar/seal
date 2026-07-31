@@ -5,12 +5,12 @@ Thank you for looking. This project has a few conventions that are unusual enoug
 ## The short version
 
 ```bash
-npm ci                 # exactly what the lockfile pins
+bun install                 # exactly what the lockfile pins
 cargo test             # the Rust suite
-npm test               # the interface suite
+bun run test               # the interface suite
 cargo clippy --all-targets --all-features -- -D warnings
 cargo fmt --all --check
-npm run typecheck
+bun run typecheck
 ```
 
 All of these run in continuous integration and must pass.

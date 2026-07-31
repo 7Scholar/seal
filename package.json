@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "e2e": "wdio run e2e/wdio.conf.ts",
-    "e2e:build": "npm run build && cargo build --release --manifest-path src-tauri/Cargo.toml --features e2e,custom-protocol",
+    "e2e:build": "bun run build && cargo build --release --manifest-path src-tauri/Cargo.toml --features e2e,custom-protocol",
     "e2e:extended": "wdio run e2e/wdio.conf.ts --spec e2e/journeys/first-run.e2e.ts --spec e2e/journeys/return-and-use.e2e.ts"
   },
   "devDependencies": {

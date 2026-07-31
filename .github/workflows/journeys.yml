@@ -21,19 +21,18 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
 
-      - uses: actions/setup-node@v4
+      - uses: oven-sh/setup-bun@v2
         with:
-          node-version: 22
-          cache: npm
+          bun-version: latest
 
       - name: Install exactly what the lockfile pins
-        run: npm ci
+        run: bun install --frozen-lockfile
 
       - name: Build the application with the harness bridge
-        run: npm run e2e:build
+        run: bun run e2e:build
 
       - name: Drive the journeys against the real application
-        run: npm run e2e
+        run: bun run e2e
 
       - name: The distributable build must not contain the harness bridge
         run: |

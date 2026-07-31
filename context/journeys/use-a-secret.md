@@ -47,7 +47,7 @@ Someone who has protected files and now needs to actually work with them — rea
 
 # Demonstration
 
-**Steps 1 through 5 driven, automated, 2026-07-31**, in the harness's `return-and-use` scenario running after `first-run` (`npm run e2e:extended`): the sealed file opens as masked structure with the secret provably absent from the page, the file on disk stays armored the whole time it is open, one value reveals on request and conceals again, an edit saves with the dirty count clearing and the file still sealed on disk, and closing returns to the repository view with the file protected.
+**Steps 1 through 5 driven, automated, 2026-07-31**, in the harness's `return-and-use` scenario running after `first-run` (`bun run e2e:extended`): the sealed file opens as masked structure with the secret provably absent from the page, the file on disk stays armored the whole time it is open, one value reveals on request and conceals again, an edit saves with the dirty count clearing and the file still sealed on disk, and closing returns to the repository view with the file protected.
 
 **Not driven:** step 6 (a non-env file's no-editor treatment), step 7 (the command-line resolve from a script), and step 8 (plaintext expiring after time away). The scenario's tail is also currently limited by a harness defect recorded in [the harness plan](../plans/app/desktop/journey-harness.md). The journey is not satisfied until all steps are driven.
 

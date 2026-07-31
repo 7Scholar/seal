@@ -6,7 +6,7 @@ The automated checks that keep the repository's claims true: formatting, lints, 
 
 # Approach
 
-Continuous integration exists to catch the claims that quietly stop being true. Four jobs, each guarding something specific.
+Continuous integration exists to catch the claims that quietly stop being true. Five jobs, each guarding something specific.
 
 **The Rust job** runs on macOS and Linux, because the application targets both and the filesystem behaviour the engine depends on differs between them. It installs the desktop system libraries on Linux, since the Tauri crate does not build without them. It sets the variable that turns a skipped terminal-driven test into a failure, because that test proves the password prompt reaches a real terminal and a silent skip would verify nothing.
 
@@ -14,7 +14,11 @@ Continuous integration exists to catch the claims that quietly stop being true. 
 
 **The interoperability job** installs a version-pinned reference `age` binary and sets the variable that makes a skip fail. This is the only evidence that Seal's format is genuinely standard rather than self-consistent, so it must never be able to report success without having run.
 
+**The installation job** proves the published install route, and is specified in `packaging.md` because that plan owns what it guards.
+
 **The audit job** checks dependencies against the advisory database.
+
+**The interface toolchain is Bun**, used as the package manager and script runner rather than as a test runner or bundler: Vite still builds and Vitest still tests, because the suite depends on the jsdom environment, global test APIs and the React transform that Vite's config supplies, and none of that carries across to a different runner. So Bun replaces `npm` at the command level and nothing beneath it, which is what keeps the change reversible. The lockfile is `bun.lock` — text rather than binary, so a dependency change is reviewable in a diff, which matters for a project asking to be trusted with secrets. It is the only lockfile: keeping a second one invites the two to disagree about what is installed.
 
 Two rules cut across all of them. Skips are permitted so a fresh clone is green without installing anything, but every skip that guards a real claim has an environment variable that converts it into a failure, and continuous integration sets it. And the toolchain is pinned rather than floating, so an upstream change surfaces as a deliberate update rather than a mysterious failure.
 

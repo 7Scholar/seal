@@ -16,7 +16,7 @@ The harness is **WebdriverIO with `@wdio/tauri-service`**, driving the applicati
 
 **The bridge exists only in harness builds.** The plugin rides an `e2e` cargo feature, and its capability grant lives in a second capabilities directory that the build script includes only when the feature is enabled — a normal build rejects the unknown permission, which is exactly the property wanted. Continuous integration proves the distributable binary carries no trace of the bridge by building without the feature and scanning the binary; the check is non-vacuous, measured at twenty-six matches with the feature and zero without.
 
-**The harness binary is a real release build.** The application must be built with the `custom-protocol` feature (plus `e2e`), because the framework treats any build without it as a development build that loads the dev-server URL — against no running dev server that is a permanently blank window, not an error. `npm run e2e:build` produces the frontend and the correctly-featured binary in one step.
+**The harness binary is a real release build.** The application must be built with the `custom-protocol` feature (plus `e2e`), because the framework treats any build without it as a development build that loads the dev-server URL — against no running dev server that is a permanently blank window, not an error. `bun run e2e:build` produces the frontend and the correctly-featured binary in one step.
 
 **Fresh profile by construction.** Scenarios launch the binary through a wrapper script that sets `HOME` to a scratch directory minted once per run, so a first-run scenario starts from genuinely nothing — no registry, no sentinel, no repositories — and later scenarios in the same run inherit that same home, which is what lets a returning-user scenario find the state the first-run scenario created.
 
@@ -28,7 +28,7 @@ The harness is **WebdriverIO with `@wdio/tauri-service`**, driving the applicati
 
 # What exists
 
-The harness; the `first-run` scenario fully green against the real application on macOS across three consecutive runs; the non-vacuity demonstration; the `return-and-use` scenario, whose early path — returning shield, unlock, masked open, sealed-on-disk, reveal, edit and save — passes when run in sequence (`npm run e2e:extended`); and the continuous-integration workflow, gated on the stable scenario, that builds the harness binary, drives the journey, and proves the distributable free of the bridge.
+The harness; the `first-run` scenario fully green against the real application on macOS across three consecutive runs; the non-vacuity demonstration; the `return-and-use` scenario, whose early path — returning shield, unlock, masked open, sealed-on-disk, reveal, edit and save — passes when run in sequence (`bun run e2e:extended`); and the continuous-integration workflow, gated on the stable scenario, that builds the harness binary, drives the journey, and proves the distributable free of the bridge.
 
 # What is missing
 

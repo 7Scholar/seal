@@ -38,13 +38,13 @@ seal --version
 
 ### The desktop application
 
-Built from source, which needs [Rust](https://rustup.rs) and [Node](https://nodejs.org):
+Built from source, which needs [Rust](https://rustup.rs) and [Bun](https://bun.com):
 
 ```bash
 git clone https://github.com/7scholar/seal
 cd seal
-npm ci
-npm run build
+bun install
+bun run build
 cargo build --release --manifest-path src-tauri/Cargo.toml --features custom-protocol
 ```
 
@@ -124,11 +124,11 @@ Two consequences worth stating plainly:
 
 ## Building and testing
 
-Building the desktop application is covered under [Installation](#the-desktop-application); this is what a contributor needs beyond it. Requires a recent Rust toolchain and Node 22 — the repository pins the Rust version it needs, and `npm ci` installs exactly what the lockfile pins.
+Building the desktop application is covered under [Installation](#the-desktop-application); this is what a contributor needs beyond it. Requires a recent Rust toolchain and Bun — the repository pins the Rust version it needs, and `bun install` installs exactly what the lockfile pins.
 
 ```bash
-npm ci
-npm run build          # the interface
+bun install
+bun run build          # the interface
 cargo build --release  # the engine, the CLI and the application
 ```
 
@@ -136,7 +136,7 @@ To run the tests:
 
 ```bash
 cargo test    # the Rust suite
-npm test      # the interface suite
+bun run test      # the interface suite
 ```
 
 On Linux the desktop application additionally needs the system webview libraries — `libwebkit2gtk-4.1-dev`, `libgtk-3-dev`, `libayatana-appindicator3-dev`, `librsvg2-dev` and `patchelf`. The engine and the command-line tool build without them.

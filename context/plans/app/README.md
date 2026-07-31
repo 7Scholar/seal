@@ -72,7 +72,7 @@ An audit of the code against this intent found that the per-file surface had bee
 
 Research for that plan also corrected this Approach: the requirement to "notice when a file is open in an editor" cannot be met by checking descriptors, since editors hold none on files open in tabs. Sealing now warns on recency and states its own limit, with reconciliation as the real safety net.
 
-What remains of `desktop/` is the journey-driven work its cursor names: `first-open.md`, blocked on the question of how the product knows a master password exists, and `journey-harness.md`, whose research step is where work goes next.
+What remains of `desktop/` is the journey-driven work its cursor names: the harness's extended scenarios and the bridge defect blocking their tail. The first-run journey is satisfied on macOS — driven end to end by the automated harness against a release build — which is the axis this plan was reopened for.
 
 # Open threads
 

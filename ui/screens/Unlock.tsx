@@ -33,7 +33,7 @@ export function Unlock({ mode, notice: outsideNotice, onSubmit }: Props) {
     shieldRef.current?.setChurn(working);
   }, [working]);
 
-  async function submit(event: React.FormEvent) {
+  async function submit(event: { preventDefault(): void }) {
     event.preventDefault();
     if (passphrase.length === 0 || working) return;
 
@@ -114,6 +114,9 @@ export function Unlock({ mode, notice: outsideNotice, onSubmit }: Props) {
         autoCapitalize="off"
         spellCheck={false}
         readOnly={working}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") void submit(event);
+        }}
         onChange={(event) => {
           const next = event.target.value;
           if (next.length > passphrase.length) shieldRef.current?.spark();

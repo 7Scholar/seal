@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { open as pickFolder } from "@tauri-apps/plugin-dialog";
 import * as ipc from "./ipc";
 import { explain } from "./errors";
 import { Acknowledge } from "./screens/Acknowledge";
@@ -154,12 +153,8 @@ export function App() {
           repos={repos}
           onImport={() =>
             attempt("open the folder picker", async () => {
-              const root = await pickFolder({
-                directory: true,
-                multiple: false,
-                title: "Choose a repository folder",
-              });
-              if (typeof root !== "string") return;
+              const root = await ipc.pickFolder();
+              if (!root) return;
               setScreen({ name: "import", scan: await ipc.scanFolder(root) });
             })
           }

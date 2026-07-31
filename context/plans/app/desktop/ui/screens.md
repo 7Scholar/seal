@@ -32,13 +32,17 @@ The same gate carries the establishing mode ([first-open.md](../first-open.md)):
 
 **The acknowledgement** states both irreversible facts, tells the user to rotate an already-exposed credential, and is gated on a typed phrase.
 
+## The application-level flows around the screens
+
+The application shell that hosts the screens carries three flows of its own. The import entry asks the folder-pick command for a path and only then scans, so cancelling the native dialog is a quiet no-op. Sealing first asks for the recency warning and, when one comes back, interposes a confirmation stating the modification gap, what Seal cannot see — an editor's unsaved buffer — and the instruction that actually works, closing the file in the editor first; only confirming proceeds to the acknowledgement gate and the seal. And every failure a screen does not handle inline surfaces through the problem banner per [errors.md](errors.md), with a locked-session failure re-locking to the shield instead. The shield accepts an outside notice for exactly that arrival, shown until typing starts.
+
 ## The interface holds nothing
 
 A revealed value lives in component state for the row displaying it and nowhere else. Nothing is persisted, which the memory-only webview enforces regardless of what the interface attempts.
 
 # What exists
 
-All of the above, with seventy-two tests.
+All of the above, with seventy-four tests.
 
 Three guards were confirmed non-vacuous by reintroducing the exact defect each prevents:
 

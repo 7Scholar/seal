@@ -55,7 +55,7 @@ Reveal is not an edit and must never mark a file dirty — a demonstrated failur
 
 # Cursor
 
-The frontend and every screen are built: the unlock sand shield, the cross-repo view with its non-dismissible alert, the import flow, the environment-variables editor, and the first-seal acknowledgement — all but unlock on a design taken from [the research](_docs/ux-research.md) rather than invented. Seventy-two interface tests, with each load-bearing guard confirmed by reintroducing the exact defect it prevents.
+The frontend and every screen are built: the unlock sand shield, the cross-repo view with its non-dismissible alert, the import flow, the environment-variables editor, and the first-seal acknowledgement — all but unlock on a design taken from [the research](_docs/ux-research.md) rather than invented. Ninety-three interface tests across the screens, the failure surface, and the password change, with each load-bearing guard confirmed by reintroducing the exact defect it prevents.
 
 `password-change.md` is complete too, on a manifest that outlives the process: removing that durability fails eight of its ten Rust tests, which is the measure of how much the guarantee was carrying.
 

@@ -25,8 +25,6 @@ Ordered as a person meets them.
 
 ## Status
 
-Every journey here is **unsatisfied**. None has been driven end to end in the real application.
+**[first-run.md](first-run.md) is satisfied on macOS**: driven end to end by the automated harness against a release build from a scratch profile, three consecutive runs green, no open findings. [protect-a-repo.md](protect-a-repo.md) is driven through step 6 of 7, and [use-a-secret.md](use-a-secret.md) through step 5 of 8, inside the same runs. The remaining journeys are staged or fragmentary; each Demonstration section records exactly what was witnessed and what was not, and a journey with undriven steps stays unsatisfied.
 
-That is the honest state, and it is why this folder was created. The desktop application was marked complete with every plan `[x]`, and the first person to open it could not get past the first screen: they were asked to unlock a vault that did not exist yet, and then met a screen whose only button did nothing at all. Both defects sat between plans that were each individually correct and individually tested.
-
-Nothing here is satisfied until it has been driven.
+This folder exists because the desktop application was once marked complete with every plan `[x]`, and the first person to open it could not get past the first screen — they were asked to unlock a vault that did not exist yet, then met a screen whose only button did nothing at all. Both defects sat between plans that were each individually correct and individually tested. Both are now fixed and their fixes are what the automated demonstration drives.

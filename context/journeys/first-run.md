@@ -52,20 +52,20 @@ They are, at this moment, deciding whether this tool is trustworthy. Everything 
 
 # Demonstration
 
-**Never driven.** This journey has not been walked end to end in the real application.
+**Driven end to end, automated, 2026-07-31**, by the journey harness ([the harness plan](../plans/app/desktop/journey-harness.md)) against a release build of the real application on macOS, from a scratch home holding nothing — no registry, no password, no repositories. Three consecutive full runs green. What the run asserts, in order: the application opens to *choosing* a master password, saying so and stating that it can never be recovered; a mistyped confirmation sets nothing and starts over; matching entries establish and land in the empty state with the import action; the password exists on disk only as a sealed age file that does not contain it; import runs through the folder picker, groups candidates, and preselects only the real secret; sealing is refused until the two irreversible facts are acknowledged behind typed confirmation; the file in the repository is genuinely armored age text with no trace of the secret; and locking, a wrong password is refused saying nothing was changed, then the right one reopens to the sealed file.
 
-What is known from a single partial attempt by the project owner, on an installed build: the application opened directly to a password prompt with no explanation, no confirmation field, and no indication that the password was being created rather than entered. After entering one, the next screen showed a title and a single button. The button did nothing at all. The journey ended there, at step 5 of 7.
+The drive also caught what only a real webview shows: a synthesized Enter never triggers implicit form submission, so the unlock shield now submits on its own keydown — the exact class of defect this axis exists to catch.
 
-This is recorded as the baseline, not as the demonstration. The journey is satisfied only when it has been driven to completion against a build containing the fixes.
+The earlier baseline — a password prompt with no explanation and an import button that did nothing — is preserved in history; both defects are fixed and the fixes are what the demonstration exercises.
 
 # Findings
 
 1. **The product has no concept of a first run.** It cannot distinguish a new user from a returning one, so it asks a first-time user to unlock something that does not exist. **Routed:** framed as [first-open](../plans/app/desktop/first-open.md), carrying the decided shape — one identical surface on every open, the first open setting the master password, later opens checking it.
 
-2. **Choosing a folder does not work.** The only route into the product's core loop is inert. **Open.**
+2. **Choosing a folder does not work.** The only route into the product's core loop is inert. **Routed and closed:** the pick became a purpose-built command backed by the native dialog ([commands](../plans/app/desktop/commands.md)); the automated demonstration drives through it.
 
 3. **The irreversibility warning arrives too late to inform the decision it is about.** It is shown before the first encryption, which is after the user has already committed to a password they cannot recover. **Routed:** to [first-open](../plans/app/desktop/first-open.md), whose bar is that both facts land at establishment.
 
 4. **The empty state does not carry its own weight.** It names the situation but does not lead anyone anywhere. **Routed:** to [first-open](../plans/app/desktop/first-open.md) — the decided shape makes the empty state the onboarding vehicle, so its weight is that plan's concern.
 
-Driving the journey in full will find more, and is expected to. These four are what a single partial attempt surfaced.
+Driving the journey in full found one more, now closed: relying on implicit form submission made Enter dead under the real webview's synthesized events ([screens](../plans/app/desktop/ui/screens.md) owns the fix). No findings remain open — **this journey is satisfied on macOS by the automated demonstration.**

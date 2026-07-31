@@ -82,6 +82,25 @@ pub async fn unlock(held: Managed<'_, Held>, passphrase: String) -> Result<(), C
 }
 
 #[tauri::command]
+pub async fn pick_folder(app: tauri::AppHandle) -> Result<Option<PathBuf>, CommandError> {
+    #[cfg(feature = "e2e")]
+    if let Some(path) = std::env::var_os("SEAL_E2E_PICK_FOLDER") {
+        return Ok(Some(PathBuf::from(path)));
+    }
+
+    let dialog = tauri_plugin_dialog::DialogExt::dialog(&app).clone();
+    let picked = tauri::async_runtime::spawn_blocking(move || dialog.file().blocking_pick_folder())
+        .await
+        .map_err(|_| CommandError::new(Kind::Io))?;
+    match picked {
+        Some(path) => Ok(Some(
+            path.into_path().map_err(|_| CommandError::new(Kind::Io))?,
+        )),
+        None => Ok(None),
+    }
+}
+
+#[tauri::command]
 pub async fn is_established(held: Managed<'_, Held>) -> Result<bool, CommandError> {
     Ok(app::is_established(&held.directory))
 }

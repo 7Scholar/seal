@@ -49,7 +49,7 @@ Nothing here is a feature. It is all the accumulated texture of using something 
 
 # Demonstration
 
-**Never driven.** Requires the earlier journeys to work first.
+**Fragments driven, 2026-07-31:** the returning experience's skeleton — relaunching into the locked shield rather than the choosing one, unlocking into the repository view, deliberate locking from the header, and a wrong password answered plainly — is exercised by the harness's scenarios. The texture this journey is actually about — the glance, expiry after stepping away, errors met in real use, the bad day — has not been driven.
 
 This journey is best driven after a gap — return to it on a later session rather than immediately after building, since it is about returning rather than about first use.
 

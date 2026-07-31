@@ -50,9 +50,9 @@ They are anxious. Reassurance must be earned by the product actually being safe,
 
 # Demonstration
 
-**Never driven.** Unreachable: requires protected files across repositories.
+**Authored but not yet witnessed.** The harness's `return-and-use` scenario contains the clean-run drive — the warnings read, the typed commitment, the run, and the proof that the old password stops opening Seal while the new one does — but the run currently stops short of it on a harness defect recorded in [the harness plan](../plans/app/desktop/journey-harness.md). The rotation itself, sentinel included, is covered by the Rust suite, which this axis deliberately does not accept as a substitute.
 
-Driving it must include an interrupted run — kill the application partway and reopen it — because resumability is the property that matters most and it cannot be demonstrated by a clean run.
+Driving it must also include an interrupted run — kill the application partway and reopen it — because resumability is the property that matters most and it cannot be demonstrated by a clean run.
 
 # Findings
 

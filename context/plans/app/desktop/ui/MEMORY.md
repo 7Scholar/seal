@@ -1,5 +1,9 @@
 # Memory
 
+## 2026-07-31 — The unlock input submits on its own Enter keydown, not on implicit form submission
+
+The hidden password input handles Enter in a keydown handler that prevents the default and submits; the surrounding form's submit handler is a backstop, never the mechanism. **Why:** synthesized key events — which is what the journey harness sends — are untrusted, and untrusted Enter never triggers a form's implicit submission in the real webview, so relying on the form alone makes the driven journeys hang at the first Enter while working fine under a human keyboard. The preventDefault is what stops a human's trusted Enter from submitting twice. **Mistake it prevents:** deleting the keydown handler as redundant with the form, which passes every unit test and breaks every automated journey.
+
 ## 2026-07-31 — The unlock shield types into a real, visually hidden password input
 
 The unlock screen captures typing through an actual `<input type="password">` that is visually hidden, autofocused on mount, and refocused whenever it blurs — never through key listeners on the window or the canvas. **Why:** the real input is what keeps the labeled accessible name, the password-masking semantics, the autocomplete/spellcheck/autocapitalise opt-outs, and IME and dead-key composition working while nothing on screen looks like a form. The input is `readOnly` rather than `disabled` while the key derivation runs because a disabled input drops focus, and the screen has no other focus target to hand it back from. **Mistake it prevents:** "simplifying" the hidden field into a keydown handler, which silently breaks screen readers and non-ASCII passwords — or "restoring" a visible field because a hidden one reads as a leftover.

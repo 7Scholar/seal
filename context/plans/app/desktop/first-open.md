@@ -40,14 +40,14 @@ All of the above, with eight Rust tests covering the sentinel's lifecycle — es
 
 # What is missing
 
-The journey re-drive: the first-run journey has to be driven end to end against a built application, which also judges whether the empty state's onboarding weight satisfies its findings.
+Nothing on this plan. The first-run journey was driven end to end by the automated harness against a release build — establishment, verification, and the empty state leading into the first import all witnessed — and the journey records itself satisfied on macOS.
 
 # Steps
 
 - [x] Settle how the product knows a master password exists — a sealed sentinel, decided in the question channel
 - [x] Design the establish and verify flows within the single-shield shape
 - [x] Implement, with tests
-- [ ] Re-drive the first-run journey against the built application, including the empty state's onboarding weight
+- [x] Re-drive the first-run journey against the built application, including the empty state's onboarding weight
 
 # Open threads
 

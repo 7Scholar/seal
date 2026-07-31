@@ -220,5 +220,10 @@ fn recorded_sealed_on_disk(state: &State) -> Option<PathBuf> {
                 .filter(|file| file.last_known == SealedState::Sealed)
                 .map(move |file| repo.root.join(&file.relative_path))
         })
-        .find(|path| matches!(operations::classify(path), Ok(Classification::Sealed { .. })))
+        .find(|path| {
+            matches!(
+                operations::classify(path),
+                Ok(Classification::Sealed { .. })
+            )
+        })
 }

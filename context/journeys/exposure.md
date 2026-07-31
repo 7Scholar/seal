@@ -46,10 +46,8 @@ This is the journey where the product's whole promise is on the line. It is also
 
 # Demonstration
 
-**Never driven.** Unreachable: reaching this state requires a protected file, and no file can be protected yet.
-
-Driving it will need the exposure deliberately staged — protect a file, overwrite it externally, and reopen the product.
+**Staged but not yet observed.** The harness's `return-and-use` scenario stages the exposure exactly as this journey requires — a protected file overwritten externally with readable text, then a return to the product — and asserts the insistent alert, the rotate instruction, the recency warning on re-sealing, and the file back to armored on disk. The run currently stops short of those assertions on a harness defect recorded in [the harness plan](../plans/app/desktop/journey-harness.md), so the alert's appearance has not yet been witnessed by a drive. The alert's behaviour is covered by interface tests, which this axis deliberately does not accept as a substitute.
 
 # Findings
 
-Open, pending the journey being driven.
+Open, pending the staged drive completing.

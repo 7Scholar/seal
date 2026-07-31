@@ -1,5 +1,13 @@
 # Memory
 
+## 2026-07-31 — A hand-built binary needs the `custom-protocol` feature or it is a dev build
+
+Any direct `cargo build` of the desktop app — debug or release — must enable the `custom-protocol` cargo feature, as the `e2e:build` script does. **Why:** the framework decides dev-versus-production by that feature, not by the build profile; without it the binary loads the dev-server URL from the config, and with no dev server running that is a permanently blank window with empty stderr. Measured here in both profiles. The Tauri CLI passes the feature implicitly, which is why `tauri build` works and a bare cargo invocation silently does not. **Mistake it prevents:** "simplifying" the build script's feature list, or debugging the webview, the assets, or the CSP when a hand-built binary shows nothing.
+
+## 2026-07-31 — The folder pick is a command with a harness seam, because the webview's IPC cannot be stubbed
+
+Choosing a repository folder is a purpose-built command that shows the native dialog, and in `e2e`-feature builds it first honours an environment variable naming the folder to return. **Why:** the webview's IPC internals object is readonly — assigning over its invoke throws — so a test cannot intercept plugin calls from the page, and the native dialog cannot be driven by WebDriver; the seam is the only way an automated journey gets through import. The command shape also keeps the interface's surface specific, per the command-surface rules. **Mistake it prevents:** removing the env-override branch as test pollution, or moving the folder pick back to the dialog plugin's JavaScript API, either of which silently kills the automated journeys at the import step.
+
 ## 2026-07-31 — The password sentinel leads the rekey manifest, and appears in it on purpose
 
 A password-change plan lists the sentinel file as its first entry, ahead of every managed file, and the sentinel rides the manifest as an ordinary visible entry. **Why:** converting it first moves the password that unlocks the application to the new password the moment a run begins, which matches the session re-unlocking with the new password after a run — an interrupted run then unlocks with the password the resume banner expects. **Mistake it prevents:** filtering the sentinel out of the manifest as interface noise, or reordering it last as a "commit" step — either leaves an interrupted change with an unlock password that contradicts the session and the banner.

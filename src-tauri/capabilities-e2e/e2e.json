@@ -1,0 +1,6 @@
+{
+  "identifier": "e2e",
+  "description": "Harness builds only: the embedded WebDriver bridge. Never part of a release build.",
+  "windows": ["main"],
+  "permissions": ["wdio-webdriver:default", "wdio:default"]
+}

@@ -111,6 +111,7 @@ export const save = (path: string, edits: [string, string][]) =>
   invoke<void>("save", { path, edits });
 export const sealFile = (path: string) => invoke<void>("seal_file", { path });
 
+export const pickFolder = () => invoke<string | null>("pick_folder");
 export const scanFolder = (root: string) => invoke<ScanView>("scan_folder", { root });
 export const importRepo = (root: string, selected: string[]) =>
   invoke<number>("import", { root, selected });

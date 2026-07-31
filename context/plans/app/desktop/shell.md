@@ -57,6 +57,8 @@ The session is held as Tauri-managed state behind a plain mutex. The wipe is cal
 
 The window is configured so the webview persists nothing: its data store is memory-only, which on macOS resolves to the platform's non-persistent website data store and takes priority over every other store branch — verified in the webview layer rather than trusted from documentation. A strict content-security policy bounds the interface to its own origin and the IPC endpoint, with framing, form submission and object embedding denied outright. Drag-and-drop into the webview is disabled, since a dropped file is a path the interface never needs.
 
+The builder registers the native dialog plugin, which the folder-pick command drives from Rust (`commands.md`). Harness builds additionally register the embedded WebDriver bridge behind the `e2e` cargo feature, whose capability grant lives in a separate capabilities directory the build script includes only when that feature is on — so a normal build cannot even name the bridge's permission, and continuous integration proves the distributable binary contains none of it (`journey-harness.md`).
+
 # What is missing
 
 Nothing. The remaining desktop work is the interface (`ui/`).

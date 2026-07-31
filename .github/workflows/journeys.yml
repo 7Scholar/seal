@@ -1,0 +1,45 @@
+name: Journeys
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  drive:
+    name: Drive the journeys on macOS
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the pinned toolchain
+        run: rustup show
+
+      - uses: Swatinem/rust-cache@v2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install exactly what the lockfile pins
+        run: npm ci
+
+      - name: Build the application with the harness bridge
+        run: npm run e2e:build
+
+      - name: Drive the journeys against the real application
+        run: npm run e2e
+
+      - name: The distributable build must not contain the harness bridge
+        run: |
+          set -euo pipefail
+          cargo build --release --manifest-path src-tauri/Cargo.toml --features custom-protocol
+          if strings target/release/seal-desktop | grep -qi "webdriver"; then
+            echo "The distributable binary contains the WebDriver bridge."
+            exit 1
+          fi

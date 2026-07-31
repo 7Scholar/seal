@@ -45,8 +45,10 @@ They know their own repository well. They do not know, and should not need to le
 
 # Demonstration
 
-**Never driven.** Blocked at the first step: choosing a folder does not currently work.
+**Steps 1 through 6 driven, automated, 2026-07-31**, inside the harness's `first-run` scenario: the folder chosen through the native-dialog command, the scan shown grouped with only the genuine secret preselected and the template left unchecked, the import confirmed with the statement that nothing is encrypted, the seal gated on the two irreversible facts behind typed confirmation, and the result verified on disk as armored age text with the state tag updated.
+
+**Step 7 — re-importing a known repository, and the second repository — has not been driven.** The journey is not satisfied until it is.
 
 # Findings
 
-Open, pending the journey being driven. The blocker at step 1 is recorded in [first-run.md](first-run.md).
+None open from the driven steps. Step 7 remains to be driven, and is expected to produce findings about re-scanning safety.

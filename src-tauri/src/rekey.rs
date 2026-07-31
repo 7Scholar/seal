@@ -148,7 +148,11 @@ impl Ledger {
     }
 }
 
-pub fn begin(ledger: &Ledger, paths: Vec<PathBuf>, work_factor: u8) -> Result<Manifest, CommandError> {
+pub fn begin(
+    ledger: &Ledger,
+    paths: Vec<PathBuf>,
+    work_factor: u8,
+) -> Result<Manifest, CommandError> {
     if ledger.read()?.is_some() {
         return Err(CommandError::new(Kind::RekeyInFlight));
     }

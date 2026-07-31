@@ -29,9 +29,15 @@ seal-registry = { path = "../crates/seal-registry" }
 seal-session = { path = "../crates/seal-session" }
 seal-dotenv = { path = "../crates/seal-dotenv" }
 tauri-plugin-dialog = "2.7.2"
+tauri-plugin-wdio-webdriver = { version = "1.2.0", optional = true }
+tauri-plugin-wdio = { version = "1.2.0", optional = true }
 
 [dev-dependencies]
 tempfile = "3"
 
 [lints]
 workspace = true
+
+[features]
+custom-protocol = ["tauri/custom-protocol"]
+e2e = ["dep:tauri-plugin-wdio-webdriver", "dep:tauri-plugin-wdio"]

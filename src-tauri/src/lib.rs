@@ -30,14 +30,20 @@ pub fn run() {
     let store = Store::new(directory);
     let state = store.load().unwrap_or_default();
 
-    let app = tauri::Builder::default()
-        .plugin(tauri_plugin_dialog::init())
+    let builder = tauri::Builder::default().plugin(tauri_plugin_dialog::init());
+    #[cfg(feature = "e2e")]
+    let builder = builder
+        .plugin(tauri_plugin_wdio_webdriver::init())
+        .plugin(tauri_plugin_wdio::init());
+
+    let app = builder
         .invoke_handler(tauri::generate_handler![
             commands::unlock,
             commands::lock,
             commands::is_unlocked,
             commands::is_established,
             commands::establish,
+            commands::pick_folder,
             commands::overview,
             commands::open_file,
             commands::reveal,

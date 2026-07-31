@@ -15,14 +15,7 @@ const WORK: u8 = seal_engine::format::MINIMUM_WORK_FACTOR;
 
 fn establish(directory: &std::path::Path, state: &State, passphrase: &str) -> Session {
     let mut session = Session::new();
-    app::establish(
-        &mut session,
-        directory,
-        state,
-        passphrase.to_owned(),
-        WORK,
-    )
-    .unwrap();
+    app::establish(&mut session, directory, state, passphrase.to_owned(), WORK).unwrap();
     session
 }
 
@@ -128,7 +121,8 @@ fn establishing_over_existing_sealed_files_demands_their_password() {
     let (_repo, state) = state_with_sealed_file(PASSWORD);
 
     let mut session = Session::new();
-    let error = app::establish(&mut session, dir.path(), &state, OTHER.to_owned(), WORK).unwrap_err();
+    let error =
+        app::establish(&mut session, dir.path(), &state, OTHER.to_owned(), WORK).unwrap_err();
     assert_eq!(error.kind, Kind::WrongPassphrase);
     assert!(!app::is_established(dir.path()));
 

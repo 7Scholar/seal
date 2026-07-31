@@ -48,7 +48,9 @@ npm run build
 cargo build --release --manifest-path src-tauri/Cargo.toml --features custom-protocol
 ```
 
-That produces `target/release/seal-desktop`. Open it with `./target/release/seal open`, or move the binary somewhere on your path. The `--features custom-protocol` is not optional: without it the binary looks for a development server and shows a blank window. [docs/RUNNING.md](docs/RUNNING.md) has the detail.
+That produces `target/release/seal-desktop`, which you can run directly. The `--features custom-protocol` is not optional: without it the binary looks for a development server and shows a blank window. [docs/RUNNING.md](docs/RUNNING.md) has the detail.
+
+If you also build the command-line tool from the same checkout — `cargo build --release -p seal-cli` — then `./target/release/seal open` launches this build, because `seal open` prefers the application sitting beside it over any other installation.
 
 ### What unsigned means for you
 

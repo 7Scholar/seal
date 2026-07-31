@@ -8,10 +8,3 @@
 
 - changed README.md
   86ee907 (7 files) "journeys: close the holes a cold read found in the axis itself"
-
-## Uncovered
-
-- e2e/logs/wdio-2026-07-31T14-20-39-676Z.log
-  a0b3f33 (born) "journeys: the harness drives the real application — first-run satisfied on macOS"
-- e2e/logs/wdio-2026-07-31T14-24-31-426Z.log
-  a0b3f33 (born) "journeys: the harness drives the real application — first-run satisfied on macOS"

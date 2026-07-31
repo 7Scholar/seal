@@ -10,7 +10,7 @@ Four documents, each answering a question a newcomer actually has.
 
 **The README** answers *what is this and can I trust it*. It states what Seal does, how a sealed file is a standard age file so the recovery story does not depend on Seal existing, how to use both the application and the command-line tool, and — at length, without softening — what Seal does not protect against. The two absolute limits are stated as limits rather than as caveats: a forgotten password is unrecoverable, and sealing cannot reach backwards over an already-exposed secret.
 
-Its status section says plainly that the project is not yet packaged, so nobody is misled into looking for an installer that does not exist.
+Its installation section is the first thing after the status, because it is what a stranger came for. It gives the two one-command routes for the command-line tool, the source build for the application, and — as a named section rather than a footnote — what being unsigned actually means for the reader: that the install routes work because `curl`, `tar` and Homebrew do not set quarantine while a browser download does, and that Seal deliberately does not teach the `xattr` override. Every command in it is verified against a real run.
 
 **Every command in the README is verified rather than believed.** The build and test instructions were run against a clean clone of the repository, which is what catches instructions that rot silently — and did catch one, since a gitignored lockfile would have left `npm ci` unable to run at all.
 
@@ -24,9 +24,11 @@ Its status section says plainly that the project is not yet packaged, so nobody 
 
 All four, with the README's instructions verified against a clean clone.
 
+Two operating procedures sit beside the README rather than inside it, because each is a thing you *do* rather than a thing you read once: [docs/RUNNING.md](../../../../docs/RUNNING.md) for launching and driving the application, and [docs/RELEASING.md](../../../../docs/RELEASING.md) for how a tag becomes an installable release — including the tap repository and the token that live outside this repository and cannot be created from within it.
+
 # What is missing
 
-Nothing on this plan. Installation instructions will need a line once there are artefacts to install, which is `packaging.md`.
+Nothing on this plan.
 
 # Steps
 
@@ -34,6 +36,7 @@ Nothing on this plan. Installation instructions will need a line once there are 
 - [x] The security policy, with the threat model and a private reporting route.
 - [x] The contributing guide, naming the conventions and their reasons.
 - [x] Both licence texts, matching what the manifests declare.
+- [x] The installation section, and the releasing procedure beside it.
 
 # Open threads
 

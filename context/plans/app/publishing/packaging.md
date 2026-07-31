@@ -6,7 +6,9 @@ Turning the built application into something a stranger can install: bundling, s
 
 # What exists
 
-Bundling works today and was verified rather than assumed. `tauri build` produces `Seal.app` and a 4 MB `Seal_0.1.0_aarch64.dmg` on macOS from a clean tree, with the interface built and embedded.
+The command-line tool installs in one command — `brew install 7scholar/tap/seal`, or an installer script piped to a shell — from a GitHub release the workflow publishes on a tag. Bundling works and was verified rather than assumed: `tauri build` produces `Seal.app` and a 4 MB `Seal_0.1.0_aarch64.dmg` on macOS from a clean tree, with the interface built and embedded.
+
+The install route was measured end to end rather than reasoned about: an unsigned, ad-hoc-signed `seal`, packaged as a tarball, quarantined to simulate a browser download, and installed through a real Homebrew formula, arrives carrying only `com.apple.provenance` — no quarantine — and runs. The installer script was driven against a served release, installed a working binary, and **refused a tarball whose bytes had been altered after its checksum was published**.
 
 ## How Seal is distributed, and why
 
@@ -16,11 +18,22 @@ An unsigned artefact on macOS is not merely warned about — it is **killed**, b
 
 So distribution is:
 
-- **The command-line tool** ships as a `.tar.gz` per platform, with checksums. Continuous integration asserts that a quarantined tarball extracts to a binary that actually runs, which is verified to accept the tarball and reject a zip.
-- **The desktop application** is build-from-source, documented as such. Bundles are still produced on a tag so a contributor can check a build, but they are labelled unsigned and are not for users to download.
-- **Homebrew** is the intended primary route for the command-line tool, since a formula installs without setting quarantine at all.
+- **The command-line tool** installs in one command, by a Homebrew formula in a project-owned tap or by an installer script, from a published GitHub release carrying a `.tar.gz` per platform and their checksums.
+- **The desktop application** is build-from-source, documented as such. Bundles are still produced on a tag so a contributor can check a build, but they stay workflow artefacts rather than release downloads, because publishing them would offer a user a download macOS refuses to open.
 
 This is honest about the project's state rather than shipping something that dies on first run, and nothing about it forecloses signing later.
+
+## The install routes, and what each guarantees
+
+**Four targets are built**: macOS on Apple Silicon and Intel, Linux on x86-64 and arm64. An installer that fails on a colleague's Intel Mac is not an install story, so the matrix covers what a user plausibly has rather than what the release runner happens to be.
+
+**Every released binary is ad-hoc signed.** This is not notarisation and is not security theatre: Apple Silicon refuses to execute arm64 code carrying no signature at all, so an unsigned binary is killed regardless of how it arrived. Ad-hoc signing satisfies that gate and costs nothing.
+
+**The formula is rendered from the artefacts rather than hand-maintained.** A script takes a version and a directory of tarballs and emits the formula with each platform's real checksum, so the hashes cannot drift from what was published. The release pushes it to the tap; when the tap token is absent — a fork, most obviously — the formula is still rendered and checked, and the step reports that it was not pushed rather than failing.
+
+**The installer script verifies before it installs.** It picks the platform's tarball, downloads the published checksum file, and refuses to install anything that does not match. It installs to a writable directory it chooses (or one the user names), and tells the user when that directory is not on their path — a silent install to somewhere unreachable is indistinguishable from a broken one.
+
+**The whole route is proven on every change, not at tag time.** Continuous integration stands up a real served release, runs the installer against it, asserts the installed binary runs and carries the `open` subcommand, and asserts that a **tampered download is refused**. It renders the formula and runs `brew audit` over it. A release is the wrong moment to discover the installer is broken.
 
 ## What installation the two gates actually allow
 
@@ -30,9 +43,9 @@ That same reasoning does **not** extend to the desktop application, which is why
 
 # What is missing
 
-The command-line tool has no one-command installation: the released artefact is a tarball a user must find, extract and move onto their path by hand. A tap and an installer script are what close that, and both need a published GitHub release to download from — which the release workflow does not currently produce, since it uploads its artefacts as workflow artefacts that a stranger cannot reach.
+Two things live outside this repository and cannot be created from inside it: the `homebrew-tap` repository itself, and the `SEAL_TAP_TOKEN` secret that lets the release push to it. Both are recorded in [docs/RELEASING.md](../../../../docs/RELEASING.md). Until they exist, a tagged release publishes correctly and reports that the tap was not updated.
 
-How the desktop application is installed is blocked on the question in `QUESTIONS.md`.
+Windows is unaddressed: no target is built and no install route exists.
 
 # Approach
 
@@ -51,13 +64,15 @@ A tagged push builds bundles on macOS and Linux, collects every artefact, and pu
 - [x] Ship the command-line tool inside the bundle, and document how a user puts it on their path.
 - [x] Build artefacts on a tag, with checksums published alongside them.
 - [x] Package the command-line tool so an unsigned download actually runs, asserted in continuous integration.
-- [!] blocked — awaiting answer in `QUESTIONS.md`: how Seal is installed, and whether the desktop application stays build-from-source or takes on a signing identity.
-- [ ] A tap holding the command-line tool's formula, so it installs in one command.
-- [ ] An installer script for people without Homebrew, and for Linux.
-- [ ] Ad-hoc sign the released binaries in continuous integration, satisfying the Apple Silicon execution gate.
+- [x] Publish a GitHub release on a tag, carrying a tarball per platform and their checksums, with the tag checked against the declared version.
+- [x] Build the command-line tool for both macOS architectures and both Linux ones, ad-hoc signed so Apple Silicon will execute them.
+- [x] Render the Homebrew formula from the built artefacts, and push it to the tap when a token allows.
+- [x] An installer script that verifies the download against its published checksum and refuses a mismatch.
+- [x] Prove the whole route in continuous integration: install from a served release, assert the binary works, assert a tampered download is refused, and audit the rendered formula.
+- [+] Sign and notarise the macOS bundle, making the desktop application installable by a stranger. Out of scope until the project takes on a signing identity — answered in `QUESTIONS.md`.
 - [ ] Decide what Windows artefacts are produced, once someone wants them.
 
 # Open threads
 
-- Universal versus per-architecture macOS builds. A universal binary halves the release matrix and roughly doubles the download; at 4 MB the size argument is weak.
-- Whether the release should publish its artefacts to a GitHub release at all: the workflow currently builds and checksums them but only uploads them as workflow artefacts, which a stranger cannot download. Whatever the installation answer, a tap and an installer script both need a stable public download URL, so this is settled by the same work.
+- Universal versus per-architecture macOS builds. Both architectures are now built separately, which the formula and the installer both select between correctly; a universal binary would halve the matrix and roughly double the download. At 4 MB the size argument is weak either way, so this is not urgent.
+- The first real tag will exercise the release path for the first time. Continuous integration proves the installer and the formula on every change, but nothing has yet driven `gh release create` or the tap push, so expect that first release to need a fix.

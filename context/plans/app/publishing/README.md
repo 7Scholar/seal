@@ -18,7 +18,7 @@ Everything the documentation claims is verified rather than believed: the README
 
 - [x] ci.md -> the automated checks that keep every claim in the repository true
 - [x] docs.md -> the README and the documents a stranger needs to trust and contribute
-- [!] packaging.md -> bundling, distribution, and the release process. Blocked — awaiting answer in `QUESTIONS.md` on how Seal is installed.
+- [x] packaging.md -> bundling, distribution, and the release process
 
 # Cursor
 
@@ -26,14 +26,15 @@ Freshly framed, with `ci.md` already complete because the gap it closed was real
 
 `docs.md` is complete: the README now covers the application as well as the command-line tool, and every command it gives was verified against a clean clone — which caught a gitignored lockfile that would have made `npm ci` impossible. The security policy, contributing guide and both licence texts are in place.
 
-`packaging.md` is **reopened and blocked** on how Seal is installed. It was complete for the decision that was made — no signing identity, the command-line tool as the released artefact — but that decision settled what is *built*, not how anyone *installs* it: the tool still arrives as a tarball to extract and move by hand, and the release workflow never publishes the artefacts anywhere a stranger can reach them.
+`packaging.md` is complete, and now covers installation rather than only what gets built. Its earlier state settled the signing question but left the tool as a tarball a user had to find, extract and move by hand — from a workflow that published its artefacts nowhere a stranger could reach.
 
-Research since then measured what the platform actually allows and changed the shape of the answer. Two macOS gates were being conflated: the Apple Silicon execution gate, satisfied by a **free** ad-hoc signature, and Gatekeeper, which fires only on quarantined files and needs the paid identity. Because quarantine comes from the delivery mechanism rather than the artefact, a tap and an installer script both give the command-line tool a clean one-command install with no identity at all — verified by installing an unsigned, quarantined build through a real formula and watching it arrive unquarantined and run. The same route is closed to the desktop application, which is the fork now sitting in `QUESTIONS.md`.
+The correction came from separating two macOS gates that had been conflated: the Apple Silicon execution gate, satisfied by a **free** ad-hoc signature, and Gatekeeper, which fires only on quarantined files and needs the paid identity. Since quarantine is set by the delivery mechanism rather than the artefact, a Homebrew tap and an installer script both give the command-line tool a clean one-command install with no signing identity at all. That was measured, not assumed: an ad-hoc-signed binary, tarred, quarantined to simulate a browser download, and installed through a real formula, arrives unquarantined and runs.
 
-That decision was nearly implemented on a false premise. The question proposed shipping the CLI "because it has no signing problem, not being a bundled application" — measurement showed that is **wrong**, and the failure is worse than for a bundle: an unsigned binary is killed behind a malware dialog with no override button, where an unsigned bundle at least offers right-click-to-open. What actually works is the packaging shape: quarantine survives `.zip` extraction but not `tar`, so the release ships tarballs and continuous integration asserts a quarantined tarball still yields a runnable binary — verified to accept a tarball and reject a zip.
+The same route stays closed to the desktop application, which remains build-from-source with its build documented. Signing and notarisation slot into the same workflow whenever the project takes on an identity.
+
+Being a plain binary rather than a bundle grants no exemption: an unsigned command-line tool that arrives quarantined is killed behind the same malware dialog, with no override button where a bundle would at least offer right-click-to-open. Only the delivery mechanism saves it, which is why the release ships tarballs and continuous integration asserts that a quarantined tarball still yields a runnable binary — verified to accept a tarball and reject a zip.
 
 # Open threads
 
-- A Homebrew formula in a project-owned tap is the primary route for the command-line tool, now measured rather than assumed: a formula install strips quarantine, so an unsigned binary arrives clean and runs. Not built yet, and it needs a published GitHub release to download from.
-- Windows and Linux artefacts are unaddressed until the macOS path is proven end to end, since whatever is learned there mostly transfers.
+- Windows is unaddressed: no target is built and no install route exists. Linux is covered by both routes.
 - **Tooling friction to raise:** `set_boundary` routes its `--include` patterns through the same path resolver that coverage arguments use, so a boundary pattern naming a file that also exists under `context/_scripts/` — `README.md` is the live case — is rejected as ambiguous even though a boundary pattern is unambiguously repo-relative. Absolute paths work around it. The resolver is right for coverage arguments and wrong here; the fix belongs in the script rather than in every caller.

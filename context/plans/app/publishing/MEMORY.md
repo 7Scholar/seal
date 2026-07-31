@@ -15,3 +15,11 @@ A formula installs an unsigned binary that runs, because quarantine is set by *h
 ## 2026-07-31 — The desktop application must not be distributed as a Homebrew cask
 
 A cask cannot remove quarantine on the user's behalf: no `quarantine false` stanza exists, and the user-side `--no-quarantine` flag was **removed** in Homebrew 6.0.14. Homebrew ends support for all casks failing Gatekeeper on **1 September 2026**. homebrew-core additionally refuses the application outright — "a formula whose primary output is a native macOS `.app` bundle is not eligible" — and will not accept prebuilt binaries. **Why:** a cask looks like the obvious way to ship a GUI with one command, and for an unsigned application it is a route with a published expiry date. **Mistake it prevents:** building the application's installation story on a cask, which requires notarisation to survive September regardless and cannot work unsigned before then.
+
+## 2026-07-31 — The release publishes the command-line tool only, never the bundles
+
+A tagged release attaches the four command-line tarballs and their checksums; the unsigned application bundles are built on the same tag but stay as workflow artefacts. **Why:** a bundle offered as a release download is a download macOS refuses to open, and the release notes would be advertising a broken install. Contributors can still fetch the bundle from the workflow run. **Mistake it prevents:** "completing" the release by attaching the `.dmg` and `.AppImage` alongside the tarballs, which turns a deliberate omission into a first-run failure for anyone who clicks the obvious download.
+
+## 2026-07-31 — The tap push degrades to a no-op instead of failing
+
+When `SEAL_TAP_TOKEN` is absent the tap step renders the formula, prints it, and exits successfully without pushing. **Why:** the token grants write access to a second repository, which a fork will never have, and a release that fails on a missing secret would make the project unreleasable by anyone but its owner. **Mistake it prevents:** "fixing" the conditional into a hard failure because a silent skip looks like a bug — it is the fork path working as intended.

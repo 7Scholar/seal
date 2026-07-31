@@ -85,6 +85,81 @@ jobs:
             exit 1
           fi
 
+  installation:
+    name: The published install route
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the pinned toolchain
+        run: rustup show
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build the tool the release would ship
+        run: cargo build --release -p seal-cli
+
+      - name: Stand up a release the installer can actually download
+        # The installer and the formula are only proven by driving them against a real
+        # served release, so both are exercised here rather than merely read.
+        run: |
+          set -euo pipefail
+          triple="$(rustc -vV | sed -n 's/^host: //p')"
+          mkdir -p served
+          if [ "$RUNNER_OS" = "macOS" ]; then
+            codesign --force --sign - target/release/seal
+          fi
+          tar czf "served/seal-$triple.tar.gz" -C target/release seal
+          cd served
+          shasum -a 256 *.tar.gz > SHA256SUMS
+          nohup python3 -m http.server 8799 >/dev/null 2>&1 &
+          for _ in $(seq 1 20); do
+            curl -fsS -o /dev/null "http://127.0.0.1:8799/SHA256SUMS" && break
+            sleep 1
+          done
+
+      - name: The installer must install a working binary
+        run: |
+          set -euo pipefail
+          sed 's|https://github.com/$REPOSITORY/releases/latest/download|http://127.0.0.1:8799|' \
+            scripts/install.sh > local-install.sh
+          SEAL_INSTALL_DIR="$PWD/installed" sh local-install.sh
+          "$PWD/installed/seal" --version
+          "$PWD/installed/seal" --help | grep -q "open"
+
+      - name: A tampered download must be refused
+        run: |
+          set -euo pipefail
+          triple="$(rustc -vV | sed -n 's/^host: //p')"
+          printf 'tampered' >> "served/seal-$triple.tar.gz"
+          rm -rf installed
+          if SEAL_INSTALL_DIR="$PWD/installed" sh local-install.sh; then
+            echo "The installer accepted a download that does not match its checksum."
+            exit 1
+          fi
+          test ! -e installed/seal
+
+      - name: The formula must render and be valid
+        if: runner.os == 'macOS'
+        run: |
+          set -euo pipefail
+          triple="$(rustc -vV | sed -n 's/^host: //p')"
+          mkdir -p rendered
+          for t in aarch64-apple-darwin x86_64-apple-darwin \
+                   x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu; do
+            cp "served/seal-$triple.tar.gz" "rendered/seal-$t.tar.gz"
+          done
+          ./scripts/render-formula.sh 9.9.9 rendered > seal.rb
+          cat seal.rb
+          brew tap-new seal/citest --no-git
+          cp seal.rb "$(brew --repository seal/citest)/Formula/seal.rb"
+          HOMEBREW_NO_INSTALL_CLEANUP=1 brew audit --formula seal/citest/seal
+
   interoperability:
     name: Interoperability with the reference implementation
     runs-on: ubuntu-latest

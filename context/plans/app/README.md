@@ -54,7 +54,7 @@ The work decomposes into the children below: the sealing engine is the seam ever
 - [x] registry.md -> the registry of seal repos and their managed files, including the import scan
 - [x] cli.md -> the standalone CLI resolver
 - [~] desktop/ -> the Tauri desktop application: shell, IPC surface, and the management UI. Complete as code; **not done** — its journeys are unsatisfied.
-- [!] publishing/ -> everything around the code: repo docs, CI, packaging, releases, maintainability. Blocked — `packaging.md` awaits an answer on how Seal is installed.
+- [x] publishing/ -> everything around the code: repo docs, CI, packaging, releases, maintainability
 
 # Cursor
 
@@ -74,7 +74,7 @@ Research for that plan also corrected this Approach: the requirement to "notice 
 
 What remains of `desktop/` is the journey-driven work its cursor names: the harness's extended scenarios and the bridge defect blocking their tail. The first-run journey is satisfied on macOS — driven end to end by the automated harness against a release build — which is the axis this plan was reopened for.
 
-`publishing/` is **reopened and blocked**. Its packaging plan settled what gets built but never how anyone installs it: the command-line tool is a tarball to extract and move by hand, and the release workflow publishes its artefacts nowhere a stranger can download them. Measurement since then showed a free one-command install is available for the tool — Homebrew strips quarantine, and the Apple Silicon execution gate is satisfied by an ad-hoc signature costing nothing — while the same route is closed to the desktop application. That fork awaits an answer in `publishing/QUESTIONS.md`.
+`publishing/` now carries installation, not merely packaging. The command-line tool installs in one command — a Homebrew tap or an installer script — from a GitHub release published on a tag, built for both macOS architectures and both Linux ones and ad-hoc signed so Apple Silicon will execute it. The route works without any paid signing identity because quarantine is set by the delivery mechanism rather than the artefact, which was measured end to end rather than assumed, and continuous integration now re-proves it on every change including that a tampered download is refused. The desktop application stays build-from-source, since that same route is closed to it.
 
 `desktop/ui/` gained the **application shell** it had been missing. The screens were each built as a full-screen replacement, so the product had no persistent frame and no navigation — a shape that cannot carry the cross-repo span this intent promises. `desktop/ui/shell-layout.md` is complete: a repository sidebar that stays present while a file is edited, and the disclosure architecture deciding what the interface shows against what it collapses, bounded by the rule that disclosure never defers an alert, a state, or a consequence. It also brought sealing a chosen set of files in one action, which the interface reports per file rather than as a count.
 

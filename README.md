@@ -10,12 +10,53 @@ Under active development. The engine, registry and command-line tool are built, 
 
 The command-line tool is usable today.
 
-Seal is **not code-signed**, which shapes how it is installed. macOS does not merely warn about unsigned software; it refuses to run it, behind a dialog that reads as a malware accusation and offers no override. So:
+Seal is **not code-signed**, which is why the command-line tool installs by Homebrew or the installer script rather than by downloading it in a browser, and why the desktop application is built from source. [Installation](#installation) covers both, and [what unsigned means for you](#what-unsigned-means-for-you) explains the consequence without softening it.
 
-- **The command-line tool** is released as a `.tar.gz` per platform. Extracted with `tar`, it runs normally — quarantine does not survive tar extraction, though it does survive a `.zip`, which is why no zip is published.
-- **The desktop application** is build-from-source for now. Unsigned bundles are produced on each tag so a contributor can check a build, but they will not open on a Mac without deliberately overriding the system, and that is not something a tool asking to hold your secrets should teach you to do.
+## Installation
 
-Signing is a matter of the project taking on a developer identity rather than a code change, and is revisited when that happens.
+### The command-line tool
+
+With [Homebrew](https://brew.sh):
+
+```bash
+brew install 7scholar/tap/seal
+```
+
+Without it, on macOS or Linux:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/7scholar/seal/main/scripts/install.sh | sh
+```
+
+The script picks the right build for your platform, checks it against the published checksum, and refuses to install anything that does not match. It installs to `~/.local/bin` or `/usr/local/bin`, whichever it can write to; set `SEAL_INSTALL_DIR` to choose. If you would rather read it before running it — reasonable for any install script, more so for one shipping a tool that holds your secrets — it is [`scripts/install.sh`](scripts/install.sh), and you can download it, read it, and run it as separate steps.
+
+Either way, check what you got:
+
+```bash
+seal --version
+```
+
+### The desktop application
+
+Built from source, which needs [Rust](https://rustup.rs) and [Node](https://nodejs.org):
+
+```bash
+git clone https://github.com/7scholar/seal
+cd seal
+npm ci
+npm run build
+cargo build --release --manifest-path src-tauri/Cargo.toml --features custom-protocol
+```
+
+That produces `target/release/seal-desktop`. Open it with `./target/release/seal open`, or move the binary somewhere on your path. The `--features custom-protocol` is not optional: without it the binary looks for a development server and shows a blank window. [docs/RUNNING.md](docs/RUNNING.md) has the detail.
+
+### What unsigned means for you
+
+Seal has no Apple Developer identity, and that has one specific consequence worth stating plainly rather than burying.
+
+macOS refuses to run software that arrives carrying the quarantine flag unless it is signed and notarised. That flag is set by *how* a file reaches your disk: a **browser download sets it**, while `curl`, `tar` and Homebrew do not. So the install routes above work — the binaries are ad-hoc signed, which is what Apple Silicon requires to execute code at all — while downloading a release tarball by clicking a link in a browser produces a binary macOS will kill, behind a dialog that reads as a malware accusation.
+
+Unsigned application bundles are produced on each tag so a contributor can check a build. They are **not** for general use and will not open by double-clicking. Seal deliberately does not tell you to run `xattr -cr` to get around this: teaching you to disarm a security warning is a poor trade for a tool whose entire purpose is protecting secrets. Build the application from source, which is the honest route until the project takes on a signing identity.
 
 ## How it works
 
@@ -37,22 +78,13 @@ Before anything is sealed for the first time the application asks you to acknowl
 seal open
 ```
 
-This launches the application and returns immediately. It looks for the application beside the `seal` binary you ran — the command-line tool ships inside the application bundle, so a `seal` from an installation opens that installation — then falls back to the one installed on your system. If it finds none it says so and exits non-zero rather than appearing to do nothing.
+This launches the application and returns immediately. It looks for the application beside the `seal` binary you ran first, then for one installed on your system. If it finds none it says so and exits non-zero rather than appearing to do nothing.
 
-In a source checkout this means `./target/release/seal open` opens the build you just made, while a `seal` installed on your `PATH` opens the application installed on your system.
+That order is what makes it predictable in a source checkout: `./target/release/seal open` opens the build you just made, rather than an older copy installed elsewhere.
 
 ### Resolving a secret in a script
 
-Install the command-line tool from a release tarball:
-
-```bash
-tar xzf seal-aarch64-apple-darwin.tar.gz
-sudo mv seal /usr/local/bin/
-```
-
-Or build it yourself with `cargo build --release -p seal-cli`. It is also bundled inside the application, at `Seal.app/Contents/MacOS/seal`, if you built that.
-
-A deploy script then asks for a file's contents at the moment of use:
+With the command-line tool [installed](#the-command-line-tool), a deploy script asks for a file's contents at the moment of use:
 
 ```bash
 value=$(seal resolve .env.production)
@@ -88,9 +120,9 @@ Two consequences worth stating plainly:
 - **Sealing protects from that moment on; it cannot reach backwards.** Replacing a plaintext file unlinks the old contents but cannot overwrite them, and on modern filesystems and solid-state drives no tool can promise otherwise. A credential that has already sat unprotected on disk, in a backup, or in a snapshot should be **rotated**, not merely sealed. Sealing also does not revoke access for a program that already had the file open.
 - **A forgotten password means the data is gone.** There is no recovery key, no escrow, no backdoor — any of those would be a copy of the key living on the machine, which is exactly what Seal exists to avoid.
 
-## Building from source
+## Building and testing
 
-Requires a recent Rust toolchain and Node 22. The repository pins the Rust version it needs, and `npm ci` installs exactly what the lockfile pins.
+Building the desktop application is covered under [Installation](#the-desktop-application); this is what a contributor needs beyond it. Requires a recent Rust toolchain and Node 22 — the repository pins the Rust version it needs, and `npm ci` installs exactly what the lockfile pins.
 
 ```bash
 npm ci
@@ -112,6 +144,8 @@ The test suite runs without any external tools. Tests that need something the en
 ## Contributing and project layout
 
 The project is plan-driven: the founding intent, every design decision, and the current state of all work live in the plan tree at [context/plans/app/](context/plans/app/README.md), operated per [docs/plans/](docs/plans/README.md). Anyone — human or agent — picking up work starts at [AGENTS.md](AGENTS.md) and follows the entry manual from there.
+
+Two operating procedures sit alongside it: [docs/RUNNING.md](docs/RUNNING.md) for launching and driving the application, and [docs/RELEASING.md](docs/RELEASING.md) for how a tag becomes an installable release.
 
 Code carries no comments; the explanation lives in the plans, where it can be read as a whole and kept honest.
 

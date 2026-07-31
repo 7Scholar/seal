@@ -6,7 +6,7 @@ This exists to make two things coexist that otherwise cannot: giving tools and a
 
 ## Status
 
-Under active development, and **the desktop application is not yet usable**. The engine, registry and command-line tool are built, tested and working; the application builds and its parts are individually tested, but the experience of actually using it is unfinished — a first-time user cannot currently get past the opening screen. That work is tracked as [journeys](context/journeys/README.md), and the application is not considered done until each one has been driven end to end in a real build.
+Under active development. The engine, registry and command-line tool are built, tested and working. The desktop application carries its first end-to-end proof: the first-run experience — opening for the first time, choosing the master password, importing a repository, and sealing a file — is driven automatically against a real build and passes. The remaining [journeys](context/journeys/README.md) are partially driven, and the application is not considered done until every one has been driven end to end in a real build.
 
 The command-line tool is usable today.
 

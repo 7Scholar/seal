@@ -1,5 +1,9 @@
 # Memory
 
+## 2026-07-31 — The unlock shield types into a real, visually hidden password input
+
+The unlock screen captures typing through an actual `<input type="password">` that is visually hidden, autofocused on mount, and refocused whenever it blurs — never through key listeners on the window or the canvas. **Why:** the real input is what keeps the labeled accessible name, the password-masking semantics, the autocomplete/spellcheck/autocapitalise opt-outs, and IME and dead-key composition working while nothing on screen looks like a form. The input is `readOnly` rather than `disabled` while the key derivation runs because a disabled input drops focus, and the screen has no other focus target to hand it back from. **Mistake it prevents:** "simplifying" the hidden field into a keydown handler, which silently breaks screen readers and non-ASCII passwords — or "restoring" a visible field because a hidden one reads as a leftover.
+
 ## 2026-07-20 — Revealing a value is not an edit, and the two use separate state
 
 The environment editor keeps revealed values and pending edits in two separate maps, and only the edit map feeds the unsaved-changes count and the save payload. **Why:** reveal and edit are different operations on the same row, and conflating them corrupts dirty-state tracking. This is not hypothetical — a comparable product shipped exactly this bug when it added click-to-reveal, and its users hit a stale unsaved-changes counter telling them to refresh. Verified here: routing reveal through the edit map fails the two tests that name the rule. **Mistake it prevents:** merging the two maps because a revealed value and an edited value are both "the value for this row", which is true and still wrong — it makes merely looking at a secret mark the file as changed.

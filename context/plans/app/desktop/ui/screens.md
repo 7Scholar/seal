@@ -26,7 +26,7 @@ Three shared components exist because their rules are easy to violate independen
 
 **The environment-variables editor** holds the rule with the most evidence behind it: **revealing a value must never mark the file dirty.** Reveal and edit write to separate state, and only the edit map feeds the unsaved-changes count and the save payload. Saving sends only changed pairs. Duplicate keys and unparseable lines are explained as preserved rather than reported as errors.
 
-**The unlock gate** names the state's exit in its primary button and shows a working state while the key is derived. A wrong password says the files were not opened and nothing was changed, rather than implying damage.
+**The unlock gate** is a shield of coal-fine sand drawn over a lit ground: the pointer parts the grains and they close again at once, and every typed character answers with a brief glow somewhere in the shield. The password is typed straight at the screen — the field is real but visually hidden, which keeps the label, the masking, and the autocomplete opt-outs — and Enter is the single verb: it attempts the unlock, a working state shows while the key is derived, and a wrong password says the files were not opened and nothing was changed, rather than implying damage, clearing the attempt so retyping and Enter always submit fresh. The shield honours the reduced-motion preference and renders nothing at all where no drawing context exists, which is also what keeps the screen testable.
 
 **The acknowledgement** states both irreversible facts, tells the user to rotate an already-exposed credential, and is gated on a typed phrase.
 
@@ -36,7 +36,7 @@ A revealed value lives in component state for the row displaying it and nowhere 
 
 # What exists
 
-All of the above, with sixty-three tests.
+All of the above, with sixty-seven tests.
 
 Three guards were confirmed non-vacuous by reintroducing the exact defect each prevents:
 

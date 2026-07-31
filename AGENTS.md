@@ -5,6 +5,7 @@ Seal is a standalone Tauri application for encrypting and managing secret files 
 ## Repo essentials
 
 - The plan-system tooling under `context/_scripts/` is Python and uses `uv`. Do not use pip, pipenv, or poetry. Run its verbs with `uv run <verb> …` from that directory; tests with `uv run pytest`.
+- **Before launching, building, or driving the app** — the dev loop, a release binary, or the e2e journey harness — follow [docs/RUNNING.md](docs/RUNNING.md). Hand-built binaries need cargo features a plain `cargo build` does not pass, and the harness needs a binary built by `npm run e2e:build`; guessing these produces blank windows and "bridge failed to start" errors that look like app defects and are not.
 
 ## Code style
 

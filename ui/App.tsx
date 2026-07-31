@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
+import { open as pickFolder } from "@tauri-apps/plugin-dialog";
 import * as ipc from "./ipc";
+import { explain } from "./errors";
 import { Acknowledge } from "./screens/Acknowledge";
 import { EnvEditor } from "./screens/EnvEditor";
 import { ImportFlow } from "./screens/ImportFlow";
@@ -7,6 +9,7 @@ import { RepoList } from "./screens/RepoList";
 import { Unlock } from "./screens/Unlock";
 import { PasswordChange } from "./screens/PasswordChange";
 import { Confirm } from "./components/Confirm";
+import { Problem } from "./components/Problem";
 import { fileName } from "./format";
 
 type Screen =
@@ -19,10 +22,13 @@ type Screen =
 export function App() {
   const [unlocked, setUnlocked] = useState(false);
   const [established, setEstablished] = useState<boolean | null>(null);
+  const [lockNote, setLockNote] = useState<string | null>(null);
+  const [problem, setProblem] = useState<string | null>(null);
   const [repos, setRepos] = useState<ipc.RepoView[]>([]);
   const [screen, setScreen] = useState<Screen>({ name: "repos" });
   const [acknowledging, setAcknowledging] = useState<null | (() => void)>(null);
   const [releasing, setReleasing] = useState<string | null>(null);
+  const [sealing, setSealing] = useState<null | { path: string; secondsAgo: number }>(null);
   const [rekey, setRekey] = useState<ipc.Manifest | null>(null);
 
   const refresh = useCallback(async () => {
@@ -46,33 +52,75 @@ export function App() {
     ipc.rekeyStatus().then(setRekey).catch(() => setRekey(null));
   }, [unlocked, refresh]);
 
-  async function withAcknowledgement(action: () => Promise<void>) {
+  function relock() {
+    setLockNote(
+      "Seal locked itself while you were away. Everything stayed sealed — unlock to continue.",
+    );
+    setUnlocked(false);
+    setScreen({ name: "repos" });
+    setAcknowledging(null);
+    setReleasing(null);
+    setSealing(null);
+  }
+
+  function fail(doing: string, error: unknown) {
+    if (ipc.isCommandError(error) && error.kind === "locked") {
+      relock();
+      return;
+    }
+    setProblem(explain(doing, error));
+  }
+
+  async function attempt(doing: string, action: () => Promise<void>) {
+    try {
+      await action();
+    } catch (error) {
+      fail(doing, error);
+    }
+  }
+
+  async function withAcknowledgement(doing: string, action: () => Promise<void>) {
     if (await ipc.hasAcknowledged()) {
       await action();
       return;
     }
-    setAcknowledging(() => async () => {
-      await ipc.acknowledge();
-      setAcknowledging(null);
-      await action();
-    });
+    setAcknowledging(() => () =>
+      attempt(doing, async () => {
+        await ipc.acknowledge();
+        setAcknowledging(null);
+        await action();
+      }),
+    );
   }
 
-  async function seal(path: string) {
-    await withAcknowledgement(async () => {
+  async function sealNow(path: string) {
+    await withAcknowledgement(`seal ${fileName(path)}`, async () => {
       await ipc.sealFile(path);
       await refresh();
       setScreen({ name: "repos" });
     });
   }
 
+  async function seal(path: string) {
+    await attempt(`seal ${fileName(path)}`, async () => {
+      const warning = await ipc.sealWarning(path);
+      if (warning) {
+        setSealing({ path, secondsAgo: warning.modifiedSecondsAgo });
+        return;
+      }
+      await sealNow(path);
+    });
+  }
+
   async function open(path: string) {
-    const opened = await ipc.openFile(path);
-    if (opened.kind === "env") {
-      setScreen({ name: "editor", file: opened });
-    } else {
-      setScreen({ name: "opaque", path: opened.path, bytes: opened.bytes });
-    }
+    await attempt(`open ${fileName(path)}`, async () => {
+      const opened = await ipc.openFile(path);
+      if (opened.kind === "env") {
+        setScreen({ name: "editor", file: opened });
+      } else {
+        setScreen({ name: "opaque", path: opened.path, bytes: opened.bytes });
+      }
+    });
   }
 
   if (!unlocked) {
@@ -80,6 +128,7 @@ export function App() {
     return (
       <Unlock
         mode={established ? "verify" : "create"}
+        notice={lockNote ?? undefined}
         onSubmit={async (passphrase) => {
           if (established) {
             await ipc.unlock(passphrase);
@@ -87,6 +136,7 @@ export function App() {
             await ipc.establish(passphrase);
             setEstablished(true);
           }
+          setLockNote(null);
           setUnlocked(true);
         }}
       />
@@ -95,24 +145,36 @@ export function App() {
 
   return (
     <>
+      {problem ? (
+        <Problem message={problem} onDismiss={() => setProblem(null)} />
+      ) : null}
+
       {screen.name === "repos" ? (
         <RepoList
           repos={repos}
-          onImport={async () => {
-            const root = window.prompt("Folder to import");
-            if (!root) return;
-            setScreen({ name: "import", scan: await ipc.scanFolder(root) });
-          }}
+          onImport={() =>
+            attempt("open the folder picker", async () => {
+              const root = await pickFolder({
+                directory: true,
+                multiple: false,
+                title: "Choose a repository folder",
+              });
+              if (typeof root !== "string") return;
+              setScreen({ name: "import", scan: await ipc.scanFolder(root) });
+            })
+          }
           onOpen={open}
           onSeal={seal}
           onRelease={setReleasing}
           unfinishedRekey={rekey !== null}
           onChangePassword={() => setScreen({ name: "rekey" })}
-          onLock={async () => {
-            await ipc.lock();
-            setUnlocked(false);
-            setScreen({ name: "repos" });
-          }}
+          onLock={() =>
+            attempt("lock Seal", async () => {
+              await ipc.lock();
+              setUnlocked(false);
+              setScreen({ name: "repos" });
+            })
+          }
         />
       ) : null}
 
@@ -120,29 +182,45 @@ export function App() {
         <ImportFlow
           scan={screen.scan}
           onCancel={() => setScreen({ name: "repos" })}
-          onConfirm={async (selected) => {
-            await ipc.importRepo(screen.scan.root, selected);
-            await refresh();
-            setScreen({ name: "repos" });
-          }}
+          onConfirm={(selected) =>
+            attempt("import the folder", async () => {
+              await ipc.importRepo(screen.scan.root, selected);
+              await refresh();
+              setScreen({ name: "repos" });
+            })
+          }
         />
       ) : null}
 
       {screen.name === "editor" ? (
         <EnvEditor
           file={screen.file}
-          onReveal={(key) => ipc.reveal(screen.file.path, key)}
+          onReveal={async (key) => {
+            try {
+              return await ipc.reveal(screen.file.path, key);
+            } catch (error) {
+              fail(`reveal ${key}`, error);
+              throw error;
+            }
+          }}
           onSave={async (edits) => {
-            await withAcknowledgement(async () => {
-              await ipc.save(screen.file.path, edits);
-              await refresh();
-            });
+            try {
+              await withAcknowledgement("save the changes", async () => {
+                await ipc.save(screen.file.path, edits);
+                await refresh();
+              });
+            } catch (error) {
+              fail("save the changes", error);
+              throw error;
+            }
           }}
           onSeal={() => seal(screen.file.path)}
-          onClose={async () => {
-            await ipc.closeFile(screen.file.path);
-            setScreen({ name: "repos" });
-          }}
+          onClose={() =>
+            attempt("close the file", async () => {
+              await ipc.closeFile(screen.file.path);
+              setScreen({ name: "repos" });
+            })
+          }
         />
       ) : null}
 
@@ -156,10 +234,12 @@ export function App() {
           </p>
           <button
             type="button"
-            onClick={async () => {
-              await ipc.closeFile(screen.path);
-              setScreen({ name: "repos" });
-            }}
+            onClick={() =>
+              attempt("close the file", async () => {
+                await ipc.closeFile(screen.path);
+                setScreen({ name: "repos" });
+              })
+            }
           >
             Close
           </button>
@@ -178,10 +258,12 @@ export function App() {
             setRekey(done ? null : outcome);
             if (done) setScreen({ name: "repos" });
           }}
-          onAbandon={async () => {
-            await ipc.rekeyAbandon();
-            setRekey(null);
-          }}
+          onAbandon={() =>
+            attempt("forget the password change", async () => {
+              await ipc.rekeyAbandon();
+              setRekey(null);
+            })
+          }
           onClose={() => setScreen({ name: "repos" })}
         />
       ) : null}
@@ -193,6 +275,27 @@ export function App() {
         />
       ) : null}
 
+      {sealing ? (
+        <Confirm
+          title={`Seal ${fileName(sealing.path)} while something may be editing it?`}
+          confirmLabel="Seal it anyway"
+          cancelLabel="Not yet"
+          onCancel={() => setSealing(null)}
+          onConfirm={async () => {
+            const path = sealing.path;
+            setSealing(null);
+            await attempt(`seal ${fileName(path)}`, () => sealNow(path));
+          }}
+        >
+          <p>
+            This file changed {sealing.secondsAgo} seconds ago, so a program may
+            be working in it right now. Seal cannot see an editor's unsaved
+            buffer: if one is open, its next save will overwrite the sealed file
+            with readable text. Close the file in your editor first, then seal.
+          </p>
+        </Confirm>
+      ) : null}
+
       {releasing ? (
         <Confirm
           title={`Stop managing ${fileName(releasing)}?`}
@@ -200,9 +303,12 @@ export function App() {
           cancelLabel="Keep managing it"
           onCancel={() => setReleasing(null)}
           onConfirm={async () => {
-            await ipc.release(releasing, "restorePlaintext");
+            const path = releasing;
             setReleasing(null);
-            await refresh();
+            await attempt(`stop managing ${fileName(path)}`, async () => {
+              await ipc.release(path, "restorePlaintext");
+              await refresh();
+            });
           }}
         >
           <p>

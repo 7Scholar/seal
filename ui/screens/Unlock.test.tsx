@@ -89,6 +89,22 @@ describe("Unlock, entering", () => {
     await user.keyboard("sesame{Enter}");
     expect(onSubmit).toHaveBeenLastCalledWith("sesame");
   });
+
+  it("carries an outside notice, such as the session having ended, until typing starts", async () => {
+    const user = userEvent.setup();
+    render(
+      <Unlock mode="verify" notice="Seal locked itself." onSubmit={vi.fn()} />,
+    );
+
+    expect(screen.getByRole("status", { name: "Unlock status" })).toHaveTextContent(
+      "Seal locked itself.",
+    );
+
+    await user.keyboard("s");
+    expect(screen.getByRole("status", { name: "Unlock status" })).not.toHaveTextContent(
+      "Seal locked itself.",
+    );
+  });
 });
 
 describe("Unlock, establishing", () => {

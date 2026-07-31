@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "The minimum the interface needs: its own window, and Seal's own commands.",
+  "description": "The minimum the interface needs: its own window, Seal's own commands, and the folder-picking dialog.",
   "windows": ["main"],
-  "permissions": ["core:default"]
+  "permissions": ["core:default", "dialog:allow-open"]
 }

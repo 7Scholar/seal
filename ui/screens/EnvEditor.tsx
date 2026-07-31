@@ -20,8 +20,12 @@ export function EnvEditor({ file, onReveal, onSave, onSeal, onClose }: Props) {
   const isDirty = dirtyKeys.length > 0;
 
   async function reveal(key: string) {
-    const bytes = await onReveal(key);
-    setRevealed((current) => ({ ...current, [key]: decodeSecret(bytes) }));
+    try {
+      const bytes = await onReveal(key);
+      setRevealed((current) => ({ ...current, [key]: decodeSecret(bytes) }));
+    } catch {
+      return;
+    }
   }
 
   function conceal(key: string) {
@@ -42,6 +46,8 @@ export function EnvEditor({ file, onReveal, onSave, onSeal, onClose }: Props) {
     try {
       await onSave(dirtyKeys.map((key) => [key, edits[key] ?? ""]));
       setEdits({});
+    } catch {
+      return;
     } finally {
       setSaving(false);
     }
@@ -104,8 +110,12 @@ export function EnvEditor({ file, onReveal, onSave, onSeal, onClose }: Props) {
                   type="button"
                   aria-label={`Edit ${key}`}
                   onClick={async () => {
-                    const current = revealed[key] ?? decodeSecret(await onReveal(key));
-                    edit(key, current);
+                    try {
+                      const current = revealed[key] ?? decodeSecret(await onReveal(key));
+                      edit(key, current);
+                    } catch {
+                      return;
+                    }
                   }}
                 >
                   Edit

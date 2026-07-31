@@ -129,3 +129,26 @@ describe("PasswordChange", () => {
     release();
   });
 });
+
+describe("PasswordChange, when the run fails", () => {
+  it("says plainly that a wrong current password converted nothing", async () => {
+    const user = userEvent.setup();
+    const handlers = {
+      onBegin: vi.fn(async () => {}),
+      onRun: vi.fn(async () => {
+        throw { kind: "wrongPassphrase", path: null };
+      }),
+      onAbandon: vi.fn(async () => {}),
+      onClose: vi.fn(),
+    };
+    render(<PasswordChange manifest={null} {...handlers} />);
+
+    await fill(user);
+    await user.click(screen.getByRole("button", { name: "Change the password" }));
+
+    const alerts = await screen.findAllByRole("alert");
+    const failure = alerts.map((a) => a.textContent).join(" ");
+    expect(failure).toMatch(/does not open/i);
+    expect(failure).toMatch(/Nothing was changed/i);
+  });
+});

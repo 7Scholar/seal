@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Manifest } from "../ipc";
+import { explain } from "../errors";
 import { fileName } from "../format";
 
 interface Props {
@@ -24,6 +25,7 @@ export function PasswordChange({
   const [confirmation, setConfirmation] = useState("");
   const [typed, setTyped] = useState("");
   const [working, setWorking] = useState(false);
+  const [failure, setFailure] = useState<string | null>(null);
 
   const converted = manifest?.entries.filter((e) => e.standing === "converted") ?? [];
   const outstanding = manifest?.entries.filter((e) => e.standing !== "converted") ?? [];
@@ -37,6 +39,7 @@ export function PasswordChange({
 
   async function run() {
     setWorking(true);
+    setFailure(null);
     try {
       if (!manifest) await onBegin();
       await onRun(current, replacement);
@@ -44,6 +47,8 @@ export function PasswordChange({
       setReplacement("");
       setConfirmation("");
       setTyped("");
+    } catch (error) {
+      setFailure(explain("change the password", error));
     } finally {
       setWorking(false);
     }
@@ -142,6 +147,12 @@ export function PasswordChange({
           onChange={(event) => setTyped(event.target.value)}
         />
       </div>
+
+      {failure ? (
+        <p role="alert" className="rekey__mismatch">
+          {failure}
+        </p>
+      ) : null}
 
       <footer className="rekey__actions">
         <span role="status" aria-label="Password change progress">

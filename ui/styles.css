@@ -73,6 +73,19 @@ input {
 .repo__state[data-state="sealed"] { color: var(--ok); }
 .repo__file[data-alert="true"] .repo__state { color: var(--danger); font-weight: 600; }
 
+.problem {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  border: 1px solid var(--danger);
+  background: var(--danger-bg);
+  border-radius: 8px;
+  padding: 0.7rem 0.9rem;
+  margin: 1.25rem auto 0;
+  max-width: 62rem;
+}
+.problem__message { flex: 1; }
+
 .exposure-alert {
   border: 1px solid var(--danger);
   background: var(--danger-bg);

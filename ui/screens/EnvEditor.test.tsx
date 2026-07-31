@@ -142,3 +142,32 @@ describe("EnvEditor", () => {
     expect(onSeal).toHaveBeenCalledOnce();
   });
 });
+
+describe("EnvEditor, when saving fails", () => {
+  it("keeps the edits so nothing typed is lost", async () => {
+    const user = userEvent.setup();
+    const onSave = vi.fn(async () => {
+      throw { kind: "io", path: null };
+    });
+    render(
+      <EnvEditor
+        file={file}
+        onReveal={vi.fn(async () => encode("postgres://real"))}
+        onSave={onSave}
+        onSeal={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Edit API_KEY" }));
+    await user.clear(screen.getByLabelText("Value for API_KEY"));
+    await user.type(screen.getByLabelText("Value for API_KEY"), "rotated");
+    await user.click(screen.getByRole("button", { name: "Save" }));
+
+    expect(screen.getByRole("status", { name: "Unsaved changes" })).toHaveTextContent(
+      "1 unsaved change",
+    );
+    expect(screen.getByLabelText("Value for API_KEY")).toHaveValue("rotated");
+    expect(screen.getByRole("button", { name: "Save" })).toBeEnabled();
+  });
+});

@@ -28,6 +28,7 @@ seal-engine = { path = "../crates/seal-engine" }
 seal-registry = { path = "../crates/seal-registry" }
 seal-session = { path = "../crates/seal-session" }
 seal-dotenv = { path = "../crates/seal-dotenv" }
+tauri-plugin-dialog = "2.7.2"
 
 [dev-dependencies]
 tempfile = "3"

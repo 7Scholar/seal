@@ -51,6 +51,7 @@ Reveal is not an edit and must never mark a file dirty — a demonstrated failur
 - [x] shell.md -> the frontend's own shell: the page the webview loads, the build that produces it, and the typed command module
 - [x] screens.md -> the screens and the shared primitives that carry the behavioural rules
 - [x] password-change.md -> the supervised master-password change, whose danger is the half-done state
+- [x] errors.md -> how a command failure reaches the user: plain language for every kind, the problem banner, and the re-lock on an ended session
 
 # Cursor
 

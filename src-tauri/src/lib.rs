@@ -31,6 +31,7 @@ pub fn run() {
     let state = store.load().unwrap_or_default();
 
     let app = tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![
             commands::unlock,
             commands::lock,

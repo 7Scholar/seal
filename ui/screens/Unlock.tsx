@@ -3,12 +3,13 @@ import { createSandShield, type SandShield } from "./sandShield";
 
 interface Props {
   mode: "verify" | "create";
+  notice?: string;
   onSubmit: (passphrase: string) => Promise<void>;
 }
 
 type Notice = "" | "confirm" | "mismatch" | "wrong" | "failed";
 
-export function Unlock({ mode, onSubmit }: Props) {
+export function Unlock({ mode, notice: outsideNotice, onSubmit }: Props) {
   const [passphrase, setPassphrase] = useState("");
   const [chosen, setChosen] = useState<string | null>(null);
   const [working, setWorking] = useState(false);
@@ -83,7 +84,9 @@ export function Unlock({ mode, onSubmit }: Props) {
           ? "That password did not open your files. Nothing was changed. The attempt was cleared — type it again and press Enter."
           : notice === "failed"
             ? "The password could not be set. Nothing was changed — type it again and press Enter."
-            : "";
+            : passphrase.length === 0 && chosen === null
+              ? (outsideNotice ?? "")
+              : "";
 
   const alarmed = notice === "mismatch" || notice === "wrong" || notice === "failed";
 

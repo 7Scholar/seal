@@ -22,7 +22,17 @@ So distribution is:
 
 This is honest about the project's state rather than shipping something that dies on first run, and nothing about it forecloses signing later.
 
+## What installation the two gates actually allow
+
+macOS applies two independent gates, and only one of them costs money. The **execution gate** on Apple Silicon refuses arm64 code carrying no signature at all, and a free ad-hoc signature satisfies it. The **Gatekeeper gate** fires only on files carrying `com.apple.quarantine`, and only a paid Developer ID with notarisation passes it. Since quarantine is applied by the delivery mechanism rather than by the artefact — browsers set it, `curl` and `tar` do not, and Homebrew never adds it — an unsigned command-line tool installs and runs cleanly through a tap or an installer script. Measured end to end rather than assumed: an unsigned `seal` tarred, quarantined to simulate a download, and installed through a real formula arrives carrying only `com.apple.provenance`, and runs.
+
+That same reasoning does **not** extend to the desktop application, which is why it is not distributed as a cask; `MEMORY.md` holds the constraint and its expiry date.
+
 # What is missing
+
+The command-line tool has no one-command installation: the released artefact is a tarball a user must find, extract and move onto their path by hand. A tap and an installer script are what close that, and both need a published GitHub release to download from — which the release workflow does not currently produce, since it uploads its artefacts as workflow artefacts that a stranger cannot reach.
+
+How the desktop application is installed is blocked on the question in `QUESTIONS.md`.
 
 # Approach
 
@@ -41,11 +51,13 @@ A tagged push builds bundles on macOS and Linux, collects every artefact, and pu
 - [x] Ship the command-line tool inside the bundle, and document how a user puts it on their path.
 - [x] Build artefacts on a tag, with checksums published alongside them.
 - [x] Package the command-line tool so an unsigned download actually runs, asserted in continuous integration.
-- [+] Sign and notarise the macOS bundle. Deliberately out of scope for now — answered in `QUESTIONS.md` — and revisited if the project takes on a signing identity.
-- [ ] A Homebrew formula for the command-line tool.
+- [!] blocked — awaiting answer in `QUESTIONS.md`: how Seal is installed, and whether the desktop application stays build-from-source or takes on a signing identity.
+- [ ] A tap holding the command-line tool's formula, so it installs in one command.
+- [ ] An installer script for people without Homebrew, and for Linux.
+- [ ] Ad-hoc sign the released binaries in continuous integration, satisfying the Apple Silicon execution gate.
 - [ ] Decide what Windows artefacts are produced, once someone wants them.
 
 # Open threads
 
-- Whether to publish a Homebrew formula for the command-line tool. It is the idiomatic way to install a CLI on macOS and is independent of the desktop signing question, so it can proceed either way.
 - Universal versus per-architecture macOS builds. A universal binary halves the release matrix and roughly doubles the download; at 4 MB the size argument is weak.
+- Whether the release should publish its artefacts to a GitHub release at all: the workflow currently builds and checksums them but only uploads them as workflow artefacts, which a stranger cannot download. Whatever the installation answer, a tap and an installer script both need a stable public download URL, so this is settled by the same work.

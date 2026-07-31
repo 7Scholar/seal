@@ -60,14 +60,12 @@ This is recorded as the baseline, not as the demonstration. The journey is satis
 
 # Findings
 
-All open. None has been routed into the implementation tree yet.
+1. **The product has no concept of a first run.** It cannot distinguish a new user from a returning one, so it asks a first-time user to unlock something that does not exist. **Routed:** framed as [first-open](../plans/app/desktop/first-open.md), carrying the decided shape — one identical surface on every open, the first open setting the master password, later opens checking it.
 
-1. **The product has no concept of a first run.** It cannot distinguish a new user from a returning one, so it asks a first-time user to unlock something that does not exist. This is a missing concern rather than a defect in an existing one — no plan owns "what happens the first time" — and routing it will mean framing new work rather than fixing existing work.
+2. **Choosing a folder does not work.** The only route into the product's core loop is inert. **Open.**
 
-2. **Choosing a folder does not work.** The only route into the product's core loop is inert.
+3. **The irreversibility warning arrives too late to inform the decision it is about.** It is shown before the first encryption, which is after the user has already committed to a password they cannot recover. **Routed:** to [first-open](../plans/app/desktop/first-open.md), whose bar is that both facts land at establishment.
 
-3. **The irreversibility warning arrives too late to inform the decision it is about.** It is shown before the first encryption, which is after the user has already committed to a password they cannot recover.
-
-4. **The empty state does not carry its own weight.** It names the situation but does not lead anyone anywhere.
+4. **The empty state does not carry its own weight.** It names the situation but does not lead anyone anywhere. **Routed:** to [first-open](../plans/app/desktop/first-open.md) — the decided shape makes the empty state the onboarding vehicle, so its weight is that plan's concern.
 
 Driving the journey in full will find more, and is expected to. These four are what a single partial attempt surfaced.

@@ -67,6 +67,8 @@ Two flows carry more weight than their screens suggest, and their behaviour is f
 - [x] dotenv.md -> lossless env-file parsing and rendering, so saving preserves comments, order and formatting
 - [x] lifecycle.md -> import, removal from management, the pre-seal open-file check, and the irreversibility acknowledgements
 - [x] ui/ -> the interface: the cross-repo view, the import flow, the environment-variables editor, and the two flows that must insist
+- [!] first-open.md -> establishing the master password on the first open, verifying it on every open after, and the empty state's onboarding weight — blocked, awaiting answer in QUESTIONS.md
+- [ ] journey-harness.md -> the harness that drives the built application for the journeys axis; macOS first
 
 # Cursor
 
@@ -86,7 +88,9 @@ The same audit caught two defects that are now fixed: a managed non-env file was
 
 `ui/` is complete: the frontend, every screen, and the supervised password change, designed from a survey of the products this interface will be judged against rather than invented. Seventy-six interface tests alongside the Rust suite, with each load-bearing rule confirmed by reintroducing the exact defect it prevents — including two that comparable products actually shipped.
 
-Every child here is complete **as code**, and the application is nonetheless not usable — a first-time user cannot get past the opening screen. Those defects live between these plans rather than inside any of them, which is the blind spot [the journeys axis](../../../journeys/README.md) exists to close. The desktop application is not done until its journeys are satisfied, whatever the markers below say.
+Every child above the last two is complete **as code**, and the application is nonetheless not usable — a first-time user cannot get past the opening screen. Those defects live between these plans rather than inside any of them, which is the blind spot [the journeys axis](../../../journeys/README.md) exists to close. The desktop application is not done until its journeys are satisfied.
+
+The journeys' first answers landed and are framed here as two children. `first-open.md` carries the decided shape — one identical shield on every open, the first open setting the master password, onboarding carried by the empty state — and is `[!]` on the question of how the product knows a password exists (QUESTIONS.md). `journey-harness.md` carries the demonstration harness, macOS first, with the technology choice delegated to the implementer; its research step is where work goes next.
 
 # Open threads
 

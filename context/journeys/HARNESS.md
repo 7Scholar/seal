@@ -6,9 +6,9 @@ Journeys are satisfied by driving the real application. This document states how
 
 # Where this gets built
 
-This document is the **specification**, not the home. The harness is code, so it is framed in the implementation tree through intake ([INTAKE.md](../../docs/plans/INTAKE.md)) and built there under a plan that holds its coverage — `context/journeys/` carries no code and no coverage.
+This document is the **specification**, not the home. The harness is code, so it is built in the implementation tree under [journey-harness](../plans/app/desktop/journey-harness.md), which holds its coverage — `context/journeys/` carries no code and no coverage.
 
-Its technology is an **open design fork, and an unanswered one**: which driver, which client, which runner, and how it hooks into continuous integration. Choosing that silently would be exactly the kind of quiet answer intake forbids. Frame the plan, raise the fork as a blocking question, and wait — see [QUESTIONS.md](QUESTIONS.md) in this folder for the questions this axis has already surfaced.
+Its technology — which driver, which client, which runner, and how it hooks into continuous integration — is chosen in that plan, delegated to the implementer within the constraints below.
 
 # What it must do
 
@@ -16,17 +16,14 @@ Launch the **actual built application** — the same binary a user would install
 
 The rule it exists to enforce: **a control that does nothing must fail the run.** The defect that motivated this axis was a button wired to a browser API that silently no-ops inside the application's webview. It passed every unit test, because the test environment implements that API and the real one does not. A harness that cannot catch that is not worth building.
 
-# The platform constraint, and what follows from it
+# The platform requirement, and what follows from it
 
-The framework's WebDriver support covers Linux and Windows. **There is no macOS driver**, which is a problem because macOS is the primary development platform here.
+**The harness must drive the application on macOS first.** macOS is the primary development platform, and a harness that cannot run where the product is actually developed and used degrades into documents nobody runs. The framework's stock WebDriver path has no macOS driver, so meeting this requirement is the central technology problem the implementation plan solves.
 
-This is a real constraint, not a reason to skip automation:
+Beyond macOS-first, the choice is governed by **long-term stability, maintainability, and robustness** — a bespoke harness nobody maintains is worse than none, so whatever is chosen must be something a stranger can keep alive.
 
-- **Automated journeys run on Linux in continuous integration.** That is where they gate.
-- **macOS is verified by hand** at release, recorded in each journey's Demonstration section.
-- **Anything platform-specific gets its own explicit note** in the journey, because the automated run does not cover it.
-
-Do not let the macOS gap become an excuse to have no automation at all. Most of what journeys catch — dead controls, unreachable screens, missing states, flows with no entry — is platform-independent, and a Linux run catches all of it.
+- **Automated journeys gate in continuous integration** on every platform the chosen technology supports, macOS included.
+- **Anything a platform's run cannot cover gets its own explicit note** in the journey.
 
 # What a journey run looks like
 

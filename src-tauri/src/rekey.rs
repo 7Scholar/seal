@@ -5,7 +5,6 @@ use std::path::{Path, PathBuf};
 
 use age::secrecy::SecretString;
 use seal_engine::reseal;
-use seal_registry::state::State;
 use serde::{Deserialize, Serialize};
 
 use crate::error::{CommandError, Kind};
@@ -149,12 +148,12 @@ impl Ledger {
     }
 }
 
-pub fn begin(ledger: &Ledger, state: &State, work_factor: u8) -> Result<Manifest, CommandError> {
+pub fn begin(ledger: &Ledger, paths: Vec<PathBuf>, work_factor: u8) -> Result<Manifest, CommandError> {
     if ledger.read()?.is_some() {
         return Err(CommandError::new(Kind::RekeyInFlight));
     }
 
-    let manifest = Manifest::planned(state.managed_paths(), work_factor);
+    let manifest = Manifest::planned(paths, work_factor);
     ledger.write(&manifest)?;
     Ok(manifest)
 }

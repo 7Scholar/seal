@@ -18,7 +18,7 @@ The flow is gated on a typed phrase, the second and last place in the applicatio
 
 ## The manifest
 
-Committing a plan writes a manifest listing every managed file as pending, alongside the registry, **before any file is touched**. Each entry moves to converted or failed as the run proceeds, and the manifest is rewritten after each pass. A completed run deletes it; an unfinished one leaves it, which is how the next launch knows to say so.
+Committing a plan writes a manifest listing the password sentinel first and then every managed file as pending, alongside the registry, **before any file is touched**. The sentinel leads because converting it first moves the password that unlocks the application to the new password the moment a run begins — the semantics are [first-open.md](../first-open.md)'s. Each entry moves to converted or failed as the run proceeds, and the manifest is rewritten after each pass. A completed run deletes it; an unfinished one leaves it, which is how the next launch knows to say so.
 
 Resuming reads the manifest and retries only entries that have not converted, so a file already on the new password is never attempted again with the old one. Starting a fresh change while a manifest exists is refused outright — that is how a repository ends up spread across three passwords.
 

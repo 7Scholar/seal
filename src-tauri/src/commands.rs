@@ -78,7 +78,25 @@ impl Held {
 #[tauri::command]
 pub async fn unlock(held: Managed<'_, Held>, passphrase: String) -> Result<(), CommandError> {
     let mut session = held.session()?;
-    app::unlock(&mut session, passphrase)
+    app::unlock(&mut session, &held.directory, passphrase)
+}
+
+#[tauri::command]
+pub async fn is_established(held: Managed<'_, Held>) -> Result<bool, CommandError> {
+    Ok(app::is_established(&held.directory))
+}
+
+#[tauri::command]
+pub async fn establish(held: Managed<'_, Held>, passphrase: String) -> Result<(), CommandError> {
+    let mut session = held.session()?;
+    let registry = held.registry()?;
+    app::establish(
+        &mut session,
+        &held.directory,
+        &registry,
+        passphrase,
+        app::WORK_FACTOR,
+    )
 }
 
 #[tauri::command]
@@ -214,7 +232,12 @@ pub async fn rekey_status(
 #[tauri::command]
 pub async fn rekey_begin(held: Managed<'_, Held>) -> Result<rekey::Manifest, CommandError> {
     let registry = held.registry()?;
-    rekey::begin(&held.ledger(), &registry, app::WORK_FACTOR)
+    let mut paths = Vec::new();
+    if app::is_established(&held.directory) {
+        paths.push(app::sentinel_path(&held.directory));
+    }
+    paths.extend(registry.managed_paths());
+    rekey::begin(&held.ledger(), paths, app::WORK_FACTOR)
 }
 
 #[tauri::command]

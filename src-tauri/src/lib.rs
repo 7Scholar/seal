@@ -35,6 +35,8 @@ pub fn run() {
             commands::unlock,
             commands::lock,
             commands::is_unlocked,
+            commands::is_established,
+            commands::establish,
             commands::overview,
             commands::open_file,
             commands::reveal,

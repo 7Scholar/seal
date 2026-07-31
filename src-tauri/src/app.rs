@@ -1,6 +1,8 @@
-use std::path::Path;
+use std::fs;
+use std::path::{Path, PathBuf};
 
 use age::secrecy::SecretString;
+use seal_engine::format::Classification;
 use seal_engine::operations;
 use seal_registry::reconcile;
 use seal_registry::state::{SealedState, State};
@@ -152,7 +154,71 @@ fn record(state: &mut State, path: &Path, sealed: SealedState) {
     }
 }
 
-pub fn unlock(session: &mut Session, passphrase: String) -> Result<(), CommandError> {
-    session.unlock(SecretString::from(passphrase))?;
+pub const SENTINEL_FILE: &str = "password-check.age";
+pub const SENTINEL_CONTENT: &[u8] =
+    b"This file lets Seal check the master password. It holds no secret.\n";
+
+pub fn sentinel_path(directory: &Path) -> PathBuf {
+    directory.join(SENTINEL_FILE)
+}
+
+pub fn is_established(directory: &Path) -> bool {
+    matches!(
+        operations::classify(&sentinel_path(directory)),
+        Ok(Classification::Sealed { .. })
+    )
+}
+
+pub fn establish(
+    session: &mut Session,
+    directory: &Path,
+    state: &State,
+    passphrase: String,
+    work_factor: u8,
+) -> Result<(), CommandError> {
+    let path = sentinel_path(directory);
+    if is_established(directory) {
+        return Err(CommandError::at(Kind::AlreadyEstablished, path));
+    }
+
+    let secret = SecretString::from(passphrase);
+    if let Some(sealed) = recorded_sealed_on_disk(state) {
+        operations::verify(&sealed, std::slice::from_ref(&secret))?;
+    }
+
+    fs::create_dir_all(directory).map_err(|_| CommandError::at(Kind::Io, directory))?;
+    fs::write(&path, SENTINEL_CONTENT).map_err(|_| CommandError::at(Kind::Io, &path))?;
+    operations::seal(&path, &secret, work_factor)?;
+
+    session.unlock(secret)?;
     Ok(())
+}
+
+pub fn unlock(
+    session: &mut Session,
+    directory: &Path,
+    passphrase: String,
+) -> Result<(), CommandError> {
+    let path = sentinel_path(directory);
+    if !is_established(directory) {
+        return Err(CommandError::at(Kind::NotEstablished, path));
+    }
+
+    let secret = SecretString::from(passphrase);
+    operations::verify(&path, std::slice::from_ref(&secret))?;
+    session.unlock(secret)?;
+    Ok(())
+}
+
+fn recorded_sealed_on_disk(state: &State) -> Option<PathBuf> {
+    state
+        .repos
+        .iter()
+        .flat_map(|repo| {
+            repo.files
+                .iter()
+                .filter(|file| file.last_known == SealedState::Sealed)
+                .map(move |file| repo.root.join(&file.relative_path))
+        })
+        .find(|path| matches!(operations::classify(path), Ok(Classification::Sealed { .. })))
 }

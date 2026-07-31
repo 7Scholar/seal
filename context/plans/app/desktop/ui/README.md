@@ -34,7 +34,7 @@ Removing a file from management never touches the disk as a side effect, and the
 
 ### The session, and the operation that must not be left half-done
 
-Unlock is the sand shield: coal-fine grains over a lit ground, parted by the pointer and closing at once, with the master password typed directly — into a real but visually hidden field, so the label, the masking, and the autocomplete opt-outs survive — and Enter as the single verb. Each keystroke answers with a brief glow somewhere in the shield, a visible working state runs while the key derivation runs, since several hundred milliseconds of nothing reads as a hang, and a failed attempt clears itself so Enter after retyping always submits a fresh attempt.
+Unlock is the sand shield: coal-fine grains over a lit ground, parted by the pointer and closing at once, with the master password typed directly — into a real but visually hidden field, so the label, the masking, and the autocomplete opt-outs survive — and Enter as the single verb. Each keystroke answers with a brief glow somewhere in the shield, a visible working state runs while the key derivation runs, since several hundred milliseconds of nothing reads as a hang, and a failed attempt clears itself so Enter after retyping always submits a fresh attempt. The same shield carries establishing a password that does not yet exist — choosing language, unrecoverability stated, and a double entry that catches the typo — per [first-open.md](../first-open.md).
 
 The master-password change plans before applying, keeps a **durable per-item record on disk from the moment the plan is committed**, retries transient failures automatically, and offers scoped retry of only what failed. The record is durable because a crash mid-run would otherwise leave a repo with some files on each password and no record of which are which — and that is the dangerous state the whole operation is designed to avoid. Its completion answers the user's actual question, which files are on which password and what they need now, never a bare count of failures.
 
@@ -54,7 +54,7 @@ Reveal is not an edit and must never mark a file dirty — a demonstrated failur
 
 # Cursor
 
-The frontend and every screen are built: the unlock sand shield, the cross-repo view with its non-dismissible alert, the import flow, the environment-variables editor, and the first-seal acknowledgement — all but unlock on a design taken from [the research](_docs/ux-research.md) rather than invented. Sixty-seven interface tests, with each load-bearing guard confirmed by reintroducing the exact defect it prevents.
+The frontend and every screen are built: the unlock sand shield, the cross-repo view with its non-dismissible alert, the import flow, the environment-variables editor, and the first-seal acknowledgement — all but unlock on a design taken from [the research](_docs/ux-research.md) rather than invented. Seventy-two interface tests, with each load-bearing guard confirmed by reintroducing the exact defect it prevents.
 
 `password-change.md` is complete too, on a manifest that outlives the process: removing that durability fails eight of its ten Rust tests, which is the measure of how much the guarantee was carrying.
 

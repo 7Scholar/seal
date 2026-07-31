@@ -68,7 +68,7 @@ fn opens_with(path: &Path, passphrase: &str) -> bool {
 fn the_manifest_is_written_before_any_file_is_touched() {
     let world = world(2);
 
-    let manifest = rekey::begin(&world.ledger, &world.state, WORK).unwrap();
+    let manifest = rekey::begin(&world.ledger, world.state.managed_paths(), WORK).unwrap();
 
     assert_eq!(manifest.entries.len(), 2);
     assert!(
@@ -90,7 +90,7 @@ fn the_manifest_is_written_before_any_file_is_touched() {
 #[test]
 fn a_completed_run_converts_every_file_and_clears_the_manifest() {
     let world = world(3);
-    rekey::begin(&world.ledger, &world.state, WORK).unwrap();
+    rekey::begin(&world.ledger, world.state.managed_paths(), WORK).unwrap();
 
     let manifest = rekey::run(
         &world.ledger,
@@ -117,7 +117,7 @@ fn a_completed_run_converts_every_file_and_clears_the_manifest() {
 #[test]
 fn an_interrupted_run_is_resumable_and_says_which_files_moved() {
     let world = world(3);
-    rekey::begin(&world.ledger, &world.state, WORK).unwrap();
+    rekey::begin(&world.ledger, world.state.managed_paths(), WORK).unwrap();
 
     seal_engine::operations::reseal_from_memory(
         &world.paths[0],
@@ -159,7 +159,7 @@ fn an_interrupted_run_is_resumable_and_says_which_files_moved() {
 #[test]
 fn resuming_never_retries_a_file_that_already_moved() {
     let world = world(2);
-    rekey::begin(&world.ledger, &world.state, WORK).unwrap();
+    rekey::begin(&world.ledger, world.state.managed_paths(), WORK).unwrap();
 
     let mut manifest = world.ledger.read().unwrap().unwrap();
     manifest.entries[0].standing = Standing::Converted;
@@ -174,9 +174,9 @@ fn resuming_never_retries_a_file_that_already_moved() {
 #[test]
 fn a_second_run_cannot_start_while_one_is_unfinished() {
     let world = world(2);
-    rekey::begin(&world.ledger, &world.state, WORK).unwrap();
+    rekey::begin(&world.ledger, world.state.managed_paths(), WORK).unwrap();
 
-    let error = rekey::begin(&world.ledger, &world.state, WORK).unwrap_err();
+    let error = rekey::begin(&world.ledger, world.state.managed_paths(), WORK).unwrap_err();
 
     assert_eq!(
         error.kind,
@@ -202,7 +202,7 @@ fn running_without_a_plan_is_refused() {
 #[test]
 fn a_wrong_old_password_changes_nothing() {
     let world = world(2);
-    rekey::begin(&world.ledger, &world.state, WORK).unwrap();
+    rekey::begin(&world.ledger, world.state.managed_paths(), WORK).unwrap();
 
     let outcome = rekey::run(
         &world.ledger,
@@ -222,7 +222,7 @@ fn a_wrong_old_password_changes_nothing() {
 #[test]
 fn the_manifest_survives_a_process_boundary() {
     let world = world(2);
-    rekey::begin(&world.ledger, &world.state, WORK).unwrap();
+    rekey::begin(&world.ledger, world.state.managed_paths(), WORK).unwrap();
 
     let reopened = Ledger::new(world.ledger.path().parent().unwrap());
     let manifest = reopened
@@ -237,7 +237,7 @@ fn the_manifest_survives_a_process_boundary() {
 #[test]
 fn a_recorded_failure_names_a_kind_and_never_an_error_message() {
     let world = world(1);
-    rekey::begin(&world.ledger, &world.state, WORK).unwrap();
+    rekey::begin(&world.ledger, world.state.managed_paths(), WORK).unwrap();
     std::fs::remove_file(&world.paths[0]).unwrap();
 
     let manifest = rekey::run(
@@ -259,7 +259,7 @@ fn a_recorded_failure_names_a_kind_and_never_an_error_message() {
 #[test]
 fn an_unfinished_run_is_still_there_after_a_failure() {
     let world = world(1);
-    rekey::begin(&world.ledger, &world.state, WORK).unwrap();
+    rekey::begin(&world.ledger, world.state.managed_paths(), WORK).unwrap();
     std::fs::remove_file(&world.paths[0]).unwrap();
 
     rekey::run(

@@ -1,5 +1,13 @@
 # Memory
 
+## 2026-07-31 — The password sentinel leads the rekey manifest, and appears in it on purpose
+
+A password-change plan lists the sentinel file as its first entry, ahead of every managed file, and the sentinel rides the manifest as an ordinary visible entry. **Why:** converting it first moves the password that unlocks the application to the new password the moment a run begins, which matches the session re-unlocking with the new password after a run — an interrupted run then unlocks with the password the resume banner expects. **Mistake it prevents:** filtering the sentinel out of the manifest as interface noise, or reordering it last as a "commit" step — either leaves an interrupted change with an unlock password that contradicts the session and the banner.
+
+## 2026-07-31 — Establishing over existing sealed files first proves their password
+
+When no sentinel exists but the registry records sealed files that are actually sealed on disk, establishment verifies the entered password against one of them before creating the sentinel. **Why:** an install that predates the sentinel has real files under a real password; establishment without this check would let a typo silently fork a second password over a vault that already has one. **Mistake it prevents:** deleting the check as redundant because "establishment only happens on a fresh install" — the sentinel-less-but-sealed state is exactly the one migration produces.
+
 ## 2026-07-20 — Secret expiry never relies on a timer, and uses two clocks
 
 A held secret expires by comparing deadlines when it is accessed, against **both** a wall-clock and a monotonic deadline, expiring if either has passed or if reading elapsed time fails at all. **Why:** the monotonic clock underlying ordinary timers **stops while the machine sleeps** — the platform documents this, and it was measured here as losing 7.26 hours across one night on the development machine. A timer would therefore keep plaintext alive through a closed lid and wake believing a minute had passed, which is precisely the situation a fifteen-minute expiry exists to prevent. The wall clock covers that, but it can be moved backwards by a clock correction or deliberately, so the monotonic deadline covers the wall clock in turn. **Mistake it prevents:** replacing the two-clock check with a single sleeping timer or a single clock, both of which look simpler, test fine on a machine that never sleeps, and fail open in the field — the worst possible direction for a security timeout.

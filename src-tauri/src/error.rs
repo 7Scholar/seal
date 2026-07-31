@@ -18,6 +18,8 @@ pub enum Kind {
     UnknownKey,
     NotAnEnvFile,
     NotAcknowledged,
+    NotEstablished,
+    AlreadyEstablished,
     RekeyInFlight,
     NoRekey,
     Io,

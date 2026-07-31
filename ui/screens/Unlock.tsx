@@ -2,13 +2,17 @@ import { useEffect, useRef, useState } from "react";
 import { createSandShield, type SandShield } from "./sandShield";
 
 interface Props {
-  onUnlock: (passphrase: string) => Promise<void>;
+  mode: "verify" | "create";
+  onSubmit: (passphrase: string) => Promise<void>;
 }
 
-export function Unlock({ onUnlock }: Props) {
+type Notice = "" | "confirm" | "mismatch" | "wrong" | "failed";
+
+export function Unlock({ mode, onSubmit }: Props) {
   const [passphrase, setPassphrase] = useState("");
+  const [chosen, setChosen] = useState<string | null>(null);
   const [working, setWorking] = useState(false);
-  const [failed, setFailed] = useState(false);
+  const [notice, setNotice] = useState<Notice>("");
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const shieldRef = useRef<SandShield | null>(null);
@@ -32,19 +36,56 @@ export function Unlock({ onUnlock }: Props) {
     event.preventDefault();
     if (passphrase.length === 0 || working) return;
 
+    if (mode === "create" && chosen === null) {
+      setChosen(passphrase);
+      setPassphrase("");
+      setNotice("confirm");
+      return;
+    }
+
+    if (mode === "create" && chosen !== null && passphrase !== chosen) {
+      setChosen(null);
+      setPassphrase("");
+      setNotice("mismatch");
+      shieldRef.current?.pulse();
+      return;
+    }
+
     setWorking(true);
-    setFailed(false);
+    setNotice("");
     try {
-      await onUnlock(passphrase);
+      await onSubmit(passphrase);
       setPassphrase("");
+      setChosen(null);
     } catch {
-      setFailed(true);
+      setNotice(mode === "verify" ? "wrong" : "failed");
       setPassphrase("");
+      setChosen(null);
       shieldRef.current?.pulse();
     } finally {
       setWorking(false);
     }
   }
+
+  const heading = mode === "verify" ? "Seal is locked" : "Choose your master password";
+  const hint =
+    mode === "verify"
+      ? "Type your master password, then press Enter."
+      : "You are choosing a password now, not entering one. It can never be recovered: lose it and everything sealed with it is lost. Type it, then press Enter.";
+
+  const status = working
+    ? "Working. Deriving the key takes a moment."
+    : notice === "confirm"
+      ? "Nothing is set yet. Type the same password once more to confirm, then press Enter."
+      : notice === "mismatch"
+        ? "The two entries did not match. Nothing was set — choose the password again from the start."
+        : notice === "wrong"
+          ? "That password did not open your files. Nothing was changed. The attempt was cleared — type it again and press Enter."
+          : notice === "failed"
+            ? "The password could not be set. Nothing was changed — type it again and press Enter."
+            : "";
+
+  const alarmed = notice === "mismatch" || notice === "wrong" || notice === "failed";
 
   return (
     <form
@@ -81,19 +122,15 @@ export function Unlock({ onUnlock }: Props) {
       />
 
       <div className="unlock__overlay">
-        <h1>Seal is locked</h1>
-        <p className="unlock__hint">Type your master password, then press Enter.</p>
+        <h1>{heading}</h1>
+        <p className="unlock__hint">{hint}</p>
         <p
           role="status"
           aria-label="Unlock status"
           className="unlock__status"
-          data-failed={failed ? "true" : undefined}
+          data-failed={alarmed ? "true" : undefined}
         >
-          {working
-            ? "Working. Deriving the key takes a moment."
-            : failed
-              ? "That password did not open your files. Nothing was changed. The attempt was cleared — type it again and press Enter."
-              : ""}
+          {status}
         </p>
       </div>
     </form>

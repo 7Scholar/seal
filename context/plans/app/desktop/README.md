@@ -67,7 +67,7 @@ Two flows carry more weight than their screens suggest, and their behaviour is f
 - [x] dotenv.md -> lossless env-file parsing and rendering, so saving preserves comments, order and formatting
 - [x] lifecycle.md -> import, removal from management, the pre-seal open-file check, and the irreversibility acknowledgements
 - [x] ui/ -> the interface: the cross-repo view, the import flow, the environment-variables editor, and the two flows that must insist
-- [!] first-open.md -> establishing the master password on the first open, verifying it on every open after, and the empty state's onboarding weight — blocked, awaiting answer in QUESTIONS.md
+- [~] first-open.md -> establishing the master password on the first open, verifying it on every open after, and the empty state's onboarding weight
 - [ ] journey-harness.md -> the harness that drives the built application for the journeys axis; macOS first
 
 # Cursor
@@ -90,7 +90,7 @@ The same audit caught two defects that are now fixed: a managed non-env file was
 
 Every child above the last two is complete **as code**, and the application is nonetheless not usable — a first-time user cannot get past the opening screen. Those defects live between these plans rather than inside any of them, which is the blind spot [the journeys axis](../../../journeys/README.md) exists to close. The desktop application is not done until its journeys are satisfied.
 
-The journeys' first answers landed and are framed here as two children. `first-open.md` carries the decided shape — one identical shield on every open, the first open setting the master password, onboarding carried by the empty state — and is `[!]` on the question of how the product knows a password exists (QUESTIONS.md). `journey-harness.md` carries the demonstration harness, macOS first, with the technology choice delegated to the implementer; its research step is where work goes next.
+The journeys' first answers landed and are framed here as two children. `first-open.md` is built: a sealed sentinel records that a master password exists, establishment demands the password twice and states unrecoverability at the choosing moment, unlock verifies against the sentinel instead of accepting anything, and the password change carries the sentinel as its first manifest entry. What remains there is re-driving the first-run journey against a built application. `journey-harness.md` carries the demonstration harness, macOS first, with the technology choice delegated to the implementer; its research step is where work goes next.
 
 # Open threads
 

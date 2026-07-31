@@ -8,7 +8,7 @@ The command surface between the interface and Rust: which operations the interfa
 
 ## The surface is specific, never general
 
-The interface is granted a small set of purpose-built operations — unlock, lock, ask whether unlocked, the cross-repo overview, open a managed file, reveal one value, save edits, seal a file, close a file, and list what is open. There is deliberately no "read this path" or "decrypt these bytes" command: every path-taking command first checks the path against the registry and refuses anything not already managed, so a compromised interface cannot use Seal as a general-purpose file reader.
+The interface is granted a small set of purpose-built operations — unlock, lock, ask whether unlocked, ask whether a master password is established, establish one, the cross-repo overview, open a managed file, reveal one value, save edits, seal a file, close a file, and list what is open. There is deliberately no "read this path" or "decrypt these bytes" command: every path-taking command first checks the path against the registry and refuses anything not already managed, so a compromised interface cannot use Seal as a general-purpose file reader. Unlock and establish both prove the password against the sentinel before the session accepts it — the sentinel's semantics are `first-open.md`'s.
 
 Capabilities grant the window only the core defaults plus Seal's own commands, rather than a broad permission set.
 

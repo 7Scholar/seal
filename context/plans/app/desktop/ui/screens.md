@@ -28,6 +28,8 @@ Three shared components exist because their rules are easy to violate independen
 
 **The unlock gate** is a shield of coal-fine sand drawn over a lit ground: the pointer parts the grains and they close again at once, and every typed character answers with a brief glow somewhere in the shield. The password is typed straight at the screen — the field is real but visually hidden, which keeps the label, the masking, and the autocomplete opt-outs — and Enter is the single verb: it attempts the unlock, a working state shows while the key is derived, and a wrong password says the files were not opened and nothing was changed, rather than implying damage, clearing the attempt so retyping and Enter always submit fresh. The shield honours the reduced-motion preference and renders nothing at all where no drawing context exists, which is also what keeps the screen testable.
 
+The same gate carries the establishing mode ([first-open.md](../first-open.md)): when no master password exists, the heading and hint say one is being *chosen*, state that it can never be recovered, and demand it twice — the first Enter asks for confirmation, a mismatch sets nothing and starts over, and a failure to set says nothing was changed.
+
 **The acknowledgement** states both irreversible facts, tells the user to rotate an already-exposed credential, and is gated on a typed phrase.
 
 ## The interface holds nothing
@@ -36,7 +38,7 @@ A revealed value lives in component state for the row displaying it and nowhere 
 
 # What exists
 
-All of the above, with sixty-seven tests.
+All of the above, with seventy-two tests.
 
 Three guards were confirmed non-vacuous by reintroducing the exact defect each prevents:
 

@@ -79,6 +79,8 @@ export type ErrorKind =
   | "unknownKey"
   | "notAnEnvFile"
   | "notAcknowledged"
+  | "notEstablished"
+  | "alreadyEstablished"
   | "rekeyInFlight"
   | "noRekey"
   | "io"
@@ -96,6 +98,9 @@ export function isCommandError(value: unknown): value is CommandError {
 export const unlock = (passphrase: string) => invoke<void>("unlock", { passphrase });
 export const lock = () => invoke<void>("lock");
 export const isUnlocked = () => invoke<boolean>("is_unlocked");
+export const isEstablished = () => invoke<boolean>("is_established");
+export const establish = (passphrase: string) =>
+  invoke<void>("establish", { passphrase });
 
 export const overview = () => invoke<RepoView[]>("overview");
 export const openFile = (path: string) => invoke<OpenedFile>("open_file", { path });

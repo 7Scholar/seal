@@ -18,6 +18,7 @@ type Screen =
 
 export function App() {
   const [unlocked, setUnlocked] = useState(false);
+  const [established, setEstablished] = useState<boolean | null>(null);
   const [repos, setRepos] = useState<ipc.RepoView[]>([]);
   const [screen, setScreen] = useState<Screen>({ name: "repos" });
   const [acknowledging, setAcknowledging] = useState<null | (() => void)>(null);
@@ -33,6 +34,10 @@ export function App() {
       .isUnlocked()
       .then(setUnlocked)
       .catch(() => setUnlocked(false));
+    ipc
+      .isEstablished()
+      .then(setEstablished)
+      .catch(() => setEstablished(true));
   }, []);
 
   useEffect(() => {
@@ -71,10 +76,17 @@ export function App() {
   }
 
   if (!unlocked) {
+    if (established === null) return null;
     return (
       <Unlock
-        onUnlock={async (passphrase) => {
-          await ipc.unlock(passphrase);
+        mode={established ? "verify" : "create"}
+        onSubmit={async (passphrase) => {
+          if (established) {
+            await ipc.unlock(passphrase);
+          } else {
+            await ipc.establish(passphrase);
+            setEstablished(true);
+          }
           setUnlocked(true);
         }}
       />

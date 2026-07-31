@@ -7,6 +7,8 @@ use clap::{Parser, Subcommand};
 use seal_engine::format::Classification;
 use seal_engine::operations::{self, OperationError};
 
+mod open;
+
 mod exit {
     pub const SUCCESS: u8 = 0;
     pub const FAILED: u8 = 1;
@@ -16,6 +18,7 @@ mod exit {
     pub const BUSY: u8 = 6;
     pub const DAMAGED: u8 = 7;
     pub const NO_TERMINAL: u8 = 8;
+    pub const NO_APPLICATION: u8 = 9;
     pub const CANCELLED: u8 = 130;
 }
 
@@ -46,6 +49,8 @@ enum Command {
         /// The path to inspect
         path: PathBuf,
     },
+    /// Launch the Seal desktop application
+    Open,
 }
 
 fn main() -> ExitCode {
@@ -57,6 +62,7 @@ fn main() -> ExitCode {
             passphrase_fd,
         } => resolve(&path, passphrase_fd),
         Command::Status { path } => status(&path),
+        Command::Open => launch(),
     };
 
     ExitCode::from(code)
@@ -104,6 +110,22 @@ fn status(path: &std::path::Path) -> u8 {
         Err(error) => {
             report(&describe(&error));
             code_for(&error)
+        }
+    }
+}
+
+fn launch() -> u8 {
+    match open::open() {
+        open::Launch::Started => exit::SUCCESS,
+        open::Launch::NotFound => {
+            report("could not find the Seal application.");
+            report("       Build it from a checkout with `cargo build --release`, or see");
+            report("       https://github.com/7scholar/seal for installation instructions.");
+            exit::NO_APPLICATION
+        }
+        open::Launch::Failed(reason) => {
+            report(&format!("could not start the Seal application: {reason}"));
+            exit::FAILED
         }
     }
 }

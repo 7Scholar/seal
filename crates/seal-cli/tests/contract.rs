@@ -325,3 +325,90 @@ expect eof
         "the prompt must never leak into the captured output"
     );
 }
+
+fn seal_beside(directory: &Path) -> PathBuf {
+    let placed = directory.join("seal");
+    fs::copy(binary(), &placed).unwrap();
+    placed
+}
+
+fn stub_desktop(directory: &Path, marker: &Path) {
+    let stub = directory.join("seal-desktop");
+    fs::write(
+        &stub,
+        format!("#!/bin/sh\nprintf started > {}\n", marker.display()),
+    )
+    .unwrap();
+
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        fs::set_permissions(&stub, fs::Permissions::from_mode(0o755)).unwrap();
+    }
+}
+
+#[test]
+fn opening_prefers_the_application_beside_the_running_binary() {
+    let dir = tempfile::tempdir().unwrap();
+    let marker = dir.path().join("launched");
+    let placed = seal_beside(dir.path());
+    stub_desktop(dir.path(), &marker);
+
+    let output = Command::new(&placed)
+        .arg("open")
+        .env("PATH", "/nonexistent")
+        .output()
+        .unwrap();
+
+    assert_eq!(
+        output.status.code(),
+        Some(0),
+        "launching a sibling application must succeed; stderr was {:?}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+
+    for _ in 0..50 {
+        if marker.exists() {
+            break;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(20));
+    }
+
+    assert!(
+        marker.exists(),
+        "the application beside the running binary must be the one launched"
+    );
+    assert!(
+        output.stdout.is_empty(),
+        "opening must write nothing to standard output"
+    );
+}
+
+#[test]
+fn opening_without_an_application_reports_a_distinct_failure() {
+    let dir = tempfile::tempdir().unwrap();
+    let placed = seal_beside(dir.path());
+
+    let output = Command::new(&placed)
+        .arg("open")
+        .env("PATH", "/nonexistent")
+        .env("HOME", "/nonexistent")
+        .output()
+        .unwrap();
+
+    assert_ne!(
+        output.status.code(),
+        Some(0),
+        "a launch that started nothing must not report success"
+    );
+    assert!(
+        output.stdout.is_empty(),
+        "opening must write nothing to standard output"
+    );
+
+    let diagnostics = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        diagnostics.contains("could not find"),
+        "the failure must name what was missing; saw {diagnostics:?}"
+    );
+}

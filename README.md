@@ -31,6 +31,16 @@ Env files get a per-variable editor. Values are masked, and a value is fetched o
 
 Before anything is sealed for the first time the application asks you to acknowledge two facts it cannot soften: that a forgotten password loses the data permanently, and that sealing cannot protect a secret that was already exposed.
 
+### Opening the application from the terminal
+
+```bash
+seal open
+```
+
+This launches the application and returns immediately. It looks for the application beside the `seal` binary you ran — the command-line tool ships inside the application bundle, so a `seal` from an installation opens that installation — then falls back to the one installed on your system. If it finds none it says so and exits non-zero rather than appearing to do nothing.
+
+In a source checkout this means `./target/release/seal open` opens the build you just made, while a `seal` installed on your `PATH` opens the application installed on your system.
+
 ### Resolving a secret in a script
 
 Install the command-line tool from a release tarball:

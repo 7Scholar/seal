@@ -55,6 +55,7 @@ Reveal is not an edit and must never mark a file dirty — a demonstrated failur
 - [x] password-change.md -> the supervised master-password change, whose danger is the half-done state
 - [x] errors.md -> how a command failure reaches the user: plain language for every kind, the problem banner, and the re-lock on an ended session
 - [x] shell-layout.md -> the application shell: the repository sidebar, the detail surface, and the disclosure architecture
+- [!] repo-layer/ -> making the product read as a layer over an existing repository rather than a tool that extracts files into itself — blocked, awaiting answers in its QUESTIONS.md
 
 # Cursor
 
@@ -68,7 +69,9 @@ Every child above `shell-layout.md` is complete as code. The interface is **not*
 
 Its two research documents are the design input rather than invention, and the four forks its research surfaced were settled by the product owner. The batch seal was the one part that added Rust scope: an explicitly chosen set, each member through the same guarded single-file path, reported per path.
 
-Every child here is complete as code. What that does **not** mean is stated below.
+Every child above `repo-layer/` is complete as code. What that does **not** mean is stated below.
+
+`repo-layer/` is newly framed and **blocked**. It names a gap none of the finished children hold: the interface does not yet say that Seal is a layer over a repository the user still owns. A repository enters through a screen headed *Import* that shows three flat lists of paths Seal chose, so the act reads as extraction — and nothing else about the repository is ever shown. Satisfying it changes what the scan returns, so it carries Rust scope the way `shell-layout.md` carried the batch seal. Its four design forks are open in its `QUESTIONS.md`; the second one bounds the others, since it decides whether the tree is a confirmation step or the repository's permanent surface.
 
 # Open threads
 

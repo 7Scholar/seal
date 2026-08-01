@@ -66,7 +66,7 @@ Two flows carry more weight than their screens suggest, and their behaviour is f
 - [x] commands.md -> the IPC surface: the command set, what may cross the boundary, and how blocking work is dispatched
 - [x] dotenv.md -> lossless env-file parsing and rendering, so saving preserves comments, order and formatting
 - [x] lifecycle.md -> import, removal from management, the pre-seal open-file check, and the irreversibility acknowledgements
-- [x] ui/ -> the interface: the application shell, the cross-repo view, the import flow, the environment-variables editor, and the two flows that must insist
+- [!] ui/ -> the interface: the application shell, the cross-repo view, the import flow, the environment-variables editor, and the two flows that must insist — `repo-layer/` blocked, awaiting answers in its QUESTIONS.md
 - [x] first-open.md -> establishing the master password on the first open, verifying it on every open after, and the empty state's onboarding weight
 - [~] journey-harness.md -> the harness that drives the built application for the journeys axis; macOS first
 
@@ -97,6 +97,8 @@ The journeys' first answers landed and are built. `first-open.md` is complete: a
 `ui/` gained the concern its children never held: the **shell**. Every screen had been built as a full-screen replacement, so there was no persistent frame, no navigation, and no way to work in one repository — which does not scale to the cross-repo span the root intent promises. `ui/shell-layout.md` is complete: a two-level repository sidebar that stays present while a file is edited, a detail surface with a stable selection model, and the disclosure architecture deciding what the interface shows against what it collapses — bounded by the rule that disclosure never defers an alert, a state, or a consequence.
 
 It brought the last piece of Rust scope here with it: a **batch seal** command taking an explicitly selected set of paths, running each through the same guarded single-file path so the managed-path check and the acknowledgement gate hold per file, and returning a per-path outcome rather than a count. It is a command rather than an interface loop so both gates stay where the interface cannot forget them. Releasing a whole repository follows the same shape.
+
+`ui/` is now **blocked** on its newest child, `ui/repo-layer/`: the interface does not yet read as a layer over a repository the user still owns — a repository enters through a screen headed *Import* showing flat lists of paths Seal chose, which reads as extracting files rather than covering them in place. It will carry Rust scope again, since a view of the repository needs the scan to return more than candidates. Its design forks are open in its `QUESTIONS.md` and are the user's to settle.
 
 # Open threads
 

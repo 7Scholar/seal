@@ -78,6 +78,8 @@ What remains of `desktop/` is the journey-driven work its cursor names: the harn
 
 `desktop/ui/` gained the **application shell** it had been missing. The screens were each built as a full-screen replacement, so the product had no persistent frame and no navigation — a shape that cannot carry the cross-repo span this intent promises. `desktop/ui/shell-layout.md` is complete: a repository sidebar that stays present while a file is edited, and the disclosure architecture deciding what the interface shows against what it collapses, bounded by the rule that disclosure never defers an alert, a state, or a consequence. It also brought sealing a chosen set of files in one action, which the interface reports per file rather than as a count.
 
+`desktop/ui/` is now **blocked** on a newly framed child, `desktop/ui/repo-layer/`, which names a gap in how the product reads rather than in what it does. This intent's premise is that secret files stay in the user's own repository, sealed in place — and the interface does not say so. A repository enters through a screen headed *Import* that shows flat lists of paths Seal chose, so the act reads as extracting files rather than covering them where they live. Satisfying it needs the scan to return a view of the repository rather than a candidate list, so it carries Rust scope across `registry.md` and `desktop/lifecycle.md`. Its design forks are open in its `QUESTIONS.md` and are the user's to settle before it is carved deeper.
+
 # Open threads
 
 No open threads yet.

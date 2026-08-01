@@ -71,20 +71,25 @@ The sidebar's *two levels, never a third* rule is **scoped to the sidebar** rath
 
 # Plans
 
-To be carved. The decomposition follows the seam this Approach names — the scan's new shape beneath, the two fidelities above, and the vocabulary retirement that can land independently of both.
+- [ ] vocabulary.md -> retiring the word *import* everywhere, and the assurance that files do not move
+- [ ] scan-shape.md -> what the scan hands the interface: the repository's structure rather than a candidate list
+- [ ] adopting.md -> the whole-repository surface, and the tree primitive both fidelities share
+- [ ] managed-view.md -> the steady-state surface: the same tree over the managed set alone
+
+The split follows the seam the Approach names. `vocabulary.md` depends on nothing and can land first — it is most of the framing fix and touches no tree. `scan-shape.md` is the seam beneath both surfaces. `adopting.md` owns the tree primitive because it is the fidelity that exercises all of it, and `managed-view.md` reuses that primitive rather than building a second tree.
 
 # Cursor
 
-**Solutioned, not yet carved.** The Approach above is settled: the design forks were answered by the product owner, and both threads this node was framed with are closed by those answers — the sidebar's *two levels* rule is scoped to the sidebar rather than overturned, and the steady-state surface becomes the same tree at a lower fidelity rather than a second description of the repository.
+**Solutioned and carved; no child started.** The Approach above is settled — the design forks were answered by the product owner — and the four children below now hold it. Both threads this node was framed with are closed by those answers: the sidebar's *two levels* rule is scoped to the sidebar rather than overturned, and the steady-state surface becomes the same tree at a lower fidelity rather than a second description of the repository.
 
 The concern was raised during a UI improvement session and correctly rejected as too large for that mode: it changes what the plans state about the import flow ([screens.md](../screens.md), [shell-operations.md](../_docs/shell-operations.md)), and it changes the scan's return shape, which is Rust scope.
 
 Prior art was surveyed twice and is design **input** to the Approach — the tools that solve this problem in place (git-crypt, transcrypt, dotenvx, SOPS, Ansible Vault), the ones whose file-moving is the feeling to avoid (blackbox, chezmoi, git-secret), and the tree-and-overlay mechanics from VS Code's Explorer, GitHub's file browser, and the cloud-storage badge conventions.
 
-Next: carve the children. The seam the Approach names is the natural split — the scan's new shape beneath, the two fidelities above, and the vocabulary retirement, which touches no tree and can land first and independently.
+**Next: `vocabulary.md`.** It depends on nothing, delivers most of the framing improvement on its own, and lands before any tree exists. Then `scan-shape.md`, whose first step is a measurement that two of this node's open threads wait on — how broad a realistic repository actually is, which decides whether the adopting surface needs a filter and whether the scan can stay one-shot. `adopting.md` follows it, and `managed-view.md` follows that, since it reuses the primitive `adopting.md` builds.
 
 # Open threads
 
-- What a very large repository does to the whole-repository fidelity. The pruned directories remove most of the file count, but a monorepo can still be many thousands of rows, and the ceiling wants measuring against a real one rather than guessing at a cap. The surveyed products diverge here — GitHub truncates a directory at a thousand entries and says so; VS Code renders uncapped and has a crash bug for it — so if a bound is needed, the rule from that divergence is that it must be stated in the interface rather than applied silently.
-- Whether a tri-state folder checkbox is announced usefully by real screen readers. `aria-checked="mixed"` is well defined on a native checkbox and less certain on a tree row; it wants driving with VoiceOver before the middle state is relied on as the only carrier of "something is selected below here".
-- Whether the managed-only fidelity should offer a way to see the rest of the repository from where it stands, rather than only through a rescan. `git-crypt status` shows covered and uncovered in one view, and the answer to fork 2 deliberately did not settle whether the lower fidelity can expand back to the higher one in place.
+- What a very large repository does to the whole-repository fidelity. The pruned directories remove most of the file count, but a monorepo can still be many thousands of rows, and the ceiling wants measuring against a real one rather than guessing at a cap. The surveyed products diverge here — GitHub truncates a directory at a thousand entries and says so; VS Code renders uncapped and has a crash bug for it — so if a bound is needed, the rule from that divergence is that it must be stated in the interface rather than applied silently. The measurement is [scan-shape.md](scan-shape.md)'s first step, and its outcome settles that plan's one-shot-versus-lazy thread and [adopting.md](adopting.md)'s filter thread.
+- Whether a tri-state folder checkbox is announced usefully by real screen readers. `aria-checked="mixed"` is well defined on a native checkbox and less certain on a tree row; it wants driving with VoiceOver before the middle state is relied on as the only carrier of "something is selected below here". Lands with [adopting.md](adopting.md)'s assistive-technology step.
+- Whether the managed-only fidelity should offer a way to see the rest of the repository from where it stands, rather than only through a rescan. Carried by [managed-view.md](managed-view.md), which wants both surfaces built and comparable before deciding.

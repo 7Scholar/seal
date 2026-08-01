@@ -71,9 +71,11 @@ Its two research documents are the design input rather than invention, and the f
 
 Every child above `repo-layer/` is complete as code. What that does **not** mean is stated below.
 
-`repo-layer/` is **solutioned and not yet carved**. It names a gap none of the finished children hold: the interface does not yet say that Seal is a layer over a repository the user still owns. A repository enters through a screen headed *Import* that shows three flat lists of paths Seal chose, so the act reads as extraction — and nothing else about the repository is ever shown. Satisfying it changes what the scan returns, so it carries Rust scope the way `shell-layout.md` carried the batch seal.
+`repo-layer/` is **solutioned and carved into four children, none started**. It names a gap none of the finished children hold: the interface does not yet say that Seal is a layer over a repository the user still owns. A repository enters through a screen headed *Import* that shows three flat lists of paths Seal chose, so the act reads as extraction — and nothing else about the repository is ever shown. Satisfying it changes what the scan returns, so it carries Rust scope the way `shell-layout.md` carried the batch seal.
 
 Its four design forks were settled by the product owner and its Approach is written: one tree seen at two fidelities — the whole repository while adopting, the managed set alone while living with it — with every file individually selectable, a folder's checkbox scoped to the detected files beneath it rather than all of them, the skipped build directories shown inert and unexpandable, and *import* retired from the vocabulary everywhere. The sidebar's *two levels, never a third* rule is scoped to the sidebar rather than overturned: it was written about navigation and keeps holding there.
+
+Its children split on the seam the Approach names: `vocabulary.md` (the rename, which depends on nothing and lands first), `scan-shape.md` (the scan returning structure rather than candidates), `adopting.md` (the whole-repository surface, owning the tree primitive), and `managed-view.md` (the steady state reusing it). Two of this group's finalized plans will need their Approach updated as those land — `screens.md`, whose import flow is grouped candidate lists, and `shell-layout.md`, whose detail surface is a file list.
 
 # Open threads
 

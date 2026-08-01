@@ -208,4 +208,19 @@ describe("RepoDetail and sealing several files at once", () => {
     ]);
     expect(screen.getByText(/still readable/)).toBeInTheDocument();
   });
+
+  it("shows a managed file under its real directory chain", () => {
+    setup({
+      ...app,
+      files: [
+        { relativePath: "services/api/.env", state: "plaintext", alert: false },
+      ],
+    });
+
+    expect(screen.getByRole("treeitem", { name: "services" })).toBeInTheDocument();
+    expect(screen.getByRole("treeitem", { name: "api" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("treeitem", { name: "services/api/.env" }),
+    ).toBeInTheDocument();
+  });
 });

@@ -60,7 +60,7 @@ The detail surface is never blank. It shows one of three things:
 
 **Nothing selected** — the add call to action. This is also the empty state for the whole application, so the two are one surface rather than two designs: with no repositories it is the only thing on screen, and with repositories it is what a launch lands on until something is selected.
 
-**A repository selected** — the repository's files with their states, its exposure alert if it has one, and the operations that act on the repository. Its title carries the toggletip explaining watched versus protected, which [the protect-a-repo journey](../../../../journeys/protect-a-repo.md) requires be obvious without explanation.
+**A repository selected** — the repository's managed files with their states, its exposure alert if it has one, and the operations that act on the repository. The files are drawn as a **tree over the managed set**, so a file appears under its real directory chain rather than as a path string on a flat row ([repo-layer/managed-view.md](repo-layer/managed-view.md) owns that shape and the reasons for it). Its title carries the toggletip explaining watched versus protected, which [the protect-a-repo journey](../../../../journeys/protect-a-repo.md) requires be obvious without explanation.
 
 **A file selected** — the environment-variables editor for an env file, or the opaque statement for anything else, both exactly as [screens.md](screens.md) specifies them. The sidebar stays. Opening a file is navigation, not a mode: there is no "back", because the user never left.
 

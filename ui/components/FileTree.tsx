@@ -67,6 +67,64 @@ export function preselectedAncestors(nodes: TreeNode[]): Set<string> {
   return open;
 }
 
+export function treeFromPaths(paths: string[]): TreeNode[] {
+  const roots: TreeNode[] = [];
+
+  for (const path of [...paths].sort()) {
+    const segments = path.split("/");
+    let siblings = roots;
+
+    segments.forEach((segment, index) => {
+      const here = segments.slice(0, index + 1).join("/");
+      const leaf = index === segments.length - 1;
+
+      if (leaf) {
+        siblings.push({
+          kind: "file",
+          name: segment,
+          relativePath: here,
+          confidence: null,
+          reason: null,
+          preselected: false,
+          alreadyManaged: false,
+        });
+        return;
+      }
+
+      let directory = siblings.find(
+        (node): node is Extract<TreeNode, { kind: "directory" }> =>
+          node.kind === "directory" && node.relativePath === here,
+      );
+      if (!directory) {
+        directory = {
+          kind: "directory",
+          name: segment,
+          relativePath: here,
+          walked: true,
+          children: [],
+        };
+        siblings.push(directory);
+      }
+      siblings = directory.children;
+    });
+  }
+
+  return roots;
+}
+
+export function everyDirectory(nodes: TreeNode[]): Set<string> {
+  const all = new Set<string>();
+
+  function walk(node: TreeNode): void {
+    if (node.kind !== "directory") return;
+    all.add(node.relativePath);
+    for (const child of node.children) walk(child);
+  }
+
+  for (const node of nodes) walk(node);
+  return all;
+}
+
 type Coverage = "none" | "some" | "all";
 
 function coverage(node: TreeNode, selected: ReadonlySet<string>): Coverage {

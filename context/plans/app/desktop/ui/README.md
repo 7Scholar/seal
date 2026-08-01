@@ -55,7 +55,7 @@ Reveal is not an edit and must never mark a file dirty — a demonstrated failur
 - [x] password-change.md -> the supervised master-password change, whose danger is the half-done state
 - [x] errors.md -> how a command failure reaches the user: plain language for every kind, the problem banner, and the re-lock on an ended session
 - [x] shell-layout.md -> the application shell: the repository sidebar, the detail surface, and the disclosure architecture
-- [~] repo-layer/ -> making the product read as a layer over an existing repository rather than a tool that extracts files into itself
+- [x] repo-layer/ -> making the product read as a layer over an existing repository rather than a tool that extracts files into itself
 
 # Cursor
 
@@ -71,11 +71,11 @@ Its two research documents are the design input rather than invention, and the f
 
 Every child above `repo-layer/` is complete as code. What that does **not** mean is stated below.
 
-`repo-layer/` is **solutioned and carved into four children, none started**. It names a gap none of the finished children hold: the interface does not yet say that Seal is a layer over a repository the user still owns. A repository enters through a screen headed *Import* that shows three flat lists of paths Seal chose, so the act reads as extraction — and nothing else about the repository is ever shown. Satisfying it changes what the scan returns, so it carries Rust scope the way `shell-layout.md` carried the batch seal.
+`repo-layer/` is **complete**. It named a gap none of the finished children held: the interface did not say that Seal is a layer over a repository the user still owns. A repository now enters through a surface that draws the repository itself — every file and directory, the detected secrets checked, everything else selectable — rather than three flat lists of paths Seal chose, and the steady-state surface draws the managed set the same way. The word *import* is gone from the product.
 
-Its four design forks were settled by the product owner and its Approach is written: one tree seen at two fidelities — the whole repository while adopting, the managed set alone while living with it — with every file individually selectable, a folder's checkbox scoped to the detected files beneath it rather than all of them, the skipped build directories shown inert and unexpandable, and *import* retired from the vocabulary everywhere. The sidebar's *two levels, never a third* rule is scoped to the sidebar rather than overturned: it was written about navigation and keeps holding there.
+It brought Rust scope with it, as `shell-layout.md` did: the scan returns the repository's structure with candidates as an annotation, measured one-shot at 42,123 rows in 0.09 seconds, with the rendering bounded instead by a collapsed directory costing one row.
 
-Its children split on the seam the Approach names: `vocabulary.md` (the rename, which depends on nothing and lands first), `scan-shape.md` (the scan returning structure rather than candidates), `adopting.md` (the whole-repository surface, owning the tree primitive), and `managed-view.md` (the steady state reusing it). Two of this group's finalized plans will need their Approach updated as those land — `screens.md`, whose manage flow is grouped candidate lists, and `shell-layout.md`, whose detail surface is a file list.
+Its defining lesson is recorded in the desktop `MEMORY.md`: a serde casing mismatch on a tagged union made every field arrive `undefined` in the webview and selected every file including the template, while both sides' unit suites passed. Only the driven application showed it.
 
 # Open threads
 

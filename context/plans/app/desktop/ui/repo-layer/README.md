@@ -74,23 +74,19 @@ The sidebar's *two levels, never a third* rule is **scoped to the sidebar** rath
 - [x] vocabulary.md -> retiring the word *import* everywhere, and the assurance that files do not move
 - [x] scan-shape.md -> what the scan hands the interface: the repository's structure rather than a candidate list
 - [x] adopting.md -> the whole-repository surface, and the tree primitive both fidelities share
-- [ ] managed-view.md -> the steady-state surface: the same tree over the managed set alone
+- [x] managed-view.md -> the steady-state surface: the same tree over the managed set alone
 
 The split follows the seam the Approach names. `vocabulary.md` depends on nothing and can land first — it is most of the framing fix and touches no tree. `scan-shape.md` is the seam beneath both surfaces. `adopting.md` owns the tree primitive because it is the fidelity that exercises all of it, and `managed-view.md` reuses that primitive rather than building a second tree.
 
 # Cursor
 
-**Solutioned and carved; no child started.** The Approach above is settled — the design forks were answered by the product owner — and the four children below now hold it. Both threads this node was framed with are closed by those answers: the sidebar's *two levels* rule is scoped to the sidebar rather than overturned, and the steady-state surface becomes the same tree at a lower fidelity rather than a second description of the repository.
+**Complete.** All four children are built and verified: the vocabulary retired, the scan returning the repository's structure, the whole-repository surface with its tree primitive, and the steady-state surface reusing it. The product now reads as a layer — a user meets their own repository with Seal's judgement marked on it, rather than a list Seal wrote.
 
-The concern was raised during a UI improvement session and correctly rejected as too large for that mode: it changes what the plans state about the import flow ([screens.md](../screens.md), [shell-operations.md](../_docs/shell-operations.md)), and it changes the scan's return shape, which is Rust scope.
+The design forks were settled by the product owner, and the measurement that opened `scan-shape.md` settled the rest: 42,123 rows in 0.09 seconds on a real monorepo, which kept the scan one-shot and moved the bound onto the rendering, where a collapsed directory costs one row.
 
-Prior art was surveyed twice and is design **input** to the Approach — the tools that solve this problem in place (git-crypt, transcrypt, dotenvx, SOPS, Ansible Vault), the ones whose file-moving is the feeling to avoid (blackbox, chezmoi, git-secret), and the tree-and-overlay mechanics from VS Code's Explorer, GitHub's file browser, and the cloud-storage badge conventions.
+Three guards were confirmed non-vacuous by reintroducing the exact defect each prevents: a folder checkbox selecting every file beneath it rather than only the detected ones, rendering a collapsed directory's children and hiding them with styling, and omitting pruned directories rather than marking them.
 
-`vocabulary.md` is **complete**: the word is retired from the interface, the boundary command, and the plan prose, and the assurance now states both that confirming encrypts nothing and that files do not move. The `first-run` journey passes against a release build carrying it.
-
-`scan-shape.md` is **complete**. Its measurement — 42,123 rows in 0.09 seconds on a real monorepo, one directory holding 7,877 entries — settled the scan as one-shot and moved the bound onto the rendering, where the product owner settled it: a collapsed directory renders none of its children, so the enormous directories cost one row each and no cap or virtualization is needed.
-
-**Next: `adopting.md`,** then `managed-view.md`, which reuses the primitive `adopting.md` builds.
+**One defect was caught only by driving the built application**, which is the whole argument for the journey axis: `rename_all` on a Rust enum renames its variants and not their fields, so the boundary sent `relative_path` where the interface read `relativePath`. Every field arrived `undefined` and every file in the tree came back selected — the template included, which is precisely the over-inclusion that breaks a user's build — while both sides' own suites passed throughout. The wire casing now has its own test and the trap is in the desktop `MEMORY.md`.
 
 ## Prose is a last resort, not a layout element
 

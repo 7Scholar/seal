@@ -3,7 +3,8 @@ import { ExposureAlert } from "../components/ExposureAlert";
 import { Toggletip } from "../components/Toggletip";
 import { Overflow } from "../components/Overflow";
 import { filePath } from "./Sidebar";
-import type { RepoView, SealedState, SealOutcome } from "../ipc";
+import type { RepoView, SealedState, SealOutcome, TreeNode } from "../ipc";
+import { treeFromPaths } from "../components/FileTree";
 import { reason } from "../errors";
 import { fileName } from "../format";
 
@@ -127,17 +128,13 @@ export function RepoDetail({
       ) : null}
 
       {repo.files.length === 0 ? (
-        <p className="detail__empty">
-          Seal manages no files in this repository yet.
-        </p>
+        <p className="detail__empty">No files managed here yet.</p>
       ) : (
         <>
           {sealable.length > 0 ? (
             <div className="detail__batch">
               <span className="detail__batch-count">
-                {chosen.length === 0
-                  ? "Select files to seal them together"
-                  : `${chosen.length} selected`}
+                {chosen.length === 0 ? "" : `${chosen.length} selected`}
               </span>
               <button
                 type="button"
@@ -151,65 +148,122 @@ export function RepoDetail({
             </div>
           ) : null}
 
-          <ul className="detail__files">
-            {repo.files.map((file) => {
-              const path = filePath(repo, file.relativePath);
-              const canSeal =
-                file.state !== "sealed" && file.state !== "missing";
-              return (
-                <li key={path} className="detail__file" data-alert={file.alert}>
-                  {canSeal ? (
-                    <input
-                      type="checkbox"
-                      checked={picked.has(path)}
-                      aria-label={`Select ${file.relativePath}`}
-                      onChange={() => toggle(path)}
-                    />
-                  ) : (
-                    <span className="detail__no-checkbox" aria-hidden="true" />
-                  )}
-
-                  <span className="detail__path">{file.relativePath}</span>
-                  <span className="detail__state" data-state={file.state}>
-                    {file.alert
-                      ? "Readable — should be sealed"
-                      : LABELS[file.state]}
-                  </span>
-
-                  <button
-                    type="button"
-                    aria-label={`Open ${file.relativePath}`}
-                    disabled={file.state === "missing"}
-                    onClick={() => onOpen(path)}
-                  >
-                    Open
-                  </button>
-
-                  {canSeal ? (
-                    <button
-                      type="button"
-                      aria-label={`Seal ${file.relativePath}`}
-                      onClick={() => onSeal(path)}
-                    >
-                      Seal
-                    </button>
-                  ) : null}
-
-                  <Overflow label={`More actions for ${file.relativePath}`}>
-                    <button
-                      type="button"
-                      className="overflow__danger"
-                      onClick={() => onRelease(path)}
-                    >
-                      Stop managing this file
-                    </button>
-                  </Overflow>
-                </li>
-              );
-            })}
-          </ul>
+          <ManagedTree
+            repo={repo}
+            picked={picked}
+            onToggle={toggle}
+            onOpen={onOpen}
+            onSeal={onSeal}
+            onRelease={onRelease}
+          />
         </>
       )}
     </section>
+  );
+}
+
+interface TreeProps {
+  repo: RepoView;
+  picked: ReadonlySet<string>;
+  onToggle: (path: string) => void;
+  onOpen: (path: string) => void;
+  onSeal: (path: string) => void | Promise<void>;
+  onRelease: (path: string) => void;
+}
+
+function ManagedTree({ repo, picked, onToggle, onOpen, onSeal, onRelease }: TreeProps) {
+  const nodes = treeFromPaths(repo.files.map((file) => file.relativePath));
+  const byPath = new Map(repo.files.map((file) => [file.relativePath, file]));
+
+  function rows(list: TreeNode[], depth: number): React.ReactNode {
+    return list.map((node) => {
+      if (node.kind === "directory") {
+        return (
+          <li key={node.relativePath} role="none">
+            <div
+              role="treeitem"
+              aria-expanded
+              aria-label={node.name}
+              className="detail__dir"
+              style={{ paddingLeft: `${depth * 1.1}rem` }}
+            >
+              <span aria-hidden="true">▾</span>
+              <span className="detail__dir-name">{node.name}</span>
+            </div>
+            <ul role="group" className="detail__files">
+              {rows(node.children, depth + 1)}
+            </ul>
+          </li>
+        );
+      }
+
+      const file = byPath.get(node.relativePath);
+      if (!file) return null;
+      const path = filePath(repo, file.relativePath);
+      const canSeal = file.state !== "sealed" && file.state !== "missing";
+
+      return (
+        <li key={path} role="none">
+          <div
+            role="treeitem"
+            aria-label={file.relativePath}
+            className="detail__file"
+            data-alert={file.alert}
+            style={{ paddingLeft: `${depth * 1.1}rem` }}
+          >
+            {canSeal ? (
+              <input
+                type="checkbox"
+                checked={picked.has(path)}
+                aria-label={`Select ${file.relativePath}`}
+                onChange={() => onToggle(path)}
+              />
+            ) : (
+              <span className="detail__no-checkbox" aria-hidden="true" />
+            )}
+
+            <span className="detail__path">{node.name}</span>
+            <span className="detail__state" data-state={file.state}>
+              {file.alert ? "Readable — should be sealed" : LABELS[file.state]}
+            </span>
+
+            <button
+              type="button"
+              aria-label={`Open ${file.relativePath}`}
+              disabled={file.state === "missing"}
+              onClick={() => onOpen(path)}
+            >
+              Open
+            </button>
+
+            {canSeal ? (
+              <button
+                type="button"
+                aria-label={`Seal ${file.relativePath}`}
+                onClick={() => onSeal(path)}
+              >
+                Seal
+              </button>
+            ) : null}
+
+            <Overflow label={`More actions for ${file.relativePath}`}>
+              <button
+                type="button"
+                className="overflow__danger"
+                onClick={() => onRelease(path)}
+              >
+                Stop managing this file
+              </button>
+            </Overflow>
+          </div>
+        </li>
+      );
+    });
+  }
+
+  return (
+    <ul className="detail__files" role="tree" aria-label={`Files Seal manages in ${repo.name}`}>
+      {rows(nodes, 0)}
+    </ul>
   );
 }

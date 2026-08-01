@@ -55,7 +55,7 @@ async function openShell() {
 describe("the application shell", () => {
   it("shows the sidebar and a detail surface, not a single scrolling column", async () => {
     await openShell();
-    expect(screen.getByRole("tree")).toBeInTheDocument();
+    expect(screen.getByRole("tree", { name: "Repositories" })).toBeInTheDocument();
     expect(screen.getByRole("navigation", { name: "Repositories" })).toBeInTheDocument();
   });
 
@@ -85,7 +85,7 @@ describe("the application shell", () => {
     await user.click(screen.getByRole("treeitem", { name: /^app/ }));
 
     expect(screen.getByRole("heading", { name: "app" })).toBeInTheDocument();
-    expect(screen.getByRole("tree")).toBeInTheDocument();
+    expect(screen.getByRole("tree", { name: "Repositories" })).toBeInTheDocument();
   });
 
   it("keeps the sidebar present while a file is open in the editor", async () => {
@@ -103,7 +103,7 @@ describe("the application shell", () => {
     await user.click(screen.getByRole("button", { name: "Open .env" }));
 
     await screen.findByRole("heading", { name: ".env" });
-    expect(screen.getByRole("tree")).toBeInTheDocument();
+    expect(screen.getByRole("tree", { name: "Repositories" })).toBeInTheDocument();
   });
 
   it("keeps lock reachable from the frame", async () => {

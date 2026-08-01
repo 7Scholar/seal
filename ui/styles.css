@@ -118,6 +118,8 @@ input {
 .detail__batch-count { flex: 1; color: var(--muted); font-size: 0.85rem; }
 .detail__files { list-style: none; margin: 0; padding: 0; }
 .detail__file { display: flex; gap: 0.6rem; align-items: center; padding: 0.45rem 0; border-top: 1px solid var(--line); }
+.detail__dir { display: flex; gap: 0.4rem; align-items: center; padding: 0.35rem 0 0.15rem; color: var(--muted); }
+.detail__dir-name { font-size: 0.85rem; }
 .detail__no-checkbox { width: 13px; }
 .detail__path { flex: 1; font-family: ui-monospace, SFMono-Regular, monospace; overflow-wrap: anywhere; }
 .detail__state { color: var(--muted); font-size: 0.8rem; }

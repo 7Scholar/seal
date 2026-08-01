@@ -36,19 +36,25 @@ This surface already has a selection concept — the set of files a batch seal w
 
 # What exists
 
-Nothing yet. The current repository detail surface renders a flat file list with all of the behavioural rules above; this plan changes the shape it renders them in.
+All of the Approach. The repository surface draws its managed files as a tree, so a file managed at `services/api/.env` appears under `services/` and `api/` rather than as a path string on a flat row. Directories here are pure structure: they carry no checkbox, no state, and no action, and everything is expanded because the managed set is small.
+
+The tree is built from the managed paths rather than from a scan, so this surface makes no scan call at all — it needs only what `overview` already returns. Every behavioural rule the flat list held moved onto the rows unchanged: the state tags, the alert derived from the per-file flag, sealing offered only where it applies, releasing per file, and the batch selection.
+
+Verified by the repository surface's own suite, including a new assertion that a nested managed file appears under its real directory chain. The existing assertions carried over untouched, which is the evidence that this changed the shape and not the behaviour.
+
+One consequence surfaced while building it: two trees now share a screen, so the shell's own tests name the sidebar's by its label rather than reaching for the only one. That is a more precise assertion than it replaced.
 
 # What is missing
 
-All of the Approach.
+Nothing on this plan.
 
 # Steps
 
-- [ ] Draw the managed set through the tree primitive, with directories as pure structure and everything expanded.
-- [ ] Carry the existing per-file behaviour onto the tree rows unchanged: state tags, sealing where it applies, releasing per file.
-- [ ] Keep the batch-seal selection visually distinct from the adopting surface's management selection.
-- [ ] Update [shell-layout.md](../shell-layout.md)'s Approach, whose detail-surface description states a file list.
-- [ ] Tests: the existing repository-surface assertions hold against the tree — the alert derived from the per-file flag, a missing file never treated as an exposure, sealing offered only where it applies — plus a managed file appearing under its real directory chain.
+- [x] Draw the managed set through the tree primitive, with directories as pure structure and everything expanded.
+- [x] Carry the existing per-file behaviour onto the tree rows unchanged: state tags, sealing where it applies, releasing per file.
+- [x] Keep the batch-seal selection visually distinct from the adopting surface's management selection.
+- [x] Update [shell-layout.md](../shell-layout.md)'s Approach, whose detail-surface description states a file list.
+- [x] Tests: the existing repository-surface assertions hold against the tree — the alert derived from the per-file flag, a missing file never treated as an exposure, sealing offered only where it applies — plus a managed file appearing under its real directory chain.
 
 # Open threads
 

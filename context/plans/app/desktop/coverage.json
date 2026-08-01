@@ -16,21 +16,21 @@
     "src-tauri/src/app.rs": "db87c4406dff9b30e905080324f0986b2ec4b576",
     "src-tauri/src/commands.rs": "b0d0371b3597f8f33d81d6ac0ef4550571cb3726",
     "src-tauri/tests/first_open.rs": "a0b3f33bc64a56a499060d82bb90794330e3227e",
-    "ui/App.tsx": "b0d0371b3597f8f33d81d6ac0ef4550571cb3726",
-    "ui/ipc.ts": "b0d0371b3597f8f33d81d6ac0ef4550571cb3726",
+    "ui/App.tsx": "396f54c89636e9917866cb2254d109ac65e7088b",
+    "ui/ipc.ts": "396f54c89636e9917866cb2254d109ac65e7088b",
     "ui/screens/Unlock.test.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "ui/screens/Unlock.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e"
   },
   "journey-harness.md": {
     ".github/workflows/journeys.yml": "40cd3f67e2e44b529590db3ede8868c7fd0eaa6c",
-    "e2e/journeys/first-run.e2e.ts": "b0d0371b3597f8f33d81d6ac0ef4550571cb3726",
+    "e2e/journeys/first-run.e2e.ts": "396f54c89636e9917866cb2254d109ac65e7088b",
     "e2e/journeys/return-and-use.e2e.ts": "b0d0371b3597f8f33d81d6ac0ef4550571cb3726",
     "e2e/launch-fresh.sh": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "e2e/wdio.conf.ts": "a0b3f33bc64a56a499060d82bb90794330e3227e"
   },
   "lifecycle.md": {
-    "src-tauri/src/lifecycle.rs": "b0d0371b3597f8f33d81d6ac0ef4550571cb3726",
-    "src-tauri/tests/lifecycle.rs": "b0d0371b3597f8f33d81d6ac0ef4550571cb3726"
+    "src-tauri/src/lifecycle.rs": "396f54c89636e9917866cb2254d109ac65e7088b",
+    "src-tauri/tests/lifecycle.rs": "396f54c89636e9917866cb2254d109ac65e7088b"
   },
   "shell.md": {
     "crates/seal-session/Cargo.toml": "a46c0f0c20c571b6d392647f98e9b5af1cd36fda",

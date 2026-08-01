@@ -62,6 +62,80 @@ impl Candidate {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Node {
+    Directory {
+        name: String,
+        relative_path: PathBuf,
+        walked: bool,
+        children: Vec<Node>,
+    },
+    File {
+        name: String,
+        relative_path: PathBuf,
+        candidate: Option<(Confidence, &'static str)>,
+    },
+}
+
+impl Node {
+    pub fn name(&self) -> &str {
+        match self {
+            Node::Directory { name, .. } | Node::File { name, .. } => name,
+        }
+    }
+
+    fn sort_key(&self) -> (u8, &str) {
+        match self {
+            Node::Directory { name, .. } => (0, name.as_str()),
+            Node::File { name, .. } => (1, name.as_str()),
+        }
+    }
+}
+
+pub fn tree(root: &Path) -> Vec<Node> {
+    read_directory(root, Path::new(""))
+}
+
+fn read_directory(absolute: &Path, relative: &Path) -> Vec<Node> {
+    let Ok(entries) = std::fs::read_dir(absolute) else {
+        return Vec::new();
+    };
+
+    let mut nodes = Vec::new();
+    for entry in entries.flatten() {
+        let name = entry.file_name().to_string_lossy().into_owned();
+        let child_relative = relative.join(&name);
+        let Ok(kind) = entry.file_type() else {
+            continue;
+        };
+
+        if kind.is_dir() {
+            let walked = !PRUNED_DIRECTORIES.contains(&name.as_str());
+            let children = if walked {
+                read_directory(&entry.path(), &child_relative)
+            } else {
+                Vec::new()
+            };
+            nodes.push(Node::Directory {
+                name,
+                relative_path: child_relative,
+                walked,
+                children,
+            });
+        } else if kind.is_file() {
+            let candidate = classify_name(&name);
+            nodes.push(Node::File {
+                name,
+                relative_path: child_relative,
+                candidate,
+            });
+        }
+    }
+
+    nodes.sort_by(|a, b| a.sort_key().cmp(&b.sort_key()));
+    nodes
+}
+
 pub fn scan(root: &Path) -> Vec<Candidate> {
     let mut candidates = Vec::new();
 

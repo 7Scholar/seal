@@ -163,3 +163,99 @@ fn an_empty_repository_yields_nothing_rather_than_failing() {
     let dir = tempfile::tempdir().unwrap();
     assert!(scan::scan(dir.path()).is_empty());
 }
+
+fn find<'a>(nodes: &'a [scan::Node], name: &str) -> Option<&'a scan::Node> {
+    nodes.iter().find(|node| node.name() == name)
+}
+
+fn children<'a>(nodes: &'a [scan::Node], name: &str) -> &'a [scan::Node] {
+    match find(nodes, name) {
+        Some(scan::Node::Directory { children, .. }) => children,
+        other => panic!("{name} is not a walked directory: {other:?}"),
+    }
+}
+
+#[test]
+fn the_tree_carries_files_the_scan_would_never_propose() {
+    let dir = realistic_repo();
+    let tree = scan::tree(dir.path());
+
+    let src = children(&tree, "src");
+    assert!(
+        matches!(find(src, "main.rs"), Some(scan::Node::File { candidate: None, .. })),
+        "an ordinary source file must appear in the tree, carrying no candidate: {src:?}"
+    );
+    assert!(
+        matches!(find(&tree, "settings.toml"), Some(scan::Node::File { candidate: None, .. })),
+        "the tree is the repository, not the candidate list: {tree:?}"
+    );
+}
+
+#[test]
+fn the_tree_annotates_a_candidate_where_it_lives() {
+    let dir = realistic_repo();
+    let tree = scan::tree(dir.path());
+
+    let api = children(children(&tree, "services"), "api");
+    let Some(scan::Node::File { candidate: Some((confidence, _)), relative_path, .. }) =
+        find(api, ".env.local")
+    else {
+        panic!("a nested secret must be annotated in place: {api:?}");
+    };
+    assert_eq!(*confidence, Confidence::Secret);
+    assert_eq!(relative_path, Path::new("services/api/.env.local"));
+}
+
+#[test]
+fn a_pruned_directory_is_present_but_marked_unwalked_and_childless() {
+    let dir = realistic_repo();
+    let tree = scan::tree(dir.path());
+
+    for pruned in ["node_modules", "target", ".git"] {
+        let Some(scan::Node::Directory { walked, children, .. }) = find(&tree, pruned) else {
+            panic!("{pruned} must appear in the tree rather than vanish from it: {tree:?}");
+        };
+        assert!(!walked, "{pruned} must be marked as not looked in");
+        assert!(
+            children.is_empty(),
+            "{pruned} must carry no children, so nothing invites expanding it"
+        );
+    }
+}
+
+#[test]
+fn an_empty_directory_is_distinguishable_from_an_unwalked_one() {
+    let dir = realistic_repo();
+    fs::create_dir_all(dir.path().join("empty")).unwrap();
+    let tree = scan::tree(dir.path());
+
+    let Some(scan::Node::Directory { walked: empty_walked, children: empty, .. }) =
+        find(&tree, "empty")
+    else {
+        panic!("the empty directory must appear");
+    };
+    let Some(scan::Node::Directory { walked: pruned_walked, .. }) = find(&tree, "node_modules")
+    else {
+        panic!("the pruned directory must appear");
+    };
+
+    assert!(empty.is_empty() && *empty_walked);
+    assert!(!*pruned_walked);
+    assert_ne!(
+        empty_walked, pruned_walked,
+        "a consumer must never have to guess which kind of childless directory it holds"
+    );
+}
+
+#[test]
+fn the_tree_surfaces_the_secrets_a_gitignore_respecting_walk_would_hide() {
+    let dir = realistic_repo();
+    let tree = scan::tree(dir.path());
+
+    for hidden in [".env", ".env.production", ".env.staging"] {
+        assert!(
+            matches!(find(&tree, hidden), Some(scan::Node::File { candidate: Some(_), .. })),
+            "{hidden} is gitignored precisely because it is secret, so the tree must annotate it"
+        );
+    }
+}

@@ -32,6 +32,14 @@ Inherited unchanged from [the registry](../../../registry.md) and recorded as me
 
 The noise directories stay excluded by filtering entries during the walk rather than by include-globs, for the second measured reason recorded in the same place.
 
+## The scan is one-shot; the rendering is what is lazy
+
+Measured before implementing, against a real monorepo on this machine: after the existing pruning, **42,123 rows — 38,367 files across 3,756 directories, thirteen levels deep, with a single directory holding 7,877 entries** (a repository of this project's own size measures 309 rows, so the spread across real repositories is two orders of magnitude). The walk producing that took **0.09 seconds**.
+
+That measurement settles the shape in both directions. The walk is nowhere near expensive enough to justify a lazy or paginated scan, so **the scan stays one-shot** and hands back the whole structure — a second round trip per directory would add latency and complexity to buy nothing. What cannot absorb 42,123 rows is the *rendering*, and that is bounded by the tree drawing a collapsed folder's children only when it is expanded ([adopting.md](adopting.md)). A collapsed directory costs one row no matter what it contains, so the 7,877-entry directory is free until somebody opens it — and nothing preselects it open, because it holds no candidates.
+
+The consequence for this plan is a constraint on the shape rather than on the walk: the result must be **cheap to descend into lazily**, so a directory's children are reachable without rescanning and without walking the whole structure again to find them.
+
 ## What crosses the boundary, and what does not
 
 Paths, structure, classification, and state. **No file contents, no sizes read from opening a file, nothing derived from what a file holds.** The frontend's never-holds-plaintext rule is not weakened by the result growing: it grows in breadth across the repository, never in depth into any file.
@@ -44,20 +52,31 @@ The interface's typed command module mirrors the shape. Because that mirror is a
 
 # What exists
 
-Nothing yet.
+All of the Approach. The registry's scan gained a tree walk beside the candidate walk: directories and files as nodes carrying their name and repository-relative path, a directory carrying its children, a file carrying the classifier's verdict where there is one and nothing where there is not, and a pruned directory carried as a node marked unwalked with no children.
+
+The tree walk reads directories directly rather than going through the ignore crate's walker, which makes the gitignore constraint structural instead of merely observed: there is no ignore machinery in this path to enable by accident. Entries sort directories before files, then by name.
+
+The boundary carries it as a tagged union — `directory` or `file` — so the interface discriminates on a field rather than on the shape of what it received, with the classification flattened onto file nodes alongside whether each is already managed. The candidate list still crosses unchanged beside it, so nothing that consumes the old shape had to change at once.
+
+Verified by the registry suite and the boundary suite. Two guards were confirmed non-vacuous by reintroducing the exact defect each prevents:
+
+- omitting pruned directories rather than marking them fails 2 — including the one asserting an empty directory stays distinguishable from an unwalked one
+- dropping files the classifier did not flag, which would quietly turn the tree back into the candidate list in tree clothing, fails 1
+
+The measurement that opened this plan is recorded in the Approach and is the reason the scan stayed one-shot.
 
 # What is missing
 
-All of the Approach.
+Nothing on this plan. Nothing renders the tree yet — that is [adopting.md](adopting.md).
 
 # Steps
 
-- [ ] Sanity-test the proposition against a real repository before implementing: walk one of a realistic size and confirm the node count is what the pruning implies, so the interface plans are designed against a measured breadth rather than an assumed one. This feeds [the parent's open thread](README.md) about very large repositories.
-- [ ] The tree shape in the registry's scan, with the pruned-directory marker as a node property.
-- [ ] The candidate annotation carried on file nodes, with the classification rules untouched.
-- [ ] The shape crossing the boundary, and the interface's typed mirror of it.
-- [ ] Tests: the realistic repository from the existing scan tests still surfaces every real secret; a pruned directory appears marked and childless rather than absent; an empty directory and an unwalked one are distinguishable; and the gitignore guard is confirmed non-vacuous exactly as it is today.
+- [x] Sanity-test the proposition against a real repository before implementing. Measured 42,123 rows in 0.09s, with one directory holding 7,877 entries — which settled the scan as one-shot and moved the bound onto the rendering.
+- [x] The tree shape in the registry's scan, with the pruned-directory marker as a node property.
+- [x] The candidate annotation carried on file nodes, with the classification rules untouched.
+- [x] The shape crossing the boundary, and the interface's typed mirror of it.
+- [x] Tests: the realistic repository from the existing scan tests still surfaces every real secret; a pruned directory appears marked and childless rather than absent; an empty directory and an unwalked one are distinguishable; and the gitignore guard is confirmed non-vacuous exactly as it is today.
 
 # Open threads
 
-- Whether the result is produced whole or lazily per directory. Whole is simpler and matches the current one-shot scan; lazily matters only if the sanity-test above shows a realistic repository is large enough to hurt. The measurement decides it, which is why it is the first step.
+None. The one this plan carried — whole versus lazy — was settled by the measurement recorded in the Approach.

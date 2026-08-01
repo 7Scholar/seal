@@ -2,7 +2,37 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ManageFlow } from "./ManageFlow";
-import type { ScanView } from "../ipc";
+import type { ScanView, TreeNode } from "../ipc";
+
+function file(
+  relativePath: string,
+  candidate?: Partial<Extract<TreeNode, { kind: "file" }>>,
+): TreeNode {
+  return {
+    kind: "file",
+    name: relativePath.split("/").pop() ?? relativePath,
+    relativePath,
+    confidence: null,
+    reason: null,
+    preselected: false,
+    alreadyManaged: false,
+    ...candidate,
+  };
+}
+
+function directory(
+  relativePath: string,
+  children: TreeNode[],
+  walked = true,
+): TreeNode {
+  return {
+    kind: "directory",
+    name: relativePath.split("/").pop() ?? relativePath,
+    relativePath,
+    walked,
+    children,
+  };
+}
 
 const scan: ScanView = {
   root: "/repos/app",
@@ -12,6 +42,25 @@ const scan: ScanView = {
     { relativePath: ".env", confidence: "secret", reason: "an env file", preselected: true, alreadyManaged: false },
     { relativePath: "config/keys.json", confidence: "ambiguous", reason: "may hold credentials", preselected: false, alreadyManaged: false },
     { relativePath: ".env.example", confidence: "template", reason: "an example file", preselected: false, alreadyManaged: false },
+  ],
+  tree: [
+    directory("config", [
+      file("config/keys.json", {
+        confidence: "ambiguous",
+        reason: "may hold credentials",
+      }),
+      file("config/settings.toml"),
+    ]),
+    directory("node_modules", [], false),
+    directory("src", [file("src/main.ts")]),
+    file(".env", { confidence: "secret", reason: "an env file", preselected: true }),
+    file(".env.example", { confidence: "template", reason: "an example file" }),
+    file(".env.production", {
+      confidence: "secret",
+      reason: "an env file",
+      preselected: true,
+    }),
+    file("README.md"),
   ],
 };
 

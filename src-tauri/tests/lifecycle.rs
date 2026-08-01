@@ -28,7 +28,7 @@ fn acknowledged() -> State {
 }
 
 #[test]
-fn a_fresh_registry_gains_a_repo_through_import() {
+fn a_fresh_registry_gains_a_repo_through_the_add() {
     let (_dir, root) = repo_with_secrets();
     let mut state = State::default();
 
@@ -89,7 +89,7 @@ fn noise_directories_are_not_proposed() {
 }
 
 #[test]
-fn importing_the_same_folder_twice_merges_rather_than_duplicating() {
+fn adding_the_same_folder_twice_merges_rather_than_duplicating() {
     let (_dir, root) = repo_with_secrets();
     let mut state = State::default();
 
@@ -125,7 +125,7 @@ fn a_rescan_marks_what_is_already_managed() {
 }
 
 #[test]
-fn import_refuses_a_path_that_escapes_the_repo() {
+fn managing_refuses_a_path_that_escapes_the_repo() {
     let (_dir, root) = repo_with_secrets();
     let mut state = State::default();
 
@@ -140,7 +140,7 @@ fn import_refuses_a_path_that_escapes_the_repo() {
 }
 
 #[test]
-fn import_records_whether_each_file_is_already_sealed() {
+fn managing_records_whether_each_file_is_already_sealed() {
     let (_dir, root) = repo_with_secrets();
     let sealed = root.join(".env.production");
     seal_engine::operations::seal(
@@ -172,7 +172,7 @@ fn import_records_whether_each_file_is_already_sealed() {
 }
 
 #[test]
-fn importing_never_seals_anything() {
+fn managing_never_seals_anything() {
     let (_dir, root) = repo_with_secrets();
     let mut state = State::default();
 
@@ -390,4 +390,36 @@ fn the_acknowledgement_survives_a_restart() {
         reloaded.acknowledged_irreversibility,
         "an acknowledgement the user gave once must not be asked for again after a restart"
     );
+}
+
+#[test]
+fn the_scan_hands_the_interface_the_repository_rather_than_only_its_candidates() {
+    let (_dir, root) = repo_with_secrets();
+    let view = lifecycle::scan_folder(&root, &State::default()).unwrap();
+
+    let named = |name: &str| {
+        view.tree.iter().find(|node| match node {
+            lifecycle::NodeView::Directory { name: n, .. }
+            | lifecycle::NodeView::File { name: n, .. } => n == name,
+        })
+    };
+
+    let Some(lifecycle::NodeView::File { confidence, preselected, .. }) = named("main.rs") else {
+        panic!("an ordinary source file must reach the interface: {:?}", view.tree);
+    };
+    assert!(confidence.is_none(), "it carries no classification");
+    assert!(!preselected, "and is never preselected");
+
+    let Some(lifecycle::NodeView::File { confidence, preselected, .. }) = named(".env.production")
+    else {
+        panic!("the secret must reach the interface as a file node");
+    };
+    assert_eq!(confidence.as_deref(), Some("secret"));
+    assert!(preselected);
+
+    let Some(lifecycle::NodeView::Directory { walked, children, .. }) = named("node_modules")
+    else {
+        panic!("a pruned directory must be reported, not omitted");
+    };
+    assert!(!walked && children.is_empty());
 }

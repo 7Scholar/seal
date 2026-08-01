@@ -37,6 +37,10 @@ A folder therefore carries **three states, and all three are drawn differently f
 
 The window persists nothing, so expansion is derived on arrival rather than restored: **the union of the ancestor chains of every preselected file** is expanded, and everything else is collapsed. The view is therefore identical on every cold start, with no stale state to reconcile — the persistence constraint turns out to be a simplification.
 
+**A collapsed directory renders no rows for its children.** This is what bounds the surface on a large repository, and it is the reason no cap, truncation, or virtualization is needed: [scan-shape.md](scan-shape.md) measured a real monorepo at 42,123 rows with a single directory holding 7,877 entries, and a collapsed directory costs exactly one row regardless of what is beneath it. Because expansion follows the candidates, the enormous directories in a repository like that are precisely the ones that stay shut — they hold no secrets, so nothing expands them, so their cost is never paid. The tree the user meets is the handful of branches leading to their secrets, with everything else one row each and one click away.
+
+The rule that makes this hold: **children are rendered when their parent is expanded, never before.** A tree that builds every row and hides the collapsed ones with styling would pay the full 42,123-row cost invisibly, which is the failure this rule exists to prevent.
+
 The directories the scan did not walk are drawn as rows, marked as not looked in, and are **inert and not expandable**. Showing them is what keeps the tree honest as a picture of the repository; refusing to expand them is what keeps that honesty from becoming an invitation into `node_modules`. The row is an answer, not a door. That a directory was skipped is a *state*, and [shell-layout.md](../shell-layout.md)'s boundary does not let a state collapse.
 
 ## Expansion and selection stay separate
@@ -64,7 +68,7 @@ All of the Approach.
 # Steps
 
 - [ ] The tree primitive: row anatomy, the two visual channels, expansion separate from selection, and the roving-tabindex keyboard model.
-- [ ] Computed cold-start expansion from the preselected files' ancestor chains.
+- [ ] Computed cold-start expansion from the preselected files' ancestor chains, with a collapsed directory rendering none of its children.
 - [ ] The selection model, with the folder-scoping invariant and the three folder states.
 - [ ] Pruned directories as inert, unexpandable, marked rows.
 - [ ] The assistive-technology contract: `aria-checked` throughout, `mixed` on partially selected folders, and no `aria-selected` anywhere in the tree.
@@ -73,5 +77,5 @@ All of the Approach.
 
 # Open threads
 
-- Whether a filter or search over the tree is needed. It is the escape hatch every surveyed browser offers for a large repository, but it interacts with computed expansion — a filter that expands to matches must restore the prior expansion when cleared, and must never touch selection. It waits on the breadth measurement in [scan-shape.md](scan-shape.md), which decides whether it is needed at all.
+- Whether a filter or search over the tree is needed. The breadth measurement in [scan-shape.md](scan-shape.md) removed the performance argument for one — lazy rendering bounds the surface on its own — so this is now purely about whether finding a known file among many collapsed branches is awkward enough to want it. That wants using the built surface rather than deciding on paper. If it arrives, a filter that expands to matches must restore the prior expansion when cleared, and must never touch selection.
 - Whether path compression for single-child directory chains is worth it. VS Code ships it on by default and it shortens deep chains considerably; the complication is that a compressed row's checkbox has to have an unambiguous scope, which is a real question once folder checkboxes mean something specific.

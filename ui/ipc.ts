@@ -39,10 +39,31 @@ export interface CandidateView {
   alreadyManaged: boolean;
 }
 
+export interface DirectoryNode {
+  kind: "directory";
+  name: string;
+  relativePath: string;
+  walked: boolean;
+  children: TreeNode[];
+}
+
+export interface FileNode {
+  kind: "file";
+  name: string;
+  relativePath: string;
+  confidence: "secret" | "ambiguous" | "template" | null;
+  reason: string | null;
+  preselected: boolean;
+  alreadyManaged: boolean;
+}
+
+export type TreeNode = DirectoryNode | FileNode;
+
 export interface ScanView {
   root: string;
   alreadyRegistered: boolean;
   candidates: CandidateView[];
+  tree: TreeNode[];
 }
 
 export interface SealWarning {

@@ -72,7 +72,7 @@ The sidebar's *two levels, never a third* rule is **scoped to the sidebar** rath
 # Plans
 
 - [x] vocabulary.md -> retiring the word *import* everywhere, and the assurance that files do not move
-- [ ] scan-shape.md -> what the scan hands the interface: the repository's structure rather than a candidate list
+- [x] scan-shape.md -> what the scan hands the interface: the repository's structure rather than a candidate list
 - [ ] adopting.md -> the whole-repository surface, and the tree primitive both fidelities share
 - [ ] managed-view.md -> the steady-state surface: the same tree over the managed set alone
 
@@ -88,10 +88,12 @@ Prior art was surveyed twice and is design **input** to the Approach — the too
 
 `vocabulary.md` is **complete**: the word is retired from the interface, the boundary command, and the plan prose, and the assurance now states both that confirming encrypts nothing and that files do not move. The `first-run` journey passes against a release build carrying it.
 
-**Next: `scan-shape.md`,** whose first step is a measurement that two of this node's open threads wait on — how broad a realistic repository actually is, which decides whether the adopting surface needs a filter and whether the scan can stay one-shot. `adopting.md` follows it, and `managed-view.md` follows that, since it reuses the primitive `adopting.md` builds.
+`scan-shape.md` is **complete**. Its measurement — 42,123 rows in 0.09 seconds on a real monorepo, one directory holding 7,877 entries — settled the scan as one-shot and moved the bound onto the rendering, where the product owner settled it: a collapsed directory renders none of its children, so the enormous directories cost one row each and no cap or virtualization is needed.
+
+**Next: `adopting.md`,** then `managed-view.md`, which reuses the primitive `adopting.md` builds.
 
 # Open threads
 
-- What a very large repository does to the whole-repository fidelity. The pruned directories remove most of the file count, but a monorepo can still be many thousands of rows, and the ceiling wants measuring against a real one rather than guessing at a cap. The surveyed products diverge here — GitHub truncates a directory at a thousand entries and says so; VS Code renders uncapped and has a crash bug for it — so if a bound is needed, the rule from that divergence is that it must be stated in the interface rather than applied silently. The measurement is [scan-shape.md](scan-shape.md)'s first step, and its outcome settles that plan's one-shot-versus-lazy thread and [adopting.md](adopting.md)'s filter thread.
+- ~~What a very large repository does to the whole-repository fidelity.~~ **Settled.** Measured at 42,123 rows with a 7,877-entry directory; the scan stays one-shot and the tree renders a collapsed directory's children only on expansion, so no cap, truncation, or virtualization is needed. Recorded in [scan-shape.md](scan-shape.md) and [adopting.md](adopting.md).
 - Whether a tri-state folder checkbox is announced usefully by real screen readers. `aria-checked="mixed"` is well defined on a native checkbox and less certain on a tree row; it wants driving with VoiceOver before the middle state is relied on as the only carrier of "something is selected below here". Lands with [adopting.md](adopting.md)'s assistive-technology step.
 - Whether the managed-only fidelity should offer a way to see the rest of the repository from where it stands, rather than only through a rescan. Carried by [managed-view.md](managed-view.md), which wants both surfaces built and comparable before deciding.

@@ -21,11 +21,67 @@ pub struct CandidateView {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase", tag = "kind")]
+pub enum NodeView {
+    #[serde(rename = "directory")]
+    Directory {
+        name: String,
+        relative_path: PathBuf,
+        walked: bool,
+        children: Vec<NodeView>,
+    },
+    #[serde(rename = "file")]
+    File {
+        name: String,
+        relative_path: PathBuf,
+        confidence: Option<String>,
+        reason: Option<&'static str>,
+        preselected: bool,
+        already_managed: bool,
+    },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ScanView {
     pub root: PathBuf,
     pub already_registered: bool,
     pub candidates: Vec<CandidateView>,
+    pub tree: Vec<NodeView>,
+}
+
+fn to_view(node: scan::Node, managed: &[&PathBuf]) -> NodeView {
+    match node {
+        scan::Node::Directory {
+            name,
+            relative_path,
+            walked,
+            children,
+        } => NodeView::Directory {
+            name,
+            relative_path,
+            walked,
+            children: children
+                .into_iter()
+                .map(|child| to_view(child, managed))
+                .collect(),
+        },
+        scan::Node::File {
+            name,
+            relative_path,
+            candidate,
+        } => NodeView::File {
+            already_managed: managed.contains(&&relative_path),
+            preselected: candidate.is_some_and(|(confidence, _)| {
+                confidence == scan::Confidence::Secret
+            }),
+            confidence: candidate
+                .map(|(confidence, _)| format!("{confidence:?}").to_lowercase()),
+            reason: candidate.map(|(_, reason)| reason),
+            name,
+            relative_path,
+        },
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -63,10 +119,16 @@ pub fn scan_folder(root: &Path, state: &State) -> Result<ScanView, CommandError>
         })
         .collect();
 
+    let tree = scan::tree(root)
+        .into_iter()
+        .map(|node| to_view(node, &managed))
+        .collect();
+
     Ok(ScanView {
         root: root.to_path_buf(),
         already_registered: existing.is_some(),
         candidates,
+        tree,
     })
 }
 

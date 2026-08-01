@@ -11,7 +11,7 @@ interface Props {
   expanded: ReadonlySet<string>;
   onToggleExpand: (root: string) => void;
   onSelect: (selection: Selection) => void;
-  onImport: () => void;
+  onAdd: () => void;
 }
 
 const STATE_LABELS: Record<SealedState, string> = {
@@ -35,7 +35,7 @@ export function Sidebar({
   expanded,
   onToggleExpand,
   onSelect,
-  onImport,
+  onAdd,
 }: Props) {
   function moveFocus(from: HTMLElement, direction: 1 | -1) {
     const tree = from.closest(".sidebar__tree");
@@ -85,13 +85,13 @@ export function Sidebar({
     <nav className="sidebar" aria-label="Repositories">
       <div className="sidebar__head">
         <h2 className="sidebar__title">Repositories</h2>
-        <button type="button" className="sidebar__import" onClick={onImport}>
-          Import
+        <button type="button" className="sidebar__add" onClick={onAdd}>
+          Add
         </button>
       </div>
 
       {repos.length === 0 ? (
-        <p className="sidebar__empty">Nothing imported yet.</p>
+        <p className="sidebar__empty">Nothing added yet.</p>
       ) : (
         <ul className="sidebar__tree" role="tree" aria-label="Repositories">
           {repos.map((repo) => {

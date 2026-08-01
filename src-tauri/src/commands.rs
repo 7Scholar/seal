@@ -259,13 +259,13 @@ pub async fn scan_folder(held: Managed<'_, Held>, root: PathBuf) -> Result<ScanV
 }
 
 #[tauri::command]
-pub async fn import(
+pub async fn manage(
     held: Managed<'_, Held>,
     root: PathBuf,
     selected: Vec<PathBuf>,
 ) -> Result<usize, CommandError> {
     let mut registry = held.registry()?;
-    let added = lifecycle::import(&mut registry, &root, &selected)?;
+    let added = lifecycle::manage(&mut registry, &root, &selected)?;
     held.persist(&registry)?;
     Ok(added)
 }

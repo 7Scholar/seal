@@ -123,8 +123,8 @@ export const releaseRepo = (root: string, how: Release) =>
 
 export const pickFolder = () => invoke<string | null>("pick_folder");
 export const scanFolder = (root: string) => invoke<ScanView>("scan_folder", { root });
-export const importRepo = (root: string, selected: string[]) =>
-  invoke<number>("import", { root, selected });
+export const manageFiles = (root: string, selected: string[]) =>
+  invoke<number>("manage", { root, selected });
 export const release = (path: string, how: Release) =>
   invoke<void>("release", { path, how });
 

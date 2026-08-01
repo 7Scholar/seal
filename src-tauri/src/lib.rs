@@ -54,7 +54,7 @@ pub fn run() {
             commands::close_file,
             commands::open_paths,
             commands::scan_folder,
-            commands::import,
+            commands::manage,
             commands::release,
             commands::seal_warning,
             commands::has_acknowledged,

@@ -2,7 +2,7 @@ Part of [the interface plan](README.md).
 
 # Scope
 
-The application's **shell**: the persistent frame that hosts every screen, and the navigation between them. A left sidebar listing the registered repositories; selecting one opens that repository's detail surface. Out of scope: the screens' own internals, which their existing plans own unchanged — the import flow ([screens.md](screens.md)), the environment-variables editor ([screens.md](screens.md)), the unlock gate ([first-open.md](../first-open.md)), the supervised password change ([password-change.md](password-change.md)), and the failure surface ([errors.md](errors.md)). This plan decides **where those surfaces live and how a user moves between them**, not what happens inside them.
+The application's **shell**: the persistent frame that hosts every screen, and the navigation between them. A left sidebar listing the registered repositories; selecting one opens that repository's detail surface. Out of scope: the screens' own internals, which their existing plans own unchanged — the manage flow ([screens.md](screens.md)), the environment-variables editor ([screens.md](screens.md)), the unlock gate ([first-open.md](../first-open.md)), the supervised password change ([password-change.md](password-change.md)), and the failure surface ([errors.md](errors.md)). This plan decides **where those surfaces live and how a user moves between them**, not what happens inside them.
 
 Also in scope, because it cannot be separated from the shell: the **information architecture** governing what is shown versus what is collapsed, across the whole interface.
 
@@ -58,7 +58,7 @@ The summary states exposure and nothing else: a repository with exposed files sa
 
 The detail surface is never blank. It shows one of three things:
 
-**Nothing selected** — the import call to action. This is also the empty state for the whole application, so the two are one surface rather than two designs: with no repositories it is the only thing on screen, and with repositories it is what a launch lands on until something is selected.
+**Nothing selected** — the add call to action. This is also the empty state for the whole application, so the two are one surface rather than two designs: with no repositories it is the only thing on screen, and with repositories it is what a launch lands on until something is selected.
 
 **A repository selected** — the repository's files with their states, its exposure alert if it has one, and the operations that act on the repository. Its title carries the toggletip explaining watched versus protected, which [the protect-a-repo journey](../../../../journeys/protect-a-repo.md) requires be obvious without explanation.
 
@@ -66,7 +66,7 @@ The detail surface is never blank. It shows one of three things:
 
 ## Selection is stable, and operations do not move it
 
-No operation changes the selection except the user selecting something else, and one deliberate exception: **a completed import selects the newly imported repository**, because that is where the next action lives and landing the user anywhere else would strand them. Sealing a file, releasing a file, saving, revealing, and refreshing all leave the selection exactly where it was, and a refresh never reorders the tree under the pointer.
+No operation changes the selection except the user selecting something else, and one deliberate exception: **a completed add selects the newly added repository**, because that is where the next action lives and landing the user anywhere else would strand them. Sealing a file, releasing a file, saving, revealing, and refreshing all leave the selection exactly where it was, and a refresh never reorders the tree under the pointer.
 
 Two consequences that are easy to get wrong. A file that stops being managed while selected — released, or gone from disk — leaves the detail surface showing a file that no longer exists; selection falls back to its parent repository rather than to nothing, so the user lands one level up rather than at the empty state. A repository that disappears the same way falls back to nothing selected.
 
@@ -94,7 +94,7 @@ The principle governing the whole interface — only what matters now is shown, 
 
 **Secondary and destructive actions collapse into an overflow control.** Rescan, remove the repository, change the master password. Collapsing these puts distance between a reflex and a consequence.
 
-**State, alerts, and primary verbs never collapse.** Seal, open, lock, import, the exposure alert, the resume banner, every file's state tag.
+**State, alerts, and primary verbs never collapse.** Seal, open, lock, add, the exposure alert, the resume banner, every file's state tag.
 
 The boundary, which is the rule that keeps the principle from turning against the product: **disclosure defers explanation and secondary action; it never defers an alert, a state, or a consequence.** Anything the user needs in order to avoid harm is on the surface, always. A naive reading of "collapse everything by default" would collapse the exposed-secret alert this product exists to raise, and that reading is wrong here.
 
@@ -128,7 +128,7 @@ One defect was caught by a test rather than by review, and it is the same defect
 
 # What is missing
 
-Nothing on this plan. The journey harness drives this layout end to end: the first-run journey passes all eight checks against a release build carrying it — establishment through the shield, import into the sidebar tree, the acknowledged seal, and the lock cycle. (A bridge that fails to *start* is a stale harness binary, not the harness defect — [docs/RUNNING.md](../../../../../docs/RUNNING.md) covers it; [journey-harness.md](../journey-harness.md)'s open defect is a mid-run freeze in the extended scenario only.)
+Nothing on this plan. The journey harness drives this layout end to end: the first-run journey passes all eight checks against a release build carrying it — establishment through the shield, the add into the sidebar tree, the acknowledged seal, and the lock cycle. (A bridge that fails to *start* is a stale harness binary, not the harness defect — [docs/RUNNING.md](../../../../../docs/RUNNING.md) covers it; [journey-harness.md](../journey-harness.md)'s open defect is a mid-run freeze in the extended scenario only.)
 
 # Steps
 

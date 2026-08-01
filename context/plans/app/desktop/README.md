@@ -2,7 +2,7 @@
 
 ## What & why
 
-The desktop application is Seal's face and the reason it is an application at all: a Tauri 2 app with a React + TypeScript (Vite) frontend where all management happens. It spans the Rust shell (window and app lifecycle, the IPC command surface, capability configuration, the unlocked-session state) and the UI (the cross-repo view of repos and managed files with their sealed/unsealed tags, the repo import flow with its candidate confirmation, seal/unseal actions, the explicit session seal/unseal control, and the dedicated Vercel-style environment-variables editor for env files — the only editing surface, since non-env files are never edited in the app). It consumes the engine and the registry through a thin command layer per the Tauri practices doc. It is done when a user can do everything the root intent promises through the UI, with the session model the root Approach fixes: unlocked by password, ended by quit or the seal action.
+The desktop application is Seal's face and the reason it is an application at all: a Tauri 2 app with a React + TypeScript (Vite) frontend where all management happens. It spans the Rust shell (window and app lifecycle, the IPC command surface, capability configuration, the unlocked-session state) and the UI (the cross-repo view of repos and managed files with their sealed/unsealed tags, the repo manage flow with its candidate confirmation, seal/unseal actions, the explicit session seal/unseal control, and the dedicated Vercel-style environment-variables editor for env files — the only editing surface, since non-env files are never edited in the app). It consumes the engine and the registry through a thin command layer per the Tauri practices doc. It is done when a user can do everything the root intent promises through the UI, with the session model the root Approach fixes: unlocked by password, ended by quit or the seal action.
 
 ## Approach
 
@@ -65,8 +65,8 @@ Two flows carry more weight than their screens suggest, and their behaviour is f
 - [x] shell.md -> the Tauri shell: session state, secret lifetimes and clearing, lifecycle hooks, window and webview hardening
 - [x] commands.md -> the IPC surface: the command set, what may cross the boundary, and how blocking work is dispatched
 - [x] dotenv.md -> lossless env-file parsing and rendering, so saving preserves comments, order and formatting
-- [x] lifecycle.md -> import, removal from management, the pre-seal open-file check, and the irreversibility acknowledgements
-- [~] ui/ -> the interface: the application shell, the cross-repo view, the import flow, the environment-variables editor, and the two flows that must insist — `repo-layer/` carved, no child started
+- [x] lifecycle.md -> bringing files under management, removal from it, the pre-seal open-file check, and the irreversibility acknowledgements
+- [~] ui/ -> the interface: the application shell, the cross-repo view, the manage flow, the environment-variables editor, and the two flows that must insist — `repo-layer/` carved, no child started
 - [x] first-open.md -> establishing the master password on the first open, verifying it on every open after, and the empty state's onboarding weight
 - [~] journey-harness.md -> the harness that drives the built application for the journeys axis; macOS first
 
@@ -80,11 +80,11 @@ Solutioned, and decomposed into four children. The design is grounded in researc
 
 The webview's memory-only data store was confirmed at the platform layer rather than trusted from documentation — it resolves to the non-persistent website data store on macOS, ahead of every other branch.
 
-An audit against the root intent found that the per-file surface was built while the surface that gets files *into* management was not, so a fresh install can currently unlock and lock and nothing else. That gap is now carved as `lifecycle.md` rather than left implicit: import, removal from management, the pre-seal open-file check, and the irreversibility acknowledgements the intent requires before a first seal.
+An audit against the root intent found that the per-file surface was built while the surface that gets files *into* management was not, so a fresh install can currently unlock and lock and nothing else. That gap is now carved as `lifecycle.md` rather than left implicit: bringing files under management, removal from it, the pre-seal open-file check, and the irreversibility acknowledgements the intent requires before a first seal.
 
 The same audit caught two defects that are now fixed: a managed non-env file was parsed and re-rendered as an env file — measured corrupting a Terraform `.tfvars` on save — and a per-repo password override never reached any file inside the repo.
 
-`lifecycle.md` is now complete, and with it the gap the audit found: a folder can be imported, a file can be released from management, and sealing is gated on acknowledging the two consequences that cannot be undone. Its research changed the design — the "notice a file is open in an editor" requirement cannot be met by checking descriptors, because editors hold none on files open in tabs, so it became a recency warning that states its own limit with reconciliation as the real safety net.
+`lifecycle.md` is now complete, and with it the gap the audit found: a folder's files can be brought under management, a file can be released from it, and sealing is gated on acknowledging the two consequences that cannot be undone. Its research changed the design — the "notice a file is open in an editor" requirement cannot be met by checking descriptors, because editors hold none on files open in tabs, so it became a recency warning that states its own limit with reconciliation as the real safety net.
 
 `ui/` is complete: the frontend, every screen, and the supervised password change, designed from a survey of the products this interface will be judged against rather than invented. Seventy-six interface tests alongside the Rust suite, with each load-bearing rule confirmed by reintroducing the exact defect it prevents — including two that comparable products actually shipped.
 

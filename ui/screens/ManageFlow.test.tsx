@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { ImportFlow } from "./ImportFlow";
+import { ManageFlow } from "./ManageFlow";
 import type { ScanView } from "../ipc";
 
 const scan: ScanView = {
@@ -19,18 +19,18 @@ function setup(overrides: Partial<ScanView> = {}) {
   const onConfirm = vi.fn();
   const onCancel = vi.fn();
   render(
-    <ImportFlow scan={{ ...scan, ...overrides }} onConfirm={onConfirm} onCancel={onCancel} />,
+    <ManageFlow scan={{ ...scan, ...overrides }} onConfirm={onConfirm} onCancel={onCancel} />,
   );
   return { onConfirm, onCancel };
 }
 
-describe("ImportFlow", () => {
+describe("ManageFlow", () => {
   it("preselects only the files that look genuinely secret", () => {
     setup();
     const checked = screen
       .getAllByRole("checkbox")
       .filter((box) => (box as HTMLInputElement).checked)
-      .map((box) => box.closest("label")?.querySelector(".import__path")?.textContent);
+      .map((box) => box.closest("label")?.querySelector(".manage__path")?.textContent);
 
     expect(checked.sort()).toEqual([".env", ".env.production"]);
   });
@@ -47,9 +47,16 @@ describe("ImportFlow", () => {
     expect(screen.getByText("Templates and examples (1)")).toBeInTheDocument();
   });
 
-  it("states plainly that importing encrypts nothing", () => {
+  it("states plainly that confirming encrypts nothing", () => {
     setup();
     expect(screen.getByText(/does not encrypt anything/i)).toBeInTheDocument();
+  });
+
+  it("states that the files do not move", () => {
+    setup();
+    expect(
+      screen.getByText(/nothing is moved, renamed, or copied/i),
+    ).toBeInTheDocument();
   });
 
   it("confirms with exactly the selected paths", async () => {

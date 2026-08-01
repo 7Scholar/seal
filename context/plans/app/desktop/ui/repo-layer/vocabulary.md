@@ -24,19 +24,25 @@ Both statements are plain assertions on the surface, never collapsed behind a di
 
 # What exists
 
-Nothing yet.
+All of the Approach. The word is gone from every layer: the screen is `ManageFlow`, headed **Seal in `<path>`**; the sidebar control is **Add** and its empty state says nothing has been added yet; the empty-state call to action is **Add a folder**; and the boundary command is `manage`, backed by `lifecycle::manage`. The confirm button already counted its files and still does.
+
+The assurance now carries both halves — that confirming encrypts nothing, and that files stay where they are with nothing moved, renamed, or copied — each asserted by its own test so neither can be dropped as incidental.
+
+The prose sweep reached what a literal identifier search would have missed, which is the point of the rule: the registry's walk is now the **candidate scan** rather than the import scan, the root intent's third fact describes a *manage flow*, and the two `MEMORY.md` entries that named the flow were rewritten. The research documents under `_docs/` keep the historical word, because they record a survey taken at a time when that was the product's vocabulary; rewriting them would falsify the record rather than update it.
+
+Verified by the interface suite, the Rust suite, and the `first-run` journey driven end to end against a release build — the last of which is what proves the renamed command actually works in the real webview rather than only in tests.
 
 # What is missing
 
-All of the Approach.
+Nothing on this plan.
 
 # Steps
 
-- [ ] Retire *import* from the interface copy: the sidebar control, the flow heading, the confirm button, and every accessible name that carries it.
-- [ ] Retire it from the boundary: the typed command module, the Tauri command registration, and the lifecycle function behind it.
-- [ ] Add the "files stay where they are" assurance beside the existing "encrypts nothing" statement.
-- [ ] Sweep the plan prose for the retired vocabulary, per the rename rule in [UI_IMPROVEMENTS.md](../../../../../../docs/plans/UI_IMPROVEMENTS.md) — a rename retires concept words, not only identifiers, so the sweep is case-insensitive and covers plans that describe the flow without naming the function.
-- [ ] Tests: the flow's controls are found by their new names, and the assurance is asserted as present rather than incidental.
+- [x] Retire *import* from the interface copy: the sidebar control, the flow heading, the confirm button, and every accessible name that carries it.
+- [x] Retire it from the boundary: the typed command module, the Tauri command registration, and the lifecycle function behind it.
+- [x] Add the "files stay where they are" assurance beside the existing "encrypts nothing" statement.
+- [x] Sweep the plan prose for the retired vocabulary, per the rename rule in [UI_IMPROVEMENTS.md](../../../../../../docs/plans/UI_IMPROVEMENTS.md) — a rename retires concept words, not only identifiers, so the sweep is case-insensitive and covers plans that describe the flow without naming the function.
+- [x] Tests: the flow's controls are found by their new names, and the assurance is asserted as present rather than incidental.
 
 # Open threads
 

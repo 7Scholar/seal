@@ -33,11 +33,11 @@ The rule that follows and governs every placement below: **an operation lives at
 
 | Operation | Command | Disclosure | Notes |
 |---|---|---|---|
-| Import a folder as a repository | `pick_folder` → `scan_folder` → `import` | **Always visible** | The only way anything enters the application. With an empty registry it *is* the whole screen; with a populated one it is a persistent control in the sidebar. Never collapsed — an application whose primary intake is hidden has failed. |
+| Add a folder as a repository | `pick_folder` → `scan_folder` → `manage` | **Always visible** | The only way anything enters the application. With an empty registry it *is* the whole screen; with a populated one it is a persistent control in the sidebar. Never collapsed — an application whose primary intake is hidden has failed. |
 | See every repository | `overview` | **Always visible** | The sidebar itself. |
 | See exposure across all repositories | derived from `overview` | **Always visible when non-zero** | The cross-repo alert. The sidebar is the only element present on every screen, which is what makes it the correct carrier for an alert about a repository the user is not currently looking at. |
 
-**Flow — import:** import control → native folder dialog (cancel is a silent no-op) → scan → grouped candidate list (secret / ambiguous / template, only secrets preselected) → confirm → the repository appears in the sidebar and becomes selected. **Import encrypts nothing**, stated on the confirm step. The new repository being auto-selected is what closes the loop — the user lands in the place where the next action (sealing) lives.
+**Flow — adding a repository:** the add control → native folder dialog (cancel is a silent no-op) → scan → grouped candidate list (secret / ambiguous / template, only secrets preselected) → confirm → the repository appears in the sidebar and becomes selected. **Confirming encrypts nothing**, stated on the confirm step, alongside the statement that files do not move. The new repository being auto-selected is what closes the loop — the user lands in the place where the next action (sealing) lives.
 
 # Repository scope — the detail surface
 
@@ -46,7 +46,7 @@ The rule that follows and governs every placement below: **an operation lives at
 | See this repository's files and their states | `overview` | **Always visible** | The detail surface's primary content. |
 | Understand watched vs. protected | — | **Collapsed** — toggletip on the title | The distinction [protect-a-repo](../../../../journeys/protect-a-repo.md) requires be obvious. Exactly the "title + info icon" pattern: explanation, not action, so it collapses. |
 | See this repository's exposure | derived from `overview` | **Always visible when non-zero** | The alert, with its inline seal action. Never collapsed, never dismissible. |
-| Add more files from this repository | `scan_folder` → `import` (merges) | **Collapsed** — overflow | Re-scanning an existing repository merges rather than duplicates. Step 7 of the protect-a-repo journey. |
+| Add more files from this repository | `scan_folder` → `manage` (merges) | **Collapsed** — overflow | Re-scanning an existing repository merges rather than duplicates. Step 7 of the protect-a-repo journey. |
 | Reveal the repository's location | — | **Always visible, de-emphasised** | The path under the name. Not an operation, but the thing that disambiguates two repositories with the same folder name. |
 | Stop managing the repository | `release` per file | **Collapsed** — overflow, destructive grouping | Falls out of removing the last file, which removes the repository record. Whether this is offered as one operation is an open question below. |
 
@@ -75,7 +75,7 @@ The product owner's principle — *only the most important UI is shown; everythi
 
 1. **Explanation always collapses.** Every "why is this like this" is a toggletip. This is where the principle applies most and costs nothing.
 2. **Secondary and destructive actions collapse into overflow.** Stop managing, rescan, change password. Collapsing these is not only tidiness — it puts distance between a reflex and a consequence.
-3. **State, alerts, and primary verbs never collapse.** Seal, open, lock, import, the exposure alert, the resume banner. Hiding any of these would be the principle turned against the product.
+3. **State, alerts, and primary verbs never collapse.** Seal, open, lock, add, the exposure alert, the resume banner. Hiding any of these would be the principle turned against the product.
 
 The one-line test: **if the user needs it to avoid harm or to do the main thing, it is on the surface; if it explains or elaborates, it collapses.**
 

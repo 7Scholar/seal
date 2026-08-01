@@ -2,7 +2,7 @@ Part of [the desktop plan](README.md).
 
 # Scope
 
-The product's first-open experience, and the state that makes it possible: knowing whether a master password has ever been established, establishing it on the first open, and verifying it on every open after. Also the empty state's onboarding weight — judged when the first-run journey is driven. Out of scope: the unlock screen's visual treatment, which `ui/screens.md` owns, and the import flow itself, which `lifecycle.md` owns.
+The product's first-open experience, and the state that makes it possible: knowing whether a master password has ever been established, establishing it on the first open, and verifying it on every open after. Also the empty state's onboarding weight — judged when the first-run journey is driven. Out of scope: the unlock screen's visual treatment, which `ui/screens.md` owns, and the manage flow itself, which `lifecycle.md` owns.
 
 # What & why
 
@@ -40,7 +40,7 @@ All of the above, with eight Rust tests covering the sentinel's lifecycle — es
 
 # What is missing
 
-Nothing on this plan. The first-run journey was driven end to end by the automated harness against a release build — establishment, verification, and the empty state leading into the first import all witnessed — and the journey records itself satisfied on macOS.
+Nothing on this plan. The first-run journey was driven end to end by the automated harness against a release build — establishment, verification, and the empty state leading into the first add all witnessed — and the journey records itself satisfied on macOS.
 
 # Steps
 

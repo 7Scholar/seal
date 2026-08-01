@@ -59,7 +59,7 @@ input {
   border: 0;
 }
 
-.repos, .import, .env-editor, .opaque { padding: 1.25rem; max-width: 62rem; margin: 0 auto; }
+.repos, .manage, .env-editor, .opaque { padding: 1.25rem; max-width: 62rem; margin: 0 auto; }
 
 .shell {
   display: grid;
@@ -159,7 +159,7 @@ input {
 
 .repo { border: 1px solid var(--line); border-radius: 8px; padding: 0.9rem; margin-bottom: 0.9rem; background: var(--panel); }
 .repo__root { color: var(--muted); font-size: 0.8rem; margin: 0 0 0.6rem; }
-.repo ul, .import ul, .env-editor__rows { list-style: none; margin: 0; padding: 0; }
+.repo ul, .manage ul, .env-editor__rows { list-style: none; margin: 0; padding: 0; }
 .repo__file, .env-editor__row { display: flex; gap: 0.6rem; align-items: center; padding: 0.4rem 0; border-top: 1px solid var(--line); }
 .repo__path, .env-editor__key { flex: 1; font-family: ui-monospace, SFMono-Regular, monospace; }
 .repo__state { color: var(--muted); font-size: 0.8rem; }
@@ -194,14 +194,14 @@ input {
 .secret-value__text { font-family: ui-monospace, monospace; color: var(--muted); flex: 1; overflow-wrap: anywhere; }
 .secret-value__text[data-revealed="true"] { color: var(--text); }
 
-.import__group { border: 1px solid var(--line); border-radius: 8px; margin: 0 0 0.9rem; }
-.import__blurb, .import__assurance { color: var(--muted); font-size: 0.85rem; }
-.import__group label { display: flex; gap: 0.6rem; align-items: center; padding: 0.25rem 0; }
-.import__path { font-family: ui-monospace, monospace; flex: 1; }
-.import__reason, .import__managed { color: var(--muted); font-size: 0.8rem; }
-.import__bulk { display: flex; gap: 0.4rem; margin-bottom: 0.5rem; }
-.import__actions, .env-editor__actions { display: flex; gap: 0.6rem; align-items: center; }
-.import__assurance, .env-editor__dirty { flex: 1; }
+.manage__group { border: 1px solid var(--line); border-radius: 8px; margin: 0 0 0.9rem; }
+.manage__blurb, .manage__assurance { color: var(--muted); font-size: 0.85rem; }
+.manage__group label { display: flex; gap: 0.6rem; align-items: center; padding: 0.25rem 0; }
+.manage__path { font-family: ui-monospace, monospace; flex: 1; }
+.manage__reason, .manage__managed { color: var(--muted); font-size: 0.8rem; }
+.manage__bulk { display: flex; gap: 0.4rem; margin-bottom: 0.5rem; }
+.manage__actions, .env-editor__actions { display: flex; gap: 0.6rem; align-items: center; }
+.manage__assurance, .env-editor__dirty { flex: 1; }
 
 .env-editor__notice { color: var(--muted); font-size: 0.85rem; border-left: 2px solid var(--line); padding-left: 0.6rem; }
 

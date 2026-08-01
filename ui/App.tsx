@@ -3,7 +3,7 @@ import * as ipc from "./ipc";
 import { explain } from "./errors";
 import { Acknowledge } from "./screens/Acknowledge";
 import { EnvEditor } from "./screens/EnvEditor";
-import { ImportFlow } from "./screens/ImportFlow";
+import { ManageFlow } from "./screens/ManageFlow";
 import { RepoDetail } from "./screens/RepoDetail";
 import { Sidebar, type Selection } from "./screens/Sidebar";
 import { Unlock } from "./screens/Unlock";
@@ -15,7 +15,7 @@ import { fileName } from "./format";
 
 type Overlay =
   | { name: "none" }
-  | { name: "import"; scan: ipc.ScanView }
+  | { name: "manage"; scan: ipc.ScanView }
   | { name: "rekey" };
 
 type Opened =
@@ -199,11 +199,11 @@ export function App() {
     });
   }
 
-  async function startImport() {
+  async function startAdd() {
     await attempt("open the folder picker", async () => {
       const root = await ipc.pickFolder();
       if (!root) return;
-      setOverlay({ name: "import", scan: await ipc.scanFolder(root) });
+      setOverlay({ name: "manage", scan: await ipc.scanFolder(root) });
     });
   }
 
@@ -227,15 +227,15 @@ export function App() {
     );
   }
 
-  if (overlay.name === "import") {
+  if (overlay.name === "manage") {
     return (
-      <ImportFlow
+      <ManageFlow
         scan={overlay.scan}
         onCancel={() => setOverlay({ name: "none" })}
         onConfirm={(selected) =>
-          attempt("import the folder", async () => {
+          attempt("add the folder", async () => {
             const root = overlay.scan.root;
-            await ipc.importRepo(root, selected);
+            await ipc.manageFiles(root, selected);
             const fresh = await refresh();
             setOverlay({ name: "none" });
             if (fresh.some((repo) => repo.root === root)) {
@@ -307,7 +307,7 @@ export function App() {
         expanded={expanded}
         onToggleExpand={toggleExpand}
         onSelect={select}
-        onImport={startImport}
+        onAdd={startAdd}
       />
 
       <main className="shell__main">
@@ -340,8 +340,8 @@ export function App() {
                 : "Choose a repository on the left to see the files Seal is watching there."}
             </p>
             {repos.length === 0 ? (
-              <button type="button" onClick={startImport}>
-                Import a folder
+              <button type="button" onClick={startAdd}>
+                Add a folder
               </button>
             ) : null}
           </section>
@@ -360,7 +360,7 @@ export function App() {
             onRescan={() =>
               attempt("scan the repository", async () => {
                 setOverlay({
-                  name: "import",
+                  name: "manage",
                   scan: await ipc.scanFolder(selectedRepo.root),
                 });
               })

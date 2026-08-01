@@ -39,9 +39,9 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
       await browser.keys("Enter");
       await browser.pause(2500);
       step("waiting for empty state");
-      await $("button=Import a folder").waitForClickable();
-      await $("button=Import a folder").click();
-      step("waiting for import screen");
+      await $("button=Add a folder").waitForClickable();
+      await $("button=Add a folder").click();
+      step("waiting for the manage screen");
       await $("button=Manage 1 file").waitForClickable();
       await $("button=Manage 1 file").click();
       step("waiting for repo list");

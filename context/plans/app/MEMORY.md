@@ -4,9 +4,9 @@
 
 Sealed files are ordinary age v1 files with an scrypt passphrase stanza, and staying byte-compatible with standard age tooling is part of the design: any sealed file must remain recoverable with `age`/`rage` and the password alone, without Seal. **Why:** the format's value is that it is published, spec'd, and audited-in-practice, with a maintained Rust crate — not that its parameters are individually optimal. **Mistake it prevents:** "upgrading" the KDF to Argon2id (OWASP's first choice, which the landscape doc names) or adding custom header fields — either would silently fork the format and break standard-age recoverability; scrypt-not-Argon2id is deliberate, not an oversight.
 
-## 2026-07-20 — The import scan must not respect gitignore rules
+## 2026-07-20 — The candidate scan must not respect gitignore rules
 
-Scanning a repo for candidate secret files walks the tree with the ignore machinery **disabled**, pruning noise directories explicitly instead. **Why:** secret files are gitignored precisely because they are secret. Measured against a realistic repo, a scan using default gitignore-respecting settings returned only `.env.example` — the one file that is deliberately *not* a secret and is meant to be committed — while hiding all four genuine secret files behind the repo's own ignore rules. **Mistake it prevents:** enabling the ignore filters because respecting `.gitignore` is the obvious, idiomatic default for a repository walker, which silently inverts the import flow into proposing templates and concealing every real secret.
+Scanning a repo for candidate secret files walks the tree with the ignore machinery **disabled**, pruning noise directories explicitly instead. **Why:** secret files are gitignored precisely because they are secret. Measured against a realistic repo, a scan using default gitignore-respecting settings returned only `.env.example` — the one file that is deliberately *not* a secret and is meant to be committed — while hiding all four genuine secret files behind the repo's own ignore rules. **Mistake it prevents:** enabling the ignore filters because respecting `.gitignore` is the obvious, idiomatic default for a repository walker, which silently inverts the flow into proposing templates and concealing every real secret.
 
 ## 2026-07-20 — Directory pruning uses an explicit filter, never whitelist globs
 

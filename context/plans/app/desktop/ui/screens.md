@@ -2,7 +2,7 @@ Part of [the interface plan](README.md).
 
 # Scope
 
-The screens themselves and the shared primitives beneath them: the cross-repo view, the import flow, the environment-variables editor, the unlock gate, and the first-seal acknowledgement. Out of scope: the frontend build and typed boundary (`shell.md`), and the supervised master-password change (`password-change.md`), which is a flow rather than a screen.
+The screens themselves and the shared primitives beneath them: the cross-repo view, the manage flow, the environment-variables editor, the unlock gate, and the first-seal acknowledgement. Out of scope: the frontend build and typed boundary (`shell.md`), and the supervised master-password change (`password-change.md`), which is a flow rather than a screen.
 
 # Approach
 
@@ -20,9 +20,9 @@ Three shared components exist because their rules are easy to violate independen
 
 ## Where each screen's weight sits
 
-**The cross-repo view** treats its empty state as the import action itself, since nothing else is possible until a repo exists. Its alert is derived from the per-file flag rather than from the file's state, which is what keeps the treatment reserved for the genuine regression — a file recorded sealed and found readable — and away from a missing file or one the user never sealed. Sealing is offered only where it applies, and stopping management is offered per file. That view is realized by the shell's sidebar and detail surface, whose layout and disclosure rules are [shell-layout.md](shell-layout.md)'s; the behavioural rules stated here hold wherever it is rendered.
+**The cross-repo view** treats its empty state as the add action itself, since nothing else is possible until a repo exists. Its alert is derived from the per-file flag rather than from the file's state, which is what keeps the treatment reserved for the genuine regression — a file recorded sealed and found readable — and away from a missing file or one the user never sealed. Sealing is offered only where it applies, and stopping management is offered per file. That view is realized by the shell's sidebar and detail surface, whose layout and disclosure rules are [shell-layout.md](shell-layout.md)'s; the behavioural rules stated here hold wherever it is rendered.
 
-**The import flow** groups candidates by classification with counts, preselects only what the scan judged genuinely secret, and scopes select-all to a group. The conservative preselection is load-bearing rather than timid: over-inclusion here encrypts a file that was meant to stay readable and breaks the user's build. It states plainly that importing encrypts nothing, and shows why each candidate was proposed.
+**The manage flow** groups candidates by classification with counts, preselects only what the scan judged genuinely secret, and scopes select-all to a group. The conservative preselection is load-bearing rather than timid: over-inclusion here encrypts a file that was meant to stay readable and breaks the user's build. It states plainly that confirming encrypts nothing, and that files stay where they are, and shows why each candidate was proposed.
 
 **The environment-variables editor** holds the rule with the most evidence behind it: **revealing a value must never mark the file dirty.** Reveal and edit write to separate state, and only the edit map feeds the unsaved-changes count and the save payload. Saving sends only changed pairs. Duplicate keys and unparseable lines are explained as preserved rather than reported as errors.
 
@@ -34,7 +34,7 @@ The same gate carries the establishing mode ([first-open.md](../first-open.md)):
 
 ## The application-level flows around the screens
 
-The application shell that hosts the screens carries three flows of its own. The import entry asks the folder-pick command for a path and only then scans, so cancelling the native dialog is a quiet no-op. Sealing first asks for the recency warning and, when one comes back, interposes a confirmation stating the modification gap, what Seal cannot see — an editor's unsaved buffer — and the instruction that actually works, closing the file in the editor first; only confirming proceeds to the acknowledgement gate and the seal. And every failure a screen does not handle inline surfaces through the problem banner per [errors.md](errors.md), with a locked-session failure re-locking to the shield instead. The shield accepts an outside notice for exactly that arrival, shown until typing starts.
+The application shell that hosts the screens carries three flows of its own. The add entry asks the folder-pick command for a path and only then scans, so cancelling the native dialog is a quiet no-op. Sealing first asks for the recency warning and, when one comes back, interposes a confirmation stating the modification gap, what Seal cannot see — an editor's unsaved buffer — and the instruction that actually works, closing the file in the editor first; only confirming proceeds to the acknowledgement gate and the seal. And every failure a screen does not handle inline surfaces through the problem banner per [errors.md](errors.md), with a locked-session failure re-locking to the shield instead. The shield accepts an outside notice for exactly that arrival, shown until typing starts.
 
 ## The interface holds nothing
 
@@ -48,7 +48,7 @@ Three guards were confirmed non-vacuous by reintroducing the exact defect each p
 
 - conveying reveal state by label and glyph instead of `aria-pressed`, the shape shipped in a real product, fails 5 tests
 - making reveal write into the edit map, the bug a surveyed product shipped when it added click-to-reveal, fails 2
-- preselecting every candidate on import, the select-everything default, fails 5
+- preselecting every candidate, the select-everything default, fails 5
 
 One defect was caught during the work by a test rather than by review: the unsaved-changes indicator and the reveal announcement both claimed the same live region, so assistive technology would have had two competing status sources on one screen.
 
@@ -60,7 +60,7 @@ Nothing on this plan. The folder picker is currently the platform prompt rather 
 
 - [x] The shared primitives, each with its rules asserted separately.
 - [x] The cross-repo view with the alert derived from the per-file flag.
-- [x] The import flow with grouped candidates and conservative preselection.
+- [x] The manage flow with grouped candidates and conservative preselection.
 - [x] The environment-variables editor, with reveal and edit as separate state.
 - [x] The unlock gate and the first-seal acknowledgement.
 - [x] Tests, with each load-bearing guard confirmed non-vacuous.

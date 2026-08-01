@@ -26,7 +26,7 @@ function renderSidebar(overrides: Partial<Parameters<typeof Sidebar>[0]> = {}) {
     expanded: new Set<string>(),
     onToggleExpand: vi.fn(),
     onSelect: vi.fn(),
-    onImport: vi.fn(),
+    onAdd: vi.fn(),
     ...overrides,
   };
   render(<Sidebar {...props} />);
@@ -151,12 +151,12 @@ describe("Sidebar", () => {
     expect(screen.getByRole("treeitem", { name: /site/ })).toHaveFocus();
   });
 
-  it("offers import even when nothing is imported yet", async () => {
+  it("offers adding even when nothing is added yet", async () => {
     const user = userEvent.setup();
     const props = renderSidebar({ repos: [] });
 
-    await user.click(screen.getByRole("button", { name: "Import" }));
-    expect(props.onImport).toHaveBeenCalled();
+    await user.click(screen.getByRole("button", { name: "Add" }));
+    expect(props.onAdd).toHaveBeenCalled();
   });
 
   it("keeps every file reachable by keyboard, not only by pointer", () => {

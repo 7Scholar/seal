@@ -2,17 +2,17 @@ Part of [the root plan](README.md).
 
 # Scope
 
-The registry is Seal's cross-repo state: which folders are registered as seal repos, which files inside each repo are managed, each managed file's sealed-or-not tag, and whether a repo uses a passphrase override rather than the master one. It owns the persistence of that state, the reconciliation of recorded state against what is actually on disk, and the import scan that proposes candidate secret files when a folder is registered. It is a Rust library with no dependency on Tauri and no path resolution of its own — the directory it stores state in is supplied by its caller, so the desktop app and the CLI both reach the same location while the library stays testable against a temporary directory. Out of scope: cryptography and file replacement (the engine's), any UI (the desktop app's), and deciding which passphrase to use (the registry reports that a repo *has* an override; collecting and applying passphrases belongs to the consumers).
+The registry is Seal's cross-repo state: which folders are registered as seal repos, which files inside each repo are managed, each managed file's sealed-or-not tag, and whether a repo uses a passphrase override rather than the master one. It owns the persistence of that state, the reconciliation of recorded state against what is actually on disk, and the candidate scan that proposes secret files when a folder is registered. It is a Rust library with no dependency on Tauri and no path resolution of its own — the directory it stores state in is supplied by its caller, so the desktop app and the CLI both reach the same location while the library stays testable against a temporary directory. Out of scope: cryptography and file replacement (the engine's), any UI (the desktop app's), and deciding which passphrase to use (the registry reports that a repo *has* an override; collecting and applying passphrases belongs to the consumers).
 
 # What exists
 
-The state model, the store, reconciliation, and the import scan, implemented and verified as a Rust library with no Tauri dependency and no path resolution of its own.
+The state model, the store, reconciliation, and the candidate scan, implemented and verified as a Rust library with no Tauri dependency and no path resolution of its own.
 
 **The store** holds one JSON file whose directory and contents are owner-only by explicit permission rather than umask default, since the registry names exactly where every secret on the machine lives. Unknown fields are carried through untouched and a file from a future version is readable but never rewritten, so an older Seal cannot destroy what a newer one recorded — live data loss on a machine where the application and the CLI can be at different versions. Writes replace the file atomically and keep the previous good copy. Updates guard against lost updates with a revision counter and retry, because atomic replacement prevents a torn file but not two writers each erasing the other's change.
 
 **Reconciliation** compares the record against disk and reports each divergence with the observed state. A file recorded as sealed that is now plaintext is the case that demands attention, and it is never absorbed into the record — that is the verified editor-clobber failure, and quietly recording it would replace an alert with a shrug. Benign divergences (a file gone missing, a file sealed outside Seal) can be applied to the record. The fingerprint comparison reports whether the file's identity changed, which distinguishes an external replacement from an in-place edit.
 
-**The import scan** walks with the ignore machinery disabled and prunes noise directories by filtering entries, for the two measured reasons in the root `MEMORY.md`. Candidates are classified secret, template, or ambiguous: env files and well-known credential files are pre-selected, the conventionally-committed example and sample variants are shown as recognised but never pre-selected, and genuinely contested names are surfaced unselected. A public key is never proposed as a private one.
+**The candidate scan** walks with the ignore machinery disabled and prunes noise directories by filtering entries, for the two measured reasons in the root `MEMORY.md`. Candidates are classified secret, template, or ambiguous: env files and well-known credential files are pre-selected, the conventionally-committed example and sample variants are shown as recognised but never pre-selected, and genuinely contested names are surfaced unselected. A public key is never proposed as a private one.
 
 Verified by twenty-three tests, including the exact inversion that research measured — a repo whose gitignore hides four real secrets while exposing only the committed example — plus a sealed file overwritten by an editor's atomic save being reported as alarming with its identity change detected, and two deterministic concurrency tests that interleave a competing write inside the update. The gitignore behaviour, the alarm, and the lost-update guard were each confirmed non-vacuous by breaking them.
 
@@ -46,7 +46,7 @@ Reconciliation runs on demand and whenever the app takes focus, because a full s
 
 A managed file is identified by its path within its repo, and reconciliation is what keeps that honest. Inode-style identity is recorded as part of the fingerprint for change *detection*, but is never the key: the tools users edit these files with routinely and legitimately give a file a new inode on an ordinary save, so treating that as "a different file" would be wrong far more often than right. A file that disappears from its path is reported as missing rather than hunted for.
 
-## The import scan
+## The candidate scan
 
 Registering a folder walks it for candidate secret files and presents them for the user to confirm or reject. Two constraints on that walk are recorded in the root `MEMORY.md` and are correctness requirements rather than preferences: the walk **does not respect gitignore rules**, because secret files are gitignored precisely because they are secret — a gitignore-respecting scan was measured returning only the committed example template while concealing every real secret — and noise directories are pruned by filtering entries during the walk rather than by adding include-globs, whose inverted semantics were measured silently re-admitting a secret under a build directory.
 
@@ -57,9 +57,9 @@ Candidates are classified into three confidence levels rather than presented as 
 - [x] Define the state shape, the versioning and migration mechanism, and the unknown-field passthrough.
 - [x] Implement load and store: atomic replacement, owner-only permissions, previous-good copy, and the revision compare-and-retry.
 - [x] Implement reconciliation against disk, returning a structured difference including the sealed-became-plaintext alert.
-- [x] Implement the import scan with the three-way candidate classification.
+- [x] Implement the candidate scan with the three-way classification.
 - [x] Unit tests: migration from each historical version, unknown-field round-trip, concurrent-writer lost-update prevention, permission assertions, and reconciliation against every divergence shape.
-- [x] Test scripts: a realistic multi-repo tree exercising import, reconciliation after external mutation, and a state file from a future version.
+- [x] Test scripts: a realistic multi-repo tree exercising the scan, reconciliation after external mutation, and a state file from a future version.
 
 # Open threads
 

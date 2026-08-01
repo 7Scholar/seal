@@ -2,7 +2,7 @@ Part of [the desktop plan](README.md).
 
 # Scope
 
-The commands that move a file or a repo **into and out of** management, and the safety gates the root intent attaches to them: importing a repo from a scan, removing a file from management, warning about a file an editor may be holding before sealing, and the acknowledgements a user must see before sealing anything for the first time. Out of scope: the screens that drive these (`ui/`), and the per-file operations that assume management already exists (`commands.md`).
+The commands that move a file or a repo **into and out of** management, and the safety gates the root intent attaches to them: bringing a repo's files under management from a scan, removing a file from management, warning about a file an editor may be holding before sealing, and the acknowledgements a user must see before sealing anything for the first time. Out of scope: the screens that drive these (`ui/`), and the per-file operations that assume management already exists (`commands.md`).
 
 # Approach
 
@@ -33,11 +33,11 @@ These are acknowledged **once per registry**, recorded in the registry itself so
 
 The acknowledgement records only that it happened. It is a fact about the installation, not about any file, so it belongs on the registry root rather than on a repo or a file.
 
-## Import
+## Bringing a repo under management
 
 A repo enters by pointing at a folder. Seal scans it with the registry's existing scan — gitignore deliberately disabled, since secret files are gitignored precisely because they are secret — and returns candidates each classified as a secret, ambiguous, or a template, with only the secrets preselected. The user toggles the selection and confirms; the confirmed files become that repo's managed files.
 
-Confirmation writes through the registry's compare-and-retry update, so a concurrent writer is never clobbered. Importing a folder that is already a registered repo **merges** into it rather than duplicating it: files already managed keep their recorded state, and only genuinely new paths are added. Import never seals anything — it records what is managed, and sealing stays an explicit separate action, so pointing Seal at a folder can never encrypt a file the user did not choose.
+Confirmation writes through the registry's compare-and-retry update, so a concurrent writer is never clobbered. Pointing Seal at a folder that is already a registered repo **merges** into it rather than duplicating it: files already managed keep their recorded state, and only genuinely new paths are added. Adding files never seals anything — it records what is managed, and sealing stays an explicit separate action, so pointing Seal at a folder can never encrypt a file the user did not choose.
 
 ## Removing a file from management
 
@@ -53,7 +53,7 @@ All of the Approach. A repo can now enter the application, files can leave it, a
 
 Nineteen tests cover it, including the two that matter most for trust: the acknowledgement gate refusing on the **real** seal command rather than only in isolation, and the acknowledgement surviving a store round trip. A registry file written before the acknowledgement field existed loads and defaults to not-acknowledged, so an upgrading user is asked once rather than silently treated as having agreed.
 
-Guards confirmed non-vacuous by breaking each and watching the matching tests fail: a gate that always passes fails 2, an import that never merges fails 1, a release that ignores the caller's choice fails 1, a warning that never fires fails 1, and dropping the path-traversal guard fails 1.
+Guards confirmed non-vacuous by breaking each and watching the matching tests fail: a gate that always passes fails 2, an add that never merges fails 1, a release that ignores the caller's choice fails 1, a warning that never fires fails 1, and dropping the path-traversal guard fails 1.
 
 The engine gained one operation for this: releasing a sealed file back to plaintext through the same locked, atomic, metadata-preserving replacement that sealing uses, rather than a plain write.
 
@@ -65,10 +65,10 @@ Nothing on this plan. The interface that drives these flows is `ui/`.
 
 - [x] Research what can actually be detected about a file being open elsewhere. Settled: descriptor checks do not work for the case that matters, and the check becomes a recency warning with detection-after-the-fact as the real safety net.
 - [x] Add the acknowledgement record to the registry state, forward-compatibly.
-- [x] Implement import: scan, candidates, confirm a selection, merge into the registry.
+- [x] Implement the add: scan, candidates, confirm a selection, merge into the registry.
 - [x] Implement removal from management, in both the unseal-in-place and leave-sealed forms.
 - [x] Implement the recency warning and the acknowledgement gate on sealing.
-- [x] Tests: a fresh registry gains a repo through import; importing twice merges rather than duplicates; a removed file is released with its plaintext restored deliberately; sealing refuses until acknowledged; a recently-modified file warns; and each guard confirmed non-vacuous.
+- [x] Tests: a fresh registry gains a repo through the add; adding twice merges rather than duplicates; a removed file is released with its plaintext restored deliberately; sealing refuses until acknowledged; a recently-modified file warns; and each guard confirmed non-vacuous.
 
 # Open threads
 

@@ -37,7 +37,7 @@ describe("first run: install, choose a password, protect a first file", () => {
 
     await expect($("h1=Seal manages nothing yet")).toBeDisplayed();
     await expect($("p*=Nothing is encrypted until you choose")).toBeDisplayed();
-    await expect($("button=Import a folder")).toBeDisplayed();
+    await expect($("button=Add a folder")).toBeDisplayed();
   });
 
   it("recorded the password only as a sealed check file", () => {
@@ -56,14 +56,14 @@ describe("first run: install, choose a password, protect a first file", () => {
     }
   });
 
-  it("imports a repository through the folder picker, preselecting only real secrets", async () => {
+  it("adds a repository through the folder picker, preselecting only real secrets", async () => {
     repo = process.env.SEAL_E2E_PICK_FOLDER ?? "";
     writeFileSync(join(repo, ".env"), "API_KEY=sk-live-1234567890abcdef\n");
     writeFileSync(join(repo, ".env.example"), "API_KEY=\n");
 
-    await $("button=Import a folder").click();
+    await $("button=Add a folder").click();
 
-    await expect($(`h1=Import ${repo}`)).toBeDisplayed();
+    await expect($(`h1=Seal in ${repo}`)).toBeDisplayed();
     await expect($("p*=It does not encrypt")).toBeDisplayed();
     await expect($("legend*=Secret files")).toBeDisplayed();
     await expect($("legend*=Templates and examples")).toBeDisplayed();

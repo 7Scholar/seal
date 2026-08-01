@@ -2,7 +2,7 @@
 
 ## What & why
 
-The interface itself: everything the user sees and does. The cross-repo view of registered repos and their managed files with sealed or unsealed state, the import flow that scans a folder and presents candidates for confirmation, the environment-variables editor for env files, and the two flows whose behaviour the [desktop Approach](../README.md) fixes because they carry more weight than their screens suggest — the alert when a file that should be sealed is found in the clear, and the supervised master-password change. It is done when a user can do everything the root intent promises without needing to know that a command line exists.
+The interface itself: everything the user sees and does. The cross-repo view of registered repos and their managed files with sealed or unsealed state, the manage flow that scans a folder and presents candidates for confirmation, the environment-variables editor for env files, and the two flows whose behaviour the [desktop Approach](../README.md) fixes because they carry more weight than their screens suggest — the alert when a file that should be sealed is found in the clear, and the supervised master-password change. It is done when a user can do everything the root intent promises without needing to know that a command line exists.
 
 ## Approach
 
@@ -14,9 +14,9 @@ This is the first surface in the product, so there is no existing family to mirr
 
 ### The three surfaces
 
-**The cross-repo view** is home: repos as sections, each listing its managed files with a state tag. With nothing imported it *is* the import call to action rather than an illustration beside one, since the application can do nothing else until a repo exists.
+**The cross-repo view** is home: repos as sections, each listing its managed files with a state tag. With nothing added it *is* the add call to action rather than an illustration beside one, since the application can do nothing else until a repo exists.
 
-**The import flow** is a folder picker then a candidate list grouped by classification with counts — secret, ambiguous, template — with only secrets preselected, per-group select-all, and a confirmation that states plainly that importing encrypts nothing. Preselecting conservatively is not timidity: over-inclusion encrypts a file that was meant to stay readable and breaks the user's build.
+**The manage flow** is a folder picker then a candidate list grouped by classification with counts — secret, ambiguous, template — with only secrets preselected, per-group select-all, and a confirmation that states plainly that confirming encrypts nothing and that files stay where they are. Preselecting conservatively is not timidity: over-inclusion encrypts a file that was meant to stay readable and breaks the user's build.
 
 **The environment-variables editor** is a per-variable row list: name, masked value, reveal, copy once revealed, edit, delete. Duplicate keys appear as the distinct lines they are rather than being collapsed. A managed file that is not an env file opens as a plain statement of what it is, with no editing surface at all.
 
@@ -28,7 +28,7 @@ Two proportionality rules keep insistence from becoming wallpaper. The treatment
 
 ### Friction is spent deliberately, and only twice
 
-Confirmation dialogs fail by habituation, so this interface spends real friction exactly twice: the first-seal acknowledgement of the two irreversible facts, and the master-password change. Everywhere else a confirmation names its objects and labels its buttons with outcomes rather than Yes and No. Import gets no confirmation at all — it encrypts nothing and is fully reversible, so a dialog there would train users to click through the two that matter.
+Confirmation dialogs fail by habituation, so this interface spends real friction exactly twice: the first-seal acknowledgement of the two irreversible facts, and the master-password change. Everywhere else a confirmation names its objects and labels its buttons with outcomes rather than Yes and No. Adding a repository gets no confirmation at all — it encrypts nothing and is fully reversible, so a dialog there would train users to click through the two that matter.
 
 Removing a file from management never touches the disk as a side effect, and the on-disk consequence is stated in the dialog rather than defaulted.
 
@@ -59,7 +59,7 @@ Reveal is not an edit and must never mark a file dirty — a demonstrated failur
 
 # Cursor
 
-The frontend and every screen are built: the unlock sand shield, the cross-repo view with its non-dismissible alert, the import flow, the environment-variables editor, and the first-seal acknowledgement — all but unlock on a design taken from [the research](_docs/ux-research.md) rather than invented. Ninety-three interface tests across the screens, the failure surface, and the password change, with each load-bearing guard confirmed by reintroducing the exact defect it prevents.
+The frontend and every screen are built: the unlock sand shield, the cross-repo view with its non-dismissible alert, the manage flow, the environment-variables editor, and the first-seal acknowledgement — all but unlock on a design taken from [the research](_docs/ux-research.md) rather than invented. Ninety-three interface tests across the screens, the failure surface, and the password change, with each load-bearing guard confirmed by reintroducing the exact defect it prevents.
 
 `password-change.md` is complete too, on a manifest that outlives the process: removing that durability fails eight of its ten Rust tests, which is the measure of how much the guarantee was carrying.
 
@@ -75,10 +75,10 @@ Every child above `repo-layer/` is complete as code. What that does **not** mean
 
 Its four design forks were settled by the product owner and its Approach is written: one tree seen at two fidelities — the whole repository while adopting, the managed set alone while living with it — with every file individually selectable, a folder's checkbox scoped to the detected files beneath it rather than all of them, the skipped build directories shown inert and unexpandable, and *import* retired from the vocabulary everywhere. The sidebar's *two levels, never a third* rule is scoped to the sidebar rather than overturned: it was written about navigation and keeps holding there.
 
-Its children split on the seam the Approach names: `vocabulary.md` (the rename, which depends on nothing and lands first), `scan-shape.md` (the scan returning structure rather than candidates), `adopting.md` (the whole-repository surface, owning the tree primitive), and `managed-view.md` (the steady state reusing it). Two of this group's finalized plans will need their Approach updated as those land — `screens.md`, whose import flow is grouped candidate lists, and `shell-layout.md`, whose detail surface is a file list.
+Its children split on the seam the Approach names: `vocabulary.md` (the rename, which depends on nothing and lands first), `scan-shape.md` (the scan returning structure rather than candidates), `adopting.md` (the whole-repository surface, owning the tree primitive), and `managed-view.md` (the steady state reusing it). Two of this group's finalized plans will need their Approach updated as those land — `screens.md`, whose manage flow is grouped candidate lists, and `shell-layout.md`, whose detail surface is a file list.
 
 # Open threads
 
-- Whether a bulk import of variables is offered at all. Settled in the research as out of the first build: the shapes the hosted platforms use all force every value across the boundary at once. If it returns, the only acceptable form is parse-and-preview applied in Rust, never round-tripping existing values through the interface.
+- Whether a bulk paste of variables is offered at all. Settled in the research as out of the first build: the shapes the hosted platforms use all force every value across the boundary at once. If it returns, the only acceptable form is parse-and-preview applied in Rust, never round-tripping existing values through the interface.
 - The clipboard timer's duration. Ninety seconds is the only concrete reference found; whether it suits a desktop editing session wants observation.
 - Whether the exposed-file count belongs in the window frame from the first build, or only once several repos are common. The row-level alert carries the weight regardless.

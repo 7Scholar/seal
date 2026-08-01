@@ -26,7 +26,7 @@ const GROUPS = [
   },
 ];
 
-export function ImportFlow({ scan, onConfirm, onCancel }: Props) {
+export function ManageFlow({ scan, onConfirm, onCancel }: Props) {
   const [selected, setSelected] = useState<Set<string>>(
     () =>
       new Set(
@@ -70,9 +70,9 @@ export function ImportFlow({ scan, onConfirm, onCancel }: Props) {
   const nothingFound = scan.candidates.length === 0;
 
   return (
-    <section className="import">
+    <section className="manage">
       <header>
-        <h1>Import {scan.root}</h1>
+        <h1>Seal in {scan.root}</h1>
         {scan.alreadyRegistered ? (
           <p role="note">
             This folder is already managed. Confirming adds the files you pick to
@@ -82,19 +82,19 @@ export function ImportFlow({ scan, onConfirm, onCancel }: Props) {
       </header>
 
       {nothingFound ? (
-        <p className="import__empty">
+        <p className="manage__empty">
           No candidate secret files were found in this folder. You can still add
           files later, or pick a different folder.
         </p>
       ) : null}
 
       {groups.map((group) => (
-        <fieldset key={group.confidence} className="import__group">
+        <fieldset key={group.confidence} className="manage__group">
           <legend>
             {group.heading} ({group.members.length})
           </legend>
-          <p className="import__blurb">{group.blurb}</p>
-          <div className="import__bulk">
+          <p className="manage__blurb">{group.blurb}</p>
+          <div className="manage__bulk">
             <button
               type="button"
               onClick={() => setGroup(group.members, true)}
@@ -120,10 +120,10 @@ export function ImportFlow({ scan, onConfirm, onCancel }: Props) {
                     disabled={candidate.alreadyManaged}
                     onChange={() => toggle(candidate.relativePath)}
                   />
-                  <span className="import__path">{candidate.relativePath}</span>
-                  <span className="import__reason">{candidate.reason}</span>
+                  <span className="manage__path">{candidate.relativePath}</span>
+                  <span className="manage__reason">{candidate.reason}</span>
                   {candidate.alreadyManaged ? (
-                    <span className="import__managed">already managed</span>
+                    <span className="manage__managed">already managed</span>
                   ) : null}
                 </label>
               </li>
@@ -132,10 +132,11 @@ export function ImportFlow({ scan, onConfirm, onCancel }: Props) {
         </fieldset>
       ))}
 
-      <footer className="import__actions">
-        <p className="import__assurance">
-          Importing records which files Seal manages. It does not encrypt
-          anything — sealing stays a separate, deliberate action.
+      <footer className="manage__actions">
+        <p className="manage__assurance">
+          Seal records which files it manages here. It does not encrypt
+          anything — sealing stays a separate, deliberate action. Your files
+          stay where they are: nothing is moved, renamed, or copied.
         </p>
         <button type="button" onClick={onCancel}>
           Cancel

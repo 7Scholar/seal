@@ -70,7 +70,7 @@ pub fn scan_folder(root: &Path, state: &State) -> Result<ScanView, CommandError>
     })
 }
 
-pub fn import(state: &mut State, root: &Path, selected: &[PathBuf]) -> Result<usize, CommandError> {
+pub fn manage(state: &mut State, root: &Path, selected: &[PathBuf]) -> Result<usize, CommandError> {
     if !root.is_dir() {
         return Err(CommandError::at(Kind::Absent, root));
     }

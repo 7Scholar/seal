@@ -71,7 +71,7 @@ The sidebar's *two levels, never a third* rule is **scoped to the sidebar** rath
 
 # Plans
 
-- [ ] vocabulary.md -> retiring the word *import* everywhere, and the assurance that files do not move
+- [x] vocabulary.md -> retiring the word *import* everywhere, and the assurance that files do not move
 - [ ] scan-shape.md -> what the scan hands the interface: the repository's structure rather than a candidate list
 - [ ] adopting.md -> the whole-repository surface, and the tree primitive both fidelities share
 - [ ] managed-view.md -> the steady-state surface: the same tree over the managed set alone
@@ -86,7 +86,9 @@ The concern was raised during a UI improvement session and correctly rejected as
 
 Prior art was surveyed twice and is design **input** to the Approach — the tools that solve this problem in place (git-crypt, transcrypt, dotenvx, SOPS, Ansible Vault), the ones whose file-moving is the feeling to avoid (blackbox, chezmoi, git-secret), and the tree-and-overlay mechanics from VS Code's Explorer, GitHub's file browser, and the cloud-storage badge conventions.
 
-**Next: `vocabulary.md`.** It depends on nothing, delivers most of the framing improvement on its own, and lands before any tree exists. Then `scan-shape.md`, whose first step is a measurement that two of this node's open threads wait on — how broad a realistic repository actually is, which decides whether the adopting surface needs a filter and whether the scan can stay one-shot. `adopting.md` follows it, and `managed-view.md` follows that, since it reuses the primitive `adopting.md` builds.
+`vocabulary.md` is **complete**: the word is retired from the interface, the boundary command, and the plan prose, and the assurance now states both that confirming encrypts nothing and that files do not move. The `first-run` journey passes against a release build carrying it.
+
+**Next: `scan-shape.md`,** whose first step is a measurement that two of this node's open threads wait on — how broad a realistic repository actually is, which decides whether the adopting surface needs a filter and whether the scan can stay one-shot. `adopting.md` follows it, and `managed-view.md` follows that, since it reuses the primitive `adopting.md` builds.
 
 # Open threads
 

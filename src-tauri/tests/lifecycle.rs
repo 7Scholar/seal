@@ -48,7 +48,7 @@ fn a_fresh_registry_gains_a_repo_through_import() {
         "a real secret must be preselected, got {selected:?}"
     );
 
-    let added = lifecycle::import(&mut state, &root, &selected).unwrap();
+    let added = lifecycle::manage(&mut state, &root, &selected).unwrap();
 
     assert_eq!(added, selected.len());
     assert_eq!(state.repos.len(), 1);
@@ -93,8 +93,8 @@ fn importing_the_same_folder_twice_merges_rather_than_duplicating() {
     let (_dir, root) = repo_with_secrets();
     let mut state = State::default();
 
-    let first = lifecycle::import(&mut state, &root, &[PathBuf::from(".env.production")]).unwrap();
-    let second = lifecycle::import(
+    let first = lifecycle::manage(&mut state, &root, &[PathBuf::from(".env.production")]).unwrap();
+    let second = lifecycle::manage(
         &mut state,
         &root,
         &[PathBuf::from(".env.production"), PathBuf::from(".env")],
@@ -111,7 +111,7 @@ fn importing_the_same_folder_twice_merges_rather_than_duplicating() {
 fn a_rescan_marks_what_is_already_managed() {
     let (_dir, root) = repo_with_secrets();
     let mut state = State::default();
-    lifecycle::import(&mut state, &root, &[PathBuf::from(".env.production")]).unwrap();
+    lifecycle::manage(&mut state, &root, &[PathBuf::from(".env.production")]).unwrap();
 
     let view = lifecycle::scan_folder(&root, &state).unwrap();
 
@@ -130,7 +130,7 @@ fn import_refuses_a_path_that_escapes_the_repo() {
     let mut state = State::default();
 
     let error =
-        lifecycle::import(&mut state, &root, &[PathBuf::from("../elsewhere/.env")]).unwrap_err();
+        lifecycle::manage(&mut state, &root, &[PathBuf::from("../elsewhere/.env")]).unwrap_err();
 
     assert_eq!(
         error.kind,
@@ -151,7 +151,7 @@ fn import_records_whether_each_file_is_already_sealed() {
     .unwrap();
 
     let mut state = State::default();
-    lifecycle::import(
+    lifecycle::manage(
         &mut state,
         &root,
         &[PathBuf::from(".env.production"), PathBuf::from(".env")],
@@ -176,7 +176,7 @@ fn importing_never_seals_anything() {
     let (_dir, root) = repo_with_secrets();
     let mut state = State::default();
 
-    lifecycle::import(&mut state, &root, &[PathBuf::from(".env.production")]).unwrap();
+    lifecycle::manage(&mut state, &root, &[PathBuf::from(".env.production")]).unwrap();
 
     assert_eq!(
         std::fs::read_to_string(root.join(".env.production")).unwrap(),
@@ -199,7 +199,7 @@ fn releasing_a_file_restores_its_plaintext_and_forgets_it() {
     .unwrap();
 
     let mut state = acknowledged();
-    lifecycle::import(&mut state, &root, &[PathBuf::from(".env.production")]).unwrap();
+    lifecycle::manage(&mut state, &root, &[PathBuf::from(".env.production")]).unwrap();
 
     lifecycle::release(
         &mut state,
@@ -232,7 +232,7 @@ fn releasing_can_leave_the_file_sealed() {
     .unwrap();
 
     let mut state = acknowledged();
-    lifecycle::import(&mut state, &root, &[PathBuf::from(".env.production")]).unwrap();
+    lifecycle::manage(&mut state, &root, &[PathBuf::from(".env.production")]).unwrap();
 
     lifecycle::release(
         &mut state,
@@ -256,7 +256,7 @@ fn releasing_can_leave_the_file_sealed() {
 fn releasing_one_of_several_files_keeps_the_repo() {
     let (_dir, root) = repo_with_secrets();
     let mut state = acknowledged();
-    lifecycle::import(
+    lifecycle::manage(
         &mut state,
         &root,
         &[PathBuf::from(".env.production"), PathBuf::from(".env")],
@@ -346,7 +346,7 @@ fn the_seal_command_itself_refuses_until_acknowledged() {
     let path = root.join(".env.production");
 
     let mut state = State::default();
-    lifecycle::import(&mut state, &root, &[PathBuf::from(".env.production")]).unwrap();
+    lifecycle::manage(&mut state, &root, &[PathBuf::from(".env.production")]).unwrap();
 
     let mut session = seal_session::Session::new();
     session

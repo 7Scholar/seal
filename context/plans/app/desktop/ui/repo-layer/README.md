@@ -96,6 +96,5 @@ This is the disclosure architecture ([shell-layout.md](../shell-layout.md)) tigh
 
 # Open threads
 
-- ~~What a very large repository does to the whole-repository fidelity.~~ **Settled.** Measured at 42,123 rows with a 7,877-entry directory; the scan stays one-shot and the tree renders a collapsed directory's children only on expansion, so no cap, truncation, or virtualization is needed. Recorded in [scan-shape.md](scan-shape.md) and [adopting.md](adopting.md).
 - Whether a tri-state folder checkbox is announced usefully by real screen readers. `aria-checked="mixed"` is well defined on a native checkbox and less certain on a tree row; it wants driving with VoiceOver before the middle state is relied on as the only carrier of "something is selected below here". Lands with [adopting.md](adopting.md)'s assistive-technology step.
 - Whether the managed-only fidelity should offer a way to see the rest of the repository from where it stands, rather than only through a rescan. Carried by [managed-view.md](managed-view.md), which wants both surfaces built and comparable before deciding.

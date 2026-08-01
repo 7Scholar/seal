@@ -6,7 +6,7 @@ Someone has just installed Seal and is opening it for the first time. They have 
 
 What they know: roughly what encryption is, and that this tool encrypts secret files in their repositories. That is all.
 
-What they do **not** know, and must never be assumed to know: that there is such a thing as a master password until the product tells them; that the password is unrecoverable; that a password is being *created* rather than *entered*; that anything is called a registry, a session, or a repo record; that sealing is separate from importing; that the product cannot undo an exposure that already happened.
+What they do **not** know, and must never be assumed to know: that there is such a thing as a master password until the product tells them; that the password is unrecoverable; that a password is being *created* rather than *entered*; that anything is called a registry, a session, or a repo record; that sealing is separate from bringing a file under management; that the product cannot undo an exposure that already happened.
 
 They are, at this moment, deciding whether this tool is trustworthy. Everything below is judged against that.
 
@@ -43,7 +43,7 @@ They are, at this moment, deciding whether this tool is trustworthy. Everything 
 - That this is a first run and the product is empty because it is new, not because something failed.
 - That a password is being created rather than entered.
 - What to do next, at every single step, including the empty state.
-- That importing and encrypting are different actions.
+- That managing a file and encrypting it are different actions.
 
 **Never assumed:**
 
@@ -52,11 +52,11 @@ They are, at this moment, deciding whether this tool is trustworthy. Everything 
 
 # Demonstration
 
-**Driven end to end, automated, 2026-07-31**, by the journey harness ([the harness plan](../plans/app/desktop/journey-harness.md)) against a release build of the real application on macOS, from a scratch home holding nothing — no registry, no password, no repositories. Three consecutive full runs green. What the run asserts, in order: the application opens to *choosing* a master password, saying so and stating that it can never be recovered; a mistyped confirmation sets nothing and starts over; matching entries establish and land in the empty state with the import action; the password exists on disk only as a sealed age file that does not contain it; import runs through the folder picker, groups candidates, and preselects only the real secret; sealing is refused until the two irreversible facts are acknowledged behind typed confirmation; the file in the repository is genuinely armored age text with no trace of the secret; and locking, a wrong password is refused saying nothing was changed, then the right one reopens to the sealed file.
+**Driven end to end, automated, 2026-07-31; re-driven 2026-08-01** after the intake surface became a tree, by the journey harness ([the harness plan](../plans/app/desktop/journey-harness.md)) against a release build of the real application on macOS, from a scratch home holding nothing — no registry, no password, no repositories. Three consecutive full runs green. What the run asserts, in order: the application opens to *choosing* a master password, saying so and stating that it can never be recovered; a mistyped confirmation sets nothing and starts over; matching entries establish and land in the empty state with the add action; the password exists on disk only as a sealed age file that does not contain it; adding a repository runs through the folder picker, draws the repository as its own tree, and preselects only the real secret; sealing is refused until the two irreversible facts are acknowledged behind typed confirmation; the file in the repository is genuinely armored age text with no trace of the secret; and locking, a wrong password is refused saying nothing was changed, then the right one reopens to the sealed file.
 
 The drive also caught what only a real webview shows: a synthesized Enter never triggers implicit form submission, so the unlock shield now submits on its own keydown — the exact class of defect this axis exists to catch.
 
-The earlier baseline — a password prompt with no explanation and an import button that did nothing — is preserved in history; both defects are fixed and the fixes are what the demonstration exercises.
+The earlier baseline — a password prompt with no explanation and an intake button that did nothing — is preserved in history; both defects are fixed and the fixes are what the demonstration exercises.
 
 # Findings
 

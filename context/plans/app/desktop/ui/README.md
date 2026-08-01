@@ -38,6 +38,14 @@ Unlock is the sand shield: coal-fine grains over a lit ground, parted by the poi
 
 The master-password change plans before applying, keeps a **durable per-item record on disk from the moment the plan is committed**, retries transient failures automatically, and offers scoped retry of only what failed. The record is durable because a crash mid-run would otherwise leave a repo with some files on each password and no record of which are which — and that is the dangerous state the whole operation is designed to avoid. Its completion answers the user's actual question, which files are on which password and what they need now, never a bare count of failures.
 
+### Prose is a last resort, not a layout element
+
+Stated by the product owner and binding on every surface here: **if the interface needs a sentence to explain itself, the interface is insufficient.** Subtitles, ledes, helper text and explanatory paragraphs sitting in the layout are not allowed — their presence is evidence that the arrangement, the labels, or the affordances failed, and the fix is the surface rather than the sentence.
+
+Full sentences are permitted in exactly two places. Inside an **info affordance the user chose to open**, where an explanation or a description belongs. And in a **confirmation for a destructive act**, where the sentence states the consequence or the constraint the user is about to accept.
+
+This tightens the disclosure architecture by one notch rather than restating it. Disclosure says explanation always collapses; this says the collapsed thing must be genuinely explanatory rather than a paragraph that survived by being relocated, and that a surface with nothing worth collapsing should simply be quiet.
+
 ### What the interface may never do
 
 Reveal is not an edit and must never mark a file dirty — a demonstrated failure mode in a product with this exact feature combination. The interface holds no secret beyond the row being displayed and persists nothing. Reveal controls are buttons carrying their state in `aria-pressed` with a constant accessible name that names the variable, because every row has one and an identical name on all of them leaves a screen-reader user unable to tell which field they are toggling. Secret inputs opt out of spellcheck, autocapitalisation and autocomplete.
@@ -47,6 +55,7 @@ Reveal is not an edit and must never mark a file dirty — a demonstrated failur
 - Before designing or changing any screen, follow [_docs/ux-research.md](_docs/ux-research.md) — it holds the tiered findings, the behavioural rules, and the out-of-scope decisions with their reasons.
 - Before changing the shell, the navigation between screens, or anything about what is shown versus collapsed, follow [_docs/shell-research.md](_docs/shell-research.md) — it holds the disclosure rules and where disclosure stops.
 - When placing an operation on any surface, follow [_docs/shell-operations.md](_docs/shell-operations.md) — it assigns every operation a scope, a home, and a disclosure posture.
+- **Before calling any interface change done, drive it** — [docs/RUNNING.md](../../../../../docs/RUNNING.md) has the procedure, and `bun run e2e:build && bun run e2e` is the check. This is not belt-and-braces: this plan group has now twice shipped a defect that every unit test on both sides passed and only the running application revealed, the second being a boundary casing mismatch that selected every file in a tree while the interface's fixtures and the Rust's own assertions both stayed green. A frontend change reaches a real binary only by rebuilding both, so a surface that "looks unchanged" after a rebuild is a stale `dist/`, not a working change.
 
 # Plans
 
@@ -82,3 +91,4 @@ Its defining lesson is recorded in the desktop `MEMORY.md`: a serde casing misma
 - Whether a bulk paste of variables is offered at all. Settled in the research as out of the first build: the shapes the hosted platforms use all force every value across the boundary at once. If it returns, the only acceptable form is parse-and-preview applied in Rust, never round-tripping existing values through the interface.
 - The clipboard timer's duration. Ninety seconds is the only concrete reference found; whether it suits a desktop editing session wants observation.
 - Whether the exposed-file count belongs in the window frame from the first build, or only once several repos are common. The row-level alert carries the weight regardless.
+- **Surfaces still carrying prose the rule above disallows.** The rule was stated after most screens were built, so it has only been applied to the surfaces `repo-layer/` touched. Known remaining: the empty state's two-sentence paragraph and the acknowledgement's explanatory copy — the latter may well be legitimate, since it is a destructive-act confirmation stating a consequence, which the rule permits. This wants a deliberate sweep judging each surface against the two allowed cases, not a blanket deletion; the empty state in particular is asserted by the first-run journey, so changing it is a contract change rather than a tweak.

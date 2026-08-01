@@ -35,7 +35,7 @@ They know their own repository well. They do not know, and should not need to le
 
 - The difference between Seal watching a file and Seal protecting it.
 - Why each candidate was proposed, and why some are pre-chosen.
-- That confirming an import encrypts nothing.
+- That confirming encrypts nothing, and that the files do not move.
 - What state every listed file is currently in.
 
 **Never assumed:**
@@ -45,9 +45,11 @@ They know their own repository well. They do not know, and should not need to le
 
 # Demonstration
 
-**Steps 1 through 6 driven, automated, 2026-07-31**, inside the harness's `first-run` scenario: the folder chosen through the native-dialog command, the scan shown grouped with only the genuine secret preselected and the template left unchecked, the import confirmed with the statement that nothing is encrypted, the seal gated on the two irreversible facts behind typed confirmation, and the result verified on disk as armored age text with the state tag updated.
+**Steps 1 through 6 driven, automated, re-driven 2026-08-01**, inside the harness's `first-run` scenario: the folder chosen through the native-dialog command, the repository drawn as its own tree with only the genuine secret preselected and the template left unchecked, the selection confirmed, the seal gated on the two irreversible facts behind typed confirmation, and the result verified on disk as armored age text with the state tag updated.
 
-**Step 7 — re-importing a known repository, and the second repository — has not been driven.** The journey is not satisfied until it is.
+The surface the journey passes through changed on 2026-08-01 and the journey's own wording follows it: the scan no longer presents three lists grouped by classification, but the repository itself with Seal's judgement marked per row ([repo-layer/](../plans/app/desktop/ui/repo-layer/README.md)). Step 2's requirement is unchanged and still met — the user can tell at a glance what Seal thinks is a real secret, what it is unsure about, and what it believes is a template — but it is now answered by per-row annotations rather than by the grouping.
+
+**Step 7 — rescanning a known repository, and the second repository — has not been driven.** The journey is not satisfied until it is.
 
 # Findings
 

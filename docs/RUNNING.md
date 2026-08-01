@@ -36,6 +36,18 @@ SEAL_E2E_HOME=$(mktemp -d) ./e2e/launch-fresh.sh
 
 The wrapper points `HOME` at the scratch directory, so the app starts from genuinely nothing — no registry, no master password — without touching your real state.
 
+## Refreshing the application you open with `seal open`
+
+```
+bun run update-local
+```
+
+This rebuilds the interface, the desktop binary, and the command-line binary in the order the embedding rule above demands — the frontend first, so the cargo build embeds a current `dist/` rather than a stale one.
+
+`seal open` finds the application by the search in [the CLI plan](../context/plans/app/cli.md), which checks beside the running `seal` binary before anything installed. A `seal` on your path that symlinks into `target/release/` therefore opens the build this command produces, and an installed copy is never reached. The command warns when the launcher it finds resolves somewhere with no desktop binary beside it, because that is the arrangement in which a rebuild changes nothing visible and a staler installed application opens instead.
+
+Refreshing an installed application bundle is a separate act this command does not perform.
+
 ## Driving it with the journey harness
 
 The harness launches the real release binary and drives it like a person: finds controls by their on-screen names, types, clicks, and asserts. It is how a change is confirmed working in the real webview, where unit tests cannot see (the defect class that motivated it: a control that passes every unit test and does nothing in the real app).
@@ -56,5 +68,6 @@ Two environment variables, both minted automatically by `e2e/wdio.conf.ts` and s
 - **"Tauri app exited before the embedded WebDriver server became ready"** — the binary at `target/release/seal-desktop` was built without the `e2e` feature. Any plain `cargo build --release` — including the CI workflow's bridge-absence check run locally — silently overwrites the harness binary with a bridge-less one. Run `bun run e2e:build` again. Sanity check: `strings target/release/seal-desktop | grep -ci webdriver` — zero means no bridge.
 - **The bridge never becomes ready but the app window appears and stays** — a leftover instance from an earlier run may be holding the bridge port. `pkill -x seal-desktop`, then rerun.
 - **A blank window** — a dev-mode binary without the dev server: either build with `custom-protocol` or start `bun run dev` first.
-- **The app looks like an older version** — the binary embedded a stale `dist/`; rebuild frontend then binary, which is what `e2e:build` does in order.
+- **The app looks like an older version** — the binary embedded a stale `dist/`; rebuild frontend then binary, which is what `e2e:build` and `update-local` both do in order.
+- **`seal open` still shows the old interface after a rebuild** — the `seal` on your path resolves somewhere with no desktop binary beside it, so the launcher fell through to an installed copy that the rebuild never touched. `bun run update-local` reports this case; the search it fell through is in [the CLI plan](../context/plans/app/cli.md).
 - **The extended scenario wedges mid-run** — the known defect; not yours. See [the harness plan](../context/plans/app/desktop/journey-harness.md).

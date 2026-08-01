@@ -9,7 +9,7 @@ export interface SandShield {
 
 const COAL = ["#141316", "#1b191d", "#212024", "#292628"];
 const FLECK = "#4a4237";
-const REACH = 96;
+const REACH = 25;
 const TRAIL_LIFE = 260;
 const SPARK_LIFE = 650;
 const PULSE_LIFE = 700;
@@ -167,7 +167,7 @@ export function createSandShield(canvas: HTMLCanvasElement): SandShield {
 
   function moveGrains(t: number, dt: number) {
     const ds = Math.min(2.5, dt / 16.7);
-    const reach = REACH + 34;
+    const reach = REACH * 1.35;
     for (let i = 0; i < grainCount; i += 1) {
       const o = i * 6;
       const hx = grains[o]!;

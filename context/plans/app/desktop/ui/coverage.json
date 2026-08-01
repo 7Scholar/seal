@@ -1,6 +1,6 @@
 {
   "errors.md": {
-    "ui/App.tsx": "db87c4406dff9b30e905080324f0986b2ec4b576",
+    "ui/App.tsx": "8db50306a03474d549447c2cc29fca0a43337dae",
     "ui/components/Problem.test.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "ui/components/Problem.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "ui/errors.test.ts": "a0b3f33bc64a56a499060d82bb90794330e3227e",
@@ -13,7 +13,7 @@
     "ui/screens/PasswordChange.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e"
   },
   "screens.md": {
-    "ui/App.tsx": "0786de7bb8bb045652357842ca608307f0641c9d",
+    "ui/App.tsx": "8db50306a03474d549447c2cc29fca0a43337dae",
     "ui/components/Confirm.test.tsx": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b",
     "ui/components/Confirm.tsx": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b",
     "ui/components/ExposureAlert.test.tsx": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b",
@@ -31,13 +31,13 @@
     "ui/screens/Unlock.test.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "ui/screens/Unlock.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "ui/screens/sandShield.ts": "2b72f4a1974077a8a59db94f8a5910edade8369b",
-    "ui/styles.css": "0786de7bb8bb045652357842ca608307f0641c9d",
+    "ui/styles.css": "8db50306a03474d549447c2cc29fca0a43337dae",
     "ui/test-setup.ts": "2b72f4a1974077a8a59db94f8a5910edade8369b"
   },
   "shell-layout.md": {
-    "e2e/journeys/first-run.e2e.ts": "8b2efa93ef5802872681b22237c00037cf914e3e",
-    "ui/App.test.tsx": "db87c4406dff9b30e905080324f0986b2ec4b576",
-    "ui/App.tsx": "db87c4406dff9b30e905080324f0986b2ec4b576",
+    "e2e/journeys/first-run.e2e.ts": "8db50306a03474d549447c2cc29fca0a43337dae",
+    "ui/App.test.tsx": "8db50306a03474d549447c2cc29fca0a43337dae",
+    "ui/App.tsx": "8db50306a03474d549447c2cc29fca0a43337dae",
     "ui/components/Overflow.tsx": "db87c4406dff9b30e905080324f0986b2ec4b576",
     "ui/components/Toggletip.test.tsx": "db87c4406dff9b30e905080324f0986b2ec4b576",
     "ui/components/Toggletip.tsx": "db87c4406dff9b30e905080324f0986b2ec4b576",
@@ -45,7 +45,7 @@
     "ui/screens/RepoDetail.tsx": "db87c4406dff9b30e905080324f0986b2ec4b576",
     "ui/screens/Sidebar.test.tsx": "db87c4406dff9b30e905080324f0986b2ec4b576",
     "ui/screens/Sidebar.tsx": "db87c4406dff9b30e905080324f0986b2ec4b576",
-    "ui/styles.css": "db87c4406dff9b30e905080324f0986b2ec4b576"
+    "ui/styles.css": "8db50306a03474d549447c2cc29fca0a43337dae"
   },
   "shell.md": {
     "package.json": "40cd3f67e2e44b529590db3ede8868c7fd0eaa6c",

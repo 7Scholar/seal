@@ -1,0 +1,17 @@
+{
+  "vocabulary.md": {
+    "e2e/journeys/first-run.e2e.ts": "b0d0371b3597f8f33d81d6ac0ef4550571cb3726",
+    "e2e/journeys/return-and-use.e2e.ts": "b0d0371b3597f8f33d81d6ac0ef4550571cb3726",
+    "src-tauri/src/commands.rs": "b0d0371b3597f8f33d81d6ac0ef4550571cb3726",
+    "src-tauri/src/lib.rs": "b0d0371b3597f8f33d81d6ac0ef4550571cb3726",
+    "src-tauri/src/lifecycle.rs": "b0d0371b3597f8f33d81d6ac0ef4550571cb3726",
+    "src-tauri/tests/lifecycle.rs": "b0d0371b3597f8f33d81d6ac0ef4550571cb3726",
+    "ui/App.tsx": "b0d0371b3597f8f33d81d6ac0ef4550571cb3726",
+    "ui/ipc.ts": "b0d0371b3597f8f33d81d6ac0ef4550571cb3726",
+    "ui/screens/ManageFlow.test.tsx": "b0d0371b3597f8f33d81d6ac0ef4550571cb3726",
+    "ui/screens/ManageFlow.tsx": "b0d0371b3597f8f33d81d6ac0ef4550571cb3726",
+    "ui/screens/Sidebar.test.tsx": "b0d0371b3597f8f33d81d6ac0ef4550571cb3726",
+    "ui/screens/Sidebar.tsx": "b0d0371b3597f8f33d81d6ac0ef4550571cb3726",
+    "ui/styles.css": "b0d0371b3597f8f33d81d6ac0ef4550571cb3726"
+  }
+}

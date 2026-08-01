@@ -423,3 +423,41 @@ fn the_scan_hands_the_interface_the_repository_rather_than_only_its_candidates()
     };
     assert!(!walked && children.is_empty());
 }
+
+
+#[test]
+fn a_template_is_never_preselected_in_the_tree() {
+    let (_dir, root) = repo_with_secrets();
+    let view = lifecycle::scan_folder(&root, &State::default()).unwrap();
+
+    for node in &view.tree {
+        if let lifecycle::NodeView::File { name, preselected, confidence, .. } = node {
+            if name == ".env.example" {
+                assert_eq!(confidence.as_deref(), Some("template"));
+                assert!(
+                    !preselected,
+                    "a template must never be preselected: over-inclusion breaks the build"
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn the_tree_crosses_the_boundary_in_the_casing_the_interface_reads() {
+    let (_dir, root) = repo_with_secrets();
+    let view = lifecycle::scan_folder(&root, &State::default()).unwrap();
+    let wire = serde_json::to_string(&view.tree).unwrap();
+
+    for expected in ["\"relativePath\"", "\"alreadyManaged\"", "\"preselected\""] {
+        assert!(
+            wire.contains(expected),
+            "the interface reads {expected}; snake_case here silently makes every \
+             field undefined in the webview while both sides' own tests pass: {wire}"
+        );
+    }
+    assert!(
+        !wire.contains("relative_path") && !wire.contains("already_managed"),
+        "no snake_case field may survive onto the wire: {wire}"
+    );
+}

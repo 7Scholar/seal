@@ -53,27 +53,38 @@ The tree is a `tree` widget with multi-selection expressed through **`aria-check
 
 Folders carry `aria-checked="mixed"` in their middle state. The keyboard model matches the sidebar's so the product has one tree behaviour rather than two: arrows move and expand, Space toggles the focused row's checkbox, Enter activates. Focus is managed with a roving tabindex, as the sidebar does.
 
-## What the confirmation says
+## What the surface says, and how little of it there is
 
-The primary action names the exact set it will act on and counts it, so the blast radius is legible before the click rather than after. The two assurances [vocabulary.md](vocabulary.md) owns sit beside it.
+The primary action names the exact set it will act on and counts it, so the blast radius is legible before the click rather than after.
+
+Everything else the surface wants to promise — that confirming encrypts nothing, that files stay where they are, that a rescan changes nothing already managed — lives behind **one toggletip on the title**, not as prose in the layout. That follows the prose rule in [the parent Approach](README.md): the surface is a heading, a path, a tree, and two buttons. A sentence explaining the tree would be evidence the tree had failed to explain itself.
 
 # What exists
 
-Nothing yet.
+All of the Approach. The tree primitive lives beside the other shared components and is driven here by the manage surface, which no longer groups candidates into three lists: the repository is drawn as itself, every file selectable, each candidate carrying its reason on its own row.
+
+The three-state folder is computed from the candidates beneath it rather than stored, so it cannot disagree with the selection it summarises. A pruned directory renders with no twisty at all, which is what makes it unexpandable rather than merely refusing to open.
+
+Verified by the interface suite and by the `first-run` journey driven against a release build. Two load-bearing rules were confirmed non-vacuous by reintroducing the exact defect each prevents:
+
+- a folder checkbox that selects every file beneath it rather than only the detected ones fails 2
+- rendering a collapsed directory's children and hiding them with styling — which would pay the whole cost of a 42,000-row repository invisibly — fails 1
+
+One defect was caught by the journey rather than by review, and it is the reason this plan's verification could not have stopped at unit tests: the boundary serialized `relative_path` where the interface read `relativePath`, so every field arrived `undefined` and **every file in the tree came back selected, template included**. Both sides' own suites passed throughout — each asserting against its own shape — and only the driven application showed it. The wire casing now has its own test, and the trap is recorded in the desktop `MEMORY.md`.
 
 # What is missing
 
-All of the Approach.
+Nothing on this plan.
 
 # Steps
 
-- [ ] The tree primitive: row anatomy, the two visual channels, expansion separate from selection, and the roving-tabindex keyboard model.
-- [ ] Computed cold-start expansion from the preselected files' ancestor chains, with a collapsed directory rendering none of its children.
-- [ ] The selection model, with the folder-scoping invariant and the three folder states.
-- [ ] Pruned directories as inert, unexpandable, marked rows.
-- [ ] The assistive-technology contract: `aria-checked` throughout, `mixed` on partially selected folders, and no `aria-selected` anywhere in the tree.
-- [ ] Replace the three-group candidate list with the tree, carrying each candidate's reason onto its row.
-- [ ] Tests, with each load-bearing rule confirmed non-vacuous by reintroducing the defect it prevents — the folder checkbox selecting every file beneath it, preselection widening past genuine secrets, selection also expanding, and a pruned directory becoming expandable.
+- [x] The tree primitive: row anatomy, the two visual channels, expansion separate from selection, and the roving-tabindex keyboard model.
+- [x] Computed cold-start expansion from the preselected files' ancestor chains, with a collapsed directory rendering none of its children.
+- [x] The selection model, with the folder-scoping invariant and the three folder states.
+- [x] Pruned directories as inert, unexpandable, marked rows.
+- [x] The assistive-technology contract: `aria-checked` throughout, `mixed` on partially selected folders, and no `aria-selected` anywhere in the tree.
+- [x] Replace the three-group candidate list with the tree, carrying each candidate's reason onto its row.
+- [x] Tests, with each load-bearing rule confirmed non-vacuous by reintroducing the defect it prevents — the folder checkbox selecting every file beneath it, preselection widening past genuine secrets, selection also expanding, and a pruned directory becoming expandable.
 
 # Open threads
 

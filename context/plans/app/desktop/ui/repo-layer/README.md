@@ -73,7 +73,7 @@ The sidebar's *two levels, never a third* rule is **scoped to the sidebar** rath
 
 - [x] vocabulary.md -> retiring the word *import* everywhere, and the assurance that files do not move
 - [x] scan-shape.md -> what the scan hands the interface: the repository's structure rather than a candidate list
-- [ ] adopting.md -> the whole-repository surface, and the tree primitive both fidelities share
+- [x] adopting.md -> the whole-repository surface, and the tree primitive both fidelities share
 - [ ] managed-view.md -> the steady-state surface: the same tree over the managed set alone
 
 The split follows the seam the Approach names. `vocabulary.md` depends on nothing and can land first — it is most of the framing fix and touches no tree. `scan-shape.md` is the seam beneath both surfaces. `adopting.md` owns the tree primitive because it is the fidelity that exercises all of it, and `managed-view.md` reuses that primitive rather than building a second tree.
@@ -91,6 +91,12 @@ Prior art was surveyed twice and is design **input** to the Approach — the too
 `scan-shape.md` is **complete**. Its measurement — 42,123 rows in 0.09 seconds on a real monorepo, one directory holding 7,877 entries — settled the scan as one-shot and moved the bound onto the rendering, where the product owner settled it: a collapsed directory renders none of its children, so the enormous directories cost one row each and no cap or virtualization is needed.
 
 **Next: `adopting.md`,** then `managed-view.md`, which reuses the primitive `adopting.md` builds.
+
+## Prose is a last resort, not a layout element
+
+Stated by the product owner while this concern was being built, and it governs every surface here: **if the interface needs a sentence to explain itself, the interface is insufficient.** Subtitles, ledes, and explanatory paragraphs sitting in the layout are not allowed. Full sentences are permitted in exactly two places — inside an info affordance the user chose to open, and in a confirmation for a destructive act, where the sentence states the consequence or the constraint.
+
+This is the disclosure architecture ([shell-layout.md](../shell-layout.md)) tightened one notch: that rule says explanation always collapses, and this says the collapsed thing must also be genuinely explanatory rather than a paragraph that survived by being moved. Applied here, the manage surface carries a heading, a path, and a tree, with everything Seal wants to promise about not encrypting and not moving files behind the one toggletip on its title.
 
 # Open threads
 

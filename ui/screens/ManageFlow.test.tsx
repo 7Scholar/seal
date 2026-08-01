@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ManageFlow } from "./ManageFlow";
 import type { ScanView, TreeNode } from "../ipc";
@@ -39,21 +39,27 @@ const scan: ScanView = {
   alreadyRegistered: false,
   candidates: [
     { relativePath: ".env.production", confidence: "secret", reason: "an env file", preselected: true, alreadyManaged: false },
-    { relativePath: ".env", confidence: "secret", reason: "an env file", preselected: true, alreadyManaged: false },
+    { relativePath: "services/api/.env", confidence: "secret", reason: "an env file", preselected: true, alreadyManaged: false },
     { relativePath: "config/keys.json", confidence: "ambiguous", reason: "may hold credentials", preselected: false, alreadyManaged: false },
     { relativePath: ".env.example", confidence: "template", reason: "an example file", preselected: false, alreadyManaged: false },
   ],
   tree: [
     directory("config", [
-      file("config/keys.json", {
-        confidence: "ambiguous",
-        reason: "may hold credentials",
-      }),
+      file("config/keys.json", { confidence: "ambiguous", reason: "may hold credentials" }),
       file("config/settings.toml"),
     ]),
     directory("node_modules", [], false),
-    directory("src", [file("src/main.ts")]),
-    file(".env", { confidence: "secret", reason: "an env file", preselected: true }),
+    directory("services", [
+      directory("services/api", [
+        file("services/api/.env", {
+          confidence: "secret",
+          reason: "an env file",
+          preselected: true,
+        }),
+        file("services/api/server.ts"),
+        file("services/api/routes.ts"),
+      ]),
+    ]),
     file(".env.example", { confidence: "template", reason: "an example file" }),
     file(".env.production", {
       confidence: "secret",
@@ -73,36 +79,134 @@ function setup(overrides: Partial<ScanView> = {}) {
   return { onConfirm, onCancel };
 }
 
+function row(name: string) {
+  return screen.getByRole("treeitem", { name });
+}
+
 describe("ManageFlow", () => {
+  it("draws the repository, not only what Seal proposed", async () => {
+    const user = userEvent.setup();
+    setup();
+
+    expect(row("README.md")).toBeInTheDocument();
+    expect(row("config")).toBeInTheDocument();
+    expect(row("server.ts")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Expand config" }));
+    expect(row("settings.toml")).toBeInTheDocument();
+  });
+
   it("preselects only the files that look genuinely secret", () => {
     setup();
-    const checked = screen
-      .getAllByRole("checkbox")
-      .filter((box) => (box as HTMLInputElement).checked)
-      .map((box) => box.closest("label")?.querySelector(".manage__path")?.textContent);
-
-    expect(checked.sort()).toEqual([".env", ".env.production"]);
+    expect(row(".env.production")).toHaveAttribute("aria-checked", "true");
+    expect(row(".env")).toHaveAttribute("aria-checked", "true");
+    expect(row(".env.example")).toHaveAttribute("aria-checked", "false");
   });
 
   it("never preselects a template, since managing one breaks a build", () => {
     setup();
-    expect(screen.getByRole("checkbox", { name: /\.env\.example/ })).not.toBeChecked();
+    expect(row(".env.example")).toHaveAttribute("aria-checked", "false");
   });
 
-  it("groups candidates by classification with counts", () => {
+  it("expands exactly the branches leading to a preselected file", () => {
     setup();
-    expect(screen.getByText("Secret files (2)")).toBeInTheDocument();
-    expect(screen.getByText("Possibly secret (1)")).toBeInTheDocument();
-    expect(screen.getByText("Templates and examples (1)")).toBeInTheDocument();
+    expect(row("services")).toHaveAttribute("aria-expanded", "true");
+    expect(row("api")).toHaveAttribute("aria-expanded", "true");
+    expect(row("config")).toHaveAttribute("aria-expanded", "false");
   });
 
-  it("states plainly that confirming encrypts nothing", () => {
+  it("renders no rows for a collapsed directory's children", () => {
     setup();
+    expect(row("config")).toHaveAttribute("aria-expanded", "false");
+    expect(
+      screen.queryByRole("treeitem", { name: "settings.toml" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("treeitem", { name: "keys.json" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("lets the user select a file Seal never proposed", async () => {
+    const user = userEvent.setup();
+    const { onConfirm } = setup();
+
+    await user.click(row("README.md"));
+    await user.click(screen.getByRole("button", { name: /Manage 3 files/ }));
+
+    const [selected] = onConfirm.mock.calls[0] as [string[]];
+    expect(selected).toContain("README.md");
+  });
+
+  it("selects only the detected files beneath a folder, never every file", async () => {
+    const user = userEvent.setup();
+    const { onConfirm } = setup();
+
+    await user.click(row("services"));
+    expect(row("services")).toHaveAttribute("aria-checked", "false");
+
+    await user.click(row("services"));
+    await user.click(screen.getByRole("button", { name: /Manage 2 files/ }));
+
+    const [selected] = onConfirm.mock.calls[0] as [string[]];
+    expect(selected).toContain("services/api/.env");
+    expect(selected).not.toContain("services/api/server.ts");
+    expect(selected).not.toContain("services/api/routes.ts");
+  });
+
+  it("marks a folder holding some of a selection differently from a full one", async () => {
+    const user = userEvent.setup();
+    setup();
+
+    expect(row("services")).toHaveAttribute("aria-checked", "true");
+    expect(row("config")).toHaveAttribute("aria-checked", "false");
+
+    await user.click(row("config"));
+    expect(row("config")).toHaveAttribute("aria-checked", "true");
+
+    await user.click(screen.getByRole("button", { name: "Expand config" }));
+    expect(row("keys.json")).toHaveAttribute("aria-checked", "true");
+    await user.click(row("keys.json"));
+    expect(row("config")).toHaveAttribute("aria-checked", "false");
+  });
+
+  it("shows a directory it did not look in, and refuses to expand it", () => {
+    setup();
+    const pruned = row("node_modules");
+    expect(pruned).not.toHaveAttribute("aria-expanded");
+    expect(within(pruned).getByText("not looked in")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Expand node_modules/ }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("expands and collapses without changing the selection", async () => {
+    const user = userEvent.setup();
+    setup();
+
+    await user.click(screen.getByRole("button", { name: "Expand config" }));
+    expect(row("config")).toHaveAttribute("aria-expanded", "true");
+    expect(row("config")).toHaveAttribute("aria-checked", "false");
+    expect(row("keys.json")).toHaveAttribute("aria-checked", "false");
+  });
+
+  it("carries no aria-selected anywhere in the tree", () => {
+    setup();
+    for (const item of screen.getAllByRole("treeitem")) {
+      expect(item).not.toHaveAttribute("aria-selected");
+    }
+  });
+
+  it("discloses on demand that confirming encrypts nothing and files do not move", async () => {
+    const user = userEvent.setup();
+    setup();
+
+    expect(screen.queryByText(/does not encrypt anything/i)).not.toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", { name: "What managing these files does" }),
+    );
+
     expect(screen.getByText(/does not encrypt anything/i)).toBeInTheDocument();
-  });
-
-  it("states that the files do not move", () => {
-    setup();
     expect(
       screen.getByText(/nothing is moved, renamed, or copied/i),
     ).toBeInTheDocument();
@@ -112,28 +216,24 @@ describe("ManageFlow", () => {
     const user = userEvent.setup();
     const { onConfirm } = setup();
 
-    await user.click(screen.getByRole("checkbox", { name: /keys\.json/ }));
+    await user.click(screen.getByRole("button", { name: "Expand config" }));
+    await user.click(row("keys.json"));
     await user.click(screen.getByRole("button", { name: /Manage 3 files/ }));
 
     const [selected] = onConfirm.mock.calls[0] as [string[]];
-    expect([...selected].sort()).toEqual([".env", ".env.production", "config/keys.json"]);
-  });
-
-  it("scopes select-all to its own group", async () => {
-    const user = userEvent.setup();
-    setup();
-
-    await user.click(screen.getByRole("button", { name: "Select all in Templates and examples" }));
-
-    expect(screen.getByRole("checkbox", { name: /\.env\.example/ })).toBeChecked();
-    expect(screen.getByRole("checkbox", { name: /keys\.json/ })).not.toBeChecked();
+    expect([...selected].sort()).toEqual([
+      ".env.production",
+      "config/keys.json",
+      "services/api/.env",
+    ]);
   });
 
   it("cannot confirm an empty selection", async () => {
     const user = userEvent.setup();
     setup();
 
-    await user.click(screen.getByRole("button", { name: "Select none in Secret files" }));
+    await user.click(row(".env.production"));
+    await user.click(row(".env"));
     expect(screen.getByRole("button", { name: /Manage 0 files/ })).toBeDisabled();
   });
 
@@ -142,27 +242,39 @@ describe("ManageFlow", () => {
       candidates: [
         { relativePath: ".env.production", confidence: "secret", reason: "an env file", preselected: true, alreadyManaged: true },
       ],
+      tree: [
+        file(".env.production", {
+          confidence: "secret",
+          reason: "an env file",
+          preselected: true,
+          alreadyManaged: true,
+        }),
+      ],
     });
 
-    const box = screen.getByRole("checkbox", { name: /\.env\.production/ });
-    expect(box).toBeDisabled();
-    expect(box).not.toBeChecked();
-    expect(screen.getByText("already managed")).toBeInTheDocument();
+    const managed = row(".env.production");
+    expect(managed).toHaveAttribute("aria-checked", "false");
+    expect(managed).toHaveAttribute("aria-disabled", "true");
+    expect(within(managed).getByText("already managed")).toBeInTheDocument();
   });
 
-  it("explains a rescan rather than implying it replaces anything", () => {
+  it("explains a rescan rather than implying it replaces anything", async () => {
+    const user = userEvent.setup();
     setup({ alreadyRegistered: true });
+
+    await user.click(
+      screen.getByRole("button", { name: "What managing these files does" }),
+    );
     expect(screen.getByText(/nothing already managed is changed/i)).toBeInTheDocument();
   });
 
-  it("offers a constructive next step when the scan finds nothing", () => {
-    setup({ candidates: [] });
-    expect(screen.getByText(/No candidate secret files were found/i)).toBeInTheDocument();
-  });
-
-  it("shows why each candidate was proposed", () => {
+  it("shows why each candidate was proposed, on its own row", async () => {
+    const user = userEvent.setup();
     setup();
-    expect(screen.getAllByText("an env file")).toHaveLength(2);
-    expect(screen.getByText("may hold credentials")).toBeInTheDocument();
+
+    expect(within(row(".env.production")).getByText("an env file")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Expand config" }));
+    expect(within(row("keys.json")).getByText("may hold credentials")).toBeInTheDocument();
   });
 });

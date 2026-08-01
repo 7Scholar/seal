@@ -63,13 +63,15 @@ describe("first run: install, choose a password, protect a first file", () => {
 
     await $("button=Add a folder").click();
 
-    await expect($(`h1=Seal in ${repo}`)).toBeDisplayed();
-    await expect($("p*=It does not encrypt")).toBeDisplayed();
-    await expect($("legend*=Secret files")).toBeDisplayed();
-    await expect($("legend*=Templates and examples")).toBeDisplayed();
+    await expect($(`h1*=Seal in`)).toBeDisplayed();
 
-    const secretRow = $('label*=.env');
-    await expect(secretRow).toBeDisplayed();
+    const secret = $('[role="treeitem"][aria-label=".env"]');
+    const template = $('[role="treeitem"][aria-label=".env.example"]');
+    await expect(secret).toBeDisplayed();
+    await expect(secret).toHaveAttribute("aria-checked", "true");
+    await expect(template).toBeDisplayed();
+    await expect(template).toHaveAttribute("aria-checked", "false");
+
     await expect($("button=Manage 1 file")).toBeEnabled();
     await $("button=Manage 1 file").click();
 

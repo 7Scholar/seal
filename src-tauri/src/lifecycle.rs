@@ -21,16 +21,16 @@ pub struct CandidateView {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
-#[serde(rename_all = "camelCase", tag = "kind")]
+#[serde(tag = "kind")]
 pub enum NodeView {
-    #[serde(rename = "directory")]
+    #[serde(rename = "directory", rename_all = "camelCase")]
     Directory {
         name: String,
         relative_path: PathBuf,
         walked: bool,
         children: Vec<NodeView>,
     },
-    #[serde(rename = "file")]
+    #[serde(rename = "file", rename_all = "camelCase")]
     File {
         name: String,
         relative_path: PathBuf,

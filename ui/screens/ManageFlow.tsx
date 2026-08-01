@@ -1,5 +1,13 @@
-import { useState } from "react";
-import type { CandidateView, ScanView } from "../ipc";
+import { useMemo, useState } from "react";
+import type { ScanView } from "../ipc";
+import {
+  FileTree,
+  managedPaths,
+  preselectedAncestors,
+  preselectedPaths,
+} from "../components/FileTree";
+import { Toggletip } from "../components/Toggletip";
+import { fileName } from "../format";
 
 interface Props {
   scan: ScanView;
@@ -7,137 +15,79 @@ interface Props {
   onCancel: () => void;
 }
 
-const GROUPS = [
-  {
-    confidence: "secret" as const,
-    heading: "Secret files",
-    blurb: "These look like real secrets. They are selected for you.",
-  },
-  {
-    confidence: "ambiguous" as const,
-    heading: "Possibly secret",
-    blurb: "These might hold secrets. Choose deliberately.",
-  },
-  {
-    confidence: "template" as const,
-    heading: "Templates and examples",
-    blurb:
-      "These are meant to be committed and readable. Managing them is rarely what you want.",
-  },
-];
-
 export function ManageFlow({ scan, onConfirm, onCancel }: Props) {
-  const [selected, setSelected] = useState<Set<string>>(
-    () =>
-      new Set(
-        scan.candidates
-          .filter((candidate) => candidate.preselected && !candidate.alreadyManaged)
-          .map((candidate) => candidate.relativePath),
-      ),
+  const [selected, setSelected] = useState<ReadonlySet<string>>(() =>
+    preselectedPaths(scan.tree),
+  );
+  const [expanded, setExpanded] = useState<ReadonlySet<string>>(() =>
+    preselectedAncestors(scan.tree),
   );
 
-  function toggle(path: string) {
+  const managed = useMemo(() => managedPaths(scan.tree), [scan.tree]);
+
+  function toggleSelect(path: string) {
     setSelected((current) => {
       const next = new Set(current);
-      if (next.has(path)) {
-        next.delete(path);
-      } else {
-        next.add(path);
+      if (next.has(path)) next.delete(path);
+      else next.add(path);
+      return next;
+    });
+  }
+
+  function toggleSelectMany(paths: string[], on: boolean) {
+    setSelected((current) => {
+      const next = new Set(current);
+      for (const path of paths) {
+        if (on) next.add(path);
+        else next.delete(path);
       }
       return next;
     });
   }
 
-  function setGroup(members: CandidateView[], on: boolean) {
-    setSelected((current) => {
+  function toggleExpand(path: string) {
+    setExpanded((current) => {
       const next = new Set(current);
-      for (const member of members) {
-        if (member.alreadyManaged) continue;
-        if (on) next.add(member.relativePath);
-        else next.delete(member.relativePath);
-      }
+      if (next.has(path)) next.delete(path);
+      else next.add(path);
       return next;
     });
   }
-
-  const groups = GROUPS.map((group) => ({
-    ...group,
-    members: scan.candidates.filter(
-      (candidate) => candidate.confidence === group.confidence,
-    ),
-  })).filter((group) => group.members.length > 0);
 
   const nothingFound = scan.candidates.length === 0;
 
   return (
     <section className="manage">
-      <header>
-        <h1>Seal in {scan.root}</h1>
-        {scan.alreadyRegistered ? (
-          <p role="note">
-            This folder is already managed. Confirming adds the files you pick to
-            it; nothing already managed is changed.
-          </p>
-        ) : null}
-      </header>
-
-      {nothingFound ? (
-        <p className="manage__empty">
-          No candidate secret files were found in this folder. You can still add
-          files later, or pick a different folder.
-        </p>
-      ) : null}
-
-      {groups.map((group) => (
-        <fieldset key={group.confidence} className="manage__group">
-          <legend>
-            {group.heading} ({group.members.length})
-          </legend>
-          <p className="manage__blurb">{group.blurb}</p>
-          <div className="manage__bulk">
-            <button
-              type="button"
-              onClick={() => setGroup(group.members, true)}
-              aria-label={`Select all in ${group.heading}`}
-            >
-              Select all
-            </button>
-            <button
-              type="button"
-              onClick={() => setGroup(group.members, false)}
-              aria-label={`Select none in ${group.heading}`}
-            >
-              Select none
-            </button>
-          </div>
-          <ul>
-            {group.members.map((candidate) => (
-              <li key={candidate.relativePath}>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={selected.has(candidate.relativePath)}
-                    disabled={candidate.alreadyManaged}
-                    onChange={() => toggle(candidate.relativePath)}
-                  />
-                  <span className="manage__path">{candidate.relativePath}</span>
-                  <span className="manage__reason">{candidate.reason}</span>
-                  {candidate.alreadyManaged ? (
-                    <span className="manage__managed">already managed</span>
-                  ) : null}
-                </label>
-              </li>
-            ))}
-          </ul>
-        </fieldset>
-      ))}
-
-      <footer className="manage__actions">
-        <p className="manage__assurance">
+      <header className="manage__head">
+        <h1>Seal in {fileName(scan.root)}</h1>
+        <Toggletip label="What managing these files does">
           Seal records which files it manages here. It does not encrypt
           anything — sealing stays a separate, deliberate action. Your files
           stay where they are: nothing is moved, renamed, or copied.
-        </p>
+          {scan.alreadyRegistered
+            ? " This folder is already managed; nothing already managed is changed."
+            : ""}
+        </Toggletip>
+        <p className="manage__root">{scan.root}</p>
+      </header>
+
+      {nothingFound ? (
+        <p className="manage__empty">Nothing recognised — choose any file.</p>
+      ) : null}
+
+      <FileTree
+        label={`Files in ${scan.root}`}
+        nodes={scan.tree}
+        selected={selected}
+        expanded={expanded}
+        disabled={managed}
+        onToggleSelect={toggleSelect}
+        onToggleSelectMany={toggleSelectMany}
+        onToggleExpand={toggleExpand}
+      />
+
+      <footer className="manage__actions">
+        <span className="manage__spacer" />
         <button type="button" onClick={onCancel}>
           Cancel
         </button>

@@ -259,3 +259,4 @@ fn the_tree_surfaces_the_secrets_a_gitignore_respecting_walk_would_hide() {
         );
     }
 }
+

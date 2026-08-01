@@ -19,21 +19,72 @@ The concern is **cross-cutting by construction.** Its surface is the interface's
 
 ## Approach
 
-TBD.
+Settled against the four forks, whose answers are the design input this states the consequences of. The governing idea: **one tree, seen at two fidelities.** Adopting a repository and living with one are the same view of the same thing, differing only in how much of the repository is drawn — which is what makes Seal read as a layer rather than as a place files go.
+
+### The repository is the substrate; management is an annotation on it
+
+Every surface that talks about a repository draws the repository's own directory structure, with Seal's state as a mark on the rows. Nothing is ever presented as a list of paths divorced from the tree, because a flat list is an inventory and an inventory is what reads as extracted.
+
+The two fidelities:
+
+**Adopting or rescanning — the whole repository.** Every file and directory is drawn. Files Seal did not detect are dimmed and quiet but **individually selectable**: a user whose secret sits under a name the scan does not recognise checks its row where it sits, with no secondary picker and no separate mode. Detected files carry a checkbox and the selected treatment, preselected exactly as [screens.md](../screens.md) specifies — genuine secrets only, never the ambiguous or template classifications.
+
+**Living with it — only what Seal manages.** The same tree drawn over the managed set alone, which collapses it to a handful of rows. This replaces the flat file list on the repository detail surface, so a managed file is seen in its real directory context there too, rather than as a path string on a row.
+
+The scan's classification survives as a **per-row annotation** — each candidate still states why it was proposed — rather than as the three top-level groups that exist today. Dissolving the grouping is most of what dissolves the extraction feeling: grouping by Seal's judgement makes the screen Seal's list, while the tree makes it the user's repository with Seal's judgement written on it.
+
+### A folder check never means "everything beneath"
+
+Folders are selectable, and a folder's checkbox selects **the detected files beneath it, recursively — never every file beneath it.** This is the one rule in this concern that guards against damage rather than confusion, and it is load-bearing in the same sense [screens.md](../screens.md) means: sealing a file that was meant to stay readable breaks the user's build, and a folder checkbox that swept up source files would make that a single click on a monorepo's `src/`. Selecting an undetected file remains possible and easy — one click on its own row — so the guarantee costs the user nothing except the inability to do it a thousand at a time.
+
+A folder therefore carries **three visual states, all distinct from a file's**: nothing selected beneath it, some selected beneath it, and all of its detected files selected. The middle state is the aggregate marker that lets branches stay collapsed without hiding a selection, and it must never be drawn the way a selected file is drawn — a folder is a container reflecting its contents, not a thing that is itself managed.
+
+### What Seal does not look in is shown, and says so
+
+The pruned directories — the build outputs and dependency trees the scan deliberately skips — appear in the tree as rows, collapsed, **inert and not expandable**, marked as not looked in. A tree that silently omitted them would not be the repository, and the user could not tell a deliberate skip from a miss. Making them non-expandable is what keeps that honesty from turning into an invitation to open `node_modules`: the row is an answer, not a door.
+
+This is disclosure's boundary applied exactly as [shell-layout.md](../shell-layout.md) draws it — the fact that a directory was skipped is a *state*, and states do not collapse.
+
+### Cold-start expansion is computed
+
+The window persists nothing, so the expansion set is derived rather than restored: the union of the ancestor chains of every preselected file, expanded, and everything else collapsed. The constraint turns out to be a simplification — the view is deterministic on every launch, and there is no stale expansion state to reconcile.
+
+### The vocabulary retires *import*
+
+*Import* names pulling something in from outside; adopting something already in place is *manage*. The word is retired **everywhere** — the control, the headings, the confirm button, and the command name behind them — so it cannot leak back through a future surface that reads the command name and mirrors it. The rest of the product's vocabulary is already correct and stays: *manage*, *stop managing*, *release*, *seal*.
+
+The tell to audit against is the preposition: *into* extracts, *in* layers. Nothing in this concern's copy says files go *into* Seal.
+
+Two assurances sit together at the point of confirmation, because they answer the two different fears a user has at that moment: the existing statement that confirming encrypts nothing, and the one no surveyed tool states outright — **files stay where they are; nothing is moved, renamed, or copied.**
+
+### What this pulls in beneath the interface
+
+The scan's product changes shape. `scan_folder` returns candidates today; the surface above needs the repository's structure — directories, undetected files, nesting, and which directories were pruned — with each candidate's existing classification and reason carried on the rows that have one. That is [the registry's](../../../registry.md) concern and [the lifecycle plan's](../../lifecycle.md), pulled in here rather than guessed at, the way [shell-layout.md](../shell-layout.md) pulled in the batch seal.
+
+One constraint is inherited and non-negotiable, recorded as measured in the root [MEMORY.md](../../../MEMORY.md): **the walk does not respect gitignore rules**, because secret files are gitignored precisely because they are secret. A file's ignored status may be *displayed*; it must never filter the walk.
+
+The frontend still never receives file contents. The tree carries paths, structure, and state — nothing else.
+
+### Where the sidebar's rule lands
+
+The sidebar's *two levels, never a third* rule is **scoped to the sidebar** rather than overturned. The sidebar answers "what is the state of what Seal covers, across every repository" and stays flat and quiet; this concern's surfaces answer "what does Seal cover in this repository" and are trees. The rule was written about navigation, and it keeps holding there.
 
 # Plans
 
-No child plans yet.
+To be carved. The decomposition follows the seam this Approach names — the scan's new shape beneath, the two fidelities above, and the vocabulary retirement that can land independently of both.
 
 # Cursor
 
-Framed, not yet solutioned. The concern was raised during a UI improvement session, where it was correctly rejected as too large for that mode: it changes what the plans state about the import flow ([screens.md](../screens.md), [shell-operations.md](../_docs/shell-operations.md)), it changes a Rust return type, and it presses on the sidebar's *two levels, never a third* rule.
+**Solutioned, not yet carved.** The Approach above is settled: the design forks were answered by the product owner, and both threads this node was framed with are closed by those answers — the sidebar's *two levels* rule is scoped to the sidebar rather than overturned, and the steady-state surface becomes the same tree at a lower fidelity rather than a second description of the repository.
 
-Prior art has been surveyed twice already and both surveys are recorded in `QUESTIONS.md` alongside the forks they inform — the tools that solve exactly this problem in place (git-crypt, transcrypt, dotenvx, SOPS, Ansible Vault), the ones whose file-moving is the feeling to avoid (blackbox, chezmoi, git-secret), and the tree-and-overlay mechanics from VS Code's Explorer, GitHub's file browser, and the cloud-storage badge conventions. That research is design **input**; it does not settle the forks, and the forks are the user's.
+The concern was raised during a UI improvement session and correctly rejected as too large for that mode: it changes what the plans state about the import flow ([screens.md](../screens.md), [shell-operations.md](../_docs/shell-operations.md)), and it changes the scan's return shape, which is Rust scope.
 
-Next: the four questions in `QUESTIONS.md` are answered, then this folder is carved and solutioned against them.
+Prior art was surveyed twice and is design **input** to the Approach — the tools that solve this problem in place (git-crypt, transcrypt, dotenvx, SOPS, Ansible Vault), the ones whose file-moving is the feeling to avoid (blackbox, chezmoi, git-secret), and the tree-and-overlay mechanics from VS Code's Explorer, GitHub's file browser, and the cloud-storage badge conventions.
+
+Next: carve the children. The seam the Approach names is the natural split — the scan's new shape beneath, the two fidelities above, and the vocabulary retirement, which touches no tree and can land first and independently.
 
 # Open threads
 
-- Whether the sidebar's *two levels, never a third* rule survives this concern or is scoped to the sidebar alone. The import surface and the sidebar answer different questions — *which files does Seal cover?* against *what is the state of what it covers?* — so the rule may simply not reach here. It wants deciding once, explicitly, rather than being eroded by a second tree appearing elsewhere in the product.
-- What the steady-state repository surface becomes once the import surface shows the whole repository. Two surfaces describing the same repository at different fidelities is the shape that invites drift, and `git-crypt status` suggests they may want to be one thing seen twice.
+- What a very large repository does to the whole-repository fidelity. The pruned directories remove most of the file count, but a monorepo can still be many thousands of rows, and the ceiling wants measuring against a real one rather than guessing at a cap. The surveyed products diverge here — GitHub truncates a directory at a thousand entries and says so; VS Code renders uncapped and has a crash bug for it — so if a bound is needed, the rule from that divergence is that it must be stated in the interface rather than applied silently.
+- Whether a tri-state folder checkbox is announced usefully by real screen readers. `aria-checked="mixed"` is well defined on a native checkbox and less certain on a tree row; it wants driving with VoiceOver before the middle state is relied on as the only carrier of "something is selected below here".
+- Whether the managed-only fidelity should offer a way to see the rest of the repository from where it stands, rather than only through a rescan. `git-crypt status` shows covered and uncovered in one view, and the answer to fork 2 deliberately did not settle whether the lower fidelity can expand back to the higher one in place.

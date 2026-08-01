@@ -55,7 +55,7 @@ Reveal is not an edit and must never mark a file dirty — a demonstrated failur
 - [x] password-change.md -> the supervised master-password change, whose danger is the half-done state
 - [x] errors.md -> how a command failure reaches the user: plain language for every kind, the problem banner, and the re-lock on an ended session
 - [x] shell-layout.md -> the application shell: the repository sidebar, the detail surface, and the disclosure architecture
-- [!] repo-layer/ -> making the product read as a layer over an existing repository rather than a tool that extracts files into itself — blocked, awaiting answers in its QUESTIONS.md
+- [~] repo-layer/ -> making the product read as a layer over an existing repository rather than a tool that extracts files into itself
 
 # Cursor
 
@@ -71,7 +71,9 @@ Its two research documents are the design input rather than invention, and the f
 
 Every child above `repo-layer/` is complete as code. What that does **not** mean is stated below.
 
-`repo-layer/` is newly framed and **blocked**. It names a gap none of the finished children hold: the interface does not yet say that Seal is a layer over a repository the user still owns. A repository enters through a screen headed *Import* that shows three flat lists of paths Seal chose, so the act reads as extraction — and nothing else about the repository is ever shown. Satisfying it changes what the scan returns, so it carries Rust scope the way `shell-layout.md` carried the batch seal. Its four design forks are open in its `QUESTIONS.md`; the second one bounds the others, since it decides whether the tree is a confirmation step or the repository's permanent surface.
+`repo-layer/` is **solutioned and not yet carved**. It names a gap none of the finished children hold: the interface does not yet say that Seal is a layer over a repository the user still owns. A repository enters through a screen headed *Import* that shows three flat lists of paths Seal chose, so the act reads as extraction — and nothing else about the repository is ever shown. Satisfying it changes what the scan returns, so it carries Rust scope the way `shell-layout.md` carried the batch seal.
+
+Its four design forks were settled by the product owner and its Approach is written: one tree seen at two fidelities — the whole repository while adopting, the managed set alone while living with it — with every file individually selectable, a folder's checkbox scoped to the detected files beneath it rather than all of them, the skipped build directories shown inert and unexpandable, and *import* retired from the vocabulary everywhere. The sidebar's *two levels, never a third* rule is scoped to the sidebar rather than overturned: it was written about navigation and keeps holding there.
 
 # Open threads
 

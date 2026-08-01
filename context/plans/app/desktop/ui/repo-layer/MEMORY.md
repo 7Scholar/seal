@@ -1,1 +1,9 @@
 # Memory
+
+## 2026-08-01 — A folder's checkbox selects the detected files beneath it, never every file beneath it
+
+Checking a directory in the whole-repository tree selects only the files the scan classified as candidates below it, recursively. Undetected files are selectable one row at a time and are never swept in by a parent. **Why:** sealing a file that was meant to stay readable breaks the user's build, which is the only failure in this flow that damages a working repository rather than merely annoying someone — and a folder checkbox meaning "everything beneath" turns that into one click on a monorepo's `src/`. The per-file route stays available and easy, so the guarantee costs the user nothing but the ability to make that mistake in bulk. **Mistake it prevents:** implementing the folder checkbox as the obvious recursive select-all, which is what every generic tree component does by default and what a reviewer reads as the natural meaning of a parent checkbox.
+
+## 2026-08-01 — The pruned directories are shown, inert and deliberately not expandable
+
+Build and dependency directories the scan skips appear as collapsed rows marked as not looked in, and cannot be expanded. **Why:** two rules pull against each other here and both are satisfied by this shape. Omitting them would make the tree not-the-repository, leaving the user unable to tell a deliberate skip from a miss — and the fact that a directory was skipped is a *state*, which [shell-layout.md](../shell-layout.md) forbids collapsing. But making them expandable invites opening `node_modules`, which is the entire file-count problem the pruning exists to avoid. The row is an answer, not a door. **Mistake it prevents:** "finishing" the implementation by making these rows expandable like every other directory, which looks like an obvious omission and reintroduces the cost pruning was measured to remove.

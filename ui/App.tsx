@@ -274,6 +274,33 @@ export function App() {
 
   return (
     <div className="shell">
+      <header className="shell__titlebar" data-tauri-drag-region>
+        <span className="shell__brand">Seal</span>
+
+        <span className="shell__spacer" />
+
+        <button
+          type="button"
+          className="shell__lock"
+          onClick={() =>
+            attempt("lock Seal", async () => {
+              await ipc.lock();
+              setUnlocked(false);
+              setSelection({ kind: "none" });
+              setOpened(null);
+            })
+          }
+        >
+          Lock
+        </button>
+
+        <Overflow label="Seal settings">
+          <button type="button" onClick={() => setOverlay({ name: "rekey" })}>
+            Change master password
+          </button>
+        </Overflow>
+      </header>
+
       <Sidebar
         repos={repos}
         selection={selection}
@@ -284,42 +311,17 @@ export function App() {
       />
 
       <main className="shell__main">
-        <header className="shell__bar">
-          {rekey !== null ? (
-            <div className="shell__rekey" role="alert">
-              <span>
-                A password change was not finished. Some files are on the old
-                password and some on the new — keep both until it completes.
-              </span>
-              <button type="button" onClick={() => setOverlay({ name: "rekey" })}>
-                Finish it
-              </button>
-            </div>
-          ) : (
-            <span className="shell__spacer" />
-          )}
-
-          <button
-            type="button"
-            className="shell__lock"
-            onClick={() =>
-              attempt("lock Seal", async () => {
-                await ipc.lock();
-                setUnlocked(false);
-                setSelection({ kind: "none" });
-                setOpened(null);
-              })
-            }
-          >
-            Lock Seal
-          </button>
-
-          <Overflow label="Seal settings">
+        {rekey !== null ? (
+          <div className="shell__rekey" role="alert">
+            <span>
+              A password change was not finished. Some files are on the old
+              password and some on the new — keep both until it completes.
+            </span>
             <button type="button" onClick={() => setOverlay({ name: "rekey" })}>
-              Change master password
+              Finish it
             </button>
-          </Overflow>
-        </header>
+          </div>
+        ) : null}
 
         {problem ? (
           <Problem message={problem} onDismiss={() => setProblem(null)} />

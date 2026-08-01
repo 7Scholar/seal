@@ -26,7 +26,15 @@ The two research documents that are this plan's design input are written: [shell
 
 Built from [shell-research.md](_docs/shell-research.md) and [shell-operations.md](_docs/shell-operations.md), which are the design input; this Approach states what follows from them and from the four decisions the product owner settled.
 
-The shell is a **persistent two-column frame**: a navigation sidebar on the left that is present for the whole unlocked session, and a detail surface on the right that shows whatever is selected. Nothing inside the frame ever replaces the window. The screens the other plans own are re-homed into the detail surface unchanged; what this plan fixes is the frame, the selection model, and the disclosure architecture.
+The shell is a **persistent two-column frame under a title bar**: a navigation sidebar on the left that is present for the whole unlocked session, and a detail surface on the right that shows whatever is selected. Nothing inside the frame ever replaces the window. The screens the other plans own are re-homed into the detail surface unchanged; what this plan fixes is the frame, the selection model, and the disclosure architecture.
+
+## The title bar is the session's strip, and it spans both columns
+
+The window's own title bar is the shell's top row rather than dead platform chrome — the window is configured to let the interface draw there ([shell.md](../shell.md)). It spans the full width above both columns, carries the product name at the leading edge after the inset the platform's own window controls occupy, and holds the two **session-scoped** controls at the trailing edge: **Lock**, and the overflow disclosing the master-password change.
+
+Those two belong there because they are the only controls whose scope is the whole session rather than a repository or a file, and the title bar is the one strip that is neither the sidebar nor any repository's surface. Putting them anywhere inside the frame made a surface answer for something that was not its subject. Lock keeps its always-visible, never-collapsed posture ([shell-operations.md](_docs/shell-operations.md)) — the strip is quiet, not hidden — and it is labelled **Lock**, since the strip is unambiguously the application's own and a control there needs no product name to say what it locks.
+
+The strip is deliberately short. It carries no repository state, no alert, and no primary verb of its own, so it stays a thin band rather than a second header competing with the detail surface's title. The unfinished-password-change banner is **not** in it: that banner is a consequence that must not be compressed, so it renders at the top of the detail column where its subject lives, and renders nothing at all when there is nothing to resume.
 
 ## The sidebar is a two-level tree, and the tree is the disclosure
 

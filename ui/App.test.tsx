@@ -111,7 +111,7 @@ describe("the application shell", () => {
     mocked.lock.mockResolvedValue(undefined);
     await openShell();
 
-    await user.click(screen.getByRole("button", { name: "Lock Seal" }));
+    await user.click(screen.getByRole("button", { name: "Lock" }));
     expect(mocked.lock).toHaveBeenCalledOnce();
   });
 

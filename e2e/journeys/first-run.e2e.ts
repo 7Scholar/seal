@@ -108,7 +108,7 @@ describe("first run: install, choose a password, protect a first file", () => {
   });
 
   it("locks on request, rejects a wrong password plainly, and reopens with the right one", async () => {
-    await $("button=Lock Seal").click();
+    await $("button=Lock").click();
     await expect($("h1=Seal is locked")).toBeDisplayed();
 
     await browser.keys([..."not the password"]);

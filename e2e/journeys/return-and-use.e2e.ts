@@ -77,7 +77,7 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
         console.log("FIXTURE STUCK →", JSON.stringify(page));
         throw error;
       }
-      await $("button=Lock Seal").click();
+      await $("button=Lock").click();
       step("locked");
     }
   });
@@ -145,7 +145,7 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
   it("notices a sealed file replaced by readable text, and insists on it", async () => {
     writeFileSync(join(repo(), ".env"), "API_KEY=leaked-in-the-clear\n");
 
-    await $("button=Lock Seal").click();
+    await $("button=Lock").click();
     await expect($("h1=Seal is locked")).toBeDisplayed();
     await browser.keys([...PASSWORD]);
     await browser.keys("Enter");
@@ -187,7 +187,7 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
 
     await expect($('[role="tree"]')).toBeDisplayed();
 
-    await $("button=Lock Seal").click();
+    await $("button=Lock").click();
     await expect($("h1=Seal is locked")).toBeDisplayed();
 
     await browser.keys([...PASSWORD]);

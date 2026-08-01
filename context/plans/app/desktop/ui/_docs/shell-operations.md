@@ -22,12 +22,12 @@ The rule that follows and governs every placement below: **an operation lives at
 | Operation | Command | Disclosure | Notes |
 |---|---|---|---|
 | Unlock / establish | `unlock`, `establish`, `is_established` | **Full screen, always** | Not in the shell at all — it is the gate before the shell exists. Unchanged. |
-| Lock now | `lock` | **Always visible, quiet** | Must be reachable from anywhere without hunting. The research's rule 1 applies: this is a consequence-bearing control, not an explanation, so it is never collapsed. |
-| Change master password | `rekey_begin`, `rekey_run`, `rekey_abandon` | **Collapsed** — behind the session/settings affordance | A rare, heavyweight operation. Belongs behind disclosure precisely because putting it on the surface invites accidental entry into a supervised flow. |
+| Lock now | `lock` | **Always visible, quiet** — in the title bar strip | Must be reachable from anywhere without hunting. The research's rule 1 applies: this is a consequence-bearing control, not an explanation, so it is never collapsed. Its home is the title bar strip, which is the frame's own band and therefore the one place a session-scoped control does not sit on a surface that answers for something else. |
+| Change master password | `rekey_begin`, `rekey_run`, `rekey_abandon` | **Collapsed** — behind the session/settings affordance in the title bar strip | A rare, heavyweight operation. Belongs behind disclosure precisely because putting it on the surface invites accidental entry into a supervised flow. |
 | Resume an unfinished password change | `rekey_status` | **Always visible when it exists, absent otherwise** | The exception that proves the rule. A half-done rekey is the dangerous state the whole operation is designed against, so its banner is not dismissible and not collapsible — but it renders nothing at all when there is nothing to resume. Chrome scales to the count, including to zero. |
 | Acknowledge irreversibility | `has_acknowledged`, `acknowledge` | **Interposed once, never browsable** | Not an operation the user seeks out; a gate the first seal walks into. It has no home on any surface. |
 
-**Flow — the session:** launch → gate (establish or unlock) → shell. Inside the shell the session is otherwise invisible except for the lock control and, when it exists, the resume banner. Locking returns to the gate with a notice.
+**Flow — the session:** launch → gate (establish or unlock) → shell. Inside the shell the session is otherwise invisible except for the title bar strip's lock control and, when it exists, the resume banner at the top of the detail column. Locking returns to the gate with a notice.
 
 # Registry scope — the sidebar
 

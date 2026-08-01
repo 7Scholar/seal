@@ -61,11 +61,28 @@ input {
 
 .repos, .import, .env-editor, .opaque { padding: 1.25rem; max-width: 62rem; margin: 0 auto; }
 
-.shell { display: grid; grid-template-columns: 17rem 1fr; height: 100vh; }
+.shell {
+  display: grid;
+  grid-template-columns: 17rem 1fr;
+  grid-template-rows: 2.6rem 1fr;
+  height: 100vh;
+}
+.shell__titlebar {
+  grid-column: 1 / -1;
+  display: flex; gap: 0.4rem; align-items: center;
+  padding: 0 0.7rem 0 5.5rem;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+}
+.shell__brand {
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--muted);
+}
+.shell__titlebar button { padding: 0.15rem 0.55rem; font-size: 0.8rem; }
+.shell__titlebar .overflow__trigger { padding: 0; }
 .shell__main { overflow-y: auto; display: flex; flex-direction: column; }
-.shell__bar { display: flex; gap: 0.6rem; align-items: center; padding: 0.7rem 1.25rem; border-bottom: 1px solid var(--line); }
 .shell__spacer { flex: 1; }
-.shell__rekey { flex: 1; display: flex; gap: 0.8rem; align-items: center; border: 1px solid var(--danger); background: var(--danger-bg); border-radius: 8px; padding: 0.5rem 0.7rem; }
+.shell__rekey { display: flex; gap: 0.8rem; align-items: center; border: 1px solid var(--danger); background: var(--danger-bg); border-radius: 8px; padding: 0.5rem 0.7rem; margin: 1.25rem 1.25rem 0; }
 .shell__rekey span { flex: 1; font-size: 0.85rem; }
 
 .sidebar { border-right: 1px solid var(--line); background: var(--panel); overflow-y: auto; padding: 0.9rem 0.7rem; }

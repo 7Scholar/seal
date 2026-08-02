@@ -8,7 +8,7 @@ It is done when someone who has never seen this repository can install Seal, und
 
 ## Approach
 
-Three concerns, each with its own plan: the checks that keep the repository's claims true (`ci.md`), the documents a stranger needs (`docs.md`), and getting builds into someone's hands (`packaging.md`).
+Four concerns, each with its own plan: the checks that keep the repository's claims true (`ci.md`), the documents a stranger needs (`docs.md`), getting builds into someone's hands (`packaging.md`), and the build scripts a developer working on Seal runs (`tooling.md`).
 
 One decision shapes the whole tree: **the project has no code-signing identity**, which was settled deliberately rather than deferred. That is not merely a missing nicety on macOS — an unsigned artefact is killed behind a malware dialog with no override — so it determines what is distributed and how. The command-line tool is the released artefact, shipped as a tarball because quarantine survives zip extraction but not tar. The desktop application is build-from-source, stated plainly rather than shipped as a download that fails on first run.
 
@@ -19,6 +19,7 @@ Everything the documentation claims is verified rather than believed: the README
 - [x] ci.md -> the automated checks that keep every claim in the repository true
 - [x] docs.md -> the README and the documents a stranger needs to trust and contribute
 - [x] packaging.md -> bundling, distribution, and the release process
+- [x] tooling.md -> the developer-facing build scripts that encode the procedures a rebuild must follow
 
 # Cursor
 
@@ -33,6 +34,8 @@ The correction came from separating two macOS gates that had been conflated: the
 The same route stays closed to the desktop application, which remains build-from-source with its build documented. Signing and notarisation slot into the same workflow whenever the project takes on an identity.
 
 Being a plain binary rather than a bundle grants no exemption: an unsigned command-line tool that arrives quarantined is killed behind the same malware dialog, with no override button where a bundle would at least offer right-click-to-open. Only the delivery mechanism saves it, which is why the release ships tarballs and continuous integration asserts that a quarantined tarball still yields a runnable binary — verified to accept a tarball and reject a zip.
+
+`tooling.md` is complete, and it closed a gap rather than adding a nicety: two of this repository's build rules fail silently, both presenting as "my change did nothing" — a frontend rebuilt after the binary that embeds it, and a `seal` launcher resolving to somewhere the rebuild never touched. The script encodes the first and warns about the second.
 
 # Open threads
 

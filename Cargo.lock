@@ -3748,6 +3748,9 @@ name = "seal-desktop"
 version = "0.1.0"
 dependencies = [
  "age",
+ "objc2",
+ "objc2-app-kit",
+ "objc2-foundation",
  "seal-dotenv",
  "seal-engine",
  "seal-registry",

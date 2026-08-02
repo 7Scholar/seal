@@ -4,6 +4,7 @@ pub mod error;
 pub mod lifecycle;
 pub mod rekey;
 pub mod theme;
+pub mod titlebar;
 pub mod view;
 
 use std::time::Duration;
@@ -69,6 +70,10 @@ pub fn run() {
         ])
         .setup(move |app| {
             app.manage(Held::new(store, state));
+
+            if let Some(window) = app.get_webview_window("main") {
+                titlebar::centre_window_controls(&window.as_ref().window(), titlebar::STRIP_HEIGHT);
+            }
 
             let handle = app.handle().clone();
             tauri::async_runtime::spawn(async move {

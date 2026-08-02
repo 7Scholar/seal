@@ -68,7 +68,7 @@ Reveal is not an edit and must never mark a file dirty — a demonstrated failur
 - [x] errors.md -> how a command failure reaches the user: plain language for every kind, the problem banner, and the re-lock on an ended session
 - [x] shell-layout.md -> the application shell: the repository sidebar, the detail surface, and the disclosure architecture
 - [x] repo-layer/ -> making the product read as a layer over an existing repository rather than a tool that extracts files into itself
-- [~] navigation/ -> the navigation model: breadcrumb routing over three full-width altitudes, the themes, and the title bar as a real window surface. **The model works; its surfaces are built only for the populated state and diverge from the supplied reference.**
+- [!] navigation/ -> the navigation model: breadcrumb routing over three full-width altitudes, the themes, and the title bar as a real window surface. **Audited: the surfaces are built only for the populated state and diverge from the supplied reference. Blocked on [navigation/QUESTIONS.md](navigation/QUESTIONS.md) — the reference screenshots are gone from the repository, and the empty state's copy is a journey contract.**
 
 # Cursor
 

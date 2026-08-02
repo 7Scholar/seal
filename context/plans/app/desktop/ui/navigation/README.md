@@ -82,6 +82,10 @@ Three children, one per altitude, each owning its surface's layout and operation
 - [~] files.md -> one repository's files as large rows, with the repository's operations. **States beyond populated are undesigned.**
 - [~] file.md -> the file altitude, and the env editor re-homed into it. **States beyond populated are undesigned.**
 - [x] shape.md -> the shared visual language: the radius, the surfaces, and the tokens the themes resolve
+- [x] _docs/surface-audit.md -> the audit of the four built surfaces (a supporting doc, not a child)
+- [!] states.md -> the states beyond populated: empty, loading, error, excessive, degraded, unavailable. **Blocked on [QUESTIONS.md](QUESTIONS.md) for the empty state's asserted copy.**
+- [ ] icons.md -> an icon system, replacing the text characters standing in for glyphs throughout the interface
+- [ ] disclosure-primitive.md -> one implementation of the disclosure contract the four collapsed controls each carry separately
 
 # Cursor
 
@@ -92,7 +96,11 @@ Three children, one per altitude, each owning its surface's layout and operation
 
 Neither failure was caught by a test, a journey, or the drive: all of them passed. That is what [docs/plans/SURFACE_AUDIT.md](../../../../../../docs/plans/SURFACE_AUDIT.md) now exists to catch, and the instructions that permitted it have been changed ([INSTRUCTIONS.md](../../../../../../docs/plans/INSTRUCTIONS.md) on parts-and-depth, [UX_RESEARCH.md](../../../../../../docs/UX_RESEARCH.md) on states and reference fidelity).
 
-**The next session on this node starts at [HANDOFF.md](HANDOFF.md)**, which briefs a cold agent on what is wrong, what is binding, where the traps are, and how to run the work: audit first and fix nothing, then one surface carried to full depth. It is a one-off document for this handoff rather than a plan-system artifact, and it is deleted once the work it describes is finished.
+**The audit is done and nothing is fixed.** [_docs/surface-audit.md](_docs/surface-audit.md) records every state of the four surfaces as seen in the running application, with the reference-fidelity pass explicitly incomplete because the supplied screenshots are no longer in the repository. Its findings are framed as three children: [states.md](states.md), [icons.md](icons.md) and [disclosure-primitive.md](disclosure-primitive.md).
+
+The audit's most severe finding was not in the brief that ordered it: **the repositories grid reports the user's data as absent while it is loading, and permanently if the load fails**, because empty, loading and failed are the same screen and that screen says *"Seal manages nothing yet"*. A returning user meets it on every launch. It is recorded in [states.md](states.md).
+
+**The next session builds one surface to full depth**, which the audit says is the repositories grid — it is the landing surface, it holds the loading-and-error finding, and its empty state is a new user's first impression. Two answers in [QUESTIONS.md](QUESTIONS.md) gate it: the re-supplied reference screenshots, and the empty state's asserted copy. [HANDOFF.md](HANDOFF.md) still briefs that work; it is a one-off document for this handoff rather than a plan-system artifact, and it is deleted once the work it describes is finished.
 
 Every child is `[x]`. The two that carried risk beyond layout both landed on their designed shape: `theme.md`, because persisting a preference contradicts the memory-only webview and had to go to a Rust-side store rather than `localStorage`; and `title-bar.md`, because the drag region was present in the markup all along and did nothing, which made it a bug fix with a reproduction rather than a styling change.
 

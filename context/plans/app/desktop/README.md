@@ -66,7 +66,7 @@ Two flows carry more weight than their screens suggest, and their behaviour is f
 - [x] commands.md -> the IPC surface: the command set, what may cross the boundary, and how blocking work is dispatched
 - [x] dotenv.md -> lossless env-file parsing and rendering, so saving preserves comments, order and formatting
 - [x] lifecycle.md -> bringing files under management, removal from it, the pre-seal open-file check, and the irreversibility acknowledgements
-- [x] ui/ -> the interface: the navigation model, the cross-repo view, the manage flow, the environment-variables editor, and the two flows that must insist
+- [~] ui/ -> the interface: the navigation model, the cross-repo view, the manage flow, the environment-variables editor, and the two flows that must insist. **`navigation/` is in flight: its surfaces need the depth pass its cursor names.**
 - [x] first-open.md -> establishing the master password on the first open, verifying it on every open after, and the empty state's onboarding weight
 - [~] journey-harness.md -> the harness that drives the built application for the journeys axis; macOS first
 
@@ -102,7 +102,9 @@ It brought the last piece of Rust scope here with it: a **batch seal** command t
 
 It carried Rust scope again — the scan now returns structure rather than candidates — and it produced the sharpest evidence yet for the journeys axis: a serde casing mismatch that both sides' unit suites passed straight through, and that only the driven application caught.
 
-`ui/navigation/` is **complete**, and it replaced the shell rather than extending it. The product owner withdrew the sidebar for Supabase-style routing: a breadcrumb trail in the title bar over three full-width altitudes — repository tiles, a repository's files as large rows, and the file itself — with a chevron switcher on the repository and file segments. The first-run journey drives the new model end to end against a release build, all eight checks green.
+`ui/navigation/` **replaced the shell rather than extending it, and is in flight rather than complete.** The product owner withdrew the sidebar for Supabase-style routing: a breadcrumb trail in the title bar over three full-width altitudes — repository tiles, a repository's files as large rows, and the file itself — with a chevron switcher on the repository and file segments. The first-run journey drives the new model end to end against a release build, all eight checks green.
+
+Its surfaces were built only for the populated state and the breadcrumb diverges from the reference supplied for it — found by the product owner in the running application, caught by nothing automated, and now recorded in its own cursor.
 
 Two parts of it were not layout. The interface gained **light, dark and system themes**, which needed a Rust-side store and two commands: the webview is deliberately memory-only, so a preference cannot persist in it — the one place this redesign touched the command surface. And the **title bar became draggable**, which was a real bug with a driven reproduction: the strip carried the framework's drag attribute in its bare form, which drags only on a direct press of the element itself, so every part of the strip a user actually presses was dead. The CSS property that looks like the mechanism is inert and discarded by this webview — recorded in `ui/navigation/MEMORY.md`, because it is invisible from the code and would be "fixed" the wrong way.
 

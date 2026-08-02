@@ -36,7 +36,7 @@ The owner's example named *unseal* as a candidate entry. It is deliberately **no
 
 ## The empty state
 
-With no repositories the grid is replaced by the add call to action — one heading and the primary button, no illustration and no paragraph. This is the surface a fresh install lands on, and [the first-run journey](../../../../journeys/first-run.md) asserts against it, so its copy is a contract rather than a choice: changing the words means updating the journey and the harness in the same change.
+With no repositories the grid is replaced by the add call to action — one heading and the primary button, no illustration and no paragraph. This is the surface a fresh install lands on, and [the first-run journey](../../../../../journeys/first-run.md) asserts against it, so its copy is a contract rather than a choice: changing the words means updating the journey and the harness in the same change.
 
 # What exists
 

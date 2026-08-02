@@ -102,7 +102,7 @@ Cross-cutting invariants the build must honour. Rules 1–4 govern disclosure sp
 
 **The sidebar row** is the repository's name, its path de-emphasised beneath, and a compact state summary. The summary is the one element exempt from collapsing: a repository holding an exposed file says so in the sidebar, because the alert must be reachable from wherever the user is and the sidebar is the only element always present. Everything else about a repository — its operations, its explanations — lives in the detail surface or behind that row's disclosure.
 
-**The detail surface** is the repository: its files with their state tags, the operations that apply to them, and the alert if it has one. Its title carries the toggletip explaining watched-versus-protected, which is the distinction [the protect-a-repo journey](../../../../journeys/protect-a-repo.md) requires be obvious without explanation. Secondary repository operations sit behind an overflow control rather than on the surface.
+**The detail surface** is the repository: its files with their state tags, the operations that apply to them, and the alert if it has one. Its title carries the toggletip explaining watched-versus-protected, which is the distinction [the protect-a-repo journey](../../../../../journeys/protect-a-repo.md) requires be obvious without explanation. Secondary repository operations sit behind an overflow control rather than on the surface.
 
 **With nothing selected**, the detail surface is the import call to action — which is also the empty state for the whole application, so the two collapse into one surface rather than being designed twice.
 

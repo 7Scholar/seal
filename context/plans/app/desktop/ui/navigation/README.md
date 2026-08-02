@@ -60,7 +60,7 @@ Choosing a sibling navigates at the current altitude and leaves every altitude a
 
 The sidebar was the carrier for an alert about a repository the user is not looking at, and it is gone. That carrier moves to the **title bar**: an exposure indicator sits in the strip whenever any repository holds an exposed file, states the count, and navigates to the first such repository. It is present at every altitude because the strip is, which is the property the sidebar was chosen for in the first place, and it renders nothing at all when the count is zero.
 
-This is not a relaxation of the rule it serves. [The exposure journey](../../../../journeys/exposure.md) requires the product to raise an exposure *wherever the user happens to be* and forbids indicating it only somewhere they might not look; the strip is now the only element satisfying that. The per-repository alert on the files surface, with its inline seal action, is unchanged.
+This is not a relaxation of the rule it serves. [The exposure journey](../../../../../journeys/exposure.md) requires the product to raise an exposure *wherever the user happens to be* and forbids indicating it only somewhere they might not look; the strip is now the only element satisfying that. The per-repository alert on the files surface, with its inline seal action, is unchanged.
 
 The alternatives were a full-width banner beneath the strip and an alert confined to the repositories grid. The banner was refused because a consequence that appears on every surface and displaces the content beneath it becomes wallpaper, which is the failure the product's proportionality rule exists to prevent; the grid-only form was refused because it tells a user working inside one repository nothing about another, which is the exact shape the journey forbids.
 
@@ -77,15 +77,22 @@ Three children, one per altitude, each owning its surface's layout and operation
 - [x] _docs/navigation-research.md -> the prior-art survey and the behavioural rules (a supporting doc, not a child)
 - [x] title-bar.md -> the title bar as a real window control surface: drag, double-click zoom, and the interactive-child exclusion
 - [x] theme.md -> light, dark and system themes, the switcher, and the persistence the memory-only webview cannot provide
-- [x] breadcrumbs.md -> the trail, the switcher popover, and the route
-- [x] repositories.md -> the repositories grid: tiles, search, per-tile ellipsis, add
-- [x] files.md -> one repository's files as large rows, with the repository's operations
-- [x] file.md -> the file altitude, and the env editor re-homed into it
+- [~] breadcrumbs.md -> the trail, the switcher popover, and the route. **The root segment has no switcher, and the chevron is not the referenced icon.**
+- [~] repositories.md -> the repositories grid: tiles, search, per-tile ellipsis, add. **States beyond populated are undesigned; the empty state is a different visual language.**
+- [~] files.md -> one repository's files as large rows, with the repository's operations. **States beyond populated are undesigned.**
+- [~] file.md -> the file altitude, and the env editor re-homed into it. **States beyond populated are undesigned.**
 - [x] shape.md -> the shared visual language: the radius, the surfaces, and the tokens the themes resolve
 
 # Cursor
 
-Complete. The navigation model is the one the product owner specified: a breadcrumb trail in the title bar over three full-width altitudes, with no sidebar anywhere in the product.
+**The navigation model is in place and its surfaces are not finished.** The route, the trail, the switcher, the three altitudes, the themes and the title bar all work and are driven; what was not done is the depth each surface deserved. The product owner reviewed the running application and found it reads as amateur, for two reasons that are recorded here rather than in a review that will be lost:
+
+- **The reference was not matched.** The switcher exists but the `Repositories` root carries no chevron at all — so on the landing screen, the one screen a new user sees, there is no switcher and no way to add a repository from the trail, which is the affordance the supplied screenshot showed. The chevron glyph is two stacked ASCII carets rather than an icon. The Approach below rationalised the missing root switcher ("a popover over an empty set is a control that lies about having options"); that reasoning is wrong, because the popover also carries **+ Add repository**, which is precisely what an empty product needs.
+- **Only the populated state was designed.** The repositories grid returns a centred heading, a paragraph and a button when empty — a different visual language from the grid it replaces, where an add-repository tile would have kept one. The other states (excessive, loading, error, partial) were never enumerated for any of the three surfaces.
+
+Neither failure was caught by a test, a journey, or the drive: all of them passed. That is what [docs/plans/SURFACE_AUDIT.md](../../../../../../docs/plans/SURFACE_AUDIT.md) now exists to catch, and the instructions that permitted it have been changed ([INSTRUCTIONS.md](../../../../../../docs/plans/INSTRUCTIONS.md) on parts-and-depth, [UX_RESEARCH.md](../../../../../../docs/UX_RESEARCH.md) on states and reference fidelity).
+
+The next session on this node is an audit against that manual, followed by one surface carried to full depth at a time.
 
 Every child is `[x]`. The two that carried risk beyond layout both landed on their designed shape: `theme.md`, because persisting a preference contradicts the memory-only webview and had to go to a Rust-side store rather than `localStorage`; and `title-bar.md`, because the drag region was present in the markup all along and did nothing, which made it a bug fix with a reproduction rather than a styling change.
 

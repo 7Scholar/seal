@@ -92,6 +92,19 @@ A plan `.md` is not the same document at the start and the end of its life. It m
 
 **Writing the code is the small part — usually one step.** The weight of a plan is in the work around it: framing, design and research to a production-ready bar, and the verification after (sanity-test, unit tests, test scripts). Treating the plan as a wrapper around the coding and rushing to implement is the common failure — a plan that is mostly an implementation step is almost always under-designed and under-tested. The hard parts are the thinking before the code and the breaking-it after, not the typing in between.
 
+**A request with many parts is many tasks, and each is done to full depth or not started.** This is the failure the plan tree exists to prevent and the one it is easiest to commit anyway: a request arrives naming five things, the agent races to have all five *present*, and every one lands at the shallowest depth that can be called done. The result passes its tests, satisfies its journeys, and is visibly amateur — because breadth was bought with depth at every step.
+
+The tree already makes this unnecessary. Plans persist, cursors record where work stopped, and another agent picks up exactly where the last one left off — so **there is no reward for reaching the end of a request in one session, and a large cost to arriving there thin.** Prefer finishing one part completely and leaving the rest clearly framed for the next session over touching everything. A cursor saying *"the grid is complete to production depth; the file surface is framed and untouched"* is a better outcome than five surfaces that each need redoing, and it is the outcome this system is built for.
+
+Concretely, when a request contains several parts:
+
+- **Work them one at a time**, each carried to the bar its own plan sets, before starting the next.
+- **Judge each part on its own merits**, not on whether the overall request is progressing. "Good enough so I can get to the next thing" is the specific thought to distrust.
+- **Say plainly what you did not do.** An unstarted part reported as unstarted is a working plan system; an unstarted part quietly implemented at 20% is drift that looks like completion.
+- **Time or context pressure changes what you finish, never how well you finish it.** Cut scope by dropping whole parts, never by thinning every part.
+
+For anything with a user-facing surface, "full depth" has a specific meaning that is easy to under-read: every state that surface can occupy is designed and built, not just the one where everything is present and working. The enumeration lives in [docs/UX_RESEARCH.md](../UX_RESEARCH.md) — empty, one, populated, excessive, loading, error, degraded, unavailable — and the empty state in particular is both the first thing a new user sees and the one most often reduced to a heading and a button in a visual language the rest of the product does not use.
+
 The end of that arc is the point of the whole system: **a finished plan is the documentation.** Its Approach must be a complete enough specification that a developer or agent could **reimplement the concern from the Approach alone**, without reading the code. The code is _one valid realization_ of the spec, not the thing the plan is about. So a done plan is verified two ways: hand someone only its Approach and they could rebuild the behavior; hand someone the conversation-free plan tree and they know exactly where everything stands.
 
 This cuts both ways at intake. You can **start a plan from a blank problem** (enter at step 1 and evolve it), or **drop in a complete plan** for already-built work (enter at step 4 directly). Either way the finished state is identical: a reimplementable spec.

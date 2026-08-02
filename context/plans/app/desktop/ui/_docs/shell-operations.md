@@ -44,7 +44,7 @@ The rule that follows and governs every placement below: **an operation lives at
 | Operation | Command | Disclosure | Notes |
 |---|---|---|---|
 | See this repository's files and their states | `overview` | **Always visible** | The detail surface's primary content. |
-| Understand watched vs. protected | — | **Collapsed** — toggletip on the title | The distinction [protect-a-repo](../../../../journeys/protect-a-repo.md) requires be obvious. Exactly the "title + info icon" pattern: explanation, not action, so it collapses. |
+| Understand watched vs. protected | — | **Collapsed** — toggletip on the title | The distinction [protect-a-repo](../../../../../journeys/protect-a-repo.md) requires be obvious. Exactly the "title + info icon" pattern: explanation, not action, so it collapses. |
 | See this repository's exposure | derived from `overview` | **Always visible when non-zero** | The alert, with its inline seal action. Never collapsed, never dismissible. |
 | Add more files from this repository | `scan_folder` → `manage` (merges) | **Collapsed** — overflow | Re-scanning an existing repository merges rather than duplicates. Step 7 of the protect-a-repo journey. |
 | Reveal the repository's location | — | **Always visible, de-emphasised** | The path under the name. Not an operation, but the thing that disambiguates two repositories with the same folder name. |

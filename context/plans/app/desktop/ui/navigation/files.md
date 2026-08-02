@@ -40,7 +40,7 @@ The batch is not atomic and the interface does not imply it is.
 
 ## The repository's own operations
 
-Above the list: the repository's name is the surface's subject rather than a repeated heading — the trail already states it — so the header carries the **path**, the **toggletip** explaining watched versus protected that [the protect-a-repo journey](../../../../journeys/protect-a-repo.md) requires, and the **ellipsis** with the same two operations the tile's menu carries.
+Above the list: the repository's name is the surface's subject rather than a repeated heading — the trail already states it — so the header carries the **path**, the **toggletip** explaining watched versus protected that [the protect-a-repo journey](../../../../../journeys/protect-a-repo.md) requires, and the **ellipsis** with the same two operations the tile's menu carries.
 
 The same two operations appearing on the tile and here is deliberate: they are the repository's operations, and a user acting on a repository may be at either altitude. One flow, two entry points.
 

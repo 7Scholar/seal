@@ -12,6 +12,18 @@ Ordinary work is **one plan, worked deep**: follow the cursor to the active plan
 - **The mode's boundary:** a "UI improvement" that is actually **new scope** — a new page, a new user-facing capability, a flow no plan's What & why contains — is not a tweak and does not ride the session. Route it through intake ([INTAKE.md](INTAKE.md)) as its own framed node, and keep the session to the true improvements.
 - **One session is one task on one branch.** The landing rules in [INSTRUCTIONS.md](INSTRUCTIONS.md) apply unchanged: branch off `main`, commit locally, stamp coverage last, never push. Because the session spans many plans' coverage, it breaks the one-subtree partition ordinary tasks keep ([GIT_WORKFLOW.md](GIT_WORKFLOW.md)) — so a UI session must not run concurrently with another in-flight task that touches frontend-covered files, or the two conflict on `coverage.json`.
 
+## The improvement bar
+
+A UI improvement is small in **scope**, never in **finish**. The mode exists so a batch of small changes doesn't drag the full per-plan protocol behind each one — it is not permission to work shallowly, and the two get confused constantly because "this is just a tweak" is true of the scope and false of the standard.
+
+So, on every surface this session touches:
+
+- **Leave it at production depth or leave it alone.** If a tweak reveals that the surface's empty, error, or overflow state was never designed, that is a finding to raise ([INSTRUCTIONS.md](INSTRUCTIONS.md), **a request with many parts**) — not something to patch around because the session was meant to be quick.
+- **Match the reference when there is one.** A screenshot or named product supplied with the request is specification; the fidelity rules are in [docs/UX_RESEARCH.md](../UX_RESEARCH.md) under **Building against a reference**.
+- **Drive what you changed.** A styling change you never looked at in the running application is a change you have not made — this repo has shipped that defect more than once, and unit tests do not see it.
+
+If a "batch of polish" turns out to need a real design pass on any surface it touches, the honest move is to finish that one surface properly and report the rest as untouched, rather than applying a thin coat to all of them.
+
 ## Before the first change
 
 1. Read the frontend supporting docs indexed under **Supporting docs** in the root plan's README before touching UI code.

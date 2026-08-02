@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { MODE_LABELS, MODES, type Mode } from "../theme";
+import { Icon } from "./Icon";
 
 interface Props {
   mode: Mode;
@@ -45,7 +46,7 @@ export function ThemeControl({ mode, onChoose }: Props) {
         aria-label={`Theme: ${MODE_LABELS[mode]}`}
         onClick={() => setOpen((was) => !was)}
       >
-        <span aria-hidden="true">◐</span>
+        <Icon name="theme" />
       </button>
 
       {open ? (
@@ -61,8 +62,8 @@ export function ThemeControl({ mode, onChoose }: Props) {
                 button.current?.focus();
               }}
             >
-              <span className="theme__tick" aria-hidden="true">
-                {option === mode ? "✓" : ""}
+              <span className="theme__tick">
+                {option === mode ? <Icon name="check" /> : null}
               </span>
               {MODE_LABELS[option]}
             </button>

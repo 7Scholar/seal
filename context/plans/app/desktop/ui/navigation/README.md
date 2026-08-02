@@ -83,8 +83,8 @@ Three children, one per altitude, each owning its surface's layout and operation
 - [~] file.md -> the file altitude, and the env editor re-homed into it. **States beyond populated are undesigned.**
 - [x] shape.md -> the shared visual language: the radius, the surfaces, and the tokens the themes resolve
 - [x] _docs/surface-audit.md -> the audit of the four built surfaces (a supporting doc, not a child)
-- [!] states.md -> the states beyond populated: empty, loading, error, excessive, degraded, unavailable. **Blocked on [QUESTIONS.md](QUESTIONS.md) for the empty state's asserted copy.**
-- [ ] icons.md -> an icon system, replacing the text characters standing in for glyphs throughout the interface
+- [~] states.md -> the states beyond populated. **Done for the repositories grid; the files list and the file surface are still populated-only.**
+- [x] icons.md -> an icon system, replacing the text characters standing in for glyphs throughout the interface
 - [ ] disclosure-primitive.md -> one implementation of the disclosure contract the four collapsed controls each carry separately
 
 # Cursor
@@ -100,7 +100,16 @@ Neither failure was caught by a test, a journey, or the drive: all of them passe
 
 The audit's most severe finding was not in the brief that ordered it: **the repositories grid reports the user's data as absent while it is loading, and permanently if the load fails**, because empty, loading and failed are the same screen and that screen says *"Seal manages nothing yet"*. A returning user meets it on every launch. It is recorded in [states.md](states.md).
 
-**The next session builds one surface to full depth**, which the audit says is the repositories grid — it is the landing surface, it holds the loading-and-error finding, and its empty state is a new user's first impression. Two answers in [QUESTIONS.md](QUESTIONS.md) gate it: the re-supplied reference screenshots, and the empty state's asserted copy. [HANDOFF.md](HANDOFF.md) still briefs that work; it is a one-off document for this handoff rather than a plan-system artifact, and it is deleted once the work it describes is finished.
+**The repositories grid is finished to production depth, and the other three surfaces are audited and framed.** The product owner re-supplied the reference and settled the empty state ([QUESTIONS.md](QUESTIONS.md) records both answers), which unblocked the build:
+
+- **Every state the grid can occupy is designed, built and seen running** — empty, one, populated, excessive, loading, error and no-match. The empty state is now an **add tile inside the grid**, so the surface is one visual language at every count, and the explanatory paragraph is gone.
+- **The loading and error states did not exist**, which is why the grid reported the user's data as absent while it loaded and permanently if it failed. Both now exist, and reintroducing either defect fails a test.
+- **Tiles are a fixed height.** Measured in the running application: the 120-character name that used to make its tile 283px against its neighbours' 177px now measures 177px like every other.
+- **The interface has an icon system** ([icons.md](icons.md)): every text character standing in for a glyph is now an inline SVG, including the `⌃⌄` the reference showed as a chevron-up-down, and the tile ellipsis is vertical as the reference draws it.
+
+**What is not done, and is the next session's work:** the `Repositories` root segment still carries no switcher — the audit's other reference deviation, which belongs to [breadcrumbs.md](breadcrumbs.md) rather than the grid; the files list and the file surface are still built for the populated state only ([states.md](states.md)); and the four disclosure controls still carry four copies of one contract ([disclosure-primitive.md](disclosure-primitive.md)).
+
+[HANDOFF.md](HANDOFF.md) briefed this work and is now spent for the grid; it stays until the remaining surfaces are carried to the same depth.
 
 Every child is `[x]`. The two that carried risk beyond layout both landed on their designed shape: `theme.md`, because persisting a preference contradicts the memory-only webview and had to go to a Rust-side store rather than `localStorage`; and `title-bar.md`, because the drag region was present in the markup all along and did nothing, which made it a bug fix with a reproduction rather than a styling change.
 

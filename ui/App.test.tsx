@@ -56,6 +56,9 @@ beforeEach(() => {
 async function openApp() {
   render(<App />);
   await screen.findByRole("heading", { name: "Repositories" });
+  await waitFor(() =>
+    expect(screen.queryByLabelText("Loading repositories")).not.toBeInTheDocument(),
+  );
 }
 
 async function openRepository(user: ReturnType<typeof userEvent.setup>, name: string) {
@@ -360,5 +363,38 @@ describe("the theme control", () => {
       ).toBeInTheDocument();
     });
     expect(document.documentElement.dataset.theme).toBe("dark");
+  });
+
+  it("never reports the product as empty while the overview is still in flight", async () => {
+    let settle: (repos: ipc.RepoView[]) => void = () => {};
+    mocked.overview.mockReturnValue(
+      new Promise<ipc.RepoView[]>((resolve) => {
+        settle = resolve;
+      }),
+    );
+
+    render(<App />);
+    await screen.findByLabelText("Loading repositories");
+
+    expect(document.querySelector(".tile--add")).not.toBeInTheDocument();
+
+    settle(repos);
+    await waitFor(() =>
+      expect(screen.queryByLabelText("Loading repositories")).not.toBeInTheDocument(),
+    );
+    expect(screen.getByRole("button", { name: /^site/ })).toBeInTheDocument();
+  });
+
+  it("states that the overview failed rather than claiming nothing is managed", async () => {
+    mocked.overview.mockRejectedValue(new Error("no"));
+
+    render(<App />);
+
+    await waitFor(() =>
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "Seal could not read what it manages",
+      ),
+    );
+    expect(document.querySelector(".tile--add")).not.toBeInTheDocument();
   });
 });

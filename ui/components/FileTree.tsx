@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import type { TreeNode } from "../ipc";
+import { Icon } from "./Icon";
 
 export interface Props {
   nodes: TreeNode[];
@@ -297,7 +298,7 @@ function Row({
               onToggleExpand(path);
             }}
           >
-            <span aria-hidden="true">{isExpanded ? "▾" : "▸"}</span>
+            <Icon name={isExpanded ? "chevron-down" : "chevron-right"} />
           </button>
         ) : (
           <span className="tree__twisty tree__twisty--none" aria-hidden="true" />

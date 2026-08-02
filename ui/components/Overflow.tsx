@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { Icon } from "./Icon";
 
 interface Props {
   label: string;
@@ -45,7 +46,7 @@ export function Overflow({ label, children }: Props) {
         aria-label={label}
         onClick={() => setOpen((was) => !was)}
       >
-        <span aria-hidden="true">···</span>
+        <Icon name="ellipsis-vertical" />
       </button>
 
       {open ? (

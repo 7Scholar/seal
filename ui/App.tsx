@@ -5,7 +5,7 @@ import { Acknowledge } from "./screens/Acknowledge";
 import { EnvEditor } from "./screens/EnvEditor";
 import { ManageFlow } from "./screens/ManageFlow";
 import { RepoDetail, filePath } from "./screens/RepoDetail";
-import { Repositories } from "./screens/Repositories";
+import { Repositories, type Load } from "./screens/Repositories";
 import { Unlock } from "./screens/Unlock";
 import { PasswordChange } from "./screens/PasswordChange";
 import { Breadcrumbs, type Crumb } from "./components/Breadcrumbs";
@@ -36,6 +36,7 @@ export function App() {
   const [lockNote, setLockNote] = useState<string | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
   const [repos, setRepos] = useState<ipc.RepoView[]>([]);
+  const [load, setLoad] = useState<Load>("loading");
   const [route, setRoute] = useState<Route>({ at: "repositories" });
   const [opened, setOpened] = useState<Opened | null>(null);
   const [overlay, setOverlay] = useState<Overlay>({ name: "none" });
@@ -48,9 +49,15 @@ export function App() {
   const [mode, setMode] = useState<theme.Mode>("system");
 
   const refresh = useCallback(async () => {
-    const fresh = await ipc.overview();
-    setRepos(fresh);
-    return fresh;
+    try {
+      const fresh = await ipc.overview();
+      setRepos(fresh);
+      setLoad("ready");
+      return fresh;
+    } catch (error) {
+      setLoad("failed");
+      throw error;
+    }
   }, []);
 
   useEffect(() => {
@@ -73,7 +80,8 @@ export function App() {
 
   useEffect(() => {
     if (!unlocked) return;
-    void refresh();
+    setLoad("loading");
+    refresh().catch(() => undefined);
     ipc.rekeyStatus().then(setRekey).catch(() => setRekey(null));
   }, [unlocked, refresh]);
 
@@ -311,7 +319,7 @@ export function App() {
       switcher: {
         label: "Switch repository",
         searchLabel: "Find repository...",
-        addLabel: "+ Add repository",
+        addLabel: "Add repository",
         current: currentRepo.root,
         options: repos.map((repo) => ({
           id: repo.root,
@@ -331,7 +339,7 @@ export function App() {
       switcher: {
         label: "Switch file",
         searchLabel: "Find file...",
-        addLabel: "+ Add file",
+        addLabel: "Add file",
         current: route.path,
         options: currentRepo.files.map((file) => ({
           id: filePath(currentRepo, file.relativePath),
@@ -417,6 +425,11 @@ export function App() {
         {route.at === "repositories" ? (
           <Repositories
             repos={repos}
+            load={load}
+            onRetry={() => {
+              setLoad("loading");
+              refresh().catch(() => undefined);
+            }}
             onOpen={(root) => void goToRepository(root)}
             onAdd={startAdd}
             onRescan={(root) => void startRescan(root)}

@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { Icon } from "./Icon";
 
 export interface Option {
   id: string;
@@ -113,12 +114,13 @@ export function Switcher({
         aria-label={label}
         onClick={() => setOpen((was) => !was)}
       >
-        <span aria-hidden="true">⌃⌄</span>
+        <Icon name="chevron-up-down" />
       </button>
 
       {open ? (
         <span id={popoverId} className="switcher__popover" onKeyDown={onKeyDown}>
           <span className="switcher__search">
+            <Icon name="search" className="switcher__search-icon" />
             <input
               ref={field}
               type="text"
@@ -153,9 +155,7 @@ export function Switcher({
                 >
                   <span className="switcher__option-name">{option.name}</span>
                   {option.id === current ? (
-                    <span className="switcher__tick" aria-hidden="true">
-                      ✓
-                    </span>
+                    <Icon name="check" className="switcher__tick" />
                   ) : null}
                 </li>
               ))}
@@ -170,6 +170,7 @@ export function Switcher({
               onAdd();
             }}
           >
+            <Icon name="plus" />
             {addLabel}
           </button>
         </span>

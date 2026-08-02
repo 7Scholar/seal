@@ -4,7 +4,9 @@ Produced by following [the surface audit procedure](../../../../../../../docs/pl
 
 Everything below was seen in the **real application** — a release binary built per [RUNNING.md](../../../../../../../docs/RUNNING.md), driven against a scratch profile, read through the platform accessibility tree and measured where geometry mattered. Where a finding is a measurement it says so; where it could only be established from source it says that too.
 
-**The reference screenshots are not in the repository**, so the reference-fidelity pass (section 2 of the procedure) is **incomplete**. What is recorded here rests on the transcription in [navigation-research.md](navigation-research.md), which is a description of the reference and not the reference. The pass is not finished until the owner re-supplies the images.
+The product owner re-supplied the two reference screenshots, which now live beside this document at [reference/projects.png](reference/projects.png) and [reference/breadcrumbs.png](reference/breadcrumbs.png). **The fidelity pass is complete** and is recorded in *Reference fidelity* below.
+
+Going back to the images was not a formality. The transcription in [navigation-research.md](navigation-research.md) missed several elements outright — most consequentially that **the reference's root segment does carry a switcher**, which turns the missing one from a judgement call into a plain deviation.
 
 ## How the states were reached
 
@@ -115,6 +117,43 @@ The complete inventory, from source:
 
 These are typographic characters standing in for icons: they inherit font metrics, sit off the optical centre of their buttons, and render differently across fonts. This is systemic and larger than the breadcrumb — it is a substantial part of why the product reads as unpolished.
 
+## Reference fidelity
+
+Element by element, with [reference/projects.png](reference/projects.png) and [reference/breadcrumbs.png](reference/breadcrumbs.png) beside the running application.
+
+### The breadcrumb strip
+
+| Reference element | Ours |
+| --- | --- |
+| A switcher on **every** segment, root included | **absent at the root** — see T1 |
+| Chevron-up-down glyph, drawn as an icon | **approximated** — `⌃⌄`, two text characters |
+| The chevron is its **own control** with its own hover and press box, visually separate from the segment text | **approximated** — no separate affordance box |
+| A **leading icon per segment** (org mark, project cube) | **absent** |
+| A status badge per segment (`PRO`, `PRODUCTION`) | **excluded**, and rightly — Seal has no plan tiers or environments. No Seal fact belongs here. |
+| `/` separators between segments | present |
+| Popover: magnifier icon in the search field | **absent** — placeholder text only |
+| Popover: `Find project…` placeholder | present in kind (`Search for a repository`) |
+| Popover: **right-aligned check icon** on the current item | **approximated** — a `✓` text character |
+| Popover: add action as a **full-width pinned footer row**, separated by a rule, with a `+` icon | **approximated** — a button, no separator rule, `+` as a text character in the label |
+
+### The projects grid
+
+| Reference element | Ours |
+| --- | --- |
+| Page title (`Projects`) | present (`Repositories`) |
+| Search field with a **magnifier icon** | **approximated** — no icon |
+| `Status` filter and `Sorted by name` controls | **excluded** with a stated reason — refused for scale in the research |
+| Grid/list view toggle | **excluded** with a stated reason — same |
+| `+ New project` primary button, trailing edge, with a `+` icon | **approximated** — `+` is a text character in the label |
+| **Fixed-height tiles with generous empty space below the content** | **absent** — our tiles size to content, which is what lets a long name grow one to 283px against its neighbours' 177px (R4) |
+| Tile: name, then a secondary metadata line | present (name, then path) |
+| Tile: a small badge (`SMALL`, `MICRO`) | **adapted** — replaced by the managed-file count and the exposure treatment, which are Seal's equivalent facts |
+| Tile: **vertical ellipsis (`⋮`)** in the top-right corner | **approximated on two counts** — ours is a *horizontal* `···`, and it is a text character rather than an icon |
+| Tile menu: **an icon per entry** (copy, gear) | **absent** |
+| Whole tile navigates | present |
+
+**The deviations that matter**, in the order a user meets them: the absent root switcher (T1), every glyph being a text character (T2, T3), the tile ellipsis being horizontal where the reference is vertical, and tiles sizing to content rather than to a fixed height.
+
 ## Across surfaces
 
 **X1 — Four disclosure components implement the same dismissal logic independently.** *(inconsistent)*
@@ -129,7 +168,6 @@ Confirmed by search: no spinner, skeleton or pending treatment exists anywhere i
 
 ## What was not audited
 
-- **Reference fidelity, properly** — the screenshots are gone. Everything above rests on a transcription.
 - **The file surface at excessive size** — a file with hundreds of variables.
 - **Breadcrumb truncation with long segments** in the running app.
 - **The title bar drag**, which [MEMORY.md](../MEMORY.md) records as undrivable by the harness and needing a hand check.

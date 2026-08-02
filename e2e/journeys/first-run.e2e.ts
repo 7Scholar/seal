@@ -35,9 +35,11 @@ describe("first run: install, choose a password, protect a first file", () => {
     await browser.keys([...PASSWORD]);
     await browser.keys("Enter");
 
-    await expect($("h1=Seal manages nothing yet")).toBeDisplayed();
-    await expect($("p*=Nothing is encrypted until you choose")).toBeDisplayed();
-    await expect($("button=Add a folder")).toBeDisplayed();
+    await expect($("h1=Repositories")).toBeDisplayed();
+    await expect($(".tile--add")).toBeDisplayed();
+    await expect($(".tile--add button")).toHaveText(
+      expect.stringContaining("Add repository"),
+    );
   });
 
   it("recorded the password only as a sealed check file", () => {
@@ -61,7 +63,7 @@ describe("first run: install, choose a password, protect a first file", () => {
     writeFileSync(join(repo, ".env"), "API_KEY=sk-live-1234567890abcdef\n");
     writeFileSync(join(repo, ".env.example"), "API_KEY=\n");
 
-    await $("button=Add a folder").click();
+    await $(".tile--add button").click();
 
     await expect($(`h1*=Seal in`)).toBeDisplayed();
 

@@ -34,30 +34,51 @@ The repository's secondary operations, collapsed per the disclosure architecture
 
 The owner's example named *unseal* as a candidate entry. It is deliberately **not** here: Seal offers no way to leave a managed file decrypted on disk ([the root intent](../../../README.md)), and the operation that legitimately ends with plaintext at the path is stopping management, which is already in this menu under a name that says exactly that. An entry labelled *unseal* would promise an operation the product does not have.
 
-## The empty state
+## Every state the grid can occupy
 
-With no repositories the grid is replaced by the add call to action — one heading and the primary button, no illustration and no paragraph. This is the surface a fresh install lands on, and [the first-run journey](../../../../../journeys/first-run.md) asserts against it, so its copy is a contract rather than a choice: changing the words means updating the journey and the harness in the same change.
+The grid is one surface in one visual language, whatever it holds. It is never replaced by a different layout.
+
+**Empty** — the grid renders with the **add tile** in it and nothing else. The tile is the same size and shape as a repository tile, drawn with a dashed border and a `+`, and it starts the same add flow the toolbar's button starts. There is no heading, no paragraph and no centred call to action: the empty grid is a grid.
+
+**One and populated** — repository tiles, and the add tile last. The add tile stays at every count, so the way to add is in the same place whether the user has none or twenty.
+
+**Excessive** — tiles are a **fixed height**, and the name and path each truncate to one line with an ellipsis rather than growing the tile. A tile that sized to its content let one absurd name grow 60% taller than its neighbours and break the row. The path truncates from its **left**, keeping the meaningful tail visible, and the full value of both is carried in a `title`. The surface states the repository **count** beside its heading, so the size of what is below the fold is a fact rather than a scroll.
+
+**Loading** — three **skeleton tiles** in the grid's own shape, marked `aria-busy`, while the overview is in flight. This state exists because without it the surface says *"nothing here"* about data it has not read yet, which is a false statement about the user's own product. The skeleton's pulse is dropped under `prefers-reduced-motion`.
+
+**Error** — the overview failing states that Seal **could not read what it manages** and offers a retry, in the danger treatment, as an `alert`. It also says the repositories are untouched and still sealed, because the question a user actually has at that moment is whether their secrets are safe. This is a state and a consequence, not explanatory prose.
+
+This state is **hard to reach from disk**, and that is a property of the layer beneath rather than of the surface: corrupting `registry.json` does not produce it, because the registry recovers from `registry.json.previous` and returns an empty set. The state is therefore driven by a rejecting `overview` in the interface tests. It is still worth having — the call can fail for reasons the registry's own recovery does not cover, and the alternative is the surface claiming the user manages nothing.
+
+**No match** — a search matching nothing states that and offers to clear the field, inside the grid rather than replacing it.
+
+The toolbar's search is disabled when there is nothing to search, and the add action is disabled only while loading.
 
 # What exists
 
-All of the Approach: the toolbar with its filter, the tile with its facts and its ellipsis, the menu with the two operations, and the empty state.
+All of the Approach: the toolbar with its filter, the tile with its facts and its ellipsis, the menu with the two operations, and every state above.
 
-Interface tests cover navigation from a tile, the ellipsis not navigating, the filter, the no-match state, the exposure treatment appearing only for a genuine exposure, and the empty state's action.
+Interface tests cover navigation from a tile, the ellipsis not navigating, the filter, the no-match state, the exposure treatment appearing only for a genuine exposure, the add tile at every count, the count, truncation carrying full values, and the loading and error states at the application level where the defect actually lived.
 
-Guards confirmed non-vacuous:
+Guards confirmed non-vacuous by reintroducing the defect each prevents:
 
 - letting the ellipsis press fall through to the tile — so opening the menu also navigates — fails 1
 - showing a state tag on a repository with nothing exposed fails 1
 - reordering rather than filtering on search fails 1
+- removing the loading state, so an in-flight overview renders as an empty product, fails 1
+- reporting a failed overview as `ready`, so a failure renders as an empty product, fails 1
+- removing the add tile from the grid fails 2
 
 # Steps
 
 - [x] The grid and its tile, with whole-tile navigation.
 - [x] The toolbar with the search filter and the add action.
 - [x] The ellipsis menu with the repository's secondary operations.
-- [x] The empty state, matching the journey's asserted copy.
+- [x] The empty state as an add tile inside the grid.
+- [x] Every other state: loading, error, excessive, no-match.
 - [x] Tests, with each load-bearing rule confirmed non-vacuous.
 
 # Open threads
 
 - The grid's breakpoints are set against the window's minimum width rather than measured. Wants seeing at the sizes people actually use.
+- Nothing virtualizes. At 25 repositories every tile is in the document, which is fine at the scale this product expects and would not be at a thousand. The count beside the heading makes the size visible; the DOM cost is untouched.

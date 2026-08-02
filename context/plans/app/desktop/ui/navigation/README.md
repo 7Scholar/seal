@@ -62,6 +62,8 @@ The sidebar was the carrier for an alert about a repository the user is not look
 
 This is not a relaxation of the rule it serves. [The exposure journey](../../../../journeys/exposure.md) requires the product to raise an exposure *wherever the user happens to be* and forbids indicating it only somewhere they might not look; the strip is now the only element satisfying that. The per-repository alert on the files surface, with its inline seal action, is unchanged.
 
+The alternatives were a full-width banner beneath the strip and an alert confined to the repositories grid. The banner was refused because a consequence that appears on every surface and displaces the content beneath it becomes wallpaper, which is the failure the product's proportionality rule exists to prevent; the grid-only form was refused because it tells a user working inside one repository nothing about another, which is the exact shape the journey forbids.
+
 ### What each surface owns
 
 Three children, one per altitude, each owning its surface's layout and operations: [repositories.md](repositories.md), [files.md](files.md), [file.md](file.md). This node owns the shell they sit in — the strip, the trail, the popover, the route — and nothing inside them.
@@ -87,7 +89,7 @@ Complete. The navigation model is the one the product owner specified: a breadcr
 
 Every child is `[x]`. The two that carried risk beyond layout both landed on their designed shape: `theme.md`, because persisting a preference contradicts the memory-only webview and had to go to a Rust-side store rather than `localStorage`; and `title-bar.md`, because the drag region was present in the markup all along and did nothing, which made it a bug fix with a reproduction rather than a styling change.
 
-The design fork this redesign genuinely exposed — where the cross-repository exposure alert lives once the sidebar carrying it is gone — was raised in `QUESTIONS.md` and answered by the product owner: it moves to the title bar strip. The Approach above records it.
+The design fork this redesign genuinely exposed — where the cross-repository exposure alert lives once the sidebar carrying it is gone — was raised as a blocking question and settled by the product owner: it moves to the title bar strip. The Approach above records the decision and why the two alternatives were refused.
 
 # Open threads
 

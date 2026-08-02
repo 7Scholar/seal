@@ -92,7 +92,7 @@ Three children, one per altitude, each owning its surface's layout and operation
 
 Neither failure was caught by a test, a journey, or the drive: all of them passed. That is what [docs/plans/SURFACE_AUDIT.md](../../../../../../docs/plans/SURFACE_AUDIT.md) now exists to catch, and the instructions that permitted it have been changed ([INSTRUCTIONS.md](../../../../../../docs/plans/INSTRUCTIONS.md) on parts-and-depth, [UX_RESEARCH.md](../../../../../../docs/UX_RESEARCH.md) on states and reference fidelity).
 
-The next session on this node is an audit against that manual, followed by one surface carried to full depth at a time.
+**The next session on this node starts at [HANDOFF.md](HANDOFF.md)**, which briefs a cold agent on what is wrong, what is binding, where the traps are, and how to run the work: audit first and fix nothing, then one surface carried to full depth. It is a one-off document for this handoff rather than a plan-system artifact, and it is deleted once the work it describes is finished.
 
 Every child is `[x]`. The two that carried risk beyond layout both landed on their designed shape: `theme.md`, because persisting a preference contradicts the memory-only webview and had to go to a Rust-side store rather than `localStorage`; and `title-bar.md`, because the drag region was present in the markup all along and did nothing, which made it a bug fix with a reproduction rather than a styling change.
 

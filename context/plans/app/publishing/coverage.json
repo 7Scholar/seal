@@ -16,5 +16,9 @@
     "scripts/build-sidecar.sh": "e1d2b479d830af9b4b00e06ab5c6f66e1192acef",
     "scripts/install.sh": "9409506b9afed6817cacde673a228074081aeb0b",
     "scripts/render-formula.sh": "9409506b9afed6817cacde673a228074081aeb0b"
+  },
+  "tooling.md": {
+    "package.json": "fc48741e20953ee3d195f734bdc5e6b65e1602ab",
+    "scripts/update-local.sh": "fc48741e20953ee3d195f734bdc5e6b65e1602ab"
   }
 }

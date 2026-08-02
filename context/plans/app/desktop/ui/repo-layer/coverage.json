@@ -1,17 +1,17 @@
 {
   "adopting.md": {
-    "e2e/journeys/first-run.e2e.ts": "6af8515a56ce649aaf6c17568ae434baa072681d",
+    "e2e/journeys/first-run.e2e.ts": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
     "ui/components/FileTree.test.tsx": "396f54c89636e9917866cb2254d109ac65e7088b",
-    "ui/components/FileTree.tsx": "396f54c89636e9917866cb2254d109ac65e7088b",
+    "ui/components/FileTree.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
     "ui/screens/ManageFlow.test.tsx": "396f54c89636e9917866cb2254d109ac65e7088b",
     "ui/screens/ManageFlow.tsx": "396f54c89636e9917866cb2254d109ac65e7088b",
-    "ui/styles.css": "6af8515a56ce649aaf6c17568ae434baa072681d"
+    "ui/styles.css": "fbfc7af93edeacb43c419aea37ffb4f89160c6db"
   },
   "managed-view.md": {
-    "ui/App.test.tsx": "6af8515a56ce649aaf6c17568ae434baa072681d",
+    "ui/App.test.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
     "ui/screens/RepoDetail.test.tsx": "6af8515a56ce649aaf6c17568ae434baa072681d",
     "ui/screens/RepoDetail.tsx": "6af8515a56ce649aaf6c17568ae434baa072681d",
-    "ui/styles.css": "6af8515a56ce649aaf6c17568ae434baa072681d"
+    "ui/styles.css": "fbfc7af93edeacb43c419aea37ffb4f89160c6db"
   },
   "scan-shape.md": {
     "crates/seal-registry/src/scan.rs": "396f54c89636e9917866cb2254d109ac65e7088b",
@@ -21,16 +21,16 @@
     "ui/ipc.ts": "6af8515a56ce649aaf6c17568ae434baa072681d"
   },
   "vocabulary.md": {
-    "e2e/journeys/first-run.e2e.ts": "6af8515a56ce649aaf6c17568ae434baa072681d",
-    "e2e/journeys/return-and-use.e2e.ts": "6af8515a56ce649aaf6c17568ae434baa072681d",
+    "e2e/journeys/first-run.e2e.ts": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
+    "e2e/journeys/return-and-use.e2e.ts": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
     "src-tauri/src/commands.rs": "6af8515a56ce649aaf6c17568ae434baa072681d",
     "src-tauri/src/lib.rs": "fc48741e20953ee3d195f734bdc5e6b65e1602ab",
     "src-tauri/src/lifecycle.rs": "396f54c89636e9917866cb2254d109ac65e7088b",
     "src-tauri/tests/lifecycle.rs": "396f54c89636e9917866cb2254d109ac65e7088b",
-    "ui/App.tsx": "6af8515a56ce649aaf6c17568ae434baa072681d",
+    "ui/App.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
     "ui/ipc.ts": "6af8515a56ce649aaf6c17568ae434baa072681d",
     "ui/screens/ManageFlow.test.tsx": "396f54c89636e9917866cb2254d109ac65e7088b",
     "ui/screens/ManageFlow.tsx": "396f54c89636e9917866cb2254d109ac65e7088b",
-    "ui/styles.css": "6af8515a56ce649aaf6c17568ae434baa072681d"
+    "ui/styles.css": "fbfc7af93edeacb43c419aea37ffb4f89160c6db"
   }
 }

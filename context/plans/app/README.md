@@ -82,6 +82,10 @@ What remains of `desktop/` is the journey-driven work its cursor names: the harn
 
 One rule in it guards against damage rather than confusion: a folder's checkbox selects the detected files beneath it and never every file beneath it, so the failure this flow can actually cause — sealing a file meant to stay readable and breaking the user's build — cannot be reached in one click.
 
+`desktop/ui/navigation/` then **replaced the interface's navigation model** at the product owner's direction. The sidebar shell is withdrawn; the product now routes the way Supabase does — a breadcrumb trail in the title bar over three full-width altitudes, repository tiles at the top, a repository's files as large rows beneath, and the file's own surface at the bottom, with a switcher on each segment for moving sideways. The first-run journey drives it end to end against a release build.
+
+Two of its parts reached past layout into the architecture. **Themes** — light, dark and system — could not persist in the webview, which is memory-only by design, so the preference lives in a small Rust-side store outside everything the session wipe clears. And the **title bar** turned out not to drag the window at all: a real defect, reproduced by driving the application, whose fix is the opposite of what the markup implied — dragging is decided by an injected script reading the framework's attribute, and the CSS property that appears to control it is inert.
+
 # Open threads
 
 No open threads yet.

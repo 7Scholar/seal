@@ -66,7 +66,7 @@ Two flows carry more weight than their screens suggest, and their behaviour is f
 - [x] commands.md -> the IPC surface: the command set, what may cross the boundary, and how blocking work is dispatched
 - [x] dotenv.md -> lossless env-file parsing and rendering, so saving preserves comments, order and formatting
 - [x] lifecycle.md -> bringing files under management, removal from it, the pre-seal open-file check, and the irreversibility acknowledgements
-- [x] ui/ -> the interface: the application shell, the cross-repo view, the manage flow, the environment-variables editor, and the two flows that must insist
+- [x] ui/ -> the interface: the navigation model, the cross-repo view, the manage flow, the environment-variables editor, and the two flows that must insist
 - [x] first-open.md -> establishing the master password on the first open, verifying it on every open after, and the empty state's onboarding weight
 - [~] journey-harness.md -> the harness that drives the built application for the journeys axis; macOS first
 
@@ -94,13 +94,17 @@ The journeys' first answers landed and are built. `first-open.md` is complete: a
 
 `journey-harness.md` is in flight: WebdriverIO driving the real release build through an embedded WebDriver bridge that exists only in harness builds, with `first-run` green across three consecutive runs, the non-vacuity proof done, and continuous integration gated on it. Its cursor holds the one live defect — an embedded-bridge freeze that blocks the extended scenario's tail — and what remains undriven.
 
-`ui/` gained the concern its children never held: the **shell**. Every screen had been built as a full-screen replacement, so there was no persistent frame, no navigation, and no way to work in one repository — which does not scale to the cross-repo span the root intent promises. `ui/shell-layout.md` is complete: a two-level repository sidebar that stays present while a file is edited, a detail surface with a stable selection model, and the disclosure architecture deciding what the interface shows against what it collapses — bounded by the rule that disclosure never defers an alert, a state, or a consequence.
+`ui/` gained the concern its children never held: the **shell**. Every screen had been built as a full-screen replacement, so there was no persistent frame, no navigation, and no way to work in one repository — which does not scale to the cross-repo span the root intent promises. `ui/shell-layout.md` is complete: a two-level repository sidebar that stays present while a file is edited, a detail surface with a stable selection model, and the disclosure architecture deciding what the interface shows against what it collapses — bounded by the rule that disclosure never defers an alert, a state, or a consequence. **Its frame has since been withdrawn** in favour of `ui/navigation/` below; the disclosure architecture it established outlived it and still governs the interface.
 
 It brought the last piece of Rust scope here with it: a **batch seal** command taking an explicitly selected set of paths, running each through the same guarded single-file path so the managed-path check and the acknowledgement gate hold per file, and returning a per-path outcome rather than a count. It is a command rather than an interface loop so both gates stay where the interface cannot forget them. Releasing a whole repository follows the same shape.
 
 `ui/repo-layer/` is **complete**, and with it the interface reads as what the root intent promises: a layer over repositories the user still owns. Adding a repository draws the repository itself with Seal's judgement marked on it, the steady-state surface draws the managed set as a tree in its real directory structure, and *import* is retired from the product down to the command name. The folder checkbox is deliberately scoped to detected files, so a single click can never queue a repository's source for sealing.
 
 It carried Rust scope again — the scan now returns structure rather than candidates — and it produced the sharpest evidence yet for the journeys axis: a serde casing mismatch that both sides' unit suites passed straight through, and that only the driven application caught.
+
+`ui/navigation/` is **complete**, and it replaced the shell rather than extending it. The product owner withdrew the sidebar for Supabase-style routing: a breadcrumb trail in the title bar over three full-width altitudes — repository tiles, a repository's files as large rows, and the file itself — with a chevron switcher on the repository and file segments. The first-run journey drives the new model end to end against a release build, all eight checks green.
+
+Two parts of it were not layout. The interface gained **light, dark and system themes**, which needed a Rust-side store and two commands: the webview is deliberately memory-only, so a preference cannot persist in it — the one place this redesign touched the command surface. And the **title bar became draggable**, which was a real bug with a driven reproduction: the strip carried the framework's drag attribute in its bare form, which drags only on a direct press of the element itself, so every part of the strip a user actually presses was dead. The CSS property that looks like the mechanism is inert and discarded by this webview — recorded in `ui/navigation/MEMORY.md`, because it is invisible from the code and would be "fixed" the wrong way.
 
 # Open threads
 

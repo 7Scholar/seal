@@ -14,7 +14,7 @@ This is the first surface in the product, so there is no existing family to mirr
 
 ### The three surfaces
 
-**The cross-repo view** is home: repos as sections, each listing its managed files with a state tag. With nothing added it *is* the add call to action rather than an illustration beside one, since the application can do nothing else until a repo exists.
+**The cross-repo view** is home: every managed repository as a tile in a grid, over a search field and the add action ([navigation/repositories.md](navigation/repositories.md)). With nothing added it *is* the add call to action rather than an illustration beside one, since the application can do nothing else until a repo exists.
 
 **The manage flow** is a folder picker then a candidate list grouped by classification with counts — secret, ambiguous, template — with only secrets preselected, per-group select-all, and a confirmation that states plainly that confirming encrypts nothing and that files stay where they are. Preselecting conservatively is not timidity: over-inclusion encrypts a file that was meant to stay readable and breaks the user's build.
 
@@ -55,6 +55,7 @@ Reveal is not an edit and must never mark a file dirty — a demonstrated failur
 - Before designing or changing any screen, follow [_docs/ux-research.md](_docs/ux-research.md) — it holds the tiered findings, the behavioural rules, and the out-of-scope decisions with their reasons.
 - Before changing the shell, the navigation between screens, or anything about what is shown versus collapsed, follow [_docs/shell-research.md](_docs/shell-research.md) — it holds the disclosure rules and where disclosure stops.
 - When placing an operation on any surface, follow [_docs/shell-operations.md](_docs/shell-operations.md) — it assigns every operation a scope, a home, and a disclosure posture.
+- Before changing navigation, the themes, or the title bar, follow [navigation/_docs/navigation-research.md](navigation/_docs/navigation-research.md) — it holds the prior-art survey behind the breadcrumb model and the rules it fixes.
 - **Before calling any interface change done, drive it** — [docs/RUNNING.md](../../../../../docs/RUNNING.md) has the procedure, and `bun run e2e:build && bun run e2e` is the check. This is not belt-and-braces: this plan group has now twice shipped a defect that every unit test on both sides passed and only the running application revealed, the second being a boundary casing mismatch that selected every file in a tree while the interface's fixtures and the Rust's own assertions both stayed green. A frontend change reaches a real binary only by rebuilding both, so a surface that "looks unchanged" after a rebuild is a stale `dist/`, not a working change.
 
 # Plans
@@ -65,6 +66,7 @@ Reveal is not an edit and must never mark a file dirty — a demonstrated failur
 - [x] errors.md -> how a command failure reaches the user: plain language for every kind, the problem banner, and the re-lock on an ended session
 - [x] shell-layout.md -> the application shell: the repository sidebar, the detail surface, and the disclosure architecture
 - [x] repo-layer/ -> making the product read as a layer over an existing repository rather than a tool that extracts files into itself
+- [x] navigation/ -> the navigation model: breadcrumb routing over three full-width altitudes, the themes, and the title bar as a real window surface
 
 # Cursor
 
@@ -86,9 +88,13 @@ It brought Rust scope with it, as `shell-layout.md` did: the scan returns the re
 
 Its defining lesson is recorded in the desktop `MEMORY.md`: a serde casing mismatch on a tagged union made every field arrive `undefined` in the webview and selected every file including the template, while both sides' unit suites passed. Only the driven application showed it.
 
+`navigation/` is **complete**, and it replaced this group's navigation model wholesale. The product owner withdrew the sidebar shell in favour of Supabase-style routing: a breadcrumb trail in the title bar over three full-width altitudes — a grid of repository tiles, a repository's files as large rows, and the file itself — with a chevron switcher on the repository and file segments for moving sideways without navigating up. `shell-layout.md`'s frame is withdrawn; its disclosure architecture, batch seal and removal survive unchanged and are marked as such in it.
+
+It carried two things that were not layout. The interface gained **light, dark and system themes** with a switcher in the strip — which needed a Rust-side store, because the memory-only webview cannot persist a preference and `localStorage` does not survive a restart here. And the **title bar became a real window surface**: dragging and double-click zoom were absent, and the fix was not the one the markup implied. Its lesson is in `navigation/MEMORY.md`: dragging is decided by an injected script reading the framework's attribute, the CSS `app-region` property is inert and discarded by this webview, and a bare attribute drags only on a direct press of the element itself — so the strip needs the subtree value or every child of it is dead to the pointer.
+
 # Open threads
 
 - Whether a bulk paste of variables is offered at all. Settled in the research as out of the first build: the shapes the hosted platforms use all force every value across the boundary at once. If it returns, the only acceptable form is parse-and-preview applied in Rust, never round-tripping existing values through the interface.
 - The clipboard timer's duration. Ninety seconds is the only concrete reference found; whether it suits a desktop editing session wants observation.
 - Whether the exposed-file count belongs in the window frame from the first build, or only once several repos are common. The row-level alert carries the weight regardless.
-- **Surfaces still carrying prose the rule above disallows.** The rule was stated after most screens were built, so it has only been applied to the surfaces `repo-layer/` touched. Known remaining: the empty state's two-sentence paragraph and the acknowledgement's explanatory copy — the latter may well be legitimate, since it is a destructive-act confirmation stating a consequence, which the rule permits. This wants a deliberate sweep judging each surface against the two allowed cases, not a blanket deletion; the empty state in particular is asserted by the first-run journey, so changing it is a contract change rather than a tweak.
+- **Surfaces still carrying prose the rule above disallows.** The rule was stated after most screens were built, so it has only been applied to the surfaces `repo-layer/` touched. Known remaining: the empty state's two-sentence paragraph — which `navigation/` deliberately preserved word for word, since [the first-run journey](../../../../journeys/first-run.md) asserts it and changing it is a contract change — and the acknowledgement's explanatory copy — the latter may well be legitimate, since it is a destructive-act confirmation stating a consequence, which the rule permits. This wants a deliberate sweep judging each surface against the two allowed cases, not a blanket deletion; the empty state in particular is asserted by the first-run journey, so changing it is a contract change rather than a tweak.

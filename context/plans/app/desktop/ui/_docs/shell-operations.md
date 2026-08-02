@@ -35,7 +35,7 @@ The rule that follows and governs every placement below: **an operation lives at
 |---|---|---|---|
 | Add a folder as a repository | `pick_folder` → `scan_folder` → `manage` | **Always visible** | The only way anything enters the application. With an empty registry it *is* the whole screen; with a populated one it is a persistent control in the sidebar. Never collapsed — an application whose primary intake is hidden has failed. |
 | See every repository | `overview` | **Always visible** | The sidebar itself. |
-| See exposure across all repositories | derived from `overview` | **Always visible when non-zero** | The cross-repo alert. The sidebar is the only element present on every screen, which is what makes it the correct carrier for an alert about a repository the user is not currently looking at. |
+| See exposure across all repositories | derived from `overview` | **Always visible when non-zero** | The cross-repo alert. Its carrier is whichever element is present on every screen — the title bar strip, since the sidebar this table was written against is withdrawn ([navigation/](../navigation/README.md)). The requirement is unchanged: an alert about a repository the user is not currently looking at must still reach them. |
 
 **Flow — adding a repository:** the add control → native folder dialog (cancel is a silent no-op) → scan → grouped candidate list (secret / ambiguous / template, only secrets preselected) → confirm → the repository appears in the sidebar and becomes selected. **Confirming encrypts nothing**, stated on the confirm step, alongside the statement that files do not move. The new repository being auto-selected is what closes the loop — the user lands in the place where the next action (sealing) lives.
 

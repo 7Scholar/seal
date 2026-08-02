@@ -67,7 +67,7 @@ The frontend still never receives file contents. The tree carries paths, structu
 
 ### Where the sidebar's rule lands
 
-The sidebar's *two levels, never a third* rule is **scoped to the sidebar** rather than overturned. The sidebar answers "what is the state of what Seal covers, across every repository" and stays flat and quiet; this concern's surfaces answer "what does Seal cover in this repository" and are trees. The rule was written about navigation, and it keeps holding there.
+The *two levels, never a third* rule was **scoped to the sidebar** rather than overturned, and the sidebar is now withdrawn ([navigation/](../navigation/README.md)). What it was protecting survives in the new model by construction: navigation is exactly three altitudes deep and has no tree at all, while this concern's surfaces — which answer "what does Seal cover in this repository" — keep their full structure.
 
 # Plans
 

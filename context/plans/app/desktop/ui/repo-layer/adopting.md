@@ -45,13 +45,13 @@ The directories the scan did not walk are drawn as rows, marked as not looked in
 
 ## Expansion and selection stay separate
 
-The twisty expands; the row's checkbox selects; neither triggers the other. This is the sidebar's rule ([shell-layout.md](../shell-layout.md), and its `MEMORY.md` entry) holding here for the same reason it holds there: conflating them makes it impossible to browse a branch without selecting it, which in this surface would mean browsing could queue files for encryption.
+The twisty expands; the row's checkbox selects; neither triggers the other. This was the sidebar's rule ([shell-layout.md](../shell-layout.md), and its `MEMORY.md` entry), and it outlived the sidebar because its reason is sharper here than it ever was there: conflating them makes it impossible to browse a branch without selecting it, which in this surface would mean browsing could queue files for encryption.
 
 ## The assistive-technology contract
 
 The tree is a `tree` widget with multi-selection expressed through **`aria-checked` only**. `aria-selected` appears nowhere in it: the ARIA practices call a tree carrying both "extremely rare" and steer multi-select trees to `aria-checked`, and emitting `aria-selected="false"` on every row makes screen readers announce "not selected" on all of them.
 
-Folders carry `aria-checked="mixed"` in their middle state. The keyboard model matches the sidebar's so the product has one tree behaviour rather than two: arrows move and expand, Space toggles the focused row's checkbox, Enter activates. Focus is managed with a roving tabindex, as the sidebar does.
+Folders carry `aria-checked="mixed"` in their middle state. The keyboard model is the standard tree one: arrows move and expand, Space toggles the focused row's checkbox, Enter activates, with focus managed by a roving tabindex. This is now the product's only tree, so the model has no sibling to agree with and answers to the pattern itself.
 
 ## What the surface says, and how little of it there is
 

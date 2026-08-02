@@ -75,7 +75,8 @@ describe("first run: install, choose a password, protect a first file", () => {
     await expect($("button=Manage 1 file")).toBeEnabled();
     await $("button=Manage 1 file").click();
 
-    await expect($('[role="tree"]').$(`span=${repo.split("/").pop()}`)).toBeDisplayed();
+    await expect($('nav[aria-label="Breadcrumb"]')).toBeDisplayed();
+    await expect($('[aria-current="page"]')).toHaveText(repo.split("/").pop());
     await expect($("span=.env")).toBeDisplayed();
   });
 
@@ -122,8 +123,8 @@ describe("first run: install, choose a password, protect a first file", () => {
 
     await browser.keys([...PASSWORD]);
     await browser.keys("Enter");
-    await expect($('[role="tree"]')).toBeDisplayed();
-    await $('[role="tree"]').$(`span=${repo.split("/").pop()}`).click();
+    await expect($("h1=Repositories")).toBeDisplayed();
+    await $(`button*=${repo.split("/").pop()}`).click();
     await expect($("span=Sealed")).toBeDisplayed();
   });
 });

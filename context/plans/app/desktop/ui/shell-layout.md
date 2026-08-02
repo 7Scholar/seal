@@ -2,13 +2,15 @@ Part of [the interface plan](README.md).
 
 # Scope
 
-The application's **shell**: the persistent frame that hosts every screen, and the navigation between them. A left sidebar listing the registered repositories; selecting one opens that repository's detail surface. Out of scope: the screens' own internals, which their existing plans own unchanged — the manage flow ([screens.md](screens.md)), the environment-variables editor ([screens.md](screens.md)), the unlock gate ([first-open.md](../first-open.md)), the supervised password change ([password-change.md](password-change.md)), and the failure surface ([errors.md](errors.md)). This plan decides **where those surfaces live and how a user moves between them**, not what happens inside them.
+> The navigation half of this scope is **withdrawn** and now belongs to [navigation/](navigation/README.md). What this plan still owns is the **information architecture** below — the disclosure rules, the toggletip primitive, the batch seal, and repository removal.
+
+The application's **shell**: the persistent frame that hosted every screen, and the navigation between them. A left sidebar listing the registered repositories; selecting one opened that repository's detail surface. Out of scope: the screens' own internals, which their existing plans own unchanged — the manage flow ([screens.md](screens.md)), the environment-variables editor ([screens.md](screens.md)), the unlock gate ([first-open.md](../first-open.md)), the supervised password change ([password-change.md](password-change.md)), and the failure surface ([errors.md](errors.md)). This plan decides **where those surfaces live and how a user moves between them**, not what happens inside them.
 
 Also in scope, because it cannot be separated from the shell: the **information architecture** governing what is shown versus what is collapsed, across the whole interface.
 
 # What & why
 
-The screens exist; the shell does not. Today the interface is a stack of full-screen replacements — one scrolling column lists every repository with all of its files inline, and opening a file swaps the entire screen for an editor. There is no persistent navigation, no sense of place, and no way to look at one repository without looking at all of them. A user with four repositories has no way to work in one.
+The screens exist; the shell does not. At the time this plan was written the interface was a stack of full-screen replacements — one scrolling column lists every repository with all of its files inline, and opening a file swaps the entire screen for an editor. There is no persistent navigation, no sense of place, and no way to look at one repository without looking at all of them. A user with four repositories has no way to work in one.
 
 What is wanted is a **persistent left sidebar of the registered repositories, with a detail surface for the selected one** — the shape the surveyed products converge on, and the one GitHub Desktop's users have repeatedly asked it for in its absence.
 
@@ -24,9 +26,11 @@ The two research documents that are this plan's design input are written: [shell
 
 # Approach
 
+> **The two-column frame and its sidebar are withdrawn.** The product owner replaced this plan's navigation model with breadcrumb routing over three full-width surfaces; [navigation/](navigation/README.md) owns the shell now, and its Approach governs where surfaces live and how a user moves between them. What survives here — and is still live, still built, still binding — is everything below that is not the frame: the disclosure architecture, the toggletip contract, the batch seal, repository removal, and the rule that operations do not move the user. The sections describing the sidebar and the two-column layout are kept only so the reasoning behind the surviving rules stays readable; where they conflict with [navigation/](navigation/README.md), that plan wins.
+
 Built from [shell-research.md](_docs/shell-research.md) and [shell-operations.md](_docs/shell-operations.md), which are the design input; this Approach states what follows from them and from the four decisions the product owner settled.
 
-The shell is a **persistent two-column frame under a title bar**: a navigation sidebar on the left that is present for the whole unlocked session, and a detail surface on the right that shows whatever is selected. Nothing inside the frame ever replaces the window. The screens the other plans own are re-homed into the detail surface unchanged; what this plan fixes is the frame, the selection model, and the disclosure architecture.
+The shell was a **persistent two-column frame under a title bar**: a navigation sidebar on the left present for the whole unlocked session, and a detail surface on the right showing whatever was selected. Nothing inside the frame ever replaced the window. The screens the other plans own were re-homed into the detail surface unchanged; what this plan fixed was the frame, the selection model, and the disclosure architecture.
 
 ## The title bar is the session's strip, and it spans both columns
 
@@ -36,7 +40,7 @@ Those two belong there because they are the only controls whose scope is the who
 
 The strip is deliberately short. It carries no repository state, no alert, and no primary verb of its own, so it stays a thin band rather than a second header competing with the detail surface's title. The unfinished-password-change banner is **not** in it: that banner is a consequence that must not be compressed, so it renders at the top of the detail column where its subject lives, and renders nothing at all when there is nothing to resume.
 
-## The sidebar is a two-level tree, and the tree is the disclosure
+## The sidebar is a two-level tree, and the tree is the disclosure — *withdrawn, see [navigation/](navigation/README.md)*
 
 The sidebar lists every registered repository. A repository **expands to reveal its managed files**, and is collapsed by default. This is the governing principle applied to navigation itself: the repository name is what matters at rest, its files are the elaboration, and expanding is the user asking for them.
 
@@ -48,13 +52,13 @@ Two levels, and never a third. The tree shows repositories and their managed fil
 
 Because [the window persists nothing](../README.md), the tree's state is decided fresh on every launch rather than restored. The default is **every repository collapsed, nothing selected** — except that a repository holding an exposed file starts expanded, since rule 2 of the research says the exception is what the surface is for.
 
-## What the sidebar row says without being expanded
+## What the sidebar row says without being expanded — *withdrawn; its alert-carrying job moved to the title bar strip*
 
 A repository's row carries its name, and a **state summary** that is the one element in the sidebar exempt from collapsing. The sidebar is the only element present on every screen, which makes it the only place an alert about a repository the user is *not* looking at can live — and the shell created that problem by making other repositories off-screen by default.
 
 The summary states exposure and nothing else: a repository with exposed files says so, and a repository without them says nothing at all. Chrome scales to the count including to zero, so a healthy registry is a quiet list of names. A file row inside the tree carries its own state tag in the established vocabulary — sealed, readable, not found — since a file's state is a fact, and facts do not collapse.
 
-## The detail surface, and its three modes
+## The detail surface, and its three modes — *withdrawn; the three altitudes replace it*
 
 The detail surface is never blank. It shows one of three things:
 
@@ -66,7 +70,7 @@ The detail surface is never blank. It shows one of three things:
 
 ## Selection is stable, and operations do not move it
 
-No operation changes the selection except the user selecting something else, and one deliberate exception: **a completed add selects the newly added repository**, because that is where the next action lives and landing the user anywhere else would strand them. Sealing a file, releasing a file, saving, revealing, and refreshing all leave the selection exactly where it was, and a refresh never reorders the tree under the pointer.
+**This rule survives the frame**, restated on the route: no operation changes where the user is except the user navigating, and one deliberate exception: **a completed add opens the newly added repository**, because that is where the next action lives and landing the user anywhere else would strand them. Sealing a file, releasing a file, saving, revealing, and refreshing all leave the selection exactly where it was, and a refresh never reorders the tree under the pointer.
 
 Two consequences that are easy to get wrong. A file that stops being managed while selected — released, or gone from disk — leaves the detail surface showing a file that no longer exists; selection falls back to its parent repository rather than to nothing, so the user lands one level up rather than at the empty state. A repository that disappears the same way falls back to nothing selected.
 
@@ -112,23 +116,24 @@ Row-level actions may de-emphasise until hover, and doing so is how the file row
 
 # What exists
 
-All of the Approach. The shell is the frame the application runs in: the two-level sidebar, the detail surface with its three modes, the selection model with its fallbacks, the toggletip and overflow disclosures, the batch seal, and repository removal. Every existing screen was re-homed into the detail surface with its internals untouched.
+The parts of the Approach that outlived the frame: the toggletip and overflow disclosures with their contracts, the batch seal, repository removal, and the disclosure architecture that governs the whole interface. The two-column frame and the sidebar tree this plan built are **gone from the product** — [navigation/](navigation/README.md) replaced them, and the fallback rules the selection model held now live on its route.
 
-Thirty-eight interface tests across the sidebar, the detail surface, the toggletip and the shell itself, alongside the four Rust tests the batch seal added. The shell's own tests drive the composed application rather than a component in isolation, which is what proves the sidebar actually survives opening a file rather than each piece being correct alone.
+Interface tests cover the toggletip, the batch seal and repository removal, alongside the four Rust tests the batch seal added. The sidebar's own tests went with the sidebar.
 
-Five load-bearing guards were confirmed non-vacuous by reintroducing the exact defect each prevents:
+The load-bearing guards that still have code to guard, each confirmed non-vacuous by reintroducing the exact defect it prevents:
 
 - describing the toggletip's trigger with `aria-describedby` instead of carrying state in `aria-expanded` — the shape that makes the button a no-op for a screen-reader user — fails 2 tests
-- making selection also expand, conflating navigation with disclosure, fails 1
 - sealing every readable file instead of the chosen set fails 2
 - reporting a bare count instead of naming each failed file and why fails 1
 - removing the acknowledgement gate fails 1 on the batch path, confirming the gate holds for a batch rather than only for a single file
+
+The expansion-versus-selection guard is retired with the tree it protected; its rule no longer has a surface, since the new model has no expansion axis at all.
 
 One defect was caught by a test rather than by review, and it is the same defect this plan group caught once before: the batch report and the toggletip both claimed `role="status"`, leaving two competing live regions on one surface. The toggletip now claims the role only while open.
 
 # What is missing
 
-Nothing on this plan. The journey harness drives this layout end to end: the first-run journey passes all eight checks against a release build carrying it — establishment through the shield, the add into the sidebar tree, the acknowledged seal, and the lock cycle. (A bridge that fails to *start* is a stale harness binary, not the harness defect — [docs/RUNNING.md](../../../../../docs/RUNNING.md) covers it; [journey-harness.md](../journey-harness.md)'s open defect is a mid-run freeze in the extended scenario only.)
+Nothing on this plan. Its surviving rules are driven end to end by the first-run journey against a release build — the acknowledged seal and the lock cycle — now through [navigation/](navigation/README.md)'s shell rather than this one's. (A bridge that fails to *start* is a stale harness binary, not the harness defect — [docs/RUNNING.md](../../../../../docs/RUNNING.md) covers it; [journey-harness.md](../journey-harness.md)'s open defect is a mid-run freeze in the extended scenario only.)
 
 # Steps
 
@@ -145,6 +150,6 @@ Nothing on this plan. The journey harness drives this layout end to end: the fir
 
 # Open threads
 
-- Whether the sidebar's per-repository state summary is a count, a dot, or a word. All three appear in the surveyed products; wants seeing at real widths with real repository names rather than deciding on paper.
-- Whether a repository with nothing exposed shows a quiet summary or nothing at all. The scale-chrome-to-zero rule argues for nothing; legibility of "this one is fine" argues for something.
-- What the detail surface shows for a repository whose folder has moved. GitHub Desktop's Locate / Clone / Remove is the reference; Seal's equivalents are undefined and the state is not yet reachable in the product.
+- What the interface shows for a repository whose folder has moved. GitHub Desktop's Locate / Clone / Remove is the reference; Seal's equivalents are undefined and the state is not yet reachable in the product. This outlived the frame and now belongs to [navigation/repositories.md](navigation/repositories.md)'s tile.
+
+The two sidebar-summary threads are closed by the frame's withdrawal: there is no sidebar row to summarise, and the scale-chrome-to-zero question was settled on the tile — a repository with nothing exposed says nothing at all.

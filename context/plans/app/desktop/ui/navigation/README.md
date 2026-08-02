@@ -1,0 +1,95 @@
+Part of [the interface plan](../README.md).
+
+# Intent
+
+## What & why
+
+The interface's **navigation model**: how a user moves between the repositories Seal manages, the files inside one, and the contents of one file — and what each of those three altitudes shows.
+
+The product owner has replaced the shell's navigation. The two-column frame [shell-layout.md](../shell-layout.md) built — a persistent repository sidebar beside a detail surface — is withdrawn. In its place: a **breadcrumb trail in the title bar** as the only navigation chrome, over **three full-width surfaces**, one per altitude:
+
+- **Repositories** — every managed repository as a large tile in a grid, with a search field and an ellipsis menu per tile.
+- **Files** — one repository's managed files as a list of large rows.
+- **File** — one file's contents, which for an env file is the per-variable editor.
+
+Each breadcrumb segment at the repository and file level carries a chevron-up-down control opening a popover with a search field, the sibling options, and an add action — so a user switches repository or file without navigating back up.
+
+The named prior art is deliberate rather than invented: **Supabase** for the project grid and the breadcrumb switcher, **Vercel** for the environment-variables surface. The product owner supplied screenshots of both Supabase surfaces as the reference.
+
+Why this replaces what exists: the sidebar spends a permanent column on navigation that is only occasionally used, and it forces every altitude through one cramped two-level tree. Giving each altitude the whole window lets that altitude's own management surface be complete — which is the property the owner is buying, and the reason the change is worth the rework it costs.
+
+**This node owns the shell and the navigation.** What each surface shows in detail is its child's concern; the surfaces' *existing* internals stay owned by the plans that already hold them — the env editor and the manage flow by [screens.md](../screens.md), the failure surface by [errors.md](../errors.md), the unlock gate by [first-open.md](../../first-open.md).
+
+Done means: a user reaches every altitude by breadcrumb and by tile or row, switches repository and file from the breadcrumb popovers, and no surface in the product still renders the sidebar.
+
+## Approach
+
+Built from [_docs/navigation-research.md](_docs/navigation-research.md), which surveys the named prior art and fixes the behavioural rules; this Approach states what follows from it.
+
+### One route, three altitudes
+
+Navigation is a **route** — `repositories`, `repository`, or `file` — held in interface state, never in a URL and never persisted, since [the window persists nothing](../../shell.md). Every launch lands on `repositories`.
+
+The route is the single source of what the window shows. There is no selection model beside it and no mode: opening a repository *is* navigating to it. This is the substantive difference from the withdrawn sidebar, where selection and expansion were separate axes over one persistent frame.
+
+Navigating **up** discards the altitude below it: leaving a file closes it, which is the same explicit close the file surface already performs. Navigating **down** or **sideways** at the same altitude is one act — the breadcrumb popover switches repository without passing through the repositories grid.
+
+### The title bar carries the trail, and is the window's drag surface
+
+The title bar holds the breadcrumb trail at its leading edge, after the inset the platform's window controls occupy, and the session controls at its trailing edge — Lock, the theme control, and the overflow disclosing the master-password change. The product name is gone from the strip: the trail's first segment states where the user is, and a brand word beside it is chrome that says nothing.
+
+The strip is also the window's **drag region**, which it was not before ([title-bar.md](title-bar.md) owns that behaviour and the interactive-child exclusion it needs).
+
+### The trail's shape
+
+The trail reads `Repositories / <repo> / <file>`, truncated from the left of each segment's own text rather than by dropping segments — the segments are the navigation, so a dropped one is an unreachable altitude.
+
+Every segment is a control. A segment before the current one navigates to that altitude. The current segment does not navigate, and carries no link affordance.
+
+The repository and file segments each carry a **chevron-up-down** control immediately after the segment's text, opening the switcher popover. The `Repositories` root has no chevron: its siblings are nothing, and a popover over an empty set is a control that lies about having options.
+
+### The switcher popover
+
+One component, used at both levels. It holds a search field focused on open, the filtered list of siblings with the current one marked, and a single add action pinned at the foot — **Add repository** at the repository level, **Add file** at the file level. The list filters as the user types, on a plain case-insensitive substring of the name; there is no fuzzy ranking, because the sets are small enough that ordering by anything but the user's own list order costs recognition.
+
+It is a `dialog`-less popover owned by the same disclosure contract every other collapsed thing in this interface follows: a button carrying `aria-expanded`, dismissed on Escape and on an outside click, with focus returning to the trigger. It is **not** a `<select>` and not a native menu, because it holds a search field.
+
+Choosing a sibling navigates at the current altitude and leaves every altitude above it untouched. Choosing the add action starts the same add flow the surface offers, so there is exactly one add path per altitude rather than one per entry point.
+
+### Where the cross-repository alert lives now
+
+The sidebar was the carrier for an alert about a repository the user is not looking at, and it is gone. That carrier moves to the **title bar**: an exposure indicator sits in the strip whenever any repository holds an exposed file, states the count, and navigates to the first such repository. It is present at every altitude because the strip is, which is the property the sidebar was chosen for in the first place, and it renders nothing at all when the count is zero.
+
+This is not a relaxation of the rule it serves. [The exposure journey](../../../../journeys/exposure.md) requires the product to raise an exposure *wherever the user happens to be* and forbids indicating it only somewhere they might not look; the strip is now the only element satisfying that. The per-repository alert on the files surface, with its inline seal action, is unchanged.
+
+### What each surface owns
+
+Three children, one per altitude, each owning its surface's layout and operations: [repositories.md](repositories.md), [files.md](files.md), [file.md](file.md). This node owns the shell they sit in — the strip, the trail, the popover, the route — and nothing inside them.
+
+### What this withdraws
+
+[shell-layout.md](../shell-layout.md) keeps its disclosure architecture, its selection-stability rule as it applies within a surface, its batch seal, and its repository removal — all of which outlive the frame. What it loses is the two-column frame and the sidebar tree, which this node replaces and its Approach now records as withdrawn.
+
+# Plans
+
+- [x] _docs/navigation-research.md -> the prior-art survey and the behavioural rules (a supporting doc, not a child)
+- [x] title-bar.md -> the title bar as a real window control surface: drag, double-click zoom, and the interactive-child exclusion
+- [x] theme.md -> light, dark and system themes, the switcher, and the persistence the memory-only webview cannot provide
+- [x] breadcrumbs.md -> the trail, the switcher popover, and the route
+- [x] repositories.md -> the repositories grid: tiles, search, per-tile ellipsis, add
+- [x] files.md -> one repository's files as large rows, with the repository's operations
+- [x] file.md -> the file altitude, and the env editor re-homed into it
+- [x] shape.md -> the shared visual language: the radius, the surfaces, and the tokens the themes resolve
+
+# Cursor
+
+Complete. The navigation model is the one the product owner specified: a breadcrumb trail in the title bar over three full-width altitudes, with no sidebar anywhere in the product.
+
+Every child is `[x]`. The two that carried risk beyond layout both landed on their designed shape: `theme.md`, because persisting a preference contradicts the memory-only webview and had to go to a Rust-side store rather than `localStorage`; and `title-bar.md`, because the drag region was present in the markup all along and did nothing, which made it a bug fix with a reproduction rather than a styling change.
+
+The design fork this redesign genuinely exposed — where the cross-repository exposure alert lives once the sidebar carrying it is gone — was raised in `QUESTIONS.md` and answered by the product owner: it moves to the title bar strip. The Approach above records it.
+
+# Open threads
+
+- The tile grid's breakpoints are set against the window's own minimum width rather than measured at the sizes people actually use. Worth revisiting once the application has been lived in at a few window sizes.
+- Whether the file-level switcher should list files across *all* repositories rather than only the current repository's. The current shape mirrors Supabase's, where a branch switcher lists one project's branches; the cross-repo variant is a different affordance and wants a reason before it is built.

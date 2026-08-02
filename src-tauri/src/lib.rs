@@ -3,6 +3,7 @@ pub mod commands;
 pub mod error;
 pub mod lifecycle;
 pub mod rekey;
+pub mod theme;
 pub mod view;
 
 use std::time::Duration;
@@ -63,6 +64,8 @@ pub fn run() {
             commands::rekey_begin,
             commands::rekey_run,
             commands::rekey_abandon,
+            commands::theme_mode,
+            commands::set_theme_mode,
         ])
         .setup(move |app| {
             app.manage(Held::new(store, state));

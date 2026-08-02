@@ -42,7 +42,7 @@ The tree is built from the managed paths rather than from a scan, so this surfac
 
 Verified by the repository surface's own suite, including a new assertion that a nested managed file appears under its real directory chain. The existing assertions carried over untouched, which is the evidence that this changed the shape and not the behaviour.
 
-One consequence surfaced while building it: two trees now share a screen, so the shell's own tests name the sidebar's by its label rather than reaching for the only one. That is a more precise assertion than it replaced.
+One consequence surfaced while building it: two trees shared a screen, so the shell's own tests named each by its label rather than reaching for the only one. The sidebar's tree is since withdrawn ([navigation/](../navigation/README.md)) and the managed set is drawn as large rows carrying each file's directory path; the rule this section states — a file reads at its real location in the repository, never as a bare name — is what survived and is what [navigation/files.md](../navigation/files.md) now realizes.
 
 # What is missing
 

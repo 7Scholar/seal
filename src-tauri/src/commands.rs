@@ -11,6 +11,7 @@ use crate::app;
 use crate::error::{CommandError, Kind};
 use crate::lifecycle::{self, ScanView};
 use crate::rekey;
+use crate::theme;
 use crate::view::{OpenedFile, RepoView, SealOutcome};
 
 pub const RETRY_ATTEMPTS: u8 = 5;
@@ -346,4 +347,15 @@ pub async fn rekey_run(
 #[tauri::command]
 pub async fn rekey_abandon(held: Managed<'_, Held>) -> Result<(), CommandError> {
     held.ledger().clear()
+}
+
+#[tauri::command]
+pub async fn theme_mode(held: Managed<'_, Held>) -> Result<String, CommandError> {
+    Ok(theme::read(&held.directory).as_str().to_string())
+}
+
+#[tauri::command]
+pub async fn set_theme_mode(held: Managed<'_, Held>, mode: String) -> Result<(), CommandError> {
+    theme::write(&held.directory, theme::Mode::parse(&mode))
+        .map_err(|_| CommandError::new(Kind::Io))
 }

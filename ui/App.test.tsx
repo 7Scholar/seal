@@ -17,6 +17,10 @@ vi.mock("./ipc", async () => {
     sealFiles: vi.fn(),
     hasAcknowledged: vi.fn(),
     lock: vi.fn(),
+    themeMode: vi.fn(),
+    setThemeMode: vi.fn(),
+    save: vi.fn(),
+    reveal: vi.fn(),
   };
 });
 
@@ -45,50 +49,147 @@ beforeEach(() => {
   mocked.overview.mockResolvedValue(repos);
   mocked.rekeyStatus.mockResolvedValue(null);
   mocked.hasAcknowledged.mockResolvedValue(true);
+  mocked.themeMode.mockResolvedValue("system");
+  mocked.setThemeMode.mockResolvedValue(undefined);
 });
 
-async function openShell() {
+async function openApp() {
   render(<App />);
-  await screen.findByRole("tree");
+  await screen.findByRole("heading", { name: "Repositories" });
+}
+
+async function openRepository(user: ReturnType<typeof userEvent.setup>, name: string) {
+  await user.click(screen.getByRole("button", { name: new RegExp(`^${name}`) }));
+  await screen.findByRole("navigation", { name: "Breadcrumb" });
 }
 
 describe("the application shell", () => {
-  it("shows the sidebar and a detail surface, not a single scrolling column", async () => {
-    await openShell();
-    expect(screen.getByRole("tree", { name: "Repositories" })).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "Repositories" })).toBeInTheDocument();
+  it("lands on the repositories grid, with no sidebar anywhere", async () => {
+    await openApp();
+    expect(screen.getByRole("heading", { name: "Repositories" })).toBeInTheDocument();
+    expect(screen.queryByRole("tree")).not.toBeInTheDocument();
   });
 
-  it("is never blank: with nothing selected it says what to do", async () => {
-    await openShell();
-    expect(screen.getByRole("heading", { name: "Nothing selected" })).toBeInTheDocument();
+  it("shows every repository as a tile carrying its path and file count", async () => {
+    await openApp();
+    expect(screen.getByText("/code/app")).toBeInTheDocument();
+    expect(screen.getByText("2 managed files")).toBeInTheDocument();
+    expect(screen.getByText("1 managed file")).toBeInTheDocument();
   });
 
-  it("expands a repository holding an exposed file, since the exception is what the surface is for", async () => {
-    await openShell();
-    await waitFor(() => {
-      expect(screen.getByRole("treeitem", { name: /site/ })).toHaveAttribute(
-        "aria-expanded",
-        "true",
-      );
-    });
-    expect(screen.getByRole("treeitem", { name: /^app/ })).toHaveAttribute(
-      "aria-expanded",
-      "false",
-    );
+  it("states an exposure on the tile, and says nothing on a healthy repository", async () => {
+    await openApp();
+    expect(
+      screen.getByText("1 file readable — should be sealed"),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText(/readable — should be sealed/)).toHaveLength(1);
   });
 
-  it("keeps the sidebar present while a repository is shown", async () => {
+  it("carries the cross-repository exposure into the title bar, from every altitude", async () => {
     const user = userEvent.setup();
-    await openShell();
+    await openApp();
 
-    await user.click(screen.getByRole("treeitem", { name: /^app/ }));
+    const pill = screen.getByRole("button", {
+      name: "1 repository has a readable secret",
+    });
+    expect(pill).toBeInTheDocument();
 
-    expect(screen.getByRole("heading", { name: "app" })).toBeInTheDocument();
-    expect(screen.getByRole("tree", { name: "Repositories" })).toBeInTheDocument();
+    await openRepository(user, "app");
+    expect(
+      screen.getByRole("button", { name: "1 repository has a readable secret" }),
+    ).toBeInTheDocument();
   });
 
-  it("keeps the sidebar present while a file is open in the editor", async () => {
+  it("shows no exposure indicator when nothing is exposed", async () => {
+    mocked.overview.mockResolvedValue([repos[0]!]);
+    await openApp();
+    expect(
+      screen.queryByRole("button", { name: /readable secret/ }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("navigates into a repository from its tile, and the trail says where you are", async () => {
+    const user = userEvent.setup();
+    await openApp();
+
+    await openRepository(user, "app");
+
+    const trail = screen.getByRole("navigation", { name: "Breadcrumb" });
+    expect(trail).toHaveTextContent("Repositories");
+    expect(trail).toHaveTextContent("app");
+    expect(screen.getByText("/code/app")).toBeInTheDocument();
+  });
+
+  it("the current breadcrumb segment does not navigate", async () => {
+    const user = userEvent.setup();
+    await openApp();
+    await openRepository(user, "app");
+
+    const trail = screen.getByRole("navigation", { name: "Breadcrumb" });
+    expect(trail.querySelector('[aria-current="page"]')).toHaveTextContent("app");
+    expect(
+      screen.queryByRole("button", { name: "app" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("navigates back up through the trail", async () => {
+    const user = userEvent.setup();
+    await openApp();
+    await openRepository(user, "app");
+
+    await user.click(screen.getByRole("button", { name: "Repositories" }));
+
+    expect(
+      await screen.findByRole("heading", { name: "Repositories" }),
+    ).toBeInTheDocument();
+  });
+
+  it("switches repository from the breadcrumb without passing through the grid", async () => {
+    const user = userEvent.setup();
+    await openApp();
+    await openRepository(user, "app");
+
+    await user.click(screen.getByRole("button", { name: "Switch repository" }));
+    await user.click(screen.getByRole("option", { name: /site/ }));
+
+    await waitFor(() => {
+      expect(screen.getByText("/code/site")).toBeInTheDocument();
+    });
+    expect(
+      screen.queryByRole("heading", { name: "Repositories" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("filters the switcher by what is typed, and marks the current repository", async () => {
+    const user = userEvent.setup();
+    await openApp();
+    await openRepository(user, "app");
+
+    await user.click(screen.getByRole("button", { name: "Switch repository" }));
+    expect(screen.getByRole("option", { name: /app/ })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+
+    await user.type(screen.getByRole("combobox"), "site");
+    expect(screen.queryByRole("option", { name: /^app/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("option", { name: /site/ })).toBeInTheDocument();
+  });
+
+  it("dismisses the switcher on Escape without navigating", async () => {
+    const user = userEvent.setup();
+    await openApp();
+    await openRepository(user, "app");
+
+    await user.click(screen.getByRole("button", { name: "Switch repository" }));
+    expect(screen.getByRole("combobox")).toBeInTheDocument();
+
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+    expect(screen.getByText("/code/app")).toBeInTheDocument();
+  });
+
+  it("opens a file, and the trail gains its segment", async () => {
     const user = userEvent.setup();
     mocked.openFile.mockResolvedValue({
       kind: "env",
@@ -97,19 +198,43 @@ describe("the application shell", () => {
       duplicateKeys: [],
       unparseableLines: 0,
     });
-    await openShell();
+    await openApp();
+    await openRepository(user, "app");
 
-    await user.click(screen.getByRole("treeitem", { name: /^app/ }));
     await user.click(screen.getByRole("button", { name: "Open .env" }));
 
-    await screen.findByRole("heading", { name: ".env" });
-    expect(screen.getByRole("tree", { name: "Repositories" })).toBeInTheDocument();
+    await screen.findByText("API_KEY");
+    const trail = screen.getByRole("navigation", { name: "Breadcrumb" });
+    expect(trail).toHaveTextContent(".env");
+    expect(trail.querySelector('[aria-current="page"]')).toHaveTextContent(".env");
+  });
+
+  it("closes the open file when navigating up, rather than only hiding it", async () => {
+    const user = userEvent.setup();
+    mocked.openFile.mockResolvedValue({
+      kind: "env",
+      path: "/code/app/.env",
+      variables: [{ key: "API_KEY", masked: "••••••••", empty: false }],
+      duplicateKeys: [],
+      unparseableLines: 0,
+    });
+    mocked.closeFile.mockResolvedValue(undefined);
+    await openApp();
+    await openRepository(user, "app");
+    await user.click(screen.getByRole("button", { name: "Open .env" }));
+    await screen.findByText("API_KEY");
+
+    await user.click(screen.getByRole("button", { name: "app" }));
+
+    await waitFor(() => {
+      expect(mocked.closeFile).toHaveBeenCalledWith("/code/app/.env");
+    });
   });
 
   it("keeps lock reachable from the frame", async () => {
     const user = userEvent.setup();
     mocked.lock.mockResolvedValue(undefined);
-    await openShell();
+    await openApp();
 
     await user.click(screen.getByRole("button", { name: "Lock" }));
     expect(mocked.lock).toHaveBeenCalledOnce();
@@ -117,7 +242,7 @@ describe("the application shell", () => {
 
   it("keeps changing the master password behind a disclosure, not on the surface", async () => {
     const user = userEvent.setup();
-    await openShell();
+    await openApp();
 
     expect(
       screen.queryByRole("button", { name: "Change master password" }),
@@ -134,9 +259,9 @@ describe("the application shell", () => {
     mocked.sealFiles.mockResolvedValue([
       { path: "/code/app/.env", sealed: true, reason: null },
     ]);
-    await openShell();
+    await openApp();
+    await openRepository(user, "app");
 
-    await user.click(screen.getByRole("treeitem", { name: /^app/ }));
     await user.click(screen.getByRole("checkbox", { name: "Select .env" }));
     await user.click(screen.getByRole("button", { name: "Seal selected file" }));
 
@@ -147,23 +272,93 @@ describe("the application shell", () => {
   it("falls back to the repository when the open file stops being managed", async () => {
     const user = userEvent.setup();
     mocked.openFile.mockResolvedValue({
-      kind: "opaque",
+      kind: "env",
       path: "/code/app/.env",
-      bytes: 42,
+      variables: [{ key: "API_KEY", masked: "••••••••", empty: false }],
+      duplicateKeys: [],
+      unparseableLines: 0,
     });
     mocked.closeFile.mockResolvedValue(undefined);
-    await openShell();
-
-    await user.click(screen.getByRole("treeitem", { name: /^app/ }));
+    mocked.save.mockResolvedValue(undefined);
+    mocked.reveal.mockResolvedValue(new TextEncoder().encode("sk-live"));
+    await openApp();
+    await openRepository(user, "app");
     await user.click(screen.getByRole("button", { name: "Open .env" }));
-    await screen.findByRole("heading", { name: ".env" });
+    await screen.findByText("API_KEY");
 
     mocked.overview.mockResolvedValue([
-      { root: "/code/app", name: "app", files: [] },
+      {
+        root: "/code/app",
+        name: "app",
+        files: [{ relativePath: ".env.production", state: "sealed", alert: false }],
+      },
       repos[1]!,
     ]);
-    await user.click(screen.getByRole("button", { name: "Close" }));
 
-    expect(await screen.findByRole("heading", { name: "app" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Edit API_KEY" }));
+    await user.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => {
+      expect(screen.getByText("/code/app")).toBeInTheDocument();
+    });
+    expect(screen.queryByText("API_KEY")).not.toBeInTheDocument();
+  });
+
+  it("falls back to the grid when the whole repository disappears", async () => {
+    const user = userEvent.setup();
+    mocked.sealFiles.mockResolvedValue([]);
+    await openApp();
+    await openRepository(user, "app");
+
+    mocked.overview.mockResolvedValue([repos[1]!]);
+    await user.click(screen.getByRole("checkbox", { name: "Select .env" }));
+    await user.click(screen.getByRole("button", { name: "Seal selected file" }));
+
+    expect(
+      await screen.findByRole("heading", { name: "Repositories" }),
+    ).toBeInTheDocument();
+  });
+});
+
+describe("the theme control", () => {
+  it("offers the three modes with the current one marked", async () => {
+    const user = userEvent.setup();
+    await openApp();
+
+    await user.click(screen.getByRole("button", { name: "Theme: System" }));
+
+    expect(screen.getByRole("button", { name: "System" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    expect(screen.getByRole("button", { name: "Light" })).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+  });
+
+  it("applies and stores a chosen mode", async () => {
+    const user = userEvent.setup();
+    await openApp();
+
+    await user.click(screen.getByRole("button", { name: "Theme: System" }));
+    await user.click(screen.getByRole("button", { name: "Light" }));
+
+    expect(mocked.setThemeMode).toHaveBeenCalledWith("light");
+    await waitFor(() => {
+      expect(document.documentElement.dataset.theme).toBe("light");
+    });
+  });
+
+  it("starts from the stored mode rather than the default", async () => {
+    mocked.themeMode.mockResolvedValue("dark");
+    await openApp();
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: "Theme: Dark" }),
+      ).toBeInTheDocument();
+    });
+    expect(document.documentElement.dataset.theme).toBe("dark");
   });
 });

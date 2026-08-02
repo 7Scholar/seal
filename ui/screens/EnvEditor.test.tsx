@@ -23,17 +23,17 @@ function setup(overrides: Partial<EnvView> = {}) {
   );
   const onSave = vi.fn(async () => {});
   const onSeal = vi.fn();
-  const onClose = vi.fn();
   render(
     <EnvEditor
       file={{ ...file, ...overrides }}
+      relativePath=".env.production"
+      state="sealed"
       onReveal={onReveal}
       onSave={onSave}
       onSeal={onSeal}
-      onClose={onClose}
     />,
   );
-  return { onReveal, onSave, onSeal, onClose };
+  return { onReveal, onSave, onSeal };
 }
 
 describe("EnvEditor", () => {
@@ -152,10 +152,11 @@ describe("EnvEditor, when saving fails", () => {
     render(
       <EnvEditor
         file={file}
+        relativePath=".env.production"
+        state="sealed"
         onReveal={vi.fn(async () => encode("postgres://real"))}
         onSave={onSave}
         onSeal={vi.fn()}
-        onClose={vi.fn()}
       />,
     );
 

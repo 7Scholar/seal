@@ -1,17 +1,32 @@
 import { useState } from "react";
 import { SecretValue } from "../components/SecretValue";
-import { decodeSecret, fileName } from "../format";
-import type { EnvView } from "../ipc";
+import { decodeSecret } from "../format";
+import type { EnvView, SealedState } from "../ipc";
 
 interface Props {
   file: EnvView;
+  relativePath: string;
+  state: SealedState;
   onReveal: (key: string) => Promise<Uint8Array>;
   onSave: (edits: [string, string][]) => Promise<void>;
   onSeal: () => void | Promise<void>;
-  onClose: () => void;
 }
 
-export function EnvEditor({ file, onReveal, onSave, onSeal, onClose }: Props) {
+const STATE_LABELS: Record<SealedState, string> = {
+  sealed: "Sealed",
+  plaintext: "Readable",
+  missing: "Not found",
+  unknown: "Unknown",
+};
+
+export function EnvEditor({
+  file,
+  relativePath,
+  state,
+  onReveal,
+  onSave,
+  onSeal,
+}: Props) {
   const [revealed, setRevealed] = useState<Record<string, string>>({});
   const [edits, setEdits] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
@@ -55,11 +70,13 @@ export function EnvEditor({ file, onReveal, onSave, onSeal, onClose }: Props) {
 
   return (
     <section className="env-editor">
-      <header className="env-editor__header">
-        <h1>{fileName(file.path)}</h1>
-        <button type="button" onClick={onClose}>
-          Close
-        </button>
+      <header className="file-head">
+        <div className="file-head__text">
+          <p className="file-head__path">{relativePath}</p>
+        </div>
+        <span className="file-head__state" data-state={state}>
+          {STATE_LABELS[state]}
+        </span>
       </header>
 
       {file.duplicateKeys.length > 0 ? (

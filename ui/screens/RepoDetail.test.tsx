@@ -209,7 +209,7 @@ describe("RepoDetail and sealing several files at once", () => {
     expect(screen.getByText(/still readable/)).toBeInTheDocument();
   });
 
-  it("shows a managed file under its real directory chain", () => {
+  it("shows a nested file's real location in the repository, not just its name", () => {
     setup({
       ...app,
       files: [
@@ -217,10 +217,26 @@ describe("RepoDetail and sealing several files at once", () => {
       ],
     });
 
-    expect(screen.getByRole("treeitem", { name: "services" })).toBeInTheDocument();
-    expect(screen.getByRole("treeitem", { name: "api" })).toBeInTheDocument();
+    expect(screen.getByText(".env")).toBeInTheDocument();
+    expect(screen.getByText("services/api/")).toBeInTheDocument();
     expect(
-      screen.getByRole("treeitem", { name: "services/api/.env" }),
+      screen.getByRole("button", { name: "Open services/api/.env" }),
     ).toBeInTheDocument();
+  });
+
+  it("orders rows by path so a refresh never reshuffles them", () => {
+    setup({
+      ...app,
+      files: [
+        { relativePath: "z/.env", state: "plaintext", alert: false },
+        { relativePath: ".env", state: "plaintext", alert: false },
+        { relativePath: "a/.env", state: "plaintext", alert: false },
+      ],
+    });
+
+    const names = screen
+      .getAllByRole("button", { name: /^Open / })
+      .map((button) => button.getAttribute("aria-label"));
+    expect(names).toEqual(["Open .env", "Open a/.env", "Open z/.env"]);
   });
 });

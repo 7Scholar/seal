@@ -164,3 +164,6 @@ export async function reveal(path: string, key: string): Promise<Uint8Array> {
   const bytes = await invoke<ArrayBuffer>("reveal", { path, key });
   return new Uint8Array(bytes);
 }
+
+export const themeMode = () => invoke<string>("theme_mode");
+export const setThemeMode = (mode: string) => invoke<void>("set_theme_mode", { mode });

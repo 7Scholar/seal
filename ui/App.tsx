@@ -4,19 +4,27 @@ import { explain } from "./errors";
 import { Acknowledge } from "./screens/Acknowledge";
 import { EnvEditor } from "./screens/EnvEditor";
 import { ManageFlow } from "./screens/ManageFlow";
-import { RepoDetail } from "./screens/RepoDetail";
-import { Sidebar, type Selection } from "./screens/Sidebar";
+import { RepoDetail, filePath } from "./screens/RepoDetail";
+import { Repositories } from "./screens/Repositories";
 import { Unlock } from "./screens/Unlock";
 import { PasswordChange } from "./screens/PasswordChange";
+import { Breadcrumbs, type Crumb } from "./components/Breadcrumbs";
 import { Confirm } from "./components/Confirm";
 import { Problem } from "./components/Problem";
 import { Overflow } from "./components/Overflow";
+import { ThemeControl } from "./components/ThemeControl";
 import { fileName } from "./format";
+import * as theme from "./theme";
 
 type Overlay =
   | { name: "none" }
   | { name: "manage"; scan: ipc.ScanView }
   | { name: "rekey" };
+
+type Route =
+  | { at: "repositories" }
+  | { at: "repository"; root: string }
+  | { at: "file"; root: string; path: string };
 
 type Opened =
   | { kind: "env"; file: ipc.EnvView }
@@ -28,8 +36,7 @@ export function App() {
   const [lockNote, setLockNote] = useState<string | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
   const [repos, setRepos] = useState<ipc.RepoView[]>([]);
-  const [selection, setSelection] = useState<Selection>({ kind: "none" });
-  const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set());
+  const [route, setRoute] = useState<Route>({ at: "repositories" });
   const [opened, setOpened] = useState<Opened | null>(null);
   const [overlay, setOverlay] = useState<Overlay>({ name: "none" });
   const [acknowledging, setAcknowledging] = useState<null | (() => void)>(null);
@@ -38,6 +45,7 @@ export function App() {
   const [sealing, setSealing] = useState<null | { path: string; secondsAgo: number }>(null);
   const [outcomes, setOutcomes] = useState<ipc.SealOutcome[] | null>(null);
   const [rekey, setRekey] = useState<ipc.Manifest | null>(null);
+  const [mode, setMode] = useState<theme.Mode>("system");
 
   const refresh = useCallback(async () => {
     const fresh = await ipc.overview();
@@ -54,28 +62,32 @@ export function App() {
       .isEstablished()
       .then(setEstablished)
       .catch(() => setEstablished(true));
+    void theme.load().then(setMode);
   }, []);
 
   useEffect(() => {
+    theme.apply(theme.resolve(mode));
+    if (mode !== "system") return;
+    return theme.watchSystem(() => theme.apply(theme.systemTheme()));
+  }, [mode]);
+
+  useEffect(() => {
     if (!unlocked) return;
-    void refresh().then((fresh) => {
-      setExpanded(
-        new Set(
-          fresh
-            .filter((repo) => repo.files.some((file) => file.alert))
-            .map((repo) => repo.root),
-        ),
-      );
-    });
+    void refresh();
     ipc.rekeyStatus().then(setRekey).catch(() => setRekey(null));
   }, [unlocked, refresh]);
+
+  function chooseTheme(next: theme.Mode) {
+    setMode(next);
+    void theme.store(next);
+  }
 
   function relock() {
     setLockNote(
       "Seal locked itself while you were away. Everything stayed sealed — unlock to continue.",
     );
     setUnlocked(false);
-    setSelection({ kind: "none" });
+    setRoute({ at: "repositories" });
     setOpened(null);
     setOverlay({ name: "none" });
     setAcknowledging(null);
@@ -115,31 +127,64 @@ export function App() {
     );
   }
 
-  const selectedRepo =
-    selection.kind === "none"
+  const currentRepo =
+    route.at === "repositories"
       ? null
-      : (repos.find((repo) => repo.root === selection.root) ?? null);
+      : (repos.find((repo) => repo.root === route.root) ?? null);
 
   function reconcile(fresh: ipc.RepoView[]) {
-    if (selection.kind === "none") return;
-    const repo = fresh.find((entry) => entry.root === selection.root);
+    if (route.at === "repositories") return;
+    const repo = fresh.find((entry) => entry.root === route.root);
     if (!repo) {
-      setSelection({ kind: "none" });
+      setRoute({ at: "repositories" });
       setOpened(null);
       return;
     }
-    if (selection.kind !== "file") return;
+    if (route.at !== "file") return;
     const stillThere = repo.files.some(
-      (file) => `${repo.root}/${file.relativePath}` === selection.path,
+      (file) => filePath(repo, file.relativePath) === route.path,
     );
     if (!stillThere) {
-      setSelection({ kind: "repo", root: repo.root });
+      setRoute({ at: "repository", root: repo.root });
       setOpened(null);
     }
   }
 
   async function refreshAndReconcile() {
     reconcile(await refresh());
+  }
+
+  async function closeOpenFile() {
+    if (route.at !== "file") return;
+    const path = route.path;
+    setOpened(null);
+    await attempt(`close ${fileName(path)}`, () => ipc.closeFile(path));
+  }
+
+  async function goToRepositories() {
+    await closeOpenFile();
+    setRoute({ at: "repositories" });
+    setOutcomes(null);
+  }
+
+  async function goToRepository(root: string) {
+    await closeOpenFile();
+    setRoute({ at: "repository", root });
+    setOutcomes(null);
+  }
+
+  async function goToFile(root: string, path: string) {
+    await closeOpenFile();
+    setRoute({ at: "file", root, path });
+    setOutcomes(null);
+    await attempt(`open ${fileName(path)}`, async () => {
+      const file = await ipc.openFile(path);
+      setOpened(
+        file.kind === "env"
+          ? { kind: "env", file }
+          : { kind: "opaque", path: file.path, bytes: file.bytes },
+      );
+    });
   }
 
   async function sealNow(path: string) {
@@ -170,39 +215,16 @@ export function App() {
     });
   }
 
-  async function select(next: Selection) {
-    setSelection(next);
-    setOutcomes(null);
-    if (next.kind !== "file") {
-      setOpened(null);
-      return;
-    }
-    await attempt(`open ${fileName(next.path)}`, async () => {
-      const file = await ipc.openFile(next.path);
-      setOpened(
-        file.kind === "env"
-          ? { kind: "env", file }
-          : { kind: "opaque", path: file.path, bytes: file.bytes },
-      );
-    });
-  }
-
-  function toggleExpand(root: string) {
-    setExpanded((was) => {
-      const next = new Set(was);
-      if (next.has(root)) {
-        next.delete(root);
-      } else {
-        next.add(root);
-      }
-      return next;
-    });
-  }
-
   async function startAdd() {
     await attempt("open the folder picker", async () => {
       const root = await ipc.pickFolder();
       if (!root) return;
+      setOverlay({ name: "manage", scan: await ipc.scanFolder(root) });
+    });
+  }
+
+  async function startRescan(root: string) {
+    await attempt("scan the repository", async () => {
       setOverlay({ name: "manage", scan: await ipc.scanFolder(root) });
     });
   }
@@ -239,8 +261,7 @@ export function App() {
             const fresh = await refresh();
             setOverlay({ name: "none" });
             if (fresh.some((repo) => repo.root === root)) {
-              setSelection({ kind: "repo", root });
-              setExpanded((was) => new Set(was).add(root));
+              setRoute({ at: "repository", root });
             }
           })
         }
@@ -272,12 +293,87 @@ export function App() {
     );
   }
 
+  const exposedRepos = repos.filter((repo) => repo.files.some((file) => file.alert));
+
+  const crumbs: Crumb[] = [
+    {
+      key: "repositories",
+      label: "Repositories",
+      onNavigate: () => void goToRepositories(),
+    },
+  ];
+
+  if (currentRepo) {
+    crumbs.push({
+      key: currentRepo.root,
+      label: currentRepo.name,
+      onNavigate: () => void goToRepository(currentRepo.root),
+      switcher: {
+        label: "Switch repository",
+        searchLabel: "Find repository...",
+        addLabel: "+ Add repository",
+        current: currentRepo.root,
+        options: repos.map((repo) => ({
+          id: repo.root,
+          name: repo.name,
+          detail: repo.root,
+        })),
+        onChoose: (root) => void goToRepository(root),
+        onAdd: () => void startAdd(),
+      },
+    });
+  }
+
+  if (route.at === "file" && currentRepo) {
+    crumbs.push({
+      key: route.path,
+      label: fileName(route.path),
+      switcher: {
+        label: "Switch file",
+        searchLabel: "Find file...",
+        addLabel: "+ Add file",
+        current: route.path,
+        options: currentRepo.files.map((file) => ({
+          id: filePath(currentRepo, file.relativePath),
+          name: file.relativePath,
+        })),
+        onChoose: (path) => void goToFile(currentRepo.root, path),
+        onAdd: () => void startRescan(currentRepo.root),
+      },
+    });
+  }
+
+  const openedRelativePath =
+    route.at === "file" && currentRepo
+      ? route.path.slice(currentRepo.root.length + 1)
+      : "";
+  const openedState =
+    route.at === "file" && currentRepo
+      ? (currentRepo.files.find(
+          (file) => filePath(currentRepo, file.relativePath) === route.path,
+        )?.state ?? "unknown")
+      : "unknown";
+
   return (
     <div className="shell">
-      <header className="shell__titlebar" data-tauri-drag-region>
-        <span className="shell__brand">Seal</span>
+      <header className="shell__titlebar" data-tauri-drag-region="deep">
+        <Breadcrumbs crumbs={crumbs} />
 
         <span className="shell__spacer" />
+
+        {exposedRepos.length > 0 && exposedRepos[0] ? (
+          <button
+            type="button"
+            className="exposure-pill"
+            onClick={() => void goToRepository(exposedRepos[0]!.root)}
+          >
+            {exposedRepos.length === 1
+              ? "1 repository has a readable secret"
+              : `${exposedRepos.length} repositories have readable secrets`}
+          </button>
+        ) : null}
+
+        <ThemeControl mode={mode} onChoose={chooseTheme} />
 
         <button
           type="button"
@@ -286,7 +382,7 @@ export function App() {
             attempt("lock Seal", async () => {
               await ipc.lock();
               setUnlocked(false);
-              setSelection({ kind: "none" });
+              setRoute({ at: "repositories" });
               setOpened(null);
             })
           }
@@ -300,15 +396,6 @@ export function App() {
           </button>
         </Overflow>
       </header>
-
-      <Sidebar
-        repos={repos}
-        selection={selection}
-        expanded={expanded}
-        onToggleExpand={toggleExpand}
-        onSelect={select}
-        onAdd={startAdd}
-      />
 
       <main className="shell__main">
         {rekey !== null ? (
@@ -327,52 +414,35 @@ export function App() {
           <Problem message={problem} onDismiss={() => setProblem(null)} />
         ) : null}
 
-        {selection.kind === "none" ? (
-          <section className="detail detail--empty">
-            <h1>
-              {repos.length === 0
-                ? "Seal manages nothing yet"
-                : "Nothing selected"}
-            </h1>
-            <p>
-              {repos.length === 0
-                ? "Point Seal at a repository and it will look for secret files you may want to protect. Nothing is encrypted until you choose to seal it."
-                : "Choose a repository on the left to see the files Seal is watching there."}
-            </p>
-            {repos.length === 0 ? (
-              <button type="button" onClick={startAdd}>
-                Add a folder
-              </button>
-            ) : null}
-          </section>
+        {route.at === "repositories" ? (
+          <Repositories
+            repos={repos}
+            onOpen={(root) => void goToRepository(root)}
+            onAdd={startAdd}
+            onRescan={(root) => void startRescan(root)}
+            onReleaseRepo={setReleasingRepo}
+          />
         ) : null}
 
-        {selection.kind === "repo" && selectedRepo ? (
+        {route.at === "repository" && currentRepo ? (
           <RepoDetail
-            repo={selectedRepo}
-            onOpen={(path) =>
-              select({ kind: "file", root: selectedRepo.root, path })
-            }
+            repo={currentRepo}
+            onOpen={(path) => void goToFile(currentRepo.root, path)}
             onSeal={seal}
             onSealMany={sealMany}
             onRelease={setReleasing}
-            onReleaseRepo={() => setReleasingRepo(selectedRepo)}
-            onRescan={() =>
-              attempt("scan the repository", async () => {
-                setOverlay({
-                  name: "manage",
-                  scan: await ipc.scanFolder(selectedRepo.root),
-                });
-              })
-            }
+            onReleaseRepo={() => setReleasingRepo(currentRepo)}
+            onRescan={() => void startRescan(currentRepo.root)}
             outcomes={outcomes}
             onDismissOutcomes={() => setOutcomes(null)}
           />
         ) : null}
 
-        {selection.kind === "file" && opened?.kind === "env" ? (
+        {route.at === "file" && opened?.kind === "env" ? (
           <EnvEditor
             file={opened.file}
+            relativePath={openedRelativePath}
+            state={openedState}
             onReveal={async (key) => {
               try {
                 return await ipc.reveal(opened.file.path, key);
@@ -393,36 +463,24 @@ export function App() {
               }
             }}
             onSeal={() => seal(opened.file.path)}
-            onClose={() =>
-              attempt("close the file", async () => {
-                await ipc.closeFile(opened.file.path);
-                setSelection({ kind: "repo", root: selection.root });
-                setOpened(null);
-              })
-            }
           />
         ) : null}
 
-        {selection.kind === "file" && opened?.kind === "opaque" ? (
-          <section className="detail opaque">
-            <h1>{fileName(opened.path)}</h1>
+        {route.at === "file" && opened?.kind === "opaque" ? (
+          <section className="opaque">
+            <header className="file-head">
+              <div className="file-head__text">
+                <p className="file-head__path">{openedRelativePath}</p>
+              </div>
+              <span className="file-head__state" data-state={openedState}>
+                {openedState === "sealed" ? "Sealed" : "Readable"}
+              </span>
+            </header>
             <p>
               Seal manages this file and encrypts it as it is. It is not an env
               file, so there is nothing to edit here — {opened.bytes} bytes,
               stored exactly as you wrote them.
             </p>
-            <button
-              type="button"
-              onClick={() =>
-                attempt("close the file", async () => {
-                  await ipc.closeFile(opened.path);
-                  setSelection({ kind: "repo", root: selection.root });
-                  setOpened(null);
-                })
-              }
-            >
-              Close
-            </button>
           </section>
         ) : null}
       </main>
@@ -490,7 +548,7 @@ export function App() {
               await ipc.releaseRepo(root, "restorePlaintext");
               const fresh = await refresh();
               if (!fresh.some((repo) => repo.root === root)) {
-                setSelection({ kind: "none" });
+                setRoute({ at: "repositories" });
                 setOpened(null);
               }
             });

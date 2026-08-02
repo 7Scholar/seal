@@ -9,11 +9,19 @@ const ARMOR = "-----BEGIN AGE ENCRYPTED FILE-----";
 const repo = () => process.env.SEAL_E2E_PICK_FOLDER ?? "";
 const status = () => $('[role="status"][aria-label="Unlock status"]');
 const repoName = () => repo().split("/").pop() ?? "";
-const repoInSidebar = () => $('[role="tree"]').$(`span=${repoName()}`);
+const repoTile = () => $(`button*=${repoName()}`);
 
 async function openTheRepository() {
-  await repoInSidebar().waitForClickable();
-  await repoInSidebar().click();
+  const crumb = $('nav[aria-label="Breadcrumb"] [aria-current="page"]');
+  if (await crumb.isDisplayed().catch(() => false)) {
+    if ((await crumb.getText()) === repoName()) return;
+  }
+  const home = $("button=Repositories");
+  if (await home.isDisplayed().catch(() => false)) {
+    await home.click();
+  }
+  await repoTile().waitForClickable();
+  await repoTile().click();
 }
 
 describe("returning: unlock, use a secret, catch an exposure, rotate the password", () => {
@@ -68,7 +76,7 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
       } catch (error) {
         const page = await browser.execute(() => ({
           h1: document.querySelector("h1")?.textContent,
-          states: [...document.querySelectorAll(".detail__state")].map((s) => s.textContent),
+          states: [...document.querySelectorAll(".row__state")].map((s) => s.textContent),
           alerts: [...document.querySelectorAll('[role="alert"]')].map((a) =>
             a.textContent?.slice(0, 200),
           ),
@@ -90,14 +98,16 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
   it("unlocks into the repository view with the sealed file", async () => {
     await browser.keys([...PASSWORD]);
     await browser.keys("Enter");
-    await expect($('[role="tree"]')).toBeDisplayed();
+    await expect($("h1=Repositories")).toBeDisplayed();
     await openTheRepository();
     await expect($("span=Sealed")).toBeDisplayed();
   });
 
   it("opens the sealed file as masked structure, with no value in the page", async () => {
     await $('button[aria-label="Open .env"]').click();
-    await expect($("h1=.env")).toBeDisplayed();
+    await expect($('nav[aria-label="Breadcrumb"] [aria-current="page"]')).toHaveText(
+      ".env",
+    );
     await expect($("span=API_KEY")).toBeDisplayed();
     await expect($("span=••••••••")).toBeDisplayed();
 
@@ -138,7 +148,7 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
     if (!contents.startsWith(ARMOR)) {
       throw new Error("saving left the file readable on disk");
     }
-    await $("button=Close").click();
+    await $(`button=${repoName()}`).click();
     await expect($('button[aria-label="Open .env"]')).toBeDisplayed();
   });
 
@@ -149,6 +159,7 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
     await expect($("h1=Seal is locked")).toBeDisplayed();
     await browser.keys([...PASSWORD]);
     await browser.keys("Enter");
+    await expect($("h1=Repositories")).toBeDisplayed();
     await openTheRepository();
 
     const alert = $(".exposure-alert");
@@ -185,7 +196,7 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
     await $("#phrase").setValue("CHANGE MY PASSWORD");
     await $("button=Change the password").click();
 
-    await expect($('[role="tree"]')).toBeDisplayed();
+    await expect($("h1=Repositories")).toBeDisplayed();
 
     await $("button=Lock").click();
     await expect($("h1=Seal is locked")).toBeDisplayed();
@@ -198,7 +209,7 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
 
     await browser.keys([...NEW_PASSWORD]);
     await browser.keys("Enter");
-    await expect($('[role="tree"]')).toBeDisplayed();
+    await expect($("h1=Repositories")).toBeDisplayed();
     await openTheRepository();
     await expect($("span=Sealed")).toBeDisplayed();
   });

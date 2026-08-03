@@ -26,35 +26,71 @@ Why this is one plan and not a batch of tweaks: the three named faults share a c
 
 # Approach
 
-TBD.
+Built from two documents: [_docs/manage-surface-audit.md](_docs/manage-surface-audit.md), which records fifteen findings against the running application, and [_docs/tree-picker-research.md](_docs/tree-picker-research.md), which surveys VS Code, GitHub, the git clients, the backup tools, Finder and the ARIA practices. Those are the design input; this Approach states what follows.
 
-The design is not settled and must not be guessed at. Two things constrain it and are recorded now so the research does not have to rediscover them:
+## The surface is a frame, not a document
 
-- **The wheel is not to be reinvented.** The owner was explicit that established prior art exists for this pattern and is to be found and followed. This surface is a two-pane-adjacent file-tree picker with a fixed action bar — a shape with abundant, mature prior art. [docs/UX_RESEARCH.md](../../../../../../docs/UX_RESEARCH.md) governs how that research runs and is a prerequisite to committing an Approach; its **Building against a reference** rules bind any screenshot or named product that comes out of it.
-- **The named faults are examples, not the specification.** The owner asked to be told what is wrong rather than to enumerate it. So the audit step below is not optional groundwork — it *is* the first deliverable, and a plan that fixes only the three named faults has misread the request.
+The single cause behind the owner's three faults: the surface was built as a document that flows, so its chrome scrolled with its content and its tree was a box sitting in a column.
+
+It is a **three-band grid at full window height** — `auto` header, `minmax(0, 1fr)` region, `auto` footer — and the tree region is the **only scrolling thing on the surface**. Both of the caps that held it back are gone: the surface's own `max-width`, and the tree's `max-height`, which was the worse of the two. Measured before the change, the tree was a fixed 416px box regardless of window size, leaving 362px of dead space below the footer at 1280×720 and using half the window — and getting worse as the window grew, which is the opposite of what enlarging a window should do.
+
+The **repository identity is in the fixed header** and **both actions are in the fixed footer**, so the confirm button's count — the surface's blast-radius statement — is visible at every scroll position rather than scrolling out of reach on any repository whose tree is longer than the window.
+
+The chrome's dividers appear **only when content has scrolled beneath them**, so a surface with nothing to scroll does not draw a bar that looks stuck.
+
+## Every row that claims to be clickable responds
+
+The rule, stated as an invariant: **a row that draws `cursor: pointer` responds to a click, and a row that cannot act does not claim it can.**
+
+A folder holding no detected files was inert — the click handler returned having called nothing — while the row drew a pointer cursor and highlighted on hover. It made two false statements and then refused. This is not an edge case: measured, **four of nine directories** in an ordinary repository, and **every directory on the surface** in the nothing-recognised case, where the surface simultaneously invited the user to choose any file.
+
+Such a folder now **expands**, which is the act the user was reaching for. A folder that *does* hold candidates keeps selecting them on a row click, because that is a documented behaviour with tests asserting it; the fix closes the dead case rather than redefining the live one. Expansion remains separate from selection in both paths, so browsing still cannot queue a file for encryption.
+
+Rows that genuinely cannot act — a pruned directory, an already-managed file — carry an inert marker and lose the pointer cursor.
+
+## The surface owns its own scan
+
+The overlay **opens first and scans second**. It previously did the reverse, fully awaiting the scan before constructing the surface, which meant a loading state could not render at all: the audit measured a **42-second scan** spent on the previous screen with no acknowledgement that the folder choice had registered.
+
+- **Scanning** names the repository being read, and is delayed past the point where it would flash on the measured 0.09-second case.
+- **Failure** is an alert *inside the surface*, with the retry beside it acting on the folder the user already chose. Previously a failed scan never reached this surface: it was routed to the global banner on the screen the user had just left, so the choice evaporated with its error attached somewhere else.
+- A session expiring mid-scan still relocks, rather than being reported as a scan failure.
+
+The header states the repository's **size**, which the excessive case had no way to say at 1,097 rows, and the footer states the selection as a tally beside the button.
+
+## What the surface still says with a sentence
+
+Nothing in the layout. The assurances — that confirming encrypts nothing, that files stay where they are, that a rescan changes nothing already managed — stay behind the toggletip the user chooses to open, per [the parent's prose rule](../README.md).
 
 # What exists
 
-The surface's behaviour, at [ManageFlow.tsx](../../../../../../ui/screens/ManageFlow.tsx) over the tree primitive at [FileTree.tsx](../../../../../../ui/components/FileTree.tsx). The tree's contract is implemented and verified, and this plan does not disturb it.
+All of the Approach, at [ManageFlow.tsx](../../../../../../ui/screens/ManageFlow.tsx) over the tree primitive at [FileTree.tsx](../../../../../../ui/components/FileTree.tsx). The tree's contract is untouched.
 
-What does not exist is any layout beyond a centred flowing column, any fixed chrome, any state other than populated-with-candidates, and any response to clicking a folder that holds no candidates.
+The inert-folder guard was confirmed non-vacuous by restoring the defect and watching the covering test fail. That the fixture had to gain a candidate-less folder before the test could catch it at all is why the defect survived a full suite for so long: every directory in the old fixture held a candidate.
+
+The full `first-run` journey passes end to end against a release build — password established, repository added through this surface, file sealed, sealed file verified on disk as standard age.
 
 # What is missing
 
-Everything in the Approach, which is `TBD`. Known before research begins, and to be treated as a floor rather than the list:
+The audit's remaining findings, none of which this pass took. They are real and recorded in [_docs/manage-surface-audit.md](_docs/manage-surface-audit.md); the honest statement is that the frame and the two defects the owner met are fixed and the surface is not yet finished:
 
-- A layout that uses the window, with the tree as the surface's scrolling region.
-- Fixed chrome: the repository under management as a header, the two actions as a footer.
-- A folder row that responds to being clicked.
-- **The state enumeration this surface never received.** The [surface audit](_docs/surface-audit.md) covered the four navigation surfaces and stopped there, so the manage surface has never been audited — and the state work in [states.md](states.md) does not reach it either. Its scan-in-progress state, its scan-failure state, its already-fully-managed state and its enormous-repository state are all unexamined; the empty case is a single grey sentence (`manage__empty`) beside a tree, which is the same language mismatch [states.md](states.md) records as R2 and R6 on the grid.
+- **A filter over the tree.** [The research](_docs/tree-picker-research.md) argues it is table stakes rather than a refinement, and the argument is structural: expansion follows the *detected* files, so every undetected file — the entire reason undetected files are selectable — is reachable only by hand-opening its chain, which at 1,097 rows is a directory-by-directory hunt for a file the user can already name.
+- **The degraded state.** A partially-walked repository is drawn exactly like a fully-walked one, with nothing at surface level saying the picture is incomplete.
+- **Density and alignment.** Directory and file names misalign by 1px, and the annotation channel has no column at all — measured starting anywhere between x=190 and x=303.
+- **The idle lock discards a live selection**, met by accident during the audit on the one surface designed for slow deliberation.
+- **The confirm gives no account of already-managed files** in a rescan.
 
 # Steps
 
-- [ ] Audit the surface against the running application, per [SURFACE_AUDIT.md](../../../../../../docs/plans/SURFACE_AUDIT.md) — every state, every interaction, the full finding set the owner asked for rather than the three named faults.
-- [ ] Research the prior art for a tree-picker surface with fixed chrome, per [docs/UX_RESEARCH.md](../../../../../../docs/UX_RESEARCH.md), and produce the design input.
-- [ ] Solution the Approach from the audit and the research, and raise any genuine fork in `QUESTIONS.md` rather than settling it in the build.
+- [x] Audit the surface against the running application, per [SURFACE_AUDIT.md](../../../../../../docs/plans/SURFACE_AUDIT.md) — every state, every interaction, the full finding set the owner asked for rather than the three named faults.
+- [x] Research the prior art for a tree-picker surface with fixed chrome, per [docs/UX_RESEARCH.md](../../../../../../docs/UX_RESEARCH.md), and produce the design input.
+- [x] The frame: the three-band full-window shape, fixed chrome, and the tree as the only scrolling region.
+- [x] Every row that draws a pointer responds, and rows that cannot act stop claiming they can.
+- [x] The scanning state and the surface's own failure state, which required the overlay to open before the scan.
+- [ ] The filter over the tree, with the binding behaviour [the research](_docs/tree-picker-research.md) states: matches on path, restores prior expansion exactly when cleared, and never touches selection.
+- [ ] The remaining audit findings above.
 
 # Open threads
 
-- Whether the inert-folder fix is click-to-expand or something else interacts with a settled rule: [adopting.md](../repo-layer/adopting.md) fixes that **expansion and selection stay separate**, with its reason sharpened for this surface — conflating them means browsing a branch can queue files for encryption. A row click that expands is *not* a violation, since expansion is not selection; a row click that selects on a folder already exists. The design must state which act a bare row click performs and must not make browsing select.
-- The tree's filter/search thread in [adopting.md](../repo-layer/adopting.md) is adjacent to this work. If the audit finds that locating a known file among collapsed branches is the surface's real friction, that thread and this plan should be settled together rather than separately.
+- **Whether a bare row click on a folder holding candidates should keep selecting them.** [The research](_docs/tree-picker-research.md) recommends moving all selection to the checkbox, on the grounds that a click which can queue a directory's secrets for encryption should require aiming at a checkbox rather than landing anywhere on a wide row. That is a good argument and it was not taken here, because the behaviour is asserted by three tests and changing it is a deliberate contract change rather than a defect fix. It wants settling on its own merits rather than as a side effect of closing the dead case.
+- The filter and [adopting.md](../repo-layer/adopting.md)'s standing filter thread are the same question and should be closed together.

@@ -35,7 +35,7 @@
     "ui/test-setup.ts": "2b72f4a1974077a8a59db94f8a5910edade8369b"
   },
   "shell-layout.md": {
-    "e2e/journeys/first-run.e2e.ts": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
+    "e2e/journeys/first-run.e2e.ts": "5319e50a1dbdb9802cc1812b494317ba57aab09c",
     "ui/App.test.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
     "ui/App.tsx": "eaa3aed0b11b9608c8dc1f0ecb6184f86f524d78",
     "ui/components/Overflow.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",

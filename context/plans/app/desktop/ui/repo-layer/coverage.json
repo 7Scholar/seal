@@ -1,6 +1,6 @@
 {
   "adopting.md": {
-    "e2e/journeys/first-run.e2e.ts": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
+    "e2e/journeys/first-run.e2e.ts": "5319e50a1dbdb9802cc1812b494317ba57aab09c",
     "ui/components/FileTree.test.tsx": "396f54c89636e9917866cb2254d109ac65e7088b",
     "ui/components/FileTree.tsx": "eaa3aed0b11b9608c8dc1f0ecb6184f86f524d78",
     "ui/screens/ManageFlow.test.tsx": "eaa3aed0b11b9608c8dc1f0ecb6184f86f524d78",
@@ -21,8 +21,8 @@
     "ui/ipc.ts": "6af8515a56ce649aaf6c17568ae434baa072681d"
   },
   "vocabulary.md": {
-    "e2e/journeys/first-run.e2e.ts": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
-    "e2e/journeys/return-and-use.e2e.ts": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
+    "e2e/journeys/first-run.e2e.ts": "5319e50a1dbdb9802cc1812b494317ba57aab09c",
+    "e2e/journeys/return-and-use.e2e.ts": "5319e50a1dbdb9802cc1812b494317ba57aab09c",
     "src-tauri/src/commands.rs": "6af8515a56ce649aaf6c17568ae434baa072681d",
     "src-tauri/src/lib.rs": "fc48741e20953ee3d195f734bdc5e6b65e1602ab",
     "src-tauri/src/lifecycle.rs": "396f54c89636e9917866cb2254d109ac65e7088b",

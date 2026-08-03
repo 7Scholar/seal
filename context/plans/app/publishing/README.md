@@ -22,7 +22,7 @@ Everything the documentation claims is verified rather than believed: the README
 - [x] docs.md -> the README and the documents a stranger needs to trust and contribute
 - [x] packaging.md -> bundling, distribution, and the release process
 - [x] tooling.md -> the developer-facing build scripts that encode the procedures a rebuild must follow
-- [ ] site.md -> a hosted documentation website, matched against the leaders the owner named
+- [~] site.md -> a hosted documentation website, matched against the leaders the owner named. **Built and checked; screenshots and a link check remain, and Pages must be enabled to publish.**
 
 # Cursor
 
@@ -40,7 +40,11 @@ Being a plain binary rather than a bundle grants no exemption: an unsigned comma
 
 `tooling.md` is complete, and it closed a gap rather than adding a nicety: two of this repository's build rules fail silently, both presenting as "my change did nothing" — a frontend rebuilt after the binary that embeds it, and a `seal` launcher resolving to somewhere the rebuild never touched. The script encodes the first and warns about the second.
 
-`site.md` is **framed and not started**, taken in from the product owner: a hosted documentation website, GitHub Pages named as a candidate, matched for feel against Anthropic, OpenAI, Docker and Stripe rather than against other encryption tools, and deliberately small. It is `TBD` and research-first. Its content boundary against `docs.md` is the first thing it settles — a site that copies the README is a second README to keep true — and its visual content is downstream of the interface work under [navigation/](../desktop/ui/navigation/README.md), since screenshots taken before the palette and the manage surface land are stale on arrival.
+`site.md` is **built**: Astro Starlight on GitHub Pages, eleven pages in four groups plus a landing page, matched for feel against Anthropic, OpenAI, Docker and Stripe, and deliberately small. Its identity resolves the same palette the application now uses, so the two surfaces read as one product.
+
+Its content boundary against `docs.md` is the decision it existed to settle, and it is **enforced rather than agreed**. The security policy and the contributing guide are rendered from `SECURITY.md` and `CONTRIBUTING.md` at build time, so no second copy exists to go stale; removing a source fails the build. The two task guides were **moved** out of the README rather than copied, so the README contracted to a sentence and a link for each — which is what stops the site being a second README. The install commands and the two absolute limits are deliberate duplications, held identical across four surfaces by a check that refuses any page claiming a protection Seal does not have.
+
+Both guarantees were confirmed non-vacuous by breaking them. What remains: screenshots, now unblocked since the interface work they waited on has landed; a link check; and enabling Pages on the repository, which is a setting rather than a change in this tree.
 
 # Open threads
 

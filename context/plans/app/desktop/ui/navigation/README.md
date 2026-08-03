@@ -86,8 +86,8 @@ Three children, one per altitude, each owning its surface's layout and operation
 - [~] states.md -> the states beyond populated. **Done for the repositories grid; the files list and the file surface are still populated-only.**
 - [x] icons.md -> an icon system, replacing the text characters standing in for glyphs throughout the interface
 - [ ] disclosure-primitive.md -> one implementation of the disclosure contract the four collapsed controls each carry separately
-- [ ] manage-surface.md -> the manage surface carried to the grid's depth: its layout, its fixed chrome, its states, and the folder row that does not respond
-- [ ] palette.md -> the chosen palette — a white, a black, an accent and a primary — and the role rule governing where each appears
+- [~] manage-surface.md -> the manage surface carried to the grid's depth. **The frame, the row response and the scan states are built; the filter and the remaining audit findings are not.**
+- [x] palette.md -> the chosen palette — a white, a black, an accent and a primary — and the role rule governing where each appears
 
 # Cursor
 
@@ -113,14 +113,21 @@ The audit's most severe finding was not in the brief that ordered it: **the repo
 
 [HANDOFF.md](HANDOFF.md) briefed this work and is now spent for the grid; it stays until the remaining surfaces are carried to the same depth.
 
-**Two further concerns were taken in from the product owner and are framed, not started** — both are `TBD` and both begin with research:
+**Two further concerns were taken in from the product owner. The palette is done; the manage surface is part-built.** The sequencing question both plans raised was settled by taking the palette first, so the manage surface was rebuilt in the finished visual language rather than restyled after.
 
-- [manage-surface.md](manage-surface.md) — the **manage surface** judged amateur on the same review that ordered the grid's rebuild. It was never in [the audit](_docs/surface-audit.md), which covered four surfaces and stopped there, so it has had neither a state enumeration nor a fidelity pass. Three faults are named in it and one is a plain defect: **a folder holding no candidates is inert on click** — no expansion, no selection, no feedback — which is most folders in a tree that draws the whole repository. The owner asked for the remaining faults to be found rather than listed, so its first step is the audit.
-- [palette.md](palette.md) — the **palette itself**, which was never chosen. [shape.md](shape.md) tokenised the colours the first screens happened to carry, which fixed the mechanism and preserved the values; the owner has now specified the character (a white, a black, an accent, a primary) and named accent and primary as two things where the interface has one `--accent` carrying the primary button, the focus ring, hover, and selection at once.
+[palette.md](palette.md) is **complete**. The palette had never been chosen — [shape.md](shape.md) tokenised the values the first screens happened to carry, which fixed the mechanism and preserved the accident. There are now fourteen tokens where there were fifteen, and **`--primary` is split from `--accent`**: a fill is a background that ink sits on, an accent is a foreground that sits on the page, and no single value satisfies both obligations. `--panel` and `--field` collapsed into `--raised`, having all resolved to an identical `#ffffff` in light; `--selected` had been declared in both themes and used by no rule at all. Hover is neutral everywhere now, so hover, selection and focus are three visibly different things rather than three uses of one blue.
 
-The two are sequenced against each other and against [states.md](states.md), and that ordering is unsettled — both plans record it as an open thread. A palette landing after the surfaces means restyling new work; landing before means building the new surfaces in it.
+It also closed a real conformance failure: `--line` was **1.34:1 on dark and 1.23:1 on light** against SC 1.4.11's 3:1. Rather than waive it or turn every divider into a heavy rule, the token split by obligation — a boundary needs 3:1 only where it is the sole means of identifying a control.
 
-Every child except those two and the three named above is `[x]`. The two that carried risk beyond layout both landed on their designed shape: `theme.md`, because persisting a preference contradicts the memory-only webview and had to go to a Rust-side store rather than `localStorage`; and `title-bar.md`, because the drag region was present in the markup all along and did nothing, which made it a bug fix with a reproduction rather than a styling change.
+[manage-surface.md](manage-surface.md) is **in flight**. Its audit ([_docs/manage-surface-audit.md](_docs/manage-surface-audit.md)) found fifteen things, and this pass took the frame and the two defects the owner met:
+
+- **The inert folder is fixed.** A folder holding no candidates fired no callback at all while drawing `cursor: pointer` and highlighting on hover — measured at **four of nine directories** in an ordinary repository and **every directory** in the nothing-recognised case. It now expands.
+- **The surface is a three-band frame** at full window height, with the tree as the only scrolling region. The tree's own `max-height: 26rem` was the worse of the two causes of "doesn't fill the screen", holding it to 416px and leaving 362px dead below the footer at 1280×720.
+- **The surface owns its scan.** It previously awaited the scan before existing, so a loading state could not render — the audit measured a **42-second scan** spent on the previous screen with no feedback, and a failed scan losing the user's folder choice to a banner on the screen they had just left.
+
+What it has not taken is the filter, the degraded state, the alignment findings, and the idle lock discarding a live selection. Its cursor holds them.
+
+Every child except `manage-surface.md` and the three named above is `[x]`. The two that carried risk beyond layout both landed on their designed shape: `theme.md`, because persisting a preference contradicts the memory-only webview and had to go to a Rust-side store rather than `localStorage`; and `title-bar.md`, because the drag region was present in the markup all along and did nothing, which made it a bug fix with a reproduction rather than a styling change.
 
 The design fork this redesign genuinely exposed — where the cross-repository exposure alert lives once the sidebar carrying it is gone — was raised as a blocking question and settled by the product owner: it moves to the title bar strip. The Approach above records the decision and why the two alternatives were refused.
 

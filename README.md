@@ -12,6 +12,8 @@ The command-line tool is usable today.
 
 Seal is **not code-signed**, which is why the command-line tool installs by Homebrew or the installer script rather than by downloading it in a browser, and why the desktop application is built from source. [Installation](#installation) covers both, and [what unsigned means for you](#what-unsigned-means-for-you) explains the consequence without softening it.
 
+The documentation site is at **[7scholar.github.io/seal](https://7scholar.github.io/seal/)**, including the [first-sealed-file walkthrough](https://7scholar.github.io/seal/get-started/first-sealed-file/) and the [full threat model](https://7scholar.github.io/seal/understand/limits/).
+
 ## Installation
 
 ### The command-line tool
@@ -68,11 +70,7 @@ Sealing replaces the file atomically and preserves its permissions, so a `0600` 
 
 ### Managing files in the application
 
-The desktop application is where files are managed. You point it at a repository, and it looks for files that hold secrets — env files, key files, credential files — classifying each as a likely secret, a possible one, or a template that is meant to stay readable. Only the likely secrets are pre-selected, because managing a file that was meant to be readable encrypts it and breaks your build. Importing a folder never encrypts anything; sealing stays a separate, deliberate action.
-
-Env files get a per-variable editor. Values are masked, and a value is fetched only when you ask to see that one row — the application holds no more of the file than the row on screen. Saving preserves your comments, ordering, quoting and line endings exactly, changing only the lines whose value you changed. Files that are not env files are stored and encrypted as they are, never edited.
-
-Before anything is sealed for the first time the application asks you to acknowledge two facts it cannot soften: that a forgotten password loses the data permanently, and that sealing cannot protect a secret that was already exposed.
+The desktop application is where files are managed: you point it at a repository, it proposes the files that look like secrets with only the likely ones pre-selected, and sealing stays a separate, deliberate action. [Managing files in the application](https://7scholar.github.io/seal/guides/managing-files/) covers the manage flow, the env-file editor, and what happens to files that are not env files.
 
 ### Opening the application from the terminal
 
@@ -92,24 +90,9 @@ With the command-line tool [installed](#the-command-line-tool), a deploy script 
 value=$(seal resolve .env.production)
 ```
 
-The password is typed on your terminal; only the file's contents reach standard output, byte for byte. To load a whole env file into the environment:
+The password is typed on your terminal; only the file's contents reach standard output, byte for byte.
 
-```bash
-payload=$(seal resolve .env.production)
-set -a
-eval "$payload"
-set +a
-```
-
-Use this rather than `source <(seal resolve .env.production)`, which looks equivalent but **silently produces empty variables** on the version of bash that ships with macOS.
-
-Exit codes distinguish what a script would act on differently: `0` success, `3` wrong password, `4` no such file, `5` not a sealed file, `6` the file is busy, `7` the file is damaged, `8` no terminal available to ask for a password, `130` cancelled.
-
-For automation without a terminal, supply the password on a file descriptor — never through an environment variable, which leaks into process listings and CI logs:
-
-```bash
-seal resolve .env.production --passphrase-fd 3 3<secret-source
-```
+[Using Seal from scripts](https://7scholar.github.io/seal/guides/scripts/) covers loading a whole env file, the exit codes a script would act on differently, and supplying a password without a terminal.
 
 ## What Seal protects, and what it does not
 

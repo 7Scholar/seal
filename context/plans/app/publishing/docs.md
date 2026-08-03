@@ -8,7 +8,11 @@ The documents a stranger needs in order to trust the project, use it, and change
 
 Four documents, each answering a question a newcomer actually has.
 
-**The README** answers *what is this and can I trust it*. It states what Seal does, how a sealed file is a standard age file so the recovery story does not depend on Seal existing, how to use both the application and the command-line tool, and — at length, without softening — what Seal does not protect against. The two absolute limits are stated as limits rather than as caveats: a forgotten password is unrecoverable, and sealing cannot reach backwards over an already-exposed secret.
+**The README** answers *what is this and can I trust it*. It states what Seal does, how a sealed file is a standard age file so the recovery story does not depend on Seal existing, how to install both the application and the command-line tool, and — without softening — what Seal does not protect against. The two absolute limits are stated as limits rather than as caveats: a forgotten password is unrecoverable, and sealing cannot reach backwards over an already-exposed secret.
+
+**What the README no longer carries** are the two task guides, which [site.md](site.md) moved rather than copied: resolving a secret in a script, and managing files in the application. Each contracted to a sentence and a link, as the README already does for the operating procedures beside it. That move is what keeps the site from being a second README, and it leaves the README as the document a reader meets on the git host rather than the document carrying every task.
+
+The install commands and the two absolute limits are the deliberate exceptions, appearing on both surfaces because a README without install commands is broken and a site that only links to the limits has softened them by relegation. [site.md](site.md) owns the check that holds those two duplications identical across all four surfaces.
 
 Its installation section is the first thing after the status, because it is what a stranger came for. It gives the two one-command routes for the command-line tool, the source build for the application, and — as a named section rather than a footnote — what being unsigned actually means for the reader: that the install routes work because `curl`, `tar` and Homebrew do not set quarantine while a browser download does, and that Seal deliberately does not teach the `xattr` override. Every command in it is verified against a real run.
 
@@ -40,4 +44,4 @@ Nothing on this plan.
 
 # Open threads
 
-- The README has no screenshots, which is a real gap for an application whose whole argument is that it is easier than a command-line tool. Worth adding once the interface is stable enough that images will not immediately go stale.
+- The README has no screenshots, which is a real gap for an application whose whole argument is that it is easier than a command-line tool. The wait for a stable interface is over — the palette and the manage surface have both landed — so this and [site.md](site.md)'s screenshot step are the same gap and should be closed together, with the images generated from the journey harness so a screenshot cannot show an interface that does not exist.

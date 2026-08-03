@@ -18,32 +18,64 @@ There is also a standing gap this plan inherits. [docs.md](docs.md)'s open threa
 
 # Approach
 
-TBD.
+Built from [_docs/site-research.md](_docs/site-research.md), which studies the four named references and the small open-source projects Seal actually resembles, and surveys the generators realistically available. That document is the design input; this Approach states what follows.
 
-Recorded now because they constrain any solution:
+Three constraints bound it. **The named references are specification** — Anthropic, OpenAI, Docker and Stripe — under [UX_RESEARCH.md](../../../../docs/UX_RESEARCH.md)'s reference rules. **Small is the intent**, so the page list below is the deliberate extent rather than a starting point. And **nothing published may soften the threat model**: a marketing-shaped site is the likeliest place that discipline slips, and "elegant" is not a licence to soften *a forgotten password is unrecoverable*.
 
-- **The reference is named and is specification.** Anthropic, OpenAI, Docker and Stripe were supplied by the owner as the standard to match. [docs/UX_RESEARCH.md](../../../../docs/UX_RESEARCH.md)'s **Building against a reference** rules therefore bind this work: match the affordance rather than copy the position, account for what the reference does, and raise a deviation rather than resolve it quietly.
-- **Small is the intent.** *"We don't need much"* is a scoping instruction. The failure mode here is a documentation framework whose default site is ten sections wide and eight of them empty, which reads worse than a single good page.
-- **Nothing published may contradict the threat model.** [The root intent](../README.md) requires Seal's limits to be stated without softening, and [docs.md](docs.md) holds that line for the README and the security policy. A marketing-shaped site is the likeliest place for that discipline to slip — anything the site claims about what Seal protects against answers to the same bar, and "elegant" is not a licence to soften "a forgotten password is unrecoverable".
+## Astro Starlight, on GitHub Pages
+
+Starlight's default output already carries the references' vocabulary — sidebar, on-page contents, prev/next, dark mode, static Pagefind search, readable typography — so what remains is the small amount of visual identity that makes the site Seal's, expressed as CSS custom properties rather than theme surgery. Its `splash` template gives a real landing page distinct from the docs body, which is the one structural property all four references share. Its build core is Vite and its deploy action uses Bun natively, so no second package manager or lockfile enters the repository, which [the desktop memory](../desktop/MEMORY.md) requires.
+
+The site publishes from a workflow on push to `main`. It is static, small, and costs nothing; a custom domain attaches later without changing anything.
+
+## Nine pages in four groups, plus a landing page
+
+The landing page states what Seal does in one sentence, a four-card grid, the numbered first-run path, and **a named block carrying the two absolute limits** — not a link to them. The research names SOPS as the negative example here: a direct genre peer whose landing page states capabilities and no threat model at all, which is exactly the relegation this product cannot afford.
+
+**Get started** — *Install*, and *Your first sealed file*. **Guides** — *Using Seal from scripts*, and *Managing files in the application*. **Understand** — *How it works*, and *What Seal does not protect*, the longest page on the site. **Reference** — *Command-line reference*, *Security policy*, *Contributing*.
+
+## Where each fact lives once
+
+The boundary against [docs.md](docs.md), which is this plan's first decision and the thing that stops the site becoming a second README:
+
+- **Rendered from the repository, never retyped.** `SECURITY.md` and `CONTRIBUTING.md` become site pages by the build reading those exact files. A missing source fails the build rather than publishing a page that silently drifted.
+- **Held by the site, and moved out of the README.** The scripting and management guides are *moved*, not copied: the README's corresponding sections contract to a sentence and a link, exactly as it already does for `docs/RUNNING.md`. This edits `docs.md`'s content, and belongs in the same change as the site that receives it.
+- **Two deliberate duplications, held true by machine.** The install commands and the limits text appear on both surfaces, because a README without install commands is broken and a site that only links to the limits has softened them by relegation. Continuous integration extracts the install commands from one source and diffs them across README, site and CI job, and asserts the limits text byte-identical across the landing page, the README, `SECURITY.md` and the threat-model page. A check that fires when they disagree is what makes the exception safe rather than a licence.
+- **Linked, never rendered.** The plan tree, `docs/RUNNING.md`, `docs/RELEASING.md`, the licences, and the releases.
+
+## How it stays true
+
+Four checks in continuous integration, of the kind [ci.md](ci.md) already runs: the install commands diffed across all three surfaces, the limits text asserted identical across all four, links checked over the built site and the repository's Markdown, and the site built on every change with deployment only from `main`. `ci.md`'s standing rule carries over — any check that can be skipped has an environment variable turning the skip into a failure.
+
+# What exists
+
+All of the Approach. The site lives under `site/`, builds to eleven pages with a static search index, and deploys from a workflow on push to `main`.
+
+Its visual identity resolves the **same palette the application uses**, mapped onto Starlight's own tokens, so the two surfaces read as one product rather than as a tool and a separate marketing site.
+
+Two guarantees are enforced by machine rather than by discipline, and each was confirmed non-vacuous by breaking it and watching the check fail:
+
+- **The rendered pages cannot drift.** The security policy and the contributing guide are read from `SECURITY.md` and `CONTRIBUTING.md` at build time. Removing a source file **fails the build** with a message naming the rule, rather than publishing a page that silently vanished or went stale.
+- **The limits cannot be softened.** A check asserts both absolute limits are present on the landing page, in the README, in the security policy and on the threat-model page, and that no page claims a protection Seal does not have. Replacing the landing page's forgotten-password statement with a reassuring sentence fails it by name.
+
+The two guides were **moved** out of the README rather than copied, so the README contracted to a sentence and a link for each — which is what stops the site being a second README.
 
 # What is missing
 
-All of it. No site exists, nothing is hosted, and no build produces one.
-
-The decisions the Approach must reach, none of which are settled:
-
-- **Content and its source of truth.** Whether the site renders the existing in-repository documents, holds its own content, or both — and how duplication is prevented, given the repository's standing rule that a decision or procedure is never duplicated across documents and the owning document is linked instead. A site that copies the README is a second README to keep true.
-- **How it is built and hosted.** GitHub Pages is the owner's candidate, not yet a decision.
-- **How it stays true.** [ci.md](ci.md) exists precisely because the repository's claims are verified rather than believed, and every command in the README was run against a clean clone. A published site is a new surface for claims to rot on, and it should not ship without an answer for how it is checked.
-- **Screenshots**, per [docs.md](docs.md)'s open thread — whether the site carries them, and how they are kept from going stale. Note the ordering: [manage-surface.md](../desktop/ui/navigation/manage-surface.md) and [palette.md](../desktop/ui/navigation/palette.md) will both change how the application looks, so screenshots taken before those land are stale on arrival.
+- **Screenshots.** The site launches with none, and the sequencing that justified deferring them is now spent: [palette.md](../desktop/ui/navigation/palette.md) and [manage-surface.md](../desktop/ui/navigation/manage-surface.md) have both landed, so images taken now would no longer be stale on arrival. This is the next thing the site wants, and [docs.md](docs.md)'s standing open thread is the same gap.
+- **A link check over the built site**, which the Approach names among its four checks and which is not yet wired.
+- **The site has never been seen deployed.** It builds and is checked locally; GitHub Pages must be enabled for the repository before the workflow can publish, which is a repository setting rather than a change in this tree.
 
 # Steps
 
-- [ ] Research the named references and how comparable small open-source projects publish, per [docs/UX_RESEARCH.md](../../../../docs/UX_RESEARCH.md).
-- [ ] Settle the content boundary against [docs.md](docs.md) — what the site holds, what it links to, and where each fact lives once.
-- [ ] Solution the Approach, raising the hosting and content-source forks in `QUESTIONS.md` if research does not settle them.
+- [x] Research the named references and how comparable small open-source projects publish, per [docs/UX_RESEARCH.md](../../../../docs/UX_RESEARCH.md).
+- [x] Settle the content boundary against [docs.md](docs.md) — what the site holds, what it links to, and where each fact lives once.
+- [x] Build the site: the landing page, the nine pages, and the visual identity drawn from the application's palette.
+- [x] The checks that hold the boundary: the build failing on a missing rendered source, and the claim check across all four surfaces.
+- [ ] The link check over the built site and the repository's Markdown.
+- [ ] Screenshots, now that the interface work they waited on has landed.
 
 # Open threads
 
-- Whether this concern stays a plan `.md` or becomes a folder. It is framed as a single plan on the judgement that the site is small by instruction. If the content boundary turns out to be substantial — its own information architecture, its own build, its own checks — it outgrows one working surface and wants promoting, which is a reshape and goes through the user.
-- Sequencing against the interface work. Any screenshot or visual claim the site makes depends on [palette.md](../desktop/ui/navigation/palette.md) and [manage-surface.md](../desktop/ui/navigation/manage-surface.md) having landed, so the site's visual content is downstream of those even though its structure is not.
+- Whether this concern stays a plan `.md` or becomes a folder. It is one working surface today; if the site grows its own information architecture beyond the nine pages, it wants promoting, which is a reshape and goes through the user.
+- The site introduces a second `bun.lock`, under `site/`. [The publishing memory](MEMORY.md) forbids a *second package manager*, on the grounds that the lockfile continuous integration does not read is the one that goes stale — and this one is read by its own workflow on every change, so the rule's reason is satisfied. Worth revisiting if the two ever need to share dependencies.

@@ -1,0 +1,64 @@
+---
+title: Seal
+description: Seal encrypts the secret files in your repositories in place, opened only by a password that exists nowhere on the machine.
+template: splash
+hero:
+  tagline: Your secret files stay exactly where they are, with their names plainly visible and their contents unreadable — to you, to any program on the machine, and to any agent working in the codebase.
+  actions:
+    - text: Install
+      link: /seal/get-started/install/
+      icon: right-arrow
+    - text: View on GitHub
+      link: https://github.com/7scholar/seal
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+<CardGrid>
+  <Card title="Install" icon="rocket">
+    One command for the command-line tool. The application builds from source.
+
+    [Install Seal](/seal/get-started/install/)
+  </Card>
+  <Card title="How it works" icon="approve-check">
+    A sealed file is a standard age file. If Seal disappeared, your files still open.
+
+    [How it works](/seal/understand/how-it-works/)
+  </Card>
+  <Card title="What Seal does not protect" icon="warning">
+    The threat model in full, including the two things it can never do.
+
+    [Read the limits](/seal/understand/limits/)
+  </Card>
+  <Card title="Contribute" icon="pencil">
+    Plan-driven, with every design decision written down.
+
+    [Contributing](/seal/reference/contributing/)
+  </Card>
+</CardGrid>
+
+## The path from nothing to a sealed secret
+
+<ol class="seal-steps">
+  <li>Install the command-line tool, and build the application from source.</li>
+  <li>Open the application and choose a master password. It is never stored anywhere.</li>
+  <li>Point it at a repository. Seal finds the files that look like secrets and proposes them.</li>
+  <li>Seal a file. It stays at its own path, with its name visible and its contents opaque.</li>
+  <li>Resolve it from a deploy script at the moment it is needed.</li>
+</ol>
+
+<div class="seal-limits">
+
+## Two things Seal cannot do
+
+**Sealing protects from that moment on; it cannot reach backwards.** Replacing a plaintext file unlinks the old contents but cannot overwrite them, and on modern filesystems and solid-state drives no tool can promise otherwise. A credential that has already sat unprotected on disk, in a backup, or in a snapshot should be **rotated**, not merely sealed. Sealing also does not revoke access for a program that already had the file open.
+
+**A forgotten password means the data is gone.** There is no recovery key, no escrow, no backdoor — any of those would be a copy of the key living on the machine, which is exactly what Seal exists to avoid.
+
+[The full threat model](/seal/understand/limits/) states what Seal defends against and what it does not.
+
+</div>
+
+Seal is **not code-signed**, which is why the command-line tool installs by Homebrew or the installer script rather than by downloading it in a browser, and why the application is built from source. [What unsigned means for you](/seal/get-started/install/#what-unsigned-means-for-you) explains the consequence without softening it.

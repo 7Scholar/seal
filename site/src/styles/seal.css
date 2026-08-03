@@ -1,0 +1,112 @@
+:root {
+  --sl-color-accent-low: #17233d;
+  --sl-color-accent: #3b82f6;
+  --sl-color-accent-high: #a8c7fd;
+
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: #eceef2;
+  --sl-color-gray-2: #c4c6cf;
+  --sl-color-gray-3: #a0a3ad;
+  --sl-color-gray-4: #4e505c;
+  --sl-color-gray-5: #33333d;
+  --sl-color-gray-6: #17171b;
+  --sl-color-black: #0f0f12;
+
+  --sl-color-bg: #0f0f12;
+  --sl-color-bg-nav: #17171b;
+  --sl-color-bg-sidebar: #0f0f12;
+  --sl-color-hairline: #33333d;
+  --sl-color-hairline-light: #33333d;
+
+  --seal-danger: #ff7b8a;
+  --seal-danger-surface: #311e23;
+  --seal-radius: 1rem;
+}
+
+:root[data-theme="light"] {
+  --sl-color-accent-low: #dce8fd;
+  --sl-color-accent: #0d5bd1;
+  --sl-color-accent-high: #0a3f92;
+
+  --sl-color-white: #17171b;
+  --sl-color-gray-1: #17171b;
+  --sl-color-gray-2: #3a3b45;
+  --sl-color-gray-3: #5f6270;
+  --sl-color-gray-4: #8a8a95;
+  --sl-color-gray-5: #e4e4e9;
+  --sl-color-gray-6: #f2f2f5;
+  --sl-color-gray-7: #fafafa;
+  --sl-color-black: #ffffff;
+
+  --sl-color-bg: #fafafa;
+  --sl-color-bg-nav: #ffffff;
+  --sl-color-bg-sidebar: #fafafa;
+  --sl-color-hairline: #e4e4e9;
+  --sl-color-hairline-light: #e4e4e9;
+
+  --seal-danger: #c02434;
+  --seal-danger-surface: #fdeef1;
+}
+
+.site-title {
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.card,
+starlight-tabs,
+.sl-markdown-content pre {
+  border-radius: var(--seal-radius);
+}
+
+.sl-markdown-content :not(pre) > code {
+  border-radius: 0.5rem;
+}
+
+.seal-limits {
+  border: 1px solid var(--seal-danger);
+  background: var(--seal-danger-surface);
+  border-radius: var(--seal-radius);
+  padding: 1.25rem 1.5rem;
+  margin-block: 2.5rem;
+}
+
+.seal-limits h2 {
+  margin-top: 0;
+  font-size: 1.05rem;
+  color: var(--seal-danger);
+}
+
+.seal-limits p:last-child {
+  margin-bottom: 0;
+}
+
+.seal-steps {
+  counter-reset: seal-step;
+  list-style: none;
+  padding-left: 0;
+  margin-block: 2rem;
+}
+
+.seal-steps li {
+  counter-increment: seal-step;
+  position: relative;
+  padding-left: 2.6rem;
+  margin-block: 0.85rem;
+}
+
+.seal-steps li::before {
+  content: counter(seal-step);
+  position: absolute;
+  left: 0;
+  top: 0.05rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--sl-color-hairline);
+  color: var(--sl-color-gray-3);
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+}

@@ -28,3 +28,7 @@ src-tauri/gen
 # Sidecar binaries, produced by scripts/build-sidecar.sh
 src-tauri/binaries
 e2e/logs/
+
+# the documentation site's build output
+site/dist/
+site/.astro/

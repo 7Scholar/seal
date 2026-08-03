@@ -1,0 +1,28 @@
+---
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { marked } from "marked";
+
+interface Props {
+  file: string;
+}
+
+const { file } = Astro.props;
+const root = fileURLToPath(new URL("../../../", import.meta.url));
+
+let source: string;
+try {
+  source = readFileSync(root + file, "utf8");
+} catch {
+  throw new Error(
+    `The site renders ${file} from the repository root and it could not be read. ` +
+      `The page is a second presentation of that one text, so a missing source is a build failure ` +
+      `rather than a page that silently drifted or vanished.`,
+  );
+}
+
+const withoutTitle = source.replace(/^#\s+.*\n+/, "");
+const html = marked.parse(withoutTitle, { async: false });
+---
+
+<Fragment set:html={html} />

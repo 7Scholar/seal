@@ -72,7 +72,7 @@ An audit of the code against this intent found that the per-file surface had bee
 
 Research for that plan also corrected this Approach: the requirement to "notice when a file is open in an editor" cannot be met by checking descriptors, since editors hold none on files open in tabs. Sealing now warns on recency and states its own limit, with reconciliation as the real safety net.
 
-What remains of `desktop/` is the journey-driven work its cursor names: the harness's extended scenarios and the bridge defect blocking their tail. The first-run journey is satisfied on macOS — driven end to end by the automated harness against a release build — which is the axis this plan was reopened for.
+What remains of `desktop/` is the journey-driven work its cursor names. The harness defect that blocked the extended scenario's tail is resolved — it was a five-second timeout the client paid on every element command, waiting for a page global it reads but never assigns, so the application was never at fault. First-run and exposure are both satisfied on macOS, driven end to end against a release build. Reaching the last step of the returning scenario found the master-password change leaves the vault openable by neither password, which is now the outstanding defect and reopens `desktop/ui/password-change.md`.
 
 `publishing/` now carries installation, not merely packaging. The command-line tool installs in one command — a Homebrew tap or an installer script — from a GitHub release published on a tag, built for both macOS architectures and both Linux ones and ad-hoc signed so Apple Silicon will execute it. The route works without any paid signing identity because quarantine is set by the delivery mechanism rather than the artefact, which was measured end to end rather than assumed, and continuous integration now re-proves it on every change including that a tampered download is refused. The desktop application stays build-from-source, since that same route is closed to it.
 
@@ -104,7 +104,7 @@ No open threads yet.
 
 Plan completeness is **not** the definition of done for this product. [context/journeys/](../../journeys/README.md) holds the user-facing axis: one document per end-to-end path a real person takes, each satisfied only by driving the real application rather than by tests passing.
 
-Every child below is `[x]` and **every journey is unsatisfied** — the first person to open the built application could not get past the first screen. Both defects sat between plans that were individually correct and individually tested, which is precisely the blind spot that axis exists to close.
+The axis exists because the first person to open the built application could not get past the first screen, and both defects sat between plans that were individually correct and individually tested. **Two of six journeys are now satisfied** — first-run and exposure, each driven end to end against a release build. The axis has since earned itself again: driving the master-password change for the first time found that it leaves the vault openable by neither password, a defect every test at both layers passed straight through. It is framed at [desktop/ui/password-change.md](desktop/ui/password-change.md) and is the most serious thing outstanding.
 
 Read [docs/plans/JOURNEYS.md](../../../docs/plans/JOURNEYS.md) before working one.
 

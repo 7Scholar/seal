@@ -16,12 +16,15 @@
   "icons.md": {
     "ui/components/Icon.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db"
   },
+  "palette.md": {
+    "ui/styles.css": "cf258bf6be142a0be8e4f3b10107f6da7848b840"
+  },
   "repositories.md": {
     "ui/screens/Repositories.test.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
     "ui/screens/Repositories.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db"
   },
   "shape.md": {
-    "ui/styles.css": "fbfc7af93edeacb43c419aea37ffb4f89160c6db"
+    "ui/styles.css": "cf258bf6be142a0be8e4f3b10107f6da7848b840"
   },
   "theme.md": {
     "src-tauri/src/commands.rs": "6af8515a56ce649aaf6c17568ae434baa072681d",

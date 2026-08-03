@@ -119,6 +119,18 @@ Fixing it needs an Apple Developer Program membership — **$99/year** — after
 
 ---
 
+## 9. Something you should know: changing the master password can currently lock you out — **Not a question, and not blocking anything you do**
+
+This one needs no answer. It is here because it is the most serious thing found so far and you should not learn it by hitting it.
+
+The harness that drives the real application was stuck for a while and is now unstuck, which meant the master-password change got driven end to end for the first time. It fails, and it fails in the worst available direction: after the change, **the vault opens with neither the old password nor the new one**. On a real installation that would mean losing access to every protected file.
+
+Two things to hold alongside that. It is reproducible only through the interface so far — driving the same operation directly, over the same staged state, converts everything correctly — so the defect is somewhere in the path rather than in the encryption itself. And every test at both layers passed straight through it, which is exactly why the product is judged by driving it rather than by its tests.
+
+**What it means for you today:** do not change the master password on anything you care about until this is fixed. It is recorded at [context/plans/app/desktop/ui/password-change.md](context/plans/app/desktop/ui/password-change.md) and is the next thing an agent should pick up.
+
+---
+
 ## When you have done some of these
 
 Tell an agent: *"I've answered things in FOR-JORIS.md."*

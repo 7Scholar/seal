@@ -50,10 +50,12 @@ They are anxious. Reassurance must be earned by the product actually being safe,
 
 # Demonstration
 
-**Authored but not yet witnessed.** The harness's `return-and-use` scenario contains the clean-run drive — the warnings read, the typed commitment, the run, and the proof that the old password stops opening Seal while the new one does — but the run currently stops short of it on a harness defect recorded in [the harness plan](../plans/app/desktop/journey-harness.md). The rotation itself, sentinel included, is covered by the Rust suite, which this axis deliberately does not accept as a substitute.
+**Reached and driven for the first time, and it fails. Not satisfied.** The harness's `return-and-use` scenario now runs to this step instead of stopping short of it, so what follows was witnessed rather than inferred. What the drive reaches and confirms: the settings control, the **Change master password** entry, the screen itself, and its statement that both passwords must be remembered until the change finishes. The four fields — current, replacement, confirmation, and the typed phrase — each carry the exact text intended, asserted per field rather than assumed.
 
-Driving it must also include an interrupted run — kill the application partway and reopen it — because resumability is the property that matters most and it cannot be demonstrated by a clean run.
+What then happens is a defect, and a severe one: the run does not complete, every manifest entry fails as a wrong password, and **afterwards the vault opens with neither the old password nor the new one**. The same session had unlocked with the old password moments earlier in the same run. It is recorded against the plan that owns the code, [password-change.md](../plans/app/desktop/ui/password-change.md), with what has and has not been isolated — notably that the same staged sequence driven directly through the commands converts every entry, so the flow is not straightforwardly broken.
+
+The interrupted run this journey requires — killing the application partway through the rotation and reopening it — has **not** been driven. It stays undriven until the clean run passes, because an interrupted run of a rotation that cannot complete would demonstrate nothing about resumability.
 
 # Findings
 
-Open, pending the journey being driven.
+**One open, blocking.** The rotation leaves the vault openable by neither password, recorded and framed in [password-change.md](../plans/app/desktop/ui/password-change.md). This journey cannot be satisfied while it stands, and the interrupted-run demonstration is blocked behind it.

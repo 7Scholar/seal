@@ -85,8 +85,14 @@ describe("first run: install, choose a password, protect a first file", () => {
   it("seals only after the two irreversible facts are acknowledged, gated on typing", async () => {
     await $('button[aria-label="Seal .env"]').click();
 
-    const dialog = $('[role="dialog"]');
-    await expect(dialog).toBeDisplayed();
+    await expect($('[role="dialog"]')).toBeDisplayed();
+
+    const anyway = $('[role="dialog"]').$("button=Seal it anyway");
+    if (await anyway.isDisplayed().catch(() => false)) {
+      await expect($("h2*=while something may be editing it")).toBeDisplayed();
+      await anyway.click();
+    }
+
     await expect($("h2=Before Seal encrypts anything")).toBeDisplayed();
     await expect($("p*=your sealed files are gone")).toBeDisplayed();
     await expect($("p*=It cannot reach backwards")).toBeDisplayed();
@@ -95,7 +101,7 @@ describe("first run: install, choose a password, protect a first file", () => {
     const proceed = $("button=I understand — start sealing");
     await expect(proceed).toBeDisabled();
 
-    await dialog.$("input").setValue("I UNDERSTAND");
+    await $('[role="dialog"]').$("input").setValue("I UNDERSTAND");
     await expect(proceed).toBeEnabled();
     await proceed.click();
 

@@ -46,8 +46,17 @@ This is the journey where the product's whole promise is on the line. It is also
 
 # Demonstration
 
-**Staged but not yet observed.** The harness's `return-and-use` scenario stages the exposure exactly as this journey requires — a protected file overwritten externally with readable text, then a return to the product — and asserts the insistent alert, the rotate instruction, the recency warning on re-sealing, and the file back to armored on disk. The run currently stops short of those assertions on a harness defect recorded in [the harness plan](../plans/app/desktop/journey-harness.md), so the alert's appearance has not yet been witnessed by a drive. The alert's behaviour is covered by interface tests, which this axis deliberately does not accept as a substitute.
+**Driven end to end in the real application on macOS, and witnessed.** The harness's `return-and-use` scenario stages the exposure as this journey requires — a file protected, then overwritten externally with readable text — locks, returns, and unlocks. What was observed against a release build from a scratch profile:
+
+- The alert appears on returning to the repository, without being sought: *"1 file Seal recorded as sealed is readable on disk"*, carrying the file's repository and path.
+- It states what it means and how it happened — the contents are in the clear right now, an editor most likely had the file open when it was sealed and later saved over it.
+- It states the harder truth in the same breath: *"Rotate any credential that was exposed — sealing cannot undo an exposure that already happened."* Both halves were asserted, so the instruction and its reason are held by the run rather than by reading.
+- The fix sits on the exposure itself — a **Seal now** control on the row naming the file, with no navigation between the problem and its remedy.
+- Sealing from the alert first meets the recency warning, which is honest about its own limit rather than silently proceeding, and completes through it.
+- The file is armored age on disk afterwards, read back from the filesystem rather than from the interface.
+
+The alert's disappearance-because-fixed and the never-shown-when-nothing-is-wrong properties are covered by the run's shape: the alert is absent through every earlier step of the same scenario, and the repository view after re-sealing asserts the sealed tag.
 
 # Findings
 
-Open, pending the staged drive completing.
+**None open.** Driving this journey found one defect, and it was in the harness rather than the product: the run's assertion for the rotate instruction matched a lowercase *"rotate"* against copy that says *"Rotate"*, so the instruction the product does give was being checked for in a form it never took. The assertion now names the sentence and its reason clause explicitly. The product's behaviour was correct as built and needed no change.

@@ -34,12 +34,17 @@ Ten Rust tests and twelve interface tests cover it. The durability guarantee is 
 
 One defect was caught by a test during the work: every planning failure was being collapsed into a wrong-password error, so a file deleted between planning and running would have told the user their password was wrong. Plan failures now map to their actual kinds.
 
+# What is missing
+
+**A driven change, run after a file was re-sealed from the exposure alert, leaves the vault openable by neither password.** The [return-and-use scenario](../journey-harness.md) reaches the change screen with all four fields carrying verified-correct text, submits, and every manifest entry — the sentinel first — fails `WrongPassphrase`. Afterwards the sentinel opens with neither the old password nor the new one, so the application cannot be unlocked at all; the same session had unlocked with the old password moments earlier, which is what makes it a contradiction rather than a mistyped field. The commands themselves are sound: driving `rekey_begin` and `rekey_run` directly over the same staged state — establish, manage, seal, open, save, lock, unlock, re-seal from the alert — converts both entries, and the flow completes through the interface when driven on its own. What separates the failing path from the passing one is not yet isolated. This is the worst outcome the concern exists to prevent, so it outranks the open thread below.
+
 # Steps
 
 - [x] Design the flow, including where the manifest lives and how an unfinished run is surfaced on next launch.
 - [x] Add the commands: status, begin, run, and abandon.
 - [x] Build the flow.
 - [x] Tests: a run interrupted partway is resumable and reports honestly which files sit on which password.
+- [ ] Reproduce the unopenable-vault defect above on demand, isolate what the driven path does that the direct one does not, and fix it.
 
 # Open threads
 

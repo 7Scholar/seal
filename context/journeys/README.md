@@ -25,6 +25,12 @@ Ordered as a person meets them.
 
 ## Status
 
-**[first-run.md](first-run.md) is satisfied on macOS**: driven end to end by the automated harness against a release build from a scratch profile, three consecutive runs green, no open findings. [protect-a-repo.md](protect-a-repo.md) is driven through step 6 of 7, and [use-a-secret.md](use-a-secret.md) through step 5 of 8, inside the same runs. The remaining journeys are staged or fragmentary; each Demonstration section records exactly what was witnessed and what was not, and a journey with undriven steps stays unsatisfied.
+**Two of six are satisfied on macOS**, both driven end to end by the automated harness against a release build from a scratch profile, with no open findings: [first-run.md](first-run.md), green across three consecutive runs, and [exposure.md](exposure.md), witnessed for the first time — the alert, the rotate instruction and its reason, the fix beside the problem, the recency warning, and the file armored on disk afterwards.
+
+[protect-a-repo.md](protect-a-repo.md) is driven through step 6 of 7, and [use-a-secret.md](use-a-secret.md) through step 5 of 8, inside the same runs; their remaining steps are undriven because no scenario stages them.
+
+[change-the-password.md](change-the-password.md) is **reached and failing**: the drive now gets to the rotation instead of stopping short of it, and found that a change leaves the vault openable by neither password — an open finding against [password-change.md](../plans/app/desktop/ui/password-change.md), and the most serious thing this axis has turned up. Its required interrupted run stays blocked behind it. [living-with-it.md](living-with-it.md) has never been driven.
+
+Each Demonstration section records exactly what was witnessed and what was not, and a journey with undriven steps or open findings stays unsatisfied.
 
 This folder exists because the desktop application was once marked complete with every plan `[x]`, and the first person to open it could not get past the first screen — they were asked to unlock a vault that did not exist yet, then met a screen whose only button did nothing at all. Both defects sat between plans that were each individually correct and individually tested. Both are now fixed and their fixes are what the automated demonstration drives.

@@ -36,6 +36,17 @@ export const config = {
   reporters: ["spec"],
   logLevel: "warn",
   waitforTimeout: 15000,
+  before: async function () {
+    const { browser } = await import("@wdio/globals");
+    await browser.execute(() => {
+      const internals = (window as unknown as Record<string, unknown>)
+        .__TAURI_INTERNALS__ as { invoke?: unknown } | undefined;
+      if (typeof internals?.invoke !== "function") return;
+      (window as unknown as Record<string, unknown>).__wdio_original_core__ = {
+        invoke: (internals.invoke as (...args: unknown[]) => unknown).bind(internals),
+      };
+    });
+  },
   afterTest: async function (
     test: { title: string },
     _context: unknown,

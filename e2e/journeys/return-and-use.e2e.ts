@@ -11,6 +11,14 @@ const status = () => $('[role="status"][aria-label="Unlock status"]');
 const repoName = () => repo().split("/").pop() ?? "";
 const repoTile = () => $(`button*=${repoName()}`);
 
+async function type(selector: string, text: string) {
+  const field = $(selector);
+  await field.waitForDisplayed();
+  await field.click();
+  await field.setValue(text);
+  await expect(field).toHaveValue(text);
+}
+
 async function openTheRepository() {
   const crumb = $('nav[aria-label="Breadcrumb"] [aria-current="page"]');
   if (await crumb.isDisplayed().catch(() => false)) {
@@ -28,6 +36,12 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
   before(async () => {
     const choose = $("h1=Choose your master password");
     const locked = $("h1=Seal is locked");
+
+    const lock = $("button=Lock");
+    if (await lock.isDisplayed().catch(() => false)) {
+      await lock.click();
+    }
+
     await browser.waitUntil(
       async () =>
         (await choose.isDisplayed().catch(() => false)) ||
@@ -165,7 +179,10 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
     const alert = $(".exposure-alert");
     await expect(alert).toBeDisplayed();
     await expect($("h2*=readable on disk")).toBeDisplayed();
-    await expect(alert.$("p*=rotate")).toBeDisplayed();
+    await expect(alert.$("p*=Rotate any credential that was exposed")).toBeDisplayed();
+    await expect(
+      alert.$("p*=sealing cannot undo an exposure that already happened"),
+    ).toBeDisplayed();
   });
 
   it("warns before sealing a file that changed moments ago, then seals from the alert", async () => {
@@ -190,10 +207,10 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
     await expect($("h1=Change your master password")).toBeDisplayed();
     await expect($("p*=Both passwords must be remembered")).toBeDisplayed();
 
-    await $("#current").setValue(PASSWORD);
-    await $("#replacement").setValue(NEW_PASSWORD);
-    await $("#confirmation").setValue(NEW_PASSWORD);
-    await $("#phrase").setValue("CHANGE MY PASSWORD");
+    await type("#current", PASSWORD);
+    await type("#replacement", NEW_PASSWORD);
+    await type("#confirmation", NEW_PASSWORD);
+    await type("#phrase", "CHANGE MY PASSWORD");
     await $("button=Change the password").click();
 
     await expect($("h1=Repositories")).toBeDisplayed();

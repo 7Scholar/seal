@@ -64,7 +64,7 @@ Reveal is not an edit and must never mark a file dirty — a demonstrated failur
 
 - [x] shell.md -> the frontend's own shell: the page the webview loads, the build that produces it, and the typed command module
 - [x] screens.md -> the screens and the shared primitives that carry the behavioural rules
-- [x] password-change.md -> the supervised master-password change, whose danger is the half-done state
+- [~] password-change.md -> the supervised master-password change, whose danger is the half-done state. **A driven change leaves the vault openable by neither password**; its plan holds the reproduction.
 - [x] errors.md -> how a command failure reaches the user: plain language for every kind, the problem banner, and the re-lock on an ended session
 - [x] shell-layout.md -> the application shell: the repository sidebar, the detail surface, and the disclosure architecture
 - [x] repo-layer/ -> making the product read as a layer over an existing repository rather than a tool that extracts files into itself
@@ -74,7 +74,7 @@ Reveal is not an edit and must never mark a file dirty — a demonstrated failur
 
 The frontend and every screen are built: the unlock sand shield, the cross-repo view with its non-dismissible alert, the manage flow, the environment-variables editor, and the first-seal acknowledgement — all but unlock on a design taken from [the research](_docs/ux-research.md) rather than invented. Ninety-three interface tests across the screens, the failure surface, and the password change, with each load-bearing guard confirmed by reintroducing the exact defect it prevents.
 
-`password-change.md` is complete too, on a manifest that outlives the process: removing that durability fails eight of its ten Rust tests, which is the measure of how much the guarantee was carrying.
+`password-change.md` was built on a manifest that outlives the process: removing that durability fails eight of its ten Rust tests, which is the measure of how much the guarantee was carrying. It is nonetheless **back in flight**, because the first drive of the journey through the real application found that a change leaves the vault openable by neither password — the exact catastrophe the concern exists to prevent, and one every test at both layers passed straight through.
 
 Every child above `shell-layout.md` is complete as code. The interface is **not** done in the sense that matters: driving the built application showed a first-time user cannot get past the opening screen, and the route into the product's core loop does nothing. See [the journeys axis](../../../../journeys/README.md), which governs whether this is finished.
 

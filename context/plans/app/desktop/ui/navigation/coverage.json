@@ -1,7 +1,7 @@
 {
   "breadcrumbs.md": {
     "ui/App.test.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
-    "ui/App.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
+    "ui/App.tsx": "eaa3aed0b11b9608c8dc1f0ecb6184f86f524d78",
     "ui/components/Breadcrumbs.tsx": "6af8515a56ce649aaf6c17568ae434baa072681d",
     "ui/components/Switcher.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db"
   },
@@ -16,15 +16,21 @@
   "icons.md": {
     "ui/components/Icon.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db"
   },
+  "manage-surface.md": {
+    "ui/components/FileTree.tsx": "eaa3aed0b11b9608c8dc1f0ecb6184f86f524d78",
+    "ui/screens/ManageFlow.test.tsx": "eaa3aed0b11b9608c8dc1f0ecb6184f86f524d78",
+    "ui/screens/ManageFlow.tsx": "eaa3aed0b11b9608c8dc1f0ecb6184f86f524d78",
+    "ui/styles.css": "eaa3aed0b11b9608c8dc1f0ecb6184f86f524d78"
+  },
   "palette.md": {
-    "ui/styles.css": "cf258bf6be142a0be8e4f3b10107f6da7848b840"
+    "ui/styles.css": "eaa3aed0b11b9608c8dc1f0ecb6184f86f524d78"
   },
   "repositories.md": {
     "ui/screens/Repositories.test.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
     "ui/screens/Repositories.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db"
   },
   "shape.md": {
-    "ui/styles.css": "cf258bf6be142a0be8e4f3b10107f6da7848b840"
+    "ui/styles.css": "eaa3aed0b11b9608c8dc1f0ecb6184f86f524d78"
   },
   "theme.md": {
     "src-tauri/src/commands.rs": "6af8515a56ce649aaf6c17568ae434baa072681d",

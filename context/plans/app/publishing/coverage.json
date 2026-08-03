@@ -7,7 +7,7 @@
     "CONTRIBUTING.md": "40cd3f67e2e44b529590db3ede8868c7fd0eaa6c",
     "LICENSE-APACHE": "82a179cb55c8522f8a05dc3055d4a35546502551",
     "LICENSE-MIT": "82a179cb55c8522f8a05dc3055d4a35546502551",
-    "README.md": "40cd3f67e2e44b529590db3ede8868c7fd0eaa6c",
+    "README.md": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
     "SECURITY.md": "82a179cb55c8522f8a05dc3055d4a35546502551",
     "docs/RELEASING.md": "9409506b9afed6817cacde673a228074081aeb0b"
   },
@@ -16,6 +16,26 @@
     "scripts/build-sidecar.sh": "e1d2b479d830af9b4b00e06ab5c6f66e1192acef",
     "scripts/install.sh": "9409506b9afed6817cacde673a228074081aeb0b",
     "scripts/render-formula.sh": "9409506b9afed6817cacde673a228074081aeb0b"
+  },
+  "site.md": {
+    ".github/workflows/site.yml": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
+    "scripts/check-site-claims.ts": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
+    "site/astro.config.mjs": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
+    "site/bun.lock": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
+    "site/package.json": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
+    "site/src/components/Repo.astro": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
+    "site/src/content/config.ts": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
+    "site/src/content/docs/get-started/first-sealed-file.md": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
+    "site/src/content/docs/get-started/install.md": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
+    "site/src/content/docs/guides/managing-files.md": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
+    "site/src/content/docs/guides/scripts.md": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
+    "site/src/content/docs/index.mdx": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
+    "site/src/content/docs/reference/cli.md": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
+    "site/src/content/docs/reference/contributing.mdx": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
+    "site/src/content/docs/reference/security.mdx": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
+    "site/src/content/docs/understand/how-it-works.md": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
+    "site/src/content/docs/understand/limits.md": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
+    "site/src/styles/seal.css": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962"
   },
   "tooling.md": {
     "package.json": "fc48741e20953ee3d195f734bdc5e6b65e1602ab",

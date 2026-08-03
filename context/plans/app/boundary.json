@@ -1,6 +1,7 @@
 {
   "include": [
     ".github",
+    ".github/workflows/site.yml",
     "CONTRIBUTING.md",
     "Cargo.toml",
     "LICENSE-APACHE",
@@ -13,6 +14,8 @@
     "e2e",
     "package.json",
     "scripts",
+    "scripts/check-site-claims.ts",
+    "site",
     "src-tauri",
     "tsconfig.json",
     "ui",

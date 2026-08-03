@@ -54,7 +54,7 @@ The work decomposes into the children below: the sealing engine is the seam ever
 - [x] registry.md -> the registry of seal repos and their managed files, including the candidate scan
 - [x] cli.md -> the standalone CLI resolver
 - [~] desktop/ -> the Tauri desktop application: shell, IPC surface, and the management UI. **not done** — its journeys are unsatisfied, and `ui/navigation/`'s surfaces need a depth pass.
-- [x] publishing/ -> everything around the code: repo docs, CI, packaging, releases, maintainability
+- [~] publishing/ -> everything around the code: repo docs, CI, packaging, releases, maintainability. **Reopened:** a hosted documentation site is framed and unstarted.
 
 # Cursor
 
@@ -85,6 +85,14 @@ One rule in it guards against damage rather than confusion: a folder's checkbox 
 `desktop/ui/navigation/` then **replaced the interface's navigation model** at the product owner's direction, and is **in flight** rather than finished — the model works and its surfaces do not yet, for reasons its cursor records. The sidebar shell is withdrawn; the product now routes the way Supabase does — a breadcrumb trail in the title bar over three full-width altitudes, repository tiles at the top, a repository's files as large rows beneath, and the file's own surface at the bottom, with a switcher on each segment for moving sideways. The first-run journey drives it end to end against a release build.
 
 Two of its parts reached past layout into the architecture. **Themes** — light, dark and system — could not persist in the webview, which is memory-only by design, so the preference lives in a small Rust-side store outside everything the session wipe clears. And the **title bar** turned out not to drag the window at all: a real defect, reproduced by driving the application, whose fix is the opposite of what the markup implied — dragging is decided by an injected script reading the framework's attribute, and the CSS property that appears to control it is inert.
+
+**Three concerns were taken in from the product owner and are framed, unstarted, and `TBD`.** They are recorded here because they are the live intake rather than because anyone is working them; each begins with research, and none has an Approach.
+
+- **The manage surface** ([desktop/ui/navigation/manage-surface.md](desktop/ui/navigation/manage-surface.md)) — the screen that adds a repository, judged amateur on the same review that ordered the grid's rebuild. It was never in the surface audit, which covered four surfaces and stopped there. One named fault is a plain defect rather than a matter of finish: a folder holding no candidates is **inert on click**, which in a tree drawing the whole repository is most folders a user meets. The others are that the surface does not use the window and that its actions and its subject scroll away with the tree. The owner asked for the rest to be **found rather than listed**, so the plan's first step is the audit that was never run here.
+- **The palette** ([desktop/ui/navigation/palette.md](desktop/ui/navigation/palette.md)) — a white, a black, an accent and a primary, applied throughout. `shape.md` tokenised every colour, which fixed the mechanism and faithfully preserved the values the first screens happened to carry; **no palette was ever chosen.** The owner names accent and primary as two things where the interface has one, carrying the primary button, the focus ring, hover and selection at once.
+- **A documentation website** ([publishing/site.md](publishing/site.md)) — hosted, GitHub Pages a candidate, matched for feel against Anthropic, OpenAI, Docker and Stripe rather than against other encryption tools, and deliberately small. Its first task is the content boundary against the README and the other repository documents, since a site that copies them is a second set to keep true.
+
+The three are **not independent in ordering.** The palette restyles every surface, so it either lands before the manage surface is built or restyles it afterwards; and the site's screenshots are downstream of both, since images taken before they land are stale on arrival. Each plan records the sequencing as an open thread rather than resolving it, because it is one decision across three plans.
 
 # Open threads
 

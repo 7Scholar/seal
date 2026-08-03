@@ -8,7 +8,9 @@ It is done when someone who has never seen this repository can install Seal, und
 
 ## Approach
 
-Four concerns, each with its own plan: the checks that keep the repository's claims true (`ci.md`), the documents a stranger needs (`docs.md`), getting builds into someone's hands (`packaging.md`), and the build scripts a developer working on Seal runs (`tooling.md`).
+Five concerns, each with its own plan: the checks that keep the repository's claims true (`ci.md`), the documents a stranger needs (`docs.md`), getting builds into someone's hands (`packaging.md`), the build scripts a developer working on Seal runs (`tooling.md`), and a hosted documentation site (`site.md`).
+
+`docs.md` and `site.md` divide one word between them. `docs.md` owns **what the repository says** — the files a reader meets on the git host. `site.md` owns **a published site**, a different artefact reached by a different route. Where each fact lives once, given both exist, is the boundary `site.md` must settle before it builds anything.
 
 One decision shapes the whole tree: **the project has no code-signing identity**, which was settled deliberately rather than deferred. That is not merely a missing nicety on macOS — an unsigned artefact is killed behind a malware dialog with no override — so it determines what is distributed and how. The command-line tool is the released artefact, shipped as a tarball because quarantine survives zip extraction but not tar. The desktop application is build-from-source, stated plainly rather than shipped as a download that fails on first run.
 
@@ -20,6 +22,7 @@ Everything the documentation claims is verified rather than believed: the README
 - [x] docs.md -> the README and the documents a stranger needs to trust and contribute
 - [x] packaging.md -> bundling, distribution, and the release process
 - [x] tooling.md -> the developer-facing build scripts that encode the procedures a rebuild must follow
+- [ ] site.md -> a hosted documentation website, matched against the leaders the owner named
 
 # Cursor
 
@@ -36,6 +39,8 @@ The same route stays closed to the desktop application, which remains build-from
 Being a plain binary rather than a bundle grants no exemption: an unsigned command-line tool that arrives quarantined is killed behind the same malware dialog, with no override button where a bundle would at least offer right-click-to-open. Only the delivery mechanism saves it, which is why the release ships tarballs and continuous integration asserts that a quarantined tarball still yields a runnable binary — verified to accept a tarball and reject a zip.
 
 `tooling.md` is complete, and it closed a gap rather than adding a nicety: two of this repository's build rules fail silently, both presenting as "my change did nothing" — a frontend rebuilt after the binary that embeds it, and a `seal` launcher resolving to somewhere the rebuild never touched. The script encodes the first and warns about the second.
+
+`site.md` is **framed and not started**, taken in from the product owner: a hosted documentation website, GitHub Pages named as a candidate, matched for feel against Anthropic, OpenAI, Docker and Stripe rather than against other encryption tools, and deliberately small. It is `TBD` and research-first. Its content boundary against `docs.md` is the first thing it settles — a site that copies the README is a second README to keep true — and its visual content is downstream of the interface work under [navigation/](../desktop/ui/navigation/README.md), since screenshots taken before the palette and the manage surface land are stale on arrival.
 
 # Open threads
 

@@ -10,7 +10,10 @@ import { Toggletip } from "../components/Toggletip";
 import { fileName } from "../format";
 
 interface Props {
-  scan: ScanView;
+  root: string;
+  scan: ScanView | null;
+  failure: string | null;
+  onRetry: () => void;
   onConfirm: (selected: string[]) => void | Promise<void>;
   onCancel: () => void;
 }
@@ -24,19 +27,38 @@ function countRows(nodes: ScanView["tree"]): number {
   return total;
 }
 
-export function ManageFlow({ scan, onConfirm, onCancel }: Props) {
-  const [selected, setSelected] = useState<ReadonlySet<string>>(() =>
-    preselectedPaths(scan.tree),
-  );
-  const [expanded, setExpanded] = useState<ReadonlySet<string>>(() =>
-    preselectedAncestors(scan.tree),
-  );
+export function ManageFlow({
+  root,
+  scan,
+  failure,
+  onRetry,
+  onConfirm,
+  onCancel,
+}: Props) {
+  const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
+  const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set());
   const [scrolled, setScrolled] = useState(false);
   const [atEnd, setAtEnd] = useState(true);
+  const [waited, setWaited] = useState(false);
   const region = useRef<HTMLDivElement>(null);
 
-  const managed = useMemo(() => managedPaths(scan.tree), [scan.tree]);
-  const rows = useMemo(() => countRows(scan.tree), [scan.tree]);
+  useEffect(() => {
+    if (!scan) return;
+    setSelected(preselectedPaths(scan.tree));
+    setExpanded(preselectedAncestors(scan.tree));
+  }, [scan]);
+
+  useEffect(() => {
+    if (scan || failure) return;
+    const timer = setTimeout(() => setWaited(true), 250);
+    return () => clearTimeout(timer);
+  }, [scan, failure]);
+
+  const managed = useMemo(
+    () => (scan ? managedPaths(scan.tree) : new Set<string>()),
+    [scan],
+  );
+  const rows = useMemo(() => (scan ? countRows(scan.tree) : 0), [scan]);
 
   useEffect(() => {
     const element = region.current;
@@ -51,7 +73,7 @@ export function ManageFlow({ scan, onConfirm, onCancel }: Props) {
     measure();
     element.addEventListener("scroll", measure);
     return () => element.removeEventListener("scroll", measure);
-  }, [scan.tree]);
+  }, [scan, failure]);
 
   function toggleSelect(path: string) {
     setSelected((current) => {
@@ -89,7 +111,8 @@ export function ManageFlow({ scan, onConfirm, onCancel }: Props) {
     }
   }
 
-  const nothingFound = scan.candidates.length === 0;
+  const scanning = !scan && !failure;
+  const nothingFound = scan !== null && scan.candidates.length === 0;
 
   return (
     <section
@@ -100,44 +123,60 @@ export function ManageFlow({ scan, onConfirm, onCancel }: Props) {
       onKeyDown={onKeyDown}
     >
       <header className="manage__head" data-scrolled={scrolled || undefined}>
-        <h1 id="manage-heading">Seal in {fileName(scan.root)}</h1>
+        <h1 id="manage-heading">Seal in {fileName(root)}</h1>
         <Toggletip label="What managing these files does">
           Seal records which files it manages here. It does not encrypt
           anything — sealing stays a separate, deliberate action. Your files
           stay where they are: nothing is moved, renamed, or copied.
-          {scan.alreadyRegistered
+          {scan?.alreadyRegistered
             ? " This folder is already managed; nothing already managed is changed."
             : ""}
         </Toggletip>
-        <span className="manage__count">
-          {rows === 1 ? "1 item" : `${rows} items`}
-        </span>
-        <p className="manage__root">{scan.root}</p>
+        {scan ? (
+          <span className="manage__count">
+            {rows === 1 ? "1 item" : `${rows} items`}
+          </span>
+        ) : null}
+        <p className="manage__root">{root}</p>
       </header>
 
-      <div className="manage__region" ref={region}>
-        <FileTree
-          label={`Files in ${scan.root}`}
-          nodes={scan.tree}
-          selected={selected}
-          expanded={expanded}
-          disabled={managed}
-          onToggleSelect={toggleSelect}
-          onToggleSelectMany={toggleSelectMany}
-          onToggleExpand={toggleExpand}
-        />
+      <div className="manage__region" ref={region} aria-busy={scanning || undefined}>
+        {failure ? (
+          <div className="manage__failure" role="alert">
+            <p className="manage__failure-message">{failure}</p>
+            <button type="button" onClick={onRetry}>
+              Try again
+            </button>
+          </div>
+        ) : scanning ? (
+          waited ? (
+            <p className="manage__scanning">Looking through {fileName(root)}…</p>
+          ) : null
+        ) : scan ? (
+          <FileTree
+            label={`Files in ${root}`}
+            nodes={scan.tree}
+            selected={selected}
+            expanded={expanded}
+            disabled={managed}
+            onToggleSelect={toggleSelect}
+            onToggleSelectMany={toggleSelectMany}
+            onToggleExpand={toggleExpand}
+          />
+        ) : null}
       </div>
 
-      <footer
-        className="manage__actions"
-        data-scrolled={!atEnd || undefined}
-      >
+      <footer className="manage__actions" data-scrolled={!atEnd || undefined}>
         <span className="manage__tally">
-          {nothingFound
-            ? "Nothing recognised"
-            : selected.size === 1
-              ? "1 file selected"
-              : `${selected.size} files selected`}
+          {scanning
+            ? "Scanning"
+            : failure
+              ? ""
+              : nothingFound && selected.size === 0
+                ? "Nothing recognised"
+                : selected.size === 1
+                  ? "1 file selected"
+                  : `${selected.size} files selected`}
         </span>
         <span className="manage__spacer" />
         <button type="button" onClick={onCancel}>

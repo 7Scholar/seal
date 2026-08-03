@@ -73,10 +73,18 @@ const scan: ScanView = {
 function setup(overrides: Partial<ScanView> = {}) {
   const onConfirm = vi.fn();
   const onCancel = vi.fn();
+  const onRetry = vi.fn();
   render(
-    <ManageFlow scan={{ ...scan, ...overrides }} onConfirm={onConfirm} onCancel={onCancel} />,
+    <ManageFlow
+      root={scan.root}
+      scan={{ ...scan, ...overrides }}
+      failure={null}
+      onRetry={onRetry}
+      onConfirm={onConfirm}
+      onCancel={onCancel}
+    />,
   );
-  return { onConfirm, onCancel };
+  return { onConfirm, onCancel, onRetry };
 }
 
 function row(name: string) {
@@ -320,5 +328,46 @@ describe("ManageFlow", () => {
 
     await user.click(screen.getByRole("button", { name: "Expand config" }));
     expect(within(row("keys.json")).getByText("may hold credentials")).toBeInTheDocument();
+  });
+
+  it("names the repository while the scan is still running", () => {
+    render(
+      <ManageFlow
+        root="/repos/app"
+        scan={null}
+        failure={null}
+        onRetry={vi.fn()}
+        onConfirm={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: "Seal in app" })).toBeInTheDocument();
+    expect(screen.getByText("/repos/app")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Manage 0 files/ })).toBeDisabled();
+    expect(screen.queryByRole("tree")).not.toBeInTheDocument();
+  });
+
+  it("owns a failed scan rather than losing it to the previous screen", async () => {
+    const user = userEvent.setup();
+    const onRetry = vi.fn();
+    render(
+      <ManageFlow
+        root="/repos/app"
+        scan={null}
+        failure="Seal could not read that folder."
+        onRetry={onRetry}
+        onConfirm={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Seal could not read that folder.",
+    );
+    expect(screen.getByRole("heading", { name: "Seal in app" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Try again" }));
+    expect(onRetry).toHaveBeenCalled();
   });
 });

@@ -438,6 +438,13 @@ input {
 .manage__spacer, .env-editor__dirty { flex: 1; }
 .manage__tally { color: var(--muted); font-size: 0.85rem; }
 .manage__region { overflow-y: auto; min-height: 0; padding: 0.6rem 1.4rem 0.6rem 1rem; }
+.manage__scanning { color: var(--muted); font-size: 0.85rem; padding: 0.4rem 0.6rem; }
+.manage__failure {
+  display: flex; gap: 0.8rem; align-items: center;
+  border: 1px solid var(--danger); background: var(--danger-surface);
+  border-radius: var(--radius-lg); padding: 0.8rem 1rem; margin: 0.4rem 0.6rem;
+}
+.manage__failure-message { flex: 1; margin: 0; }
 
 .tree, .tree__group { list-style: none; margin: 0; padding: 0; }
 .tree__row {

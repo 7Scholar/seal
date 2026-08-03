@@ -18,7 +18,7 @@ import * as theme from "./theme";
 
 type Overlay =
   | { name: "none" }
-  | { name: "manage"; scan: ipc.ScanView }
+  | { name: "manage"; root: string; scan: ipc.ScanView | null; failure: string | null }
   | { name: "rekey" };
 
 type Route =
@@ -223,18 +223,36 @@ export function App() {
     });
   }
 
+  async function scanInto(root: string) {
+    setOverlay({ name: "manage", root, scan: null, failure: null });
+    try {
+      const scan = await ipc.scanFolder(root);
+      setOverlay({ name: "manage", root, scan, failure: null });
+    } catch (error) {
+      if (ipc.isCommandError(error) && error.kind === "locked") {
+        setOverlay({ name: "none" });
+        relock();
+        return;
+      }
+      setOverlay({
+        name: "manage",
+        root,
+        scan: null,
+        failure: explain("scan the repository", error),
+      });
+    }
+  }
+
   async function startAdd() {
     await attempt("open the folder picker", async () => {
       const root = await ipc.pickFolder();
       if (!root) return;
-      setOverlay({ name: "manage", scan: await ipc.scanFolder(root) });
+      await scanInto(root);
     });
   }
 
   async function startRescan(root: string) {
-    await attempt("scan the repository", async () => {
-      setOverlay({ name: "manage", scan: await ipc.scanFolder(root) });
-    });
+    await scanInto(root);
   }
 
   if (!unlocked) {
@@ -260,11 +278,14 @@ export function App() {
   if (overlay.name === "manage") {
     return (
       <ManageFlow
+        root={overlay.root}
         scan={overlay.scan}
+        failure={overlay.failure}
+        onRetry={() => void scanInto(overlay.root)}
         onCancel={() => setOverlay({ name: "none" })}
         onConfirm={(selected) =>
           attempt("add the folder", async () => {
-            const root = overlay.scan.root;
+            const root = overlay.root;
             await ipc.manageFiles(root, selected);
             const fresh = await refresh();
             setOverlay({ name: "none" });

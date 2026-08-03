@@ -236,6 +236,9 @@ function Row({
 
   const checked = isDirectory ? state === "all" : selected.has(path);
   const mixed = isDirectory && state === "some";
+  const selectable = isDirectory
+    ? candidatePathsUnder(node).length > 0
+    : true;
 
   function toggle() {
     if (isDisabled) return;
@@ -247,6 +250,15 @@ function Row({
       return;
     }
     onToggleSelect(path);
+  }
+
+  function activate() {
+    setFocused(path);
+    if (isDirectory && !selectable) {
+      if (openable) onToggleExpand(path);
+      return;
+    }
+    toggle();
   }
 
   function onKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
@@ -265,10 +277,6 @@ function Row({
     }
   }
 
-  const selectable = isDirectory
-    ? candidatePathsUnder(node).length > 0
-    : true;
-
   return (
     <li role="none" className="tree__item">
       <div
@@ -282,10 +290,11 @@ function Row({
         data-kind={node.kind}
         data-quiet={node.kind === "file" && node.confidence === null}
         data-unwalked={isDirectory && !node.walked}
+        data-inert={(isDirectory ? !selectable && !openable : isDisabled) || undefined}
         style={{ paddingLeft: `${depth * 1.1 + 0.3}rem` }}
         onFocus={() => setFocused(path)}
         onKeyDown={onKeyDown}
-        onClick={toggle}
+        onClick={activate}
       >
         {openable ? (
           <button

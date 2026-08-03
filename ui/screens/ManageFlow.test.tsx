@@ -153,6 +153,50 @@ describe("ManageFlow", () => {
     expect(selected).not.toContain("services/api/routes.ts");
   });
 
+  it("opens a folder that holds nothing detected, rather than doing nothing at all", async () => {
+    const user = userEvent.setup();
+    setup({
+      tree: [
+        directory("src", [file("src/main.ts"), file("src/util.ts")]),
+        file(".env.production", {
+          confidence: "secret",
+          reason: "an env file",
+          preselected: true,
+        }),
+      ],
+    });
+
+    expect(row("src")).toHaveAttribute("aria-expanded", "false");
+    expect(
+      screen.queryByRole("treeitem", { name: "main.ts" }),
+    ).not.toBeInTheDocument();
+
+    await user.click(row("src"));
+
+    expect(row("src")).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("treeitem", { name: "main.ts" })).toBeInTheDocument();
+  });
+
+  it("does not let opening a folder select anything inside it", async () => {
+    const user = userEvent.setup();
+    const { onConfirm } = setup({
+      tree: [
+        directory("src", [file("src/main.ts"), file("src/util.ts")]),
+        file(".env.production", {
+          confidence: "secret",
+          reason: "an env file",
+          preselected: true,
+        }),
+      ],
+    });
+
+    await user.click(row("src"));
+    await user.click(screen.getByRole("button", { name: /Manage 1 file/ }));
+
+    const [selected] = onConfirm.mock.calls[0] as [string[]];
+    expect(selected).toEqual([".env.production"]);
+  });
+
   it("marks a folder holding some of a selection differently from a full one", async () => {
     const user = userEvent.setup();
     setup();

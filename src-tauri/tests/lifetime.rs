@@ -29,7 +29,17 @@ fn the_lifetime_seam_only_ever_shortens() {
         }
     });
 
-    for refused in ["0", "901", "3600", "", "  ", "abc", "-1", "2.5", "18446744073709551616"] {
+    for refused in [
+        "0",
+        "901",
+        "3600",
+        "",
+        "  ",
+        "abc",
+        "-1",
+        "2.5",
+        "18446744073709551616",
+    ] {
         with_override(Some(refused), |lifetime| {
             assert_eq!(
                 lifetime, DEFAULT_LIFETIME,

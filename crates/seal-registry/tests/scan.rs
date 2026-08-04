@@ -171,8 +171,9 @@ fn a_reason_is_given_only_where_it_says_more_than_the_name() {
     ];
     for (name, fragment) in explained {
         let reason = scan::classify_name(name).and_then(|(_, reason)| reason);
-        let reason = reason
-            .unwrap_or_else(|| panic!("{name} must say why it was flagged; the name alone does not"));
+        let reason = reason.unwrap_or_else(|| {
+            panic!("{name} must say why it was flagged; the name alone does not")
+        });
         assert!(
             reason.contains(fragment),
             "{name} must explain itself as {fragment:?}, got {reason:?}"
@@ -212,11 +213,23 @@ fn the_tree_carries_files_the_scan_would_never_propose() {
 
     let src = children(&tree, "src");
     assert!(
-        matches!(find(src, "main.rs"), Some(scan::Node::File { candidate: None, .. })),
+        matches!(
+            find(src, "main.rs"),
+            Some(scan::Node::File {
+                candidate: None,
+                ..
+            })
+        ),
         "an ordinary source file must appear in the tree, carrying no candidate: {src:?}"
     );
     assert!(
-        matches!(find(&tree, "settings.toml"), Some(scan::Node::File { candidate: None, .. })),
+        matches!(
+            find(&tree, "settings.toml"),
+            Some(scan::Node::File {
+                candidate: None,
+                ..
+            })
+        ),
         "the tree is the repository, not the candidate list: {tree:?}"
     );
 }
@@ -227,8 +240,11 @@ fn the_tree_annotates_a_candidate_where_it_lives() {
     let tree = scan::tree(dir.path());
 
     let api = children(children(&tree, "services"), "api");
-    let Some(scan::Node::File { candidate: Some((confidence, _)), relative_path, .. }) =
-        find(api, ".env.local")
+    let Some(scan::Node::File {
+        candidate: Some((confidence, _)),
+        relative_path,
+        ..
+    }) = find(api, ".env.local")
     else {
         panic!("a nested secret must be annotated in place: {api:?}");
     };
@@ -242,7 +258,10 @@ fn a_pruned_directory_is_present_but_marked_unwalked_and_childless() {
     let tree = scan::tree(dir.path());
 
     for pruned in ["node_modules", "target", ".git"] {
-        let Some(scan::Node::Directory { walked, children, .. }) = find(&tree, pruned) else {
+        let Some(scan::Node::Directory {
+            walked, children, ..
+        }) = find(&tree, pruned)
+        else {
             panic!("{pruned} must appear in the tree rather than vanish from it: {tree:?}");
         };
         assert!(!walked, "{pruned} must be marked as not looked in");
@@ -259,12 +278,18 @@ fn an_empty_directory_is_distinguishable_from_an_unwalked_one() {
     fs::create_dir_all(dir.path().join("empty")).unwrap();
     let tree = scan::tree(dir.path());
 
-    let Some(scan::Node::Directory { walked: empty_walked, children: empty, .. }) =
-        find(&tree, "empty")
+    let Some(scan::Node::Directory {
+        walked: empty_walked,
+        children: empty,
+        ..
+    }) = find(&tree, "empty")
     else {
         panic!("the empty directory must appear");
     };
-    let Some(scan::Node::Directory { walked: pruned_walked, .. }) = find(&tree, "node_modules")
+    let Some(scan::Node::Directory {
+        walked: pruned_walked,
+        ..
+    }) = find(&tree, "node_modules")
     else {
         panic!("the pruned directory must appear");
     };
@@ -284,9 +309,14 @@ fn the_tree_surfaces_the_secrets_a_gitignore_respecting_walk_would_hide() {
 
     for hidden in [".env", ".env.production", ".env.staging"] {
         assert!(
-            matches!(find(&tree, hidden), Some(scan::Node::File { candidate: Some(_), .. })),
+            matches!(
+                find(&tree, hidden),
+                Some(scan::Node::File {
+                    candidate: Some(_),
+                    ..
+                })
+            ),
             "{hidden} is gitignored precisely because it is secret, so the tree must annotate it"
         );
     }
 }
-

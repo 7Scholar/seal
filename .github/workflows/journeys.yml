@@ -28,6 +28,9 @@ jobs:
       - name: Install exactly what the lockfile pins
         run: bun install --frozen-lockfile
 
+      - name: Build the command-line tool into the bundle
+        run: ./scripts/build-sidecar.sh
+
       - name: Build the application with the harness bridge
         run: bun run e2e:build
 

@@ -187,8 +187,7 @@ pub fn run(
             reseal::Settled::Unfinished(unfinished) => {
                 if let Some(entry) = progress.entry_mut(&unfinished.path) {
                     entry.standing = Standing::Failed;
-                    entry.reason =
-                        Some(format!("{:?}", CommandError::kind_of(&unfinished.reason)));
+                    entry.reason = Some(format!("{:?}", CommandError::kind_of(&unfinished.reason)));
                 }
             }
         }

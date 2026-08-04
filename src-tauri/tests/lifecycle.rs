@@ -404,26 +404,39 @@ fn the_scan_hands_the_interface_the_repository_rather_than_only_its_candidates()
         })
     };
 
-    let Some(lifecycle::NodeView::File { confidence, preselected, .. }) = named("main.rs") else {
-        panic!("an ordinary source file must reach the interface: {:?}", view.tree);
+    let Some(lifecycle::NodeView::File {
+        confidence,
+        preselected,
+        ..
+    }) = named("main.rs")
+    else {
+        panic!(
+            "an ordinary source file must reach the interface: {:?}",
+            view.tree
+        );
     };
     assert!(confidence.is_none(), "it carries no classification");
     assert!(!preselected, "and is never preselected");
 
-    let Some(lifecycle::NodeView::File { confidence, preselected, .. }) = named(".env.production")
+    let Some(lifecycle::NodeView::File {
+        confidence,
+        preselected,
+        ..
+    }) = named(".env.production")
     else {
         panic!("the secret must reach the interface as a file node");
     };
     assert_eq!(confidence.as_deref(), Some("secret"));
     assert!(preselected);
 
-    let Some(lifecycle::NodeView::Directory { walked, children, .. }) = named("node_modules")
+    let Some(lifecycle::NodeView::Directory {
+        walked, children, ..
+    }) = named("node_modules")
     else {
         panic!("a pruned directory must be reported, not omitted");
     };
     assert!(!walked && children.is_empty());
 }
-
 
 #[test]
 fn a_template_is_never_preselected_in_the_tree() {
@@ -431,7 +444,13 @@ fn a_template_is_never_preselected_in_the_tree() {
     let view = lifecycle::scan_folder(&root, &State::default()).unwrap();
 
     for node in &view.tree {
-        if let lifecycle::NodeView::File { name, preselected, confidence, .. } = node {
+        if let lifecycle::NodeView::File {
+            name,
+            preselected,
+            confidence,
+            ..
+        } = node
+        {
             if name == ".env.example" {
                 assert_eq!(confidence.as_deref(), Some("template"));
                 assert!(

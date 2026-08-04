@@ -72,11 +72,9 @@ fn to_view(node: scan::Node, managed: &[&PathBuf]) -> NodeView {
             candidate,
         } => NodeView::File {
             already_managed: managed.contains(&&relative_path),
-            preselected: candidate.is_some_and(|(confidence, _)| {
-                confidence == scan::Confidence::Secret
-            }),
-            confidence: candidate
-                .map(|(confidence, _)| format!("{confidence:?}").to_lowercase()),
+            preselected: candidate
+                .is_some_and(|(confidence, _)| confidence == scan::Confidence::Secret),
+            confidence: candidate.map(|(confidence, _)| format!("{confidence:?}").to_lowercase()),
             reason: candidate.and_then(|(_, reason)| reason),
             name,
             relative_path,

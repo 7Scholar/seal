@@ -1,4 +1,4 @@
-# Handoff — the journeys axis is satisfied; the depth pass is what is left
+# Handoff — the journeys axis is satisfied; the depth pass is under way
 
 > **You are picking this up cold.** Read this, then read what it points you at, then go and drive the real application. Do not start writing code on the strength of this document alone — it tells you where things stand and what is binding, not what to build.
 
@@ -23,7 +23,7 @@ Landing is unchanged: code and prose commit first, **coverage stamps last as its
 
 ## Where things stand
 
-Everything is committed on **`main`**. Working tree clean, no drift, no `DRIFT.md`, **no `QUESTIONS.md` anywhere**, no stashes.
+Everything is committed on **`main`**. Working tree clean, no drift, no `DRIFT.md`, no stashes. **One `QUESTIONS.md` is live**, under `ui/navigation/` — see above.
 
 ### All six journeys are satisfied
 
@@ -52,7 +52,26 @@ This is the axis's own bar for production-ready, and it is the first time the pr
 - **The folder picker's second use is not covered.** The seam returns a folder fixed in the application's environment at launch, so a second repository can only be added across the boundary. `desktop/MEMORY.md` records why driving the picker twice cannot work.
 - **The title bar's drag has no automated coverage at all.** The harness's synthesized press carries no click count, so the framework's listener refuses it. A person confirms it; the check in place fails whether the drag is broken *or* merely undrivable, so **it must never be read as a pass**.
 
+## There is now an unanswered question waiting on the owner
+
+`context/plans/app/desktop/ui/navigation/QUESTIONS.md` holds **one** question: whether the files list's empty state should be made reachable. **Read it before touching `files.md`** — its step 5 is `[!]` and that line of work is closed until the owner answers. If it is still unanswered when you arrive, do not start it and do not route around it.
+
 ## What the last session did
+
+**Carried the files list through the depth pass** — item 1 below, for the middle altitude. Three defects fixed, driven and guarded:
+
+- **The silent disable is gone.** A `missing` file's open control was disabled with nothing said about why. It now states that Seal cannot open it because it is no longer at that path, tied to the control by `aria-describedby`. Measured against a file genuinely deleted from disk while the window sat open — not a fixture.
+- **The surface states its managed-file count**, the fact the tile already carried an altitude up.
+- **A failed re-read is stated rather than hidden.** This was the one nothing caught. Every operation here re-reads the overview when it finishes, and `refresh()` rethrows on failure *before* `reconcile` runs — so `repos` keeps its previous value and the surface keeps rendering rows it already had, silently, right after the user acted. A notice above the list now says what is below is what Seal last saw and that the files are untouched and still sealed, with a retry. The rows stay visible.
+
+**Two of that surface's states resolved to something other than "build it",** and both are recorded rather than skipped quietly:
+
+- **The empty repository is unreachable.** A repository is dropped when its last file is released (`lifecycle::release`), the manage flow refuses an empty selection, and a rescan only adds. The markup exists and nothing reaches it. That is the question now waiting on the owner.
+- **The files list needs no loading state.** Every launch lands on the grid, and both paths that could leave the route at this altitude with nothing loaded navigate back up instead. A skeleton there would guard a state that cannot occur.
+
+Both are in `navigation/MEMORY.md`, because either one costs a session to rediscover.
+
+## What the session before it did
 
 **Answered all five `QUESTIONS.md` items** (the owner answered; I acted) and deleted the file.
 
@@ -78,7 +97,7 @@ The journeys axis is done. **What remains is the depth pass on `ui/navigation/`*
 
 In rough order of value:
 
-1. **The states beyond populated**, [states.md](context/plans/app/desktop/ui/navigation/states.md). Done for the repositories grid; **the files list and the file surface are still populated-only**. `repositories.md`, `files.md` and `file.md` each carry the same note. This is the largest remaining block and the one a stranger notices first: an empty or failed surface in a visual language the rest of the product does not use.
+1. **The states beyond populated**, [states.md](context/plans/app/desktop/ui/navigation/states.md). Done for the repositories grid and now for the files list; **the file surface is still populated-only** — no loading, no surface-level failure, and no treatment for a file with hundreds of variables. `file.md` carries the note. The files list's one remaining item is blocked on the owner's answer above.
 2. **The manage surface's last two findings**, [manage-surface.md](context/plans/app/desktop/ui/navigation/manage-surface.md) — the **degraded state** (a partially-walked repository is drawn exactly like a fully-walked one) and the **alignment findings** (names misalign by 1px; the annotation channel has no column, measured starting anywhere between x=190 and x=303).
 3. **`breadcrumbs.md`** — the root segment has no switcher, and the chevron is not the referenced icon.
 4. **[disclosure-primitive.md](context/plans/app/desktop/ui/navigation/disclosure-primitive.md)** — unstarted. Four collapsed controls each carry the disclosure contract separately.

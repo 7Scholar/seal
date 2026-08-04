@@ -72,6 +72,19 @@ The full `first-run` journey passes end to end against a release build — passw
 
 # What is missing
 
+**The fixed frame does not hold in the running application, and the Approach above overstates what was achieved.** Measured 2026-08-04 by driving a repository of ~80 files at the default window size: `.manage` renders **2630px tall in a viewport far shorter than that**, `.manage__region` reports `scrollHeight === clientHeight` — so the tree region is not the scrolling element at all — and the header sits at `top: 0` with the whole document scrolling instead. Both `.manage__head` and `.manage__actions` therefore leave the viewport, which is precisely the fault the frame was built to fix.
+
+The three-band grid is not wrong; its **height chain is broken**. `.manage` asks for `height: 100%`, but the surface renders through an early return in `App.tsx` that is **outside `.shell`** — and `.shell` is the only element setting `100vh`. Neither `body` nor `#root` establishes a height, so `100%` resolves against auto and the grid expands to its content. This is why the CSS reads as correct and the surface behaves as though it were not.
+
+**The window's title bar is absent from this surface entirely.** Measured in the same run: `document.querySelectorAll("[data-tauri-drag-region]")` returns **nothing** while the manage surface is open. The same early return that breaks the height chain also skips `.shell__titlebar`, so the surface has no drag region and no double-click zoom target, and it starts at `top: 0` **underneath the platform's window controls** rather than below the 5.5rem inset `.shell__titlebar` reserves for them. The product owner met this directly: the page goes under the traffic lights and there is no header to drag.
+
+This is **not only this surface's defect.** Three early returns in `App.tsx` render outside the shell — the manage overlay, the password-change overlay, and the locked/unlock screen — so none of them has a title bar. The owner's instruction is that the header must be present on **every** page, which makes the fix structural rather than local to this node: the shell frame should own the window, and these surfaces should render inside it. Where that fix belongs is a placement question for [the navigation node](README.md), since it owns the shell; this node owns only what the manage surface does within it.
+
+The owner also asked for two changes to this surface's content, neither of which is a defect:
+
+- **The title and subtitle pinned at the top, and Cancel/Manage files pinned at the bottom.** This is what the frame already intends and does not deliver; the fix is the height chain above rather than new chrome.
+- **Remove "an environment file".** This is a scan *reason*, not interface copy — `crates/seal-registry/src/scan.rs:201` returns it as the `Confidence::Secret` reason for any env-like name, and the tree renders every reason as `.tree__reason`. It is the single most repeated string on the surface: in the driven run, the first six annotations were all `an environment file`, restating what the filename beside it already says. Removing it means either dropping that reason at the source or having the tree suppress a reason that adds nothing to the name — a decision that touches [scan-shape.md](../repo-layer/scan-shape.md)'s contract and [vocabulary.md](../repo-layer/vocabulary.md)'s words, so it is not unilaterally this node's to make.
+
 The audit's remaining findings, none of which this pass took. They are real and recorded in [_docs/manage-surface-audit.md](_docs/manage-surface-audit.md); the honest statement is that the frame and the two defects the owner met are fixed and the surface is not yet finished:
 
 - **A filter over the tree.** [The research](_docs/tree-picker-research.md) argues it is table stakes rather than a refinement, and the argument is structural: expansion follows the *detected* files, so every undetected file — the entire reason undetected files are selectable — is reachable only by hand-opening its chain, which at 1,097 rows is a directory-by-directory hunt for a file the user can already name.
@@ -87,6 +100,8 @@ The audit's remaining findings, none of which this pass took. They are real and 
 - [x] The frame: the three-band full-window shape, fixed chrome, and the tree as the only scrolling region.
 - [x] Every row that draws a pointer responds, and rows that cannot act stop claiming they can.
 - [x] The scanning state and the surface's own failure state, which required the overlay to open before the scan.
+- [ ] Make the fixed frame actually hold: repair the height chain so the tree region is the only scrolling element and the header and footer stay in view. Reproduce first — the measurement above is the reproduction.
+- [ ] Drop the "an environment file" annotation, once its owning contracts agree where the change belongs.
 - [ ] The filter over the tree, with the binding behaviour [the research](_docs/tree-picker-research.md) states: matches on path, restores prior expansion exactly when cleared, and never touches selection.
 - [ ] The remaining audit findings above.
 

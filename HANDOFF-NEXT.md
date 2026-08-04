@@ -1,4 +1,4 @@
-# Handoff — the journeys axis, after `living-with-it` was driven
+# Handoff — the repo import (manage) surface, then the journeys axis
 
 > **You are picking this up cold.** Read this, then read what it points you at, then go and drive the real application. Do not start writing code on the strength of this document alone — it tells you where things stand and what is binding, not what to build.
 
@@ -41,11 +41,33 @@ Work is on the branch **`journeys/living-with-it`**, three commits, not pushed a
 
 They are one node because an assurance computed from a stale read is worse than no assurance.
 
-## What to do next
+## What to do next — the repo import surface, by the product owner's direction
 
-**If the product owner has answered `QUESTIONS.md`**, build `freshness.md` — it is the largest open concern and the one the product's finish is most visibly decided by. Carry it to full depth rather than sketching both halves.
+**This is your task.** The owner reviewed the repository import screen (the manage surface, met when adding a repository or rescanning one) and named four things. All four are recorded in [manage-surface.md](context/plans/app/desktop/ui/navigation/manage-surface.md), and the structural one in [the navigation README](context/plans/app/desktop/ui/navigation/README.md). **Read both before touching code** — they carry measurements you would otherwise have to re-derive.
 
-**Otherwise, in this order:**
+The owner's four, in their words and what each turns out to be:
+
+1. **"The traffic lights are not part of a header, the page goes under them, and I have no header to double-click or drag. That header should ALWAYS be present, on every page."**
+2. **"The title and subtitle sticky fixed at the top."**
+3. **"Cancel and Manage files sticky fixed at the bottom."**
+4. **"Remove 'an environment file', that's so useless."**
+
+**These are not four independent tweaks — 1, 2 and 3 share one cause**, which was measured rather than guessed. Driving a ~80-file repository at the default window size:
+
+- `[data-tauri-drag-region]` matches **nothing** while the manage surface is open — hence no drag, no double-click zoom, and the surface starting at `top: 0` under the window controls.
+- `.manage` renders **2630px tall** in a much shorter viewport, and `.manage__region` reports `scrollHeight === clientHeight`, so **the tree region is not scrolling at all** — the whole document is. That is why the header and footer scroll away.
+
+The cause of all three: `App.tsx` has **three early returns that render outside `.shell`** — the manage overlay, the password-change overlay, and the locked screen. `.shell` is the only element that draws `.shell__titlebar` (which carries the drag region and the 5.5rem inset clearing the traffic lights) **and** the only one setting `100vh`. Outside it, `.manage { height: 100% }` resolves against an auto-height `body`/`#root`, so the three-band grid expands to its content instead of the window.
+
+So the CSS reads as correct and the surface behaves as though it were not, and **fixing the header fixes the sticky chrome too.** Note this also means the password-change and locked screens have no title bar — which is why the owner said *every* page. Settle the shape of that fix at [the navigation node](context/plans/app/desktop/ui/navigation/README.md) (it owns the shell) **before** doing the manage surface's own frame work; the direction is already settled by the owner, so this is not a question for `QUESTIONS.md`.
+
+**Item 4 is a different kind of thing and is not frontend copy.** `an environment file` is a scan *reason* returned by `crates/seal-registry/src/scan.rs:201` for any env-like name, rendered by the tree as `.tree__reason`. It is the most repeated string on the surface — in the driven run the first six annotations were all identical — and it restates the filename beside it. Removing it means either dropping the reason at source or having the tree suppress a reason that adds nothing to the name; that touches [scan-shape.md](context/plans/app/desktop/ui/repo-layer/scan-shape.md) and [vocabulary.md](context/plans/app/desktop/ui/repo-layer/vocabulary.md), so check those contracts rather than deleting the string.
+
+**A correction you should know about:** `manage-surface.md`'s Approach claims the fixed header and footer were delivered. They were not, in the running application — the claim is true of the CSS only. The plan now records the measurement and the honest state. Do not trust that section's "What exists" over what you measure yourself.
+
+**After the import surface**, if the product owner has answered [QUESTIONS.md](context/plans/app/desktop/ui/navigation/QUESTIONS.md), build `freshness.md` — the largest open concern, and the one the product's finish is most visibly decided by.
+
+**Otherwise, the journeys work, in this order:**
 
 1. **`use-a-secret` step 8 / `living-with-it` step 5 — plaintext expiry.** Driving it once serves both journeys. **It is blocked on a seam, not on a scenario:** the fifteen-minute lifetime is hard-coded through `Session::new` (`crates/seal-session/src/lib.rs`), so nothing a run finishing in seconds can set makes a held secret expire. It needs a lifetime override honoured **only** in `e2e`-feature builds, of the same shape as the existing folder-pick override — which is a change to the command surface, so frame it on [commands.md](context/plans/app/desktop/commands.md) first. Recorded on [journey-harness.md](context/plans/app/desktop/journey-harness.md). Note what is *already known* about the mechanism: expiry is checked on access, and a background sweep runs every 30s, so nothing pushes anything to the interface — the user learns a secret expired only from a `notOpen` error on their next action. Whether that is acceptable is exactly what step 5 asks.
 2. **`use-a-secret` step 7, the command-line resolve.** Drives the **CLI binary**, not the desktop app, so it needs a different harness shape. Design work, not just staging.
@@ -83,7 +105,8 @@ They are one node because an assurance computed from a stale read is worse than 
 
 - **A stale `dist/`.** The frontend is embedded at compile time; `bun run e2e:build` rebuilds both in order.
 - **A blank window.** A hand-built binary without `--features custom-protocol` loads a dev-server URL.
-- **A bridge-less harness binary.** Any plain `cargo build --release` overwrites it. Check: `strings target/release/seal-desktop | grep -ci webdriver` — zero means no bridge.
+- **A bridge-less harness binary.** Any plain `cargo build --release` overwrites it — and so does **`cargo test --workspace`**, which bit this session: the close-out's own test run silently replaced the harness binary, and the next drive failed with "Embedded WebDriver server did not become ready", which reads like a hang in the app. Check: `strings target/release/seal-desktop | grep -ci webdriver` — zero means no bridge, then `bun run e2e:build`. **Order matters: run the Rust suite before the scenarios, not between them.**
+- **Back-to-back scenario runs contend.** Running all four in one shell without a pause failed `interrupted-rekey` once; it passed 5/5 immediately on a clean re-run. Pause and `pkill` between scenarios before believing a failure.
 - **Casing across the boundary.** A serde casing mismatch once made every field arrive `undefined`. Both unit suites passed throughout.
 - **A correct library with a consumer that discards its answer.** This session's defect. Both sides' tests pass because each is right about its own contract; only the driven application sees it.
 - **A timing-dependent unit test.** One that polled a file from a thread passed alone and failed under parallel load. It was deleted rather than stabilised. Do not re-add that shape.

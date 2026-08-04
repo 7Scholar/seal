@@ -1,6 +1,6 @@
 # Questions
 
-Raised by [freshness.md](freshness.md), which is blocked until these are answered. Both come from driving [living-with-it](../../../../../journeys/living-with-it.md).
+Raised by [freshness.md](freshness.md), which is blocked until these are answered. All three come from driving [living-with-it](../../../../../journeys/living-with-it.md); the third also comes from [use-a-secret](../../../../../journeys/use-a-secret.md).
 
 ## 1. When should Seal look at the disk again?
 
@@ -29,5 +29,24 @@ The journey asks for the opposite: one glance, no reading. Directions:
 - **Per repository as well as overall**, so a tile states its own health rather than only its faults.
 
 Worth stating plainly for whoever answers: a standing "everything is protected" is a claim the product must be able to keep. How current it can honestly be depends entirely on question 1, so answering 2 alone does not unblock the work.
+
+**Answer:**
+
+## 3. Should a revealed value disappear from the screen when Seal stops holding it?
+
+Seal holds a file's decrypted contents for fifteen minutes of idleness, then drops them. That part works and was measured. But when a user has pressed **Reveal** on a value, the value they can see is a copy the screen is holding, and nothing removes it when Seal's own copy expires — so the secret stays on display until the user hides it, closes the file, or locks Seal.
+
+The protection Seal promises is not broken by this: the secret really is gone from memory, and the file on disk stayed sealed the whole time. What is left is a value sitting visible on a screen the user has walked away from — which is the situation the fifteen-minute expiry exists to limit in the first place.
+
+Directions:
+
+- **Leave it.** Treat what is on screen as the user's business — they revealed it, they can hide it, and the machine's own screen lock is the real answer to an unattended display. Nothing to build.
+- **Hide revealed values when their file expires.** The value re-masks itself at the same moment Seal drops the plaintext. Consistent with the expiry, and it means a screen left alone goes quiet on its own.
+- **Hide them sooner, on their own timer.** A revealed value is a stronger exposure than a held file, so it could conceal after its own shorter interval — closer to how a password manager hides a copied password.
+- **Close the whole file view when it expires.** The most thorough, and the most disruptive: the user returns to find the screen has changed underneath them.
+
+A related sub-question for any option but the first: when a value vanishes on its own, should the product say why — a brief "hidden after fifteen minutes" — or simply re-mask it? Something disappearing with no explanation is its own kind of confusing.
+
+Worth stating for whoever answers: this cannot be settled independently of question 1. The interface only learns what Seal knows by asking, and today nothing makes it ask — so whichever answer question 1 takes decides whether the screen can even know the value expired.
 
 **Answer:**

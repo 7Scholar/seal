@@ -12,6 +12,14 @@ The interface is granted a small set of purpose-built operations — unlock, loc
 
 Picking a folder shows the native dialog from the Rust side and returns the chosen path or nothing, so the interface never receives filesystem powers beyond the one answer; in harness builds only, the command honours an environment override in place of the dialog (`journey-harness.md` owns why).
 
+## The held-plaintext lifetime, and its harness seam
+
+The session the commands hold is built with the session crate's default fifteen-minute lifetime. **In `e2e`-feature builds only, an environment variable may shorten it** — never lengthen it. The value is read once when the held state is constructed, parsed as whole seconds, and accepted only when it is both parseable and **strictly shorter than the default**; anything else leaves the default standing, so a malformed, zero, or longer value is ignored rather than honoured. Zero is refused because a lifetime of zero expires a secret before the user can read it, which is a different behaviour from a short one rather than an extreme of it.
+
+The clamp is what makes the seam safe to state as a property rather than as a convention: the variable cannot weaken the product's guarantee in the direction that matters, in any build, because the only direction it can move the deadline is shorter. The feature gate is the outer guard and the clamp is the inner one, and neither is redundant — the gate keeps the branch out of a distributable binary entirely, while the clamp means that even inside a harness build the seam cannot be used to hold plaintext longer than the product promises.
+
+This exists because plaintext expiry is otherwise undrivable by the journeys axis: the lifetime is fixed at fifteen minutes and a scenario completes in seconds, so no journey could ever witness a held secret expiring. `journey-harness.md` owns that reasoning; what belongs here is that the lifetime is a property of the command surface's held state, chosen once at construction, and that the seam is bounded in one direction only.
+
 Capabilities grant the window only the core defaults plus Seal's own commands, rather than a broad permission set.
 
 ## What may cross, expressed as the shape of the API

@@ -1,9 +1,11 @@
 use std::path::PathBuf;
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
+use std::time::Duration;
 
 use seal_registry::state::State;
 use seal_registry::store::Store;
-use seal_session::Session;
+use seal_session::clock::SystemClock;
+use seal_session::{Session, DEFAULT_LIFETIME};
 use tauri::ipc::Response;
 use tauri::State as Managed;
 
@@ -15,6 +17,22 @@ use crate::theme;
 use crate::view::{OpenedFile, RepoView, SealOutcome};
 
 pub const RETRY_ATTEMPTS: u8 = 5;
+
+pub fn held_lifetime() -> Duration {
+    #[cfg(feature = "e2e")]
+    if let Some(value) = std::env::var_os("SEAL_E2E_PLAINTEXT_LIFETIME_SECONDS") {
+        if let Some(shorter) = value
+            .to_str()
+            .and_then(|seconds| seconds.trim().parse::<u64>().ok())
+            .map(Duration::from_secs)
+            .filter(|candidate| !candidate.is_zero() && *candidate < DEFAULT_LIFETIME)
+        {
+            return shorter;
+        }
+    }
+
+    DEFAULT_LIFETIME
+}
 
 pub struct Held {
     pub session: Mutex<Session>,
@@ -31,7 +49,10 @@ impl Held {
             .map(std::path::Path::to_path_buf)
             .unwrap_or_default();
         Self {
-            session: Mutex::new(Session::new()),
+            session: Mutex::new(Session::with_clock(
+                Arc::new(SystemClock::new()),
+                held_lifetime(),
+            )),
             registry: Mutex::new(registry),
             store,
             directory,

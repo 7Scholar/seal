@@ -43,6 +43,6 @@
   },
   "title-bar.md": {
     "e2e/journeys/title-bar.e2e.ts": "70f8ce6ebe6a7977a47f1a6e8f98b2c42d00d7e8",
-    "src-tauri/src/titlebar.rs": "fc48741e20953ee3d195f734bdc5e6b65e1602ab"
+    "src-tauri/src/titlebar.rs": "981d264f9de89b97984ac971d202de900a99bb5f"
   }
 }

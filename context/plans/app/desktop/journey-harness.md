@@ -66,7 +66,7 @@ Its own construction produced the trap worth naming. The scenario first waited f
 
 # What exists
 
-The harness; the `first-run` scenario fully green against the real application on macOS across three consecutive runs, each completing in about two seconds; the non-vacuity demonstration; the `return-and-use` scenario, **all nine steps green** (`bun run e2e:extended`) — returning shield, unlock, masked open, sealed-on-disk, reveal, edit and save, the staged exposure and its insistent alert, the recency warning followed by sealing from the alert, and the supervised password change after which the old password no longer opens Seal; and the continuous-integration workflow, gated on the stable scenario, that builds the harness binary, drives the journey, and proves the distributable free of the bridge.
+The harness; the `first-run` scenario fully green against the real application on macOS across three consecutive runs, each completing in about two seconds; the non-vacuity demonstration; the `return-and-use` scenario, **all nine steps green** (`bun run e2e:extended`) — returning shield, unlock, masked open, sealed-on-disk, reveal, edit and save, the staged exposure and its insistent alert, the recency warning followed by sealing from the alert, and the supervised password change after which the old password no longer opens Seal; and the continuous-integration workflow, which builds the harness binary, drives **every scenario** and proves the distributable free of the bridge.
 
 **The freeze that blocked the tail is resolved.** It was never a freeze in the application or in the embedded server: the client's focus check, which runs before every element command, reads `window.__wdio_original_core__` and waits five seconds for a global that nothing in the service ever assigns. Every `$`, `$$`, `findElement`, `findElements` and `elementClick` therefore paid five seconds and then threw, so scenario waits expired against a page that had been ready throughout — and *where* a run appeared to hang moved with timing, which is what made it look like a wandering freeze. Binding that global to the webview's own IPC invoke in the runner's `before` hook removed the tax outright: `first-run` went from minutes and a mid-run wedge to eight of eight in 2.2 seconds.
 
@@ -94,7 +94,7 @@ A green run of the workflow on the hosted runner.
 - [x] Build the harness and the `first-run` scenario against a fresh profile
 - [x] Prove it non-vacuous: wire an inert control deliberately, watch the run fail, remove it
 - [x] The `return-and-use` scenario: all nine steps green in sequence, across two consecutive runs
-- [~] Gate it in continuous integration — the workflow is authored, gated on the stable scenario; its first run on the hosted runner is pending
+- [~] Gate it in continuous integration — the workflow is authored and gates on the whole suite, driving each scenario in turn with a kill between them because two drives cannot share a machine; its first run on a hosted runner is still pending, there being no remote to run it
 - [x] Resolve the bridge freeze — it was the client's unassigned `__wdio_original_core__` global, and the harness now installs it
 - [x] The `interrupted-rekey` scenario: a force-quit partway through a rotation, relaunched and resumed, green across consecutive runs
 - [x] The `living-with-it` scenario: the exposure surfaced and cleared, a file deleted outside Seal, a repository directory removed, and a mid-session kill

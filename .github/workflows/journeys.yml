@@ -31,8 +31,21 @@ jobs:
       - name: Build the application with the harness bridge
         run: bun run e2e:build
 
-      - name: Drive the journeys against the real application
-        run: bun run e2e
+      - name: Drive every scenario against the real application, one at a time
+        run: |
+          set -euo pipefail
+          for scenario in \
+            e2e e2e:extended e2e:interrupted e2e:living e2e:frame \
+            e2e:expiry e2e:settling e2e:deploy e2e:badday \
+            e2e:filter e2e:freshness e2e:largefile e2e:density
+          do
+            echo "::group::$scenario"
+            pkill -x seal-desktop || true
+            sleep 2
+            bun run "$scenario"
+            echo "::endgroup::"
+          done
+          pkill -x seal-desktop || true
 
       - name: The distributable build must not contain the harness bridge
         run: |

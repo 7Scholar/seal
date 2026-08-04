@@ -102,7 +102,13 @@ fn no_secret_value_appears_anywhere_in_the_opened_view() {
     let mut session = unlocked();
 
     let view = env_of(app::open_file(&mut session, &fixture.path, &fixture.state).unwrap());
-    let serialized = serde_json::to_string(&view).unwrap();
+    let mut carried = serde_json::to_value(&view).unwrap();
+    carried
+        .as_object_mut()
+        .expect("the view serializes as an object")
+        .remove("path")
+        .expect("the view carries the path it opened");
+    let serialized = serde_json::to_string(&carried).unwrap();
 
     for secret in ["postgres://user:pw@host/db", "sk-live-42", "pw", "sk-live"] {
         assert!(

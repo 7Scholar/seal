@@ -67,6 +67,8 @@ impl FileLock {
 
 impl Drop for FileLock {
     fn drop(&mut self) {
-        self.file.take();
+        if let Some(file) = self.file.take() {
+            unsafe { libc::flock(file.as_raw_fd(), libc::LOCK_UN) };
+        }
     }
 }

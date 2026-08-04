@@ -4,8 +4,8 @@ use std::path::Path;
 
 use seal_engine::lock::{lock_path_for, FileLock, LockError};
 
-fn target(dir: &Path) -> std::path::PathBuf {
-    let path = dir.join("secrets.conf");
+fn target_named(dir: &Path, name: &str) -> std::path::PathBuf {
+    let path = dir.join(name);
     std::fs::write(&path, b"value\n").unwrap();
     path
 }
@@ -13,7 +13,7 @@ fn target(dir: &Path) -> std::path::PathBuf {
 #[test]
 fn a_second_acquisition_is_refused_while_the_first_is_held() {
     let dir = tempfile::tempdir().unwrap();
-    let target = target(dir.path());
+    let target = target_named(dir.path(), "second-acquisition.conf");
 
     let held = FileLock::acquire(&target).expect("the first acquisition must succeed");
 
@@ -29,7 +29,7 @@ fn a_second_acquisition_is_refused_while_the_first_is_held() {
 #[test]
 fn the_lock_is_released_when_dropped() {
     let dir = tempfile::tempdir().unwrap();
-    let target = target(dir.path());
+    let target = target_named(dir.path(), "released-on-drop.conf");
 
     let held = FileLock::acquire(&target).unwrap();
     drop(held);
@@ -40,7 +40,7 @@ fn the_lock_is_released_when_dropped() {
 #[test]
 fn the_lock_file_survives_release_so_exclusion_cannot_be_broken() {
     let dir = tempfile::tempdir().unwrap();
-    let target = target(dir.path());
+    let target = target_named(dir.path(), "survives-release.conf");
     let lock_path = lock_path_for(&target);
 
     let held = FileLock::acquire(&target).unwrap();
@@ -57,7 +57,7 @@ fn the_lock_file_survives_release_so_exclusion_cannot_be_broken() {
 #[test]
 fn the_lock_sits_beside_its_target_as_a_hidden_file() {
     let dir = tempfile::tempdir().unwrap();
-    let target = target(dir.path());
+    let target = target_named(dir.path(), "beside-its-target.conf");
     let lock_path = lock_path_for(&target);
 
     assert_eq!(
@@ -74,7 +74,7 @@ fn the_lock_sits_beside_its_target_as_a_hidden_file() {
         name.starts_with('.'),
         "the lock must be hidden so it does not clutter a repository, got {name}"
     );
-    assert!(name.contains("secrets.conf"), "got {name}");
+    assert!(name.contains("beside-its-target.conf"), "got {name}");
 }
 
 #[test]
@@ -101,7 +101,7 @@ fn a_target_that_does_not_exist_can_still_be_locked() {
 #[test]
 fn the_lock_excludes_a_separate_process() {
     let dir = tempfile::tempdir().unwrap();
-    let target = target(dir.path());
+    let target = target_named(dir.path(), "excludes-a-process.conf");
     let lock_path = lock_path_for(&target);
 
     let held = FileLock::acquire(&target).unwrap();

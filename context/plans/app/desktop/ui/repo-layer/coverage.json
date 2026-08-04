@@ -8,7 +8,7 @@
     "ui/styles.css": "e99a7fbf6cdab4293dd0b99987e286104451408d"
   },
   "managed-view.md": {
-    "ui/App.test.tsx": "d14f1fa6c6e33529d0d098de586751ab686385f8",
+    "ui/App.test.tsx": "0a889627cddcbb68656e78d4bb8cf079bd9ecb4b",
     "ui/screens/RepoDetail.test.tsx": "9eda9f1877c9b740336e710d7292b981d3fe661b",
     "ui/screens/RepoDetail.tsx": "a74340e1cb980f392bd8dbba828ab9ab43f7f1fa",
     "ui/styles.css": "e99a7fbf6cdab4293dd0b99987e286104451408d"

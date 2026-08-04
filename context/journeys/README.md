@@ -29,6 +29,8 @@ Ordered as a person meets them.
 
 **Four scenarios now run:** `first-run` (8 steps), `return-and-use` (9), `interrupted-rekey` (5) and `living-with-it` (6).
 
+A fifth driven spec, `window-frame` (4), is **not a journey** and does not appear above: it drives the window as a window — that each surface carries the title bar's drag region, sits below the platform's window controls, and that the manage surface scrolls its tree rather than the document. It exists because that defect class is invisible to every journey here. All four journeys' scenarios passed while three surfaces had no title bar at all and the manage surface's fixed chrome scrolled off the screen, since each journey asks whether a *task* can be completed and the tasks all completed.
+
 [protect-a-repo.md](protect-a-repo.md) is driven through step 6 of 7, and [use-a-secret.md](use-a-secret.md) through step 5 of 8, inside the same runs; their remaining steps are undriven because no scenario stages them.
 
 [change-the-password.md](change-the-password.md) is **satisfied**: the clean run and the interrupted run are both green. The interrupted run found a real product defect — an interrupted rotation's manifest under-reported which files had already moved, so the resume screen asked for the old password on a file that no longer needed it. Recovery itself was never broken; the report was. It is fixed, re-driven, and confirmed non-vacuous.

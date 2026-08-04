@@ -1,10 +1,10 @@
 {
   "commands.md": {
     "src-tauri/src/app.rs": "1fd42d7388f8ab76706adbdf45c80da321ec996e",
-    "src-tauri/src/commands.rs": "db24d4cb17eb391ac3e78bd4682655b594ba587b",
+    "src-tauri/src/commands.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "src-tauri/src/error.rs": "a0b3f33bc64a56a499060d82bb90794330e3227e",
-    "src-tauri/src/lib.rs": "fc48741e20953ee3d195f734bdc5e6b65e1602ab",
-    "src-tauri/src/view.rs": "db87c4406dff9b30e905080324f0986b2ec4b576",
+    "src-tauri/src/lib.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
+    "src-tauri/src/view.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "src-tauri/tests/commands.rs": "1fd42d7388f8ab76706adbdf45c80da321ec996e",
     "src-tauri/tests/lifetime.rs": "db24d4cb17eb391ac3e78bd4682655b594ba587b"
   },
@@ -15,10 +15,10 @@
   },
   "first-open.md": {
     "src-tauri/src/app.rs": "1fd42d7388f8ab76706adbdf45c80da321ec996e",
-    "src-tauri/src/commands.rs": "db24d4cb17eb391ac3e78bd4682655b594ba587b",
+    "src-tauri/src/commands.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "src-tauri/tests/first_open.rs": "a0b3f33bc64a56a499060d82bb90794330e3227e",
-    "ui/App.tsx": "7485774b93d3cce60eec09b5ae3099840ebcbd6f",
-    "ui/ipc.ts": "8b079b85339621deaa93c046211fdefb6ddd2ced",
+    "ui/App.tsx": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
+    "ui/ipc.ts": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "ui/screens/Unlock.test.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "ui/screens/Unlock.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e"
   },
@@ -28,6 +28,7 @@
     "e2e/journeys/bad-day.e2e.ts": "7485774b93d3cce60eec09b5ae3099840ebcbd6f",
     "e2e/journeys/deploy-script.e2e.ts": "7a5177e4c2b4394f7c07e9840c96d6b2a8acdf57",
     "e2e/journeys/first-run.e2e.ts": "70f8ce6ebe6a7977a47f1a6e8f98b2c42d00d7e8",
+    "e2e/journeys/freshness.e2e.ts": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "e2e/journeys/interrupted-rekey.e2e.ts": "3f4593bf0131ac12d0b822da2dda97d4f845d6aa",
     "e2e/journeys/living-with-it.e2e.ts": "1fd42d7388f8ab76706adbdf45c80da321ec996e",
     "e2e/journeys/manage-filter.e2e.ts": "63f6a1ee6a83e2c1e52259bf9b56b773dc2a189b",
@@ -42,6 +43,7 @@
     "e2e/wdio.deploy.conf.ts": "7a5177e4c2b4394f7c07e9840c96d6b2a8acdf57",
     "e2e/wdio.expiry.conf.ts": "db24d4cb17eb391ac3e78bd4682655b594ba587b",
     "e2e/wdio.filter.conf.ts": "63f6a1ee6a83e2c1e52259bf9b56b773dc2a189b",
+    "e2e/wdio.freshness.conf.ts": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "e2e/wdio.settling.conf.ts": "8ee6485b96c5205c67068c9c17bbedb5ca7e7cab"
   },
   "lifecycle.md": {
@@ -51,13 +53,13 @@
   "shell.md": {
     "crates/seal-session/Cargo.toml": "a46c0f0c20c571b6d392647f98e9b5af1cd36fda",
     "crates/seal-session/src/clock.rs": "7131d870c6f35bb055fab8f123d0f282428e7283",
-    "crates/seal-session/src/lib.rs": "f4bf1c7187ba306ec4cfe9d01e2d54d46cf4a7ca",
-    "crates/seal-session/tests/expiry.rs": "1dccc72fdda751566e3b51211c2b79561578d5d4",
+    "crates/seal-session/src/lib.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
+    "crates/seal-session/tests/expiry.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "src-tauri/Cargo.toml": "fc48741e20953ee3d195f734bdc5e6b65e1602ab",
     "src-tauri/build.rs": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "src-tauri/capabilities-e2e/e2e.json": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "src-tauri/capabilities/default.json": "fc48741e20953ee3d195f734bdc5e6b65e1602ab",
-    "src-tauri/src/lib.rs": "fc48741e20953ee3d195f734bdc5e6b65e1602ab",
+    "src-tauri/src/lib.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "src-tauri/src/main.rs": "4aeac63208911fc6b387d55db0896ab1e705e90a",
     "src-tauri/tauri.conf.json": "fc48741e20953ee3d195f734bdc5e6b65e1602ab"
   }

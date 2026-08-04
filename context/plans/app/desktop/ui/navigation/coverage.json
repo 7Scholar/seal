@@ -1,17 +1,24 @@
 {
   "breadcrumbs.md": {
     "ui/App.test.tsx": "7485774b93d3cce60eec09b5ae3099840ebcbd6f",
-    "ui/App.tsx": "7485774b93d3cce60eec09b5ae3099840ebcbd6f",
+    "ui/App.tsx": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "ui/components/Breadcrumbs.tsx": "6af8515a56ce649aaf6c17568ae434baa072681d",
     "ui/components/Switcher.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db"
   },
   "file.md": {
-    "ui/screens/EnvEditor.test.tsx": "6af8515a56ce649aaf6c17568ae434baa072681d",
-    "ui/screens/EnvEditor.tsx": "6af8515a56ce649aaf6c17568ae434baa072681d"
+    "ui/screens/EnvEditor.test.tsx": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
+    "ui/screens/EnvEditor.tsx": "d94b0fe6754a2d59df78858772e4dddf19c81cad"
   },
   "files.md": {
     "ui/screens/RepoDetail.test.tsx": "6af8515a56ce649aaf6c17568ae434baa072681d",
     "ui/screens/RepoDetail.tsx": "6af8515a56ce649aaf6c17568ae434baa072681d"
+  },
+  "freshness.md": {
+    "crates/seal-session/src/lib.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
+    "src-tauri/src/commands.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
+    "src-tauri/src/view.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
+    "ui/App.tsx": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
+    "ui/ipc.ts": "d94b0fe6754a2d59df78858772e4dddf19c81cad"
   },
   "icons.md": {
     "ui/components/Icon.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db"
@@ -33,12 +40,12 @@
     "ui/styles.css": "74e74580318ac479852ba0c52f563e656df63e0b"
   },
   "theme.md": {
-    "src-tauri/src/commands.rs": "db24d4cb17eb391ac3e78bd4682655b594ba587b",
-    "src-tauri/src/lib.rs": "fc48741e20953ee3d195f734bdc5e6b65e1602ab",
+    "src-tauri/src/commands.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
+    "src-tauri/src/lib.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "src-tauri/src/theme.rs": "6af8515a56ce649aaf6c17568ae434baa072681d",
     "src-tauri/tests/theme.rs": "6af8515a56ce649aaf6c17568ae434baa072681d",
     "ui/components/ThemeControl.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
-    "ui/ipc.ts": "8b079b85339621deaa93c046211fdefb6ddd2ced",
+    "ui/ipc.ts": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "ui/theme.ts": "6af8515a56ce649aaf6c17568ae434baa072681d"
   },
   "title-bar.md": {

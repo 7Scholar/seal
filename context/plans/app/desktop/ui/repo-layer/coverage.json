@@ -18,17 +18,17 @@
     "crates/seal-registry/tests/scan.rs": "8b079b85339621deaa93c046211fdefb6ddd2ced",
     "src-tauri/src/lifecycle.rs": "8b079b85339621deaa93c046211fdefb6ddd2ced",
     "src-tauri/tests/lifecycle.rs": "396f54c89636e9917866cb2254d109ac65e7088b",
-    "ui/ipc.ts": "8b079b85339621deaa93c046211fdefb6ddd2ced"
+    "ui/ipc.ts": "d94b0fe6754a2d59df78858772e4dddf19c81cad"
   },
   "vocabulary.md": {
     "e2e/journeys/first-run.e2e.ts": "70f8ce6ebe6a7977a47f1a6e8f98b2c42d00d7e8",
     "e2e/journeys/return-and-use.e2e.ts": "70f8ce6ebe6a7977a47f1a6e8f98b2c42d00d7e8",
-    "src-tauri/src/commands.rs": "db24d4cb17eb391ac3e78bd4682655b594ba587b",
-    "src-tauri/src/lib.rs": "fc48741e20953ee3d195f734bdc5e6b65e1602ab",
+    "src-tauri/src/commands.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
+    "src-tauri/src/lib.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "src-tauri/src/lifecycle.rs": "8b079b85339621deaa93c046211fdefb6ddd2ced",
     "src-tauri/tests/lifecycle.rs": "396f54c89636e9917866cb2254d109ac65e7088b",
-    "ui/App.tsx": "7485774b93d3cce60eec09b5ae3099840ebcbd6f",
-    "ui/ipc.ts": "8b079b85339621deaa93c046211fdefb6ddd2ced",
+    "ui/App.tsx": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
+    "ui/ipc.ts": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "ui/screens/ManageFlow.test.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
     "ui/screens/ManageFlow.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
     "ui/styles.css": "74e74580318ac479852ba0c52f563e656df63e0b"

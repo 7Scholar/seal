@@ -2,16 +2,16 @@
   "adopting.md": {
     "e2e/journeys/first-run.e2e.ts": "70f8ce6ebe6a7977a47f1a6e8f98b2c42d00d7e8",
     "ui/components/FileTree.test.tsx": "396f54c89636e9917866cb2254d109ac65e7088b",
-    "ui/components/FileTree.tsx": "63f6a1ee6a83e2c1e52259bf9b56b773dc2a189b",
-    "ui/screens/ManageFlow.test.tsx": "63f6a1ee6a83e2c1e52259bf9b56b773dc2a189b",
-    "ui/screens/ManageFlow.tsx": "63f6a1ee6a83e2c1e52259bf9b56b773dc2a189b",
-    "ui/styles.css": "63f6a1ee6a83e2c1e52259bf9b56b773dc2a189b"
+    "ui/components/FileTree.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
+    "ui/screens/ManageFlow.test.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
+    "ui/screens/ManageFlow.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
+    "ui/styles.css": "74e74580318ac479852ba0c52f563e656df63e0b"
   },
   "managed-view.md": {
     "ui/App.test.tsx": "7485774b93d3cce60eec09b5ae3099840ebcbd6f",
     "ui/screens/RepoDetail.test.tsx": "6af8515a56ce649aaf6c17568ae434baa072681d",
     "ui/screens/RepoDetail.tsx": "6af8515a56ce649aaf6c17568ae434baa072681d",
-    "ui/styles.css": "63f6a1ee6a83e2c1e52259bf9b56b773dc2a189b"
+    "ui/styles.css": "74e74580318ac479852ba0c52f563e656df63e0b"
   },
   "scan-shape.md": {
     "crates/seal-registry/src/scan.rs": "8b079b85339621deaa93c046211fdefb6ddd2ced",
@@ -29,8 +29,8 @@
     "src-tauri/tests/lifecycle.rs": "396f54c89636e9917866cb2254d109ac65e7088b",
     "ui/App.tsx": "7485774b93d3cce60eec09b5ae3099840ebcbd6f",
     "ui/ipc.ts": "8b079b85339621deaa93c046211fdefb6ddd2ced",
-    "ui/screens/ManageFlow.test.tsx": "63f6a1ee6a83e2c1e52259bf9b56b773dc2a189b",
-    "ui/screens/ManageFlow.tsx": "63f6a1ee6a83e2c1e52259bf9b56b773dc2a189b",
-    "ui/styles.css": "63f6a1ee6a83e2c1e52259bf9b56b773dc2a189b"
+    "ui/screens/ManageFlow.test.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
+    "ui/screens/ManageFlow.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
+    "ui/styles.css": "74e74580318ac479852ba0c52f563e656df63e0b"
   }
 }

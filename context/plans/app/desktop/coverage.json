@@ -17,7 +17,7 @@
     "src-tauri/src/app.rs": "1fd42d7388f8ab76706adbdf45c80da321ec996e",
     "src-tauri/src/commands.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "src-tauri/tests/first_open.rs": "a0b3f33bc64a56a499060d82bb90794330e3227e",
-    "ui/App.tsx": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
+    "ui/App.tsx": "9eda9f1877c9b740336e710d7292b981d3fe661b",
     "ui/ipc.ts": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "ui/screens/Unlock.test.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "ui/screens/Unlock.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e"

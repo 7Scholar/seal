@@ -5,13 +5,13 @@
     "ui/components/FileTree.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
     "ui/screens/ManageFlow.test.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
     "ui/screens/ManageFlow.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
-    "ui/styles.css": "74e74580318ac479852ba0c52f563e656df63e0b"
+    "ui/styles.css": "9eda9f1877c9b740336e710d7292b981d3fe661b"
   },
   "managed-view.md": {
-    "ui/App.test.tsx": "7485774b93d3cce60eec09b5ae3099840ebcbd6f",
-    "ui/screens/RepoDetail.test.tsx": "6af8515a56ce649aaf6c17568ae434baa072681d",
-    "ui/screens/RepoDetail.tsx": "6af8515a56ce649aaf6c17568ae434baa072681d",
-    "ui/styles.css": "74e74580318ac479852ba0c52f563e656df63e0b"
+    "ui/App.test.tsx": "9eda9f1877c9b740336e710d7292b981d3fe661b",
+    "ui/screens/RepoDetail.test.tsx": "9eda9f1877c9b740336e710d7292b981d3fe661b",
+    "ui/screens/RepoDetail.tsx": "9eda9f1877c9b740336e710d7292b981d3fe661b",
+    "ui/styles.css": "9eda9f1877c9b740336e710d7292b981d3fe661b"
   },
   "scan-shape.md": {
     "crates/seal-registry/src/scan.rs": "8b079b85339621deaa93c046211fdefb6ddd2ced",
@@ -27,10 +27,10 @@
     "src-tauri/src/lib.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "src-tauri/src/lifecycle.rs": "8b079b85339621deaa93c046211fdefb6ddd2ced",
     "src-tauri/tests/lifecycle.rs": "396f54c89636e9917866cb2254d109ac65e7088b",
-    "ui/App.tsx": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
+    "ui/App.tsx": "9eda9f1877c9b740336e710d7292b981d3fe661b",
     "ui/ipc.ts": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "ui/screens/ManageFlow.test.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
     "ui/screens/ManageFlow.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
-    "ui/styles.css": "74e74580318ac479852ba0c52f563e656df63e0b"
+    "ui/styles.css": "9eda9f1877c9b740336e710d7292b981d3fe661b"
   }
 }

@@ -54,7 +54,9 @@ This is the axis's own bar for production-ready, and it is the first time the pr
 
 ## What the last session did
 
-**Carried the files list through the depth pass** — item 1 below, for the middle altitude. Three defects fixed, driven and guarded:
+Two pieces of work: the files-list depth pass, and the flaky suite.
+
+**Carried the files list through the depth pass**, the middle altitude of item 1 under *What to do next*. Three defects fixed, driven and guarded:
 
 - **The silent disable is gone.** A `missing` file's open control was disabled with nothing said about why. It now states that Seal cannot open it because it is no longer at that path, tied to the control by `aria-describedby`. Measured against a file genuinely deleted from disk while the window sat open — not a fixture.
 - **The surface states its managed-file count**, the fact the tile already carried an altitude up.
@@ -66,6 +68,15 @@ This is the axis's own bar for production-ready, and it is the first time the pr
 - **The files list needs no loading state.** Every launch lands on the grid, and both paths that could leave the route at this altitude with nothing loaded navigate back up instead. A skeleton there would guard a state that cannot occur.
 
 Both are in `navigation/MEMORY.md`, because either one costs a session to rediscover.
+
+**Fixed the flaky suite, and both flakes were real.**
+
+The owner approved taking this on. Both intermittent failures are fixed, each reproduced to a mechanism first. **20 consecutive full-workspace runs are clean**, against roughly one failure every 6 to 12 before.
+
+- **`the_lock_is_released_when_dropped` was a product defect**, not a test defect. `FileLock::drop` relied on closing the descriptor to release the `flock`; the kernel does release it that way, but not ordered against a re-acquisition issued immediately afterwards, so `acquire → drop → acquire` could report `Busy`. It now unlocks explicitly before the close. It never failed in isolation — 480 runs of that test alone — and failed within 2 to 5 rounds with twelve concurrent copies of its binary, which is what made it look like test noise.
+- **`no_secret_value_appears_anywhere_in_the_opened_view` was a test defect that read like a security failure.** It searched the whole serialized view, path included, for the fixture's secrets — one of which is the two-character string `pw`. A `tempfile` directory named `.tmpwOwhWo` therefore failed an assertion about secrets crossing the boundary while every value was correctly masked. The assertion now excludes the path and keeps its short needles.
+
+Both are in `MEMORY.md` at their nodes. The lesson generalises: **an intermittent failure is not evidence that a test is bad.** One of these two was the product.
 
 ## What the session before it did
 
@@ -98,15 +109,6 @@ In rough order of value:
 3. **`breadcrumbs.md`** — the root segment has no switcher, and the chevron is not the referenced icon.
 4. **[disclosure-primitive.md](context/plans/app/desktop/ui/navigation/disclosure-primitive.md)** — unstarted. Four collapsed controls each carry the disclosure contract separately.
 5. **`publishing/`** — reopened; a hosted documentation site is framed. [FOR-JORIS.md](FOR-JORIS.md) has two items waiting on the owner about it. **Do not duplicate them.**
-
-### The suite is no longer flaky, and both flakes were real
-
-The two intermittent failures the last handoff flagged are **fixed**, each reproduced to a mechanism first. **20 consecutive full-workspace runs are clean**, against roughly one failure every 6 to 12 before.
-
-- **`the_lock_is_released_when_dropped` was a product defect**, not a test defect. `FileLock::drop` relied on closing the descriptor to release the `flock`; the kernel does release it that way, but not ordered against a re-acquisition issued immediately afterwards, so `acquire → drop → acquire` could report `Busy`. It now unlocks explicitly before the close. It never failed in isolation — 480 runs of that test alone — and failed within 2 to 5 rounds with twelve concurrent copies of its binary, which is what made it look like test noise.
-- **`no_secret_value_appears_anywhere_in_the_opened_view` was a test defect that read like a security failure.** It searched the whole serialized view, path included, for the fixture's secrets — one of which is the two-character string `pw`. A `tempfile` directory named `.tmpwOwhWo` therefore failed an assertion about secrets crossing the boundary while every value was correctly masked. The assertion now excludes the path and keeps its short needles.
-
-Both are in `MEMORY.md` at their nodes. The lesson generalises: **an intermittent failure is not evidence that a test is bad.** One of these two was the product.
 
 ## Read these, in this order
 

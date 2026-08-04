@@ -30,6 +30,16 @@ function countRows(nodes: ScanView["tree"]): number {
   return total;
 }
 
+function unwalkedNames(nodes: ScanView["tree"]): string[] {
+  const found: string[] = [];
+  for (const node of nodes) {
+    if (node.kind !== "directory") continue;
+    if (node.walked) found.push(...unwalkedNames(node.children));
+    else found.push(node.name);
+  }
+  return found;
+}
+
 export function ManageFlow({
   root,
   scan,
@@ -64,6 +74,10 @@ export function ManageFlow({
     [scan],
   );
   const rows = useMemo(() => (scan ? countRows(scan.tree) : 0), [scan]);
+  const unwalked = useMemo(
+    () => (scan ? [...new Set(unwalkedNames(scan.tree))].sort() : []),
+    [scan],
+  );
 
   const filtering = query.trim() !== "";
   const visibleTree = useMemo(
@@ -173,10 +187,20 @@ export function ManageFlow({
           {scan?.alreadyRegistered
             ? " This folder is already managed; nothing already managed is changed."
             : ""}
+          {unwalked.length > 0
+            ? ` Seal did not search ${unwalked.join(", ")}, because build output and installed dependencies are not where your own secrets live. Anything inside them is not listed.`
+            : ""}
         </Toggletip>
         {scan ? (
           <span className="manage__count">
             {rows === 1 ? "1 item" : `${rows} items`}
+            {unwalked.length > 0 ? (
+              <span className="manage__partial">
+                {unwalked.length === 1
+                  ? ` · ${unwalked[0]} not searched`
+                  : ` · ${unwalked.length} folders not searched`}
+              </span>
+            ) : null}
           </span>
         ) : null}
         <p className="manage__root">{root}</p>

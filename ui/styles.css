@@ -507,12 +507,21 @@ input {
 }
 .tree__twisty:hover:not(:disabled) { border-color: transparent; color: var(--text); }
 .tree__twisty--none { display: inline-block; }
-.tree__check { flex: none; margin: 0; }
-.tree__check--none { display: inline-block; width: 13px; }
-.tree__name { font-family: ui-monospace, SFMono-Regular, monospace; overflow-wrap: anywhere; }
+.tree__check { flex: none; margin: 0; width: 12px; }
+.tree__check--none { display: inline-block; }
+.tree__name {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  flex: 1; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 .tree__row[data-kind="directory"] .tree__name { font-family: inherit; }
-.tree__reason, .tree__note { color: var(--muted); font-size: 0.78rem; }
+.tree__reason, .tree__note {
+  flex: none; max-width: 22rem;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  color: var(--muted); font-size: 0.78rem;
+}
 .tree__note--managed { color: var(--accent); }
+.manage__partial { color: var(--muted); }
 .tree__row[data-quiet="true"] .tree__name { color: var(--muted); }
 .tree__row[data-unwalked="true"] { cursor: default; }
 .tree__row[data-unwalked="true"] .tree__name { color: var(--muted); font-style: italic; }

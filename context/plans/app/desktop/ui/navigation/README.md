@@ -94,7 +94,7 @@ Three children, one per altitude, each owning its surface's layout and operation
 - [x] states.md -> the states beyond populated, for all three altitudes. Every state each surface can occupy is designed and built, or recorded as not reachable with its reason.
 - [x] icons.md -> an icon system, replacing the text characters standing in for glyphs throughout the interface
 - [ ] disclosure-primitive.md -> one implementation of the disclosure contract the four collapsed controls each carry separately
-- [~] manage-surface.md -> the manage surface carried to the grid's depth. **The frame, the row response, the scan states, the annotation channel, the filter and the rescan's own statement are built; the degraded state and the alignment findings are not.**
+- [~] manage-surface.md -> the manage surface carried to the grid's depth. **Every audit finding is built except the relock that discards a live selection, which wants reproducing before it is repaired.**
 - [x] palette.md -> the chosen palette — a white, a black, an accent and a primary — and the role rule governing where each appears
 - [x] freshness.md -> when the product re-observes disk, and how it answers "is everything protected?" at a glance. Built and driven; the owner's answer to the positive statement was *nothing*, so none is drawn.
 
@@ -157,7 +157,9 @@ It also closed a real conformance failure: `--line` was **1.34:1 on dark and 1.2
 
 **The filter is now built and driven**, which was the largest of its remaining items and the one [the research](_docs/tree-picker-research.md) calls table stakes: the tree expands to follow the *detected* files, so an undetected one was reachable only by hand-opening its chain. A rescan also says on its face that it is a rescan rather than leaving that fact inside a toggletip, and inert rows no longer light up on hover.
 
-What it has not taken is the degraded state and the alignment findings. The relock that discards a live selection stays open with its stated cause **corrected** — the audit blamed a session lifetime that does not exist, since that deadline is per held file — so it is far rarer than recorded and wants reproducing before it is repaired. Its cursor holds them.
+**Its two channels are now columns, and its degraded state is stated.** The annotations sit at the row's trailing edge, so their edges line up down the tree rather than spanning 361px wherever each name happened to end; names truncate rather than wrapping; and the 1px offset between the two kinds of row turned out not to be the fonts the audit blamed but the **checkbox placeholder**, declared a pixel wider than the checkbox it stands in for. The scan's deliberate skipping of build output and dependencies — correct, and previously silent — is now on the surface as a fact, with the toggletip naming every skipped folder.
+
+Only one audit finding remains: the relock that discards a live selection, whose stated cause is **corrected** — the audit blamed a session lifetime that does not exist, since that deadline is per held file — so it is far rarer than recorded and wants reproducing before it is repaired. Its cursor holds it.
 
 Every child except `manage-surface.md` and the three named above is `[x]`. The two that carried risk beyond layout both landed on their designed shape: `theme.md`, because persisting a preference contradicts the memory-only webview and had to go to a Rust-side store rather than `localStorage`; and `title-bar.md`, because the drag region was present in the markup all along and did nothing, which made it a bug fix with a reproduction rather than a styling change.
 

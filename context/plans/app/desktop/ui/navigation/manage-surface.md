@@ -88,6 +88,22 @@ A rescan and a first add drew identically — same heading, same path, same tree
 
 Already-managed rows are marked in the accent rather than in the same muted grey as *not looked in*. The two notes had one treatment for facts with opposite consequences: *Seal already covers this* and *Seal did not look here*.
 
+## The two channels are columns, and neither grows a row
+
+The row has exactly two channels — the **name** and the **annotation** — and each is a column rather than a position that happens to fall where the previous thing ended.
+
+The name takes the row's remaining width and **truncates with an ellipsis**; it never wraps. The annotation and the *already managed* note sit at the row's **trailing edge**, so their edges line up down the tree and the eye reads them as one column. Before this they were plain flex siblings starting wherever the name ended: measured across an ordinary repository, their right edges spanned **361px** and their left edges 52px, so the surface's account of *why Seal proposes this file* had no edge to scan at all.
+
+**Every name starts at the same place for its depth, whichever kind of row it is.** The 1px offset between directory and file rows was not the two fonts — file names are monospaced and directory names proportional, which [the research](_docs/tree-picker-research.md) keeps deliberately so the kinds are separable without a badge. It was the **checkbox placeholder**, declared a pixel wider than the real checkbox it stands in for, so every directory row sat one pixel right of every file row. The placeholder now takes its width from the control.
+
+Row height is therefore a property of the row rather than of its longest name: a 242-character name truncates inside its column instead of wrapping to three lines.
+
+## The scan says where it did not look
+
+The scan deliberately skips build output and installed dependencies — `node_modules`, `target`, `dist`, `.git` and their kind — which is correct, because a user's own secrets do not live there and walking them costs the scan its speed. The surface never said so, and that silence is the degraded state: a user looking for a file inside one of those folders had no way to learn why it was not listed.
+
+The surface now states it as a fact beside the size it already carries — **`node_modules not searched`**, or a count once there are several — and the toggletip names every skipped folder and says why, which is where the surface's fuller accounts already live. This is a statement of what the scan did, not an apology for it: the per-row *not looked in* note stays, and what is new is that the incompleteness is legible without finding a pruned row.
+
 ## What the surface still says with a sentence
 
 Nothing in the layout. The assurances — that confirming encrypts nothing, that files stay where they are, that a rescan changes nothing already managed — stay behind the toggletip the user chooses to open, per [the parent's prose rule](../README.md).
@@ -110,12 +126,16 @@ Six unit tests cover the filter, and the restore guard among them was **rewritte
 
 The full `first-run` journey passes end to end against a release build — password established, repository added through this surface, file sealed, sealed file verified on disk as standard age.
 
+**The two channels and the degraded state are built and driven** (`bun run e2e:density`), four checks green in the real webview against a repository holding a pruned folder, an unreasonable name, and rows of both kinds at the same depth. What is measured there is the geometry rather than the markup: the annotations' right edges within 1px of each other, every name at one x per depth, a 242-character name one line tall and genuinely clipped, and the surface stating what it did not search.
+
+Confirmed non-vacuous by restoring each defect and re-driving — the ragged channel and the 1px offset each fail their own check. **The truncation guard was caught vacuous twice and rewritten both times**: first it measured the *row's* height, which `min-height` and `align-items: center` hold constant while the name overflows, so it passed with truncation deleted; then its 92-character name turned out to fit the column, so it proved nothing. It now measures the name's own height against its line height and asserts the name is actually clipped — which is what made the second vacuity visible rather than silent.
+
+The degraded state's two halves are guarded separately in unit tests, each confirmed by deleting the other's code.
+
 # What is missing
 
-The audit's remaining findings, none of which this pass took. They are real and recorded in [_docs/manage-surface-audit.md](_docs/manage-surface-audit.md); the honest statement is that the frame, the annotation channel and the two defects the owner met are fixed and the surface is not yet finished:
+One audit finding remains, and it is the one that wants reproducing rather than building:
 
-- **The degraded state.** A partially-walked repository is drawn exactly like a fully-walked one, with nothing at surface level saying the picture is incomplete. The per-row *not looked in* note exists and is now visually distinct from *already managed*, but there is still no surface-level statement that the scan is partial.
-- **Density and alignment.** Directory and file names misalign by 1px, and the annotation channel has no column at all — measured starting anywhere between x=190 and x=303.
 - **A relock discards a live selection.** Left open deliberately, and its stated cause corrected: the audit blamed a 15-minute *session* lifetime, but the session has no expiry — that deadline is per held file. The remaining triggers are an explicit lock and a poisoned mutex, so this is far rarer than recorded and **has not been reproduced**. Reproducing it is the next move; a fix on an unreproduced trigger would be unfalsifiable.
 
 # Steps
@@ -128,7 +148,8 @@ The audit's remaining findings, none of which this pass took. They are real and 
 - [x] Make the fixed frame actually hold: repair the height chain so the tree region is the only scrolling element and the header and footer stay in view. Reproduce first — the measurement above is the reproduction.
 - [x] Drop the "an environment file" annotation, once its owning contracts agree where the change belongs.
 - [x] The filter over the tree, with the binding behaviour [the research](_docs/tree-picker-research.md) states: matches on path, restores prior expansion exactly when cleared, and never touches selection.
-- [ ] The remaining audit findings above.
+- [x] The two channels as columns, with names truncating rather than wrapping, and the degraded state stating where the scan did not look.
+- [ ] Reproduce the relock that discards a live selection, then repair it.
 
 # Open threads
 

@@ -231,6 +231,49 @@ describe("ManageFlow", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("says on the surface that the picture is partial, naming what was skipped", () => {
+    setup();
+    expect(document.querySelector(".manage__partial")).toHaveTextContent(
+      "node_modules not searched",
+    );
+  });
+
+  it("counts the skipped folders rather than naming them all, once there are several", () => {
+    setup({
+      tree: [
+        directory("node_modules", [], false),
+        directory("target", [], false),
+        directory("src", [file("src/.env", { confidence: "secret" })]),
+      ],
+    });
+    expect(document.querySelector(".manage__partial")).toHaveTextContent(
+      "2 folders not searched",
+    );
+  });
+
+  it("says nothing about a partial scan when nothing was skipped", () => {
+    setup({
+      tree: [directory("src", [file("src/.env", { confidence: "secret" })])],
+    });
+    expect(document.querySelector(".manage__partial")).not.toBeInTheDocument();
+  });
+
+  it("explains why the skipped folders were skipped, where the fuller account lives", async () => {
+    const user = userEvent.setup();
+    setup();
+
+    await user.click(
+      screen.getByRole("button", { name: "What managing these files does" }),
+    );
+
+    expect(
+      screen.getByText(/did not search node_modules/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Anything inside them is not listed/i),
+    ).toBeInTheDocument();
+  });
+
   it("expands and collapses without changing the selection", async () => {
     const user = userEvent.setup();
     setup();

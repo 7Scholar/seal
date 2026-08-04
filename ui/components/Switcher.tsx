@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { Icon } from "./Icon";
+import { useDisclosure } from "./useDisclosure";
 
 export interface Option {
   id: string;
@@ -28,11 +29,9 @@ export function Switcher({
   onChoose,
   onAdd,
 }: Props) {
-  const [open, setOpen] = useState(false);
+  const { open, setOpen, wrapper, trigger } = useDisclosure();
   const [filter, setFilter] = useState("");
   const [active, setActive] = useState(0);
-  const wrapper = useRef<HTMLSpanElement>(null);
-  const button = useRef<HTMLButtonElement>(null);
   const field = useRef<HTMLInputElement>(null);
   const add = useRef<HTMLButtonElement>(null);
   const popoverId = useId();
@@ -55,35 +54,12 @@ export function Switcher({
     setActive(0);
   }, [filter]);
 
-  useEffect(() => {
-    if (!open) return;
-
-    function onPointerDown(event: MouseEvent) {
-      if (wrapper.current?.contains(event.target as Node)) return;
-      setOpen(false);
-    }
-
-    document.addEventListener("mousedown", onPointerDown);
-    return () => document.removeEventListener("mousedown", onPointerDown);
-  }, [open]);
-
-  function dismiss() {
-    setOpen(false);
-    button.current?.focus();
-  }
-
   function choose(id: string) {
     setOpen(false);
     onChoose(id);
   }
 
   function onKeyDown(event: React.KeyboardEvent) {
-    if (event.key === "Escape") {
-      event.stopPropagation();
-      event.preventDefault();
-      dismiss();
-      return;
-    }
     if (event.key === "ArrowDown") {
       event.preventDefault();
       setActive((was) => (matches.length === 0 ? 0 : (was + 1) % matches.length));
@@ -109,7 +85,7 @@ export function Switcher({
     <span className="switcher" ref={wrapper}>
       <button
         type="button"
-        ref={button}
+        ref={trigger}
         className="switcher__trigger"
         aria-expanded={open}
         aria-haspopup="dialog"

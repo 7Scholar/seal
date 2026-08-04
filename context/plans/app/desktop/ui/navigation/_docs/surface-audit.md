@@ -168,6 +168,8 @@ Element by element, with [reference/projects.png](reference/projects.png) and [r
 
 That difference is a real divergence, not a stylistic one: the three siblings dismiss on Escape from anywhere, and the switcher dismisses only while focus is inside it. Four copies of one contract, already drifted.
 
+*Closed. All four now call one `useDisclosure` hook; [disclosure-primitive.md](../disclosure-primitive.md) records why the primitive is a hook rather than a component.*
+
 **X2 — No surface has a loading state.** *(unfinished)*
 
 Confirmed by search: no spinner, skeleton or pending treatment exists anywhere in the interface. Every command that awaits a Rust call leaves the surface showing its previous or empty content.

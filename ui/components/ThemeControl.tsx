@@ -1,6 +1,7 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useId } from "react";
 import { MODE_LABELS, MODES, type Mode } from "../theme";
 import { Icon } from "./Icon";
+import { useDisclosure } from "./useDisclosure";
 
 interface Props {
   mode: Mode;
@@ -8,39 +9,14 @@ interface Props {
 }
 
 export function ThemeControl({ mode, onChoose }: Props) {
-  const [open, setOpen] = useState(false);
-  const wrapper = useRef<HTMLSpanElement>(null);
-  const button = useRef<HTMLButtonElement>(null);
+  const { open, setOpen, wrapper, trigger, dismiss } = useDisclosure();
   const menuId = useId();
-
-  useEffect(() => {
-    if (!open) return;
-
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key !== "Escape") return;
-      event.stopPropagation();
-      setOpen(false);
-      button.current?.focus();
-    }
-
-    function onPointerDown(event: MouseEvent) {
-      if (wrapper.current?.contains(event.target as Node)) return;
-      setOpen(false);
-    }
-
-    document.addEventListener("keydown", onKeyDown, true);
-    document.addEventListener("mousedown", onPointerDown);
-    return () => {
-      document.removeEventListener("keydown", onKeyDown, true);
-      document.removeEventListener("mousedown", onPointerDown);
-    };
-  }, [open]);
 
   return (
     <span className="theme" ref={wrapper}>
       <button
         type="button"
-        ref={button}
+        ref={trigger}
         aria-expanded={open}
         aria-controls={menuId}
         aria-label={`Theme: ${MODE_LABELS[mode]}`}
@@ -58,8 +34,7 @@ export function ThemeControl({ mode, onChoose }: Props) {
               aria-pressed={option === mode}
               onClick={() => {
                 onChoose(option);
-                setOpen(false);
-                button.current?.focus();
+                dismiss();
               }}
             >
               <span className="theme__tick">

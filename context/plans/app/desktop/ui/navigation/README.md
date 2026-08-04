@@ -93,7 +93,7 @@ Three children, one per altitude, each owning its surface's layout and operation
 - [x] _docs/surface-audit.md -> the audit of the four built surfaces (a supporting doc, not a child)
 - [x] states.md -> the states beyond populated, for all three altitudes. Every state each surface can occupy is designed and built, or recorded as not reachable with its reason.
 - [x] icons.md -> an icon system, replacing the text characters standing in for glyphs throughout the interface
-- [ ] disclosure-primitive.md -> one implementation of the disclosure contract the four collapsed controls each carry separately
+- [x] disclosure-primitive.md -> one implementation of the disclosure contract, as a hook the four collapsed controls call. The switcher's divergence is closed.
 - [~] manage-surface.md -> the manage surface carried to the grid's depth. **Every audit finding is built except the relock that discards a live selection, which wants reproducing before it is repaired.**
 - [x] palette.md -> the chosen palette — a white, a black, an accent and a primary — and the role rule governing where each appears
 - [x] freshness.md -> when the product re-observes disk, and how it answers "is everything protected?" at a glance. Built and driven; the owner's answer to the positive statement was *nothing*, so none is drawn.
@@ -141,7 +141,9 @@ All twelve scenario runs were re-driven green after the change — **76 driven c
 
 **The root segment now carries its switcher**, closing the audit's other reference deviation. Its popover is the one that most had to exist, which is the opposite of how the withdrawn reasoning read it: on a fresh install its list is empty and it carries **+ Add repository**, the only thing a user can do on that screen. With nothing to switch between it drops the search field — a field that can filter nothing is the same empty promise the missing chevron was — states that there are no repositories yet, and puts focus on the add action. Driven in `first-run` on exactly that screen, and confirmed non-vacuous by removing the switcher and watching the step fail.
 
-**What is not done, and is the next session's work:** the four disclosure controls still carry four copies of one contract ([disclosure-primitive.md](disclosure-primitive.md)).
+**The four disclosures now share one contract** ([disclosure-primitive.md](disclosure-primitive.md)), as a hook rather than a wrapper component: what they have in common is the open state and the rules for leaving it, while their markup — a menu, a bubble with a live region, a popover holding a listbox — has nothing in common at all. The switcher's divergence is closed: it handled Escape only within its own subtree, so a user who opened it, moved focus to the surface behind and pressed Escape found it still open while every other disclosure would have closed.
+
+**Every child of this node is now `[x]` except the manage surface**, whose one remaining item is the relock that discards a live selection — an item that wants reproducing before it is repaired rather than building.
 
 [HANDOFF.md](HANDOFF.md) briefed this work and is now spent for the grid; it stays until the remaining surfaces are carried to the same depth.
 

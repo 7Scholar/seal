@@ -39,6 +39,20 @@ describe("first run: install, choose a password, protect a first file", () => {
     );
   });
 
+  it("offers the add action from the trail as well, on the screen where it is the only thing to do", async () => {
+    const trigger = $('button[aria-label="Open a repository"]');
+    await trigger.waitForClickable({ timeout: 15000 });
+    await trigger.click();
+
+    await expect($(".switcher__empty")).toBeDisplayed();
+    await expect($(".switcher__add")).toHaveText(
+      expect.stringContaining("Add repository"),
+    );
+
+    await browser.keys("Escape");
+    await expect($(".switcher__add")).not.toBeDisplayed();
+  });
+
   it("recorded the password only as a sealed check file", () => {
     const sentinel = join(
       process.env.SEAL_E2E_HOME ?? "",

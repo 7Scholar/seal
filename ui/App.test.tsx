@@ -486,6 +486,57 @@ describe("the theme control", () => {
     );
   });
 
+  it("carries a switcher on the root segment, on the one screen a new user sees", async () => {
+    const user = userEvent.setup();
+    await openApp();
+
+    await user.click(screen.getByRole("button", { name: "Open a repository" }));
+
+    expect(screen.getByRole("option", { name: /^app/ })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: /site/ })).toBeInTheDocument();
+    expect(document.querySelector(".switcher__add")).toHaveTextContent(
+      "Add repository",
+    );
+  });
+
+  it("opens a repository from the root switcher, without touching a tile", async () => {
+    const user = userEvent.setup();
+    await openApp();
+
+    await user.click(screen.getByRole("button", { name: "Open a repository" }));
+    await user.click(screen.getByRole("option", { name: /site/ }));
+
+    await waitFor(() => {
+      expect(screen.getByText("/code/site")).toBeInTheDocument();
+    });
+    expect(
+      screen.queryByRole("heading", { name: "Repositories" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("marks no repository as current at the root, because the root is not one of them", async () => {
+    const user = userEvent.setup();
+    await openApp();
+
+    await user.click(screen.getByRole("button", { name: "Open a repository" }));
+
+    for (const option of screen.getAllByRole("option")) {
+      expect(option).toHaveAttribute("aria-selected", "false");
+    }
+  });
+
+  it("reaches the add action from the trail when there is nothing to switch between", async () => {
+    const user = userEvent.setup();
+    mocked.overview.mockResolvedValue([]);
+    await openApp();
+
+    await user.click(screen.getByRole("button", { name: "Open a repository" }));
+
+    expect(screen.getByText("No repositories yet.")).toBeInTheDocument();
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+    expect(document.querySelector(".switcher__add")).toHaveFocus();
+  });
+
   it("draws the file surface while the open is in flight, rather than nothing at all", async () => {
     const user = userEvent.setup();
     let settle: (view: ipc.OpenedFile) => void = () => {};

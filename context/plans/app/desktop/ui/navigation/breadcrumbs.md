@@ -34,9 +34,13 @@ The trail is a `nav` landmark with an ordered list inside it, and the current se
 
 ## The switcher
 
-The repository and file segments each carry a **chevron-up-down** button immediately after the segment's text. The `Repositories` root carries none: it has no siblings, and a control opening an empty popover lies about having options.
+**Every segment carries a chevron-up-down button**, including the `Repositories` root, immediately after the segment's text.
+
+The root's popover is the one that most has to exist, which is the opposite of how it reads at first: its list is the repositories themselves, so on a fresh install the list is empty — and the popover carries **+ Add repository**, which on that screen is the only thing a user can do. A control over an empty set would indeed lie about having options if options were all it held; this one holds the action that creates them. At the root nothing is marked current, because the root is not one of its own options: it is the altitude above them.
 
 The popover holds three parts in a fixed order: a **search field**, focused on open; the **filtered sibling list**, with the current item marked by a checkmark rather than only by styling; and a single **add action** pinned at the foot, visually separated from the list — `+ Add repository` at the repository level, `+ Add file` at the file level.
+
+**With nothing to switch between, the popover drops the parts that would be false.** The search field is not drawn over an empty set — a field that can filter nothing is the same empty promise the chevron would have been — the list is replaced by a plain statement that there are no repositories yet, and focus goes to the add action, which is both the only control in the popover and the only thing the user came for.
 
 Filtering is a case-insensitive substring match over the item's displayed name. Not fuzzy: the sets are small, the user usually knows the name, and predictable matching beats clever ranking when both are instant.
 
@@ -54,7 +58,9 @@ In the strip's trailing group, before Lock. It states the number of repositories
 
 All of the Approach: the route with its fallbacks, the trail with its inert current segment, the switcher with its combobox semantics and keyboard contract, and the exposure indicator.
 
-Interface tests cover the trail's navigation, the current segment's inertness, the switcher's filter, its keyboard contract, its dismissal, and the route's fallback when a repository or file disappears underneath it.
+Interface tests cover the trail's navigation, the current segment's inertness, the switcher's filter, its keyboard contract, its dismissal, the root switcher's list and its empty form, and the route's fallback when a repository or file disappears underneath it.
+
+Driven against the real application in `first-run`, on the empty screen where the absence mattered: the root's popover opens, states that there are no repositories yet, offers the add action, and dismisses on Escape.
 
 Load-bearing guards confirmed non-vacuous by reintroducing the defect each prevents:
 
@@ -62,12 +68,15 @@ Load-bearing guards confirmed non-vacuous by reintroducing the defect each preve
 - making the current segment navigate fails 1
 - dropping a segment to fit rather than truncating its text fails 1
 - leaving the route pointing at a removed repository instead of falling back fails 2
+- removing the root switcher fails 4 unit checks and the driven first-run step
+- drawing the search field over an empty set fails 1
 
 # Steps
 
 - [x] The route, with navigation up, down and sideways, and its fallbacks.
 - [x] The trail, with the inert current segment and per-segment truncation.
 - [x] The switcher popover with its combobox semantics, filter, and keyboard contract.
+- [x] The root segment's switcher, and the empty form the fresh install meets.
 - [x] The exposure indicator in the strip.
 - [x] Tests, with each load-bearing rule confirmed non-vacuous.
 

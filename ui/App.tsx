@@ -426,6 +426,20 @@ export function App() {
       key: "repositories",
       label: "Repositories",
       onNavigate: () => void goToRepositories(),
+      switcher: {
+        label: "Open a repository",
+        searchLabel: "Find repository...",
+        addLabel: "Add repository",
+        emptyNote: "No repositories yet.",
+        current: null,
+        options: repos.map((repo) => ({
+          id: repo.root,
+          name: repo.name,
+          detail: repo.root,
+        })),
+        onChoose: (root) => void goToRepository(root),
+        onAdd: () => void startAdd(),
+      },
     },
   ];
 

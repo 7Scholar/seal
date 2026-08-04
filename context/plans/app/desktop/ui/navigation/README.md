@@ -85,7 +85,7 @@ Three children, one per altitude, each owning its surface's layout and operation
 - [x] _docs/navigation-research.md -> the prior-art survey and the behavioural rules (a supporting doc, not a child)
 - [x] title-bar.md -> the title bar as a real window control surface: drag, double-click zoom, and the interactive-child exclusion
 - [x] theme.md -> light, dark and system themes, the switcher, and the persistence the memory-only webview cannot provide
-- [~] breadcrumbs.md -> the trail, the switcher popover, and the route. **The root segment has no switcher, and the chevron is not the referenced icon.**
+- [x] breadcrumbs.md -> the trail, the switcher popover, and the route. Every segment carries a switcher, including the root, whose empty form is what a fresh install meets.
 - [~] repositories.md -> the repositories grid: tiles, search, per-tile ellipsis, add. **States beyond populated are undesigned; the empty state is a different visual language.**
 - [x] files.md -> one repository's files as large rows, with the repository's operations. Every state it can occupy is built and driven; the empty repository and loading are settled as not reachable.
 - [x] file.md -> the file altitude, and the env editor re-homed into it. Every state it can occupy is built and driven, including the frame that makes a file of any size editable.
@@ -139,7 +139,9 @@ The audit's most severe finding was not in the brief that ordered it: **the repo
 
 All twelve scenario runs were re-driven green after the change — **76 driven checks**, including the surface's own new scenario (`bun run e2e:largefile`) — and each new guard was confirmed non-vacuous by reintroducing the defect it prevents.
 
-**What is not done, and is the next session's work:** the `Repositories` root segment still carries no switcher — the audit's other reference deviation, which belongs to [breadcrumbs.md](breadcrumbs.md) rather than the grid; and the four disclosure controls still carry four copies of one contract ([disclosure-primitive.md](disclosure-primitive.md)).
+**The root segment now carries its switcher**, closing the audit's other reference deviation. Its popover is the one that most had to exist, which is the opposite of how the withdrawn reasoning read it: on a fresh install its list is empty and it carries **+ Add repository**, the only thing a user can do on that screen. With nothing to switch between it drops the search field — a field that can filter nothing is the same empty promise the missing chevron was — states that there are no repositories yet, and puts focus on the add action. Driven in `first-run` on exactly that screen, and confirmed non-vacuous by removing the switcher and watching the step fail.
+
+**What is not done, and is the next session's work:** the four disclosure controls still carry four copies of one contract ([disclosure-primitive.md](disclosure-primitive.md)).
 
 [HANDOFF.md](HANDOFF.md) briefed this work and is now spent for the grid; it stays until the remaining surfaces are carried to the same depth.
 

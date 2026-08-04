@@ -103,9 +103,11 @@ Confirmed in the running app: at the root the breadcrumb contains **only static 
 
 The plan rationalised this as *"a popover over an empty set is a control that lies about having options."* The popover carries the add action, so with zero siblings it is not lying — it is the shortest path to the only available action.
 
+*Fixed and driven on the empty first-run screen. With nothing to switch between the popover drops its search field and states that there are no repositories yet, keeping only the add action; [breadcrumbs.md](../breadcrumbs.md) records the shape.*
+
 **T2 — The chevron is two ASCII carets.** *(unfinished)*
 
-`<span aria-hidden="true">⌃⌄</span>` where the reference shows a chevron-up-down icon.
+`<span aria-hidden="true">⌃⌄</span>` where the reference shows a chevron-up-down icon. *Closed by [icons.md](../icons.md), which replaced every text character standing in for a glyph with an inline SVG.*
 
 **T3 — There is no icon system; every glyph is a text character.** *(unfinished)*
 

@@ -13,6 +13,7 @@ interface Props {
   current: string | null;
   searchLabel: string;
   addLabel: string;
+  emptyNote?: string;
   onChoose: (id: string) => void;
   onAdd: () => void;
 }
@@ -23,6 +24,7 @@ export function Switcher({
   current,
   searchLabel,
   addLabel,
+  emptyNote,
   onChoose,
   onAdd,
 }: Props) {
@@ -32,6 +34,7 @@ export function Switcher({
   const wrapper = useRef<HTMLSpanElement>(null);
   const button = useRef<HTMLButtonElement>(null);
   const field = useRef<HTMLInputElement>(null);
+  const add = useRef<HTMLButtonElement>(null);
   const popoverId = useId();
   const listId = useId();
 
@@ -45,7 +48,7 @@ export function Switcher({
     if (!open) return;
     setFilter("");
     setActive(0);
-    field.current?.focus();
+    (field.current ?? add.current)?.focus();
   }, [open]);
 
   useEffect(() => {
@@ -119,26 +122,30 @@ export function Switcher({
 
       {open ? (
         <span id={popoverId} className="switcher__popover" onKeyDown={onKeyDown}>
-          <span className="switcher__search">
-            <Icon name="search" className="switcher__search-icon" />
-            <input
-              ref={field}
-              type="text"
-              role="combobox"
-              aria-expanded="true"
-              aria-controls={listId}
-              aria-activedescendant={activeId}
-              aria-label={searchLabel}
-              placeholder={searchLabel}
-              autoComplete="off"
-              autoCapitalize="off"
-              spellCheck={false}
-              value={filter}
-              onChange={(event) => setFilter(event.target.value)}
-            />
-          </span>
+          {options.length > 0 ? (
+            <span className="switcher__search">
+              <Icon name="search" className="switcher__search-icon" />
+              <input
+                ref={field}
+                type="text"
+                role="combobox"
+                aria-expanded="true"
+                aria-controls={listId}
+                aria-activedescendant={activeId}
+                aria-label={searchLabel}
+                placeholder={searchLabel}
+                autoComplete="off"
+                autoCapitalize="off"
+                spellCheck={false}
+                value={filter}
+                onChange={(event) => setFilter(event.target.value)}
+              />
+            </span>
+          ) : null}
 
-          {matches.length === 0 ? (
+          {options.length === 0 ? (
+            <span className="switcher__empty">{emptyNote ?? "Nothing yet."}</span>
+          ) : matches.length === 0 ? (
             <span className="switcher__empty">Nothing matches.</span>
           ) : (
             <ul id={listId} role="listbox" aria-label={label} className="switcher__list">
@@ -164,6 +171,7 @@ export function Switcher({
 
           <button
             type="button"
+            ref={add}
             className="switcher__add"
             onClick={() => {
               setOpen(false);

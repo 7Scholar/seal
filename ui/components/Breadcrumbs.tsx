@@ -8,6 +8,7 @@ export interface Crumb {
     label: string;
     searchLabel: string;
     addLabel: string;
+    emptyNote?: string;
     options: Option[];
     current: string | null;
     onChoose: (id: string) => void;
@@ -52,6 +53,7 @@ export function Breadcrumbs({ crumbs }: Props) {
                   label={crumb.switcher.label}
                   searchLabel={crumb.switcher.searchLabel}
                   addLabel={crumb.switcher.addLabel}
+                  emptyNote={crumb.switcher.emptyNote}
                   options={crumb.switcher.options}
                   current={crumb.switcher.current}
                   onChoose={crumb.switcher.onChoose}

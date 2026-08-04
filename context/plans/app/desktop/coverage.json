@@ -24,6 +24,7 @@
   "journey-harness.md": {
     ".github/workflows/journeys.yml": "40cd3f67e2e44b529590db3ede8868c7fd0eaa6c",
     "e2e/journeys/first-run.e2e.ts": "70f8ce6ebe6a7977a47f1a6e8f98b2c42d00d7e8",
+    "e2e/journeys/interrupted-rekey.e2e.ts": "3f4593bf0131ac12d0b822da2dda97d4f845d6aa",
     "e2e/journeys/return-and-use.e2e.ts": "70f8ce6ebe6a7977a47f1a6e8f98b2c42d00d7e8",
     "e2e/journeys/typing.ts": "70f8ce6ebe6a7977a47f1a6e8f98b2c42d00d7e8",
     "e2e/launch-fresh.sh": "a0b3f33bc64a56a499060d82bb90794330e3227e",

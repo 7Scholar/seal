@@ -38,7 +38,7 @@
     "site/src/styles/seal.css": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962"
   },
   "tooling.md": {
-    "package.json": "7a5177e4c2b4394f7c07e9840c96d6b2a8acdf57",
+    "package.json": "7485774b93d3cce60eec09b5ae3099840ebcbd6f",
     "scripts/update-local.sh": "fc48741e20953ee3d195f734bdc5e6b65e1602ab"
   }
 }

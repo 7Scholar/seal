@@ -1,16 +1,15 @@
 import { browser, $, expect } from "@wdio/globals";
+import { enterPassphrase } from "./typing";
 
 const PASSWORD = "correct horse battery staple";
 
 async function unlockIntoTheShell() {
   const choose = $("h1=Choose your master password");
   if (await choose.isDisplayed().catch(() => false)) {
-    await browser.keys([...PASSWORD]);
-    await browser.keys("Enter");
+    await enterPassphrase(PASSWORD);
     await browser.pause(800);
   }
-  await browser.keys([...PASSWORD]);
-  await browser.keys("Enter");
+  await enterPassphrase(PASSWORD);
   await $('nav[aria-label="Breadcrumb"]').waitForDisplayed({ timeout: 30000 });
 }
 

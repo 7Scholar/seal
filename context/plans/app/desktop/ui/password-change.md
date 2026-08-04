@@ -34,9 +34,11 @@ Ten Rust tests and twelve interface tests cover it. The durability guarantee is 
 
 One defect was caught by a test during the work: every planning failure was being collapsed into a wrong-password error, so a file deleted between planning and running would have told the user their password was wrong. Plan failures now map to their actual kinds.
 
-# What is missing
+# What the driven journey confirmed
 
-**A driven change, run after a file was re-sealed from the exposure alert, leaves the vault openable by neither password.** The [return-and-use scenario](../journey-harness.md) reaches the change screen with all four fields carrying verified-correct text, submits, and every manifest entry — the sentinel first — fails `WrongPassphrase`. Afterwards the sentinel opens with neither the old password nor the new one, so the application cannot be unlocked at all; the same session had unlocked with the old password moments earlier, which is what makes it a contradiction rather than a mistyped field. The commands themselves are sound: driving `rekey_begin` and `rekey_run` directly over the same staged state — establish, manage, seal, open, save, lock, unlock, re-seal from the alert — converts both entries, and the flow completes through the interface when driven on its own. What separates the failing path from the passing one is not yet isolated. This is the worst outcome the concern exists to prevent, so it outranks the open thread below.
+The flow is **driven end to end in the real application** as the last step of the [return-and-use scenario](../journey-harness.md): the settings route in, the screen's statement that both passwords must be remembered, the four fields, the run, and then the proof that matters — locking, being refused by the old password with the plain "did not open your files" notice, and unlocking with the new one to find the file still sealed. The step is confirmed non-vacuous by dropping the sentinel from the manifest `rekey_begin` builds, which is the mutation that would leave the old password still opening Seal: the step fails, and restoring the sentinel makes it pass again.
+
+Note for anyone reading the run: after the change completes the application returns to **the altitude it was already at**, which for this scenario is a repository rather than the repository list. There is no `Repositories` heading to assert on — that heading belongs to the top-level screen alone.
 
 # Steps
 
@@ -44,7 +46,8 @@ One defect was caught by a test during the work: every planning failure was bein
 - [x] Add the commands: status, begin, run, and abandon.
 - [x] Build the flow.
 - [x] Tests: a run interrupted partway is resumable and reports honestly which files sit on which password.
-- [ ] Reproduce the unopenable-vault defect above on demand, isolate what the driven path does that the direct one does not, and fix it.
+- [x] Drive it in the real application, and prove the drive non-vacuous.
+- [ ] Drive an **interrupted** run — kill the application partway through the rotation and reopen it — which is the property the durable manifest exists for and the one a clean run cannot demonstrate. [change-the-password.md](../../../../journeys/change-the-password.md) requires it.
 
 # Open threads
 

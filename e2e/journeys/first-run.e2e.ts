@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 
 import { join } from "node:path";
 import { browser, $, expect } from "@wdio/globals";
+import { enterPassphrase } from "./typing";
 
 const PASSWORD = "correct horse battery staple";
 const ARMOR = "-----BEGIN AGE ENCRYPTED FILE-----";
@@ -18,22 +19,18 @@ describe("first run: install, choose a password, protect a first file", () => {
   });
 
   it("catches a mistyped confirmation and sets nothing", async () => {
-    await browser.keys([..."first attempt"]);
-    await browser.keys("Enter");
+    await enterPassphrase("first attempt");
     await expect(status()).toHaveText(expect.stringContaining("confirm"));
 
-    await browser.keys([..."different attempt"]);
-    await browser.keys("Enter");
+    await enterPassphrase("different attempt");
     await expect(status()).toHaveText(expect.stringContaining("did not match"));
   });
 
   it("establishes the password when both entries match, and lands in the empty state", async () => {
-    await browser.keys([...PASSWORD]);
-    await browser.keys("Enter");
+    await enterPassphrase(PASSWORD);
     await expect(status()).toHaveText(expect.stringContaining("confirm"));
 
-    await browser.keys([...PASSWORD]);
-    await browser.keys("Enter");
+    await enterPassphrase(PASSWORD);
 
     await expect($("h1=Repositories")).toBeDisplayed();
     await expect($(".tile--add")).toBeDisplayed();
@@ -122,15 +119,13 @@ describe("first run: install, choose a password, protect a first file", () => {
     await $("button=Lock").click();
     await expect($("h1=Seal is locked")).toBeDisplayed();
 
-    await browser.keys([..."not the password"]);
-    await browser.keys("Enter");
+    await enterPassphrase("not the password");
     await expect(status()).toHaveText(
       expect.stringContaining("did not open your files"),
     );
     await expect(status()).toHaveText(expect.stringContaining("Nothing was changed"));
 
-    await browser.keys([...PASSWORD]);
-    await browser.keys("Enter");
+    await enterPassphrase(PASSWORD);
     await expect($("h1=Repositories")).toBeDisplayed();
     await $(`button*=${repo.split("/").pop()}`).click();
     await expect($("span=Sealed")).toBeDisplayed();

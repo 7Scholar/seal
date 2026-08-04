@@ -29,7 +29,9 @@ Ordered as a person meets them.
 
 [protect-a-repo.md](protect-a-repo.md) is driven through step 6 of 7, and [use-a-secret.md](use-a-secret.md) through step 5 of 8, inside the same runs; their remaining steps are undriven because no scenario stages them.
 
-[change-the-password.md](change-the-password.md) is **reached and failing**: the drive now gets to the rotation instead of stopping short of it, and found that a change leaves the vault openable by neither password — an open finding against [password-change.md](../plans/app/desktop/ui/password-change.md), and the most serious thing this axis has turned up. Its required interrupted run stays blocked behind it. [living-with-it.md](living-with-it.md) has never been driven.
+[change-the-password.md](change-the-password.md) has its **clean run driven end to end and green** — the run completes, the old password is refused afterwards, the new one opens Seal, and the step is confirmed non-vacuous. It stays unsatisfied only because its own requirement, an **interrupted** run, has not been driven. [living-with-it.md](living-with-it.md) has never been driven.
+
+A note worth keeping, because it cost a session: an earlier record here reported that a password change left the vault openable by neither password. It did not. The harness was typing passwords a character at a time and the spaces were being dropped, so the vault was established under a password nobody intended; every unlock typed the same way, which hid it until one correctly-typed field was rightly refused. The lesson is the axis's own — **a driven failure is evidence about the whole system, harness included, not proof of a product defect** — and it is why the scenarios now assert what actually landed in each field.
 
 Each Demonstration section records exactly what was witnessed and what was not, and a journey with undriven steps or open findings stays unsatisfied.
 

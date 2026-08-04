@@ -30,26 +30,26 @@ The harness is **WebdriverIO with `@wdio/tauri-service`**, driving the applicati
 
 # What exists
 
-The harness; the `first-run` scenario fully green against the real application on macOS across three consecutive runs, each completing in about two seconds; the non-vacuity demonstration; the `return-and-use` scenario, which now drives eight of its nine steps (`bun run e2e:extended`) — returning shield, unlock, masked open, sealed-on-disk, reveal, edit and save, the staged exposure and its insistent alert, and the recency warning followed by sealing from the alert; and the continuous-integration workflow, gated on the stable scenario, that builds the harness binary, drives the journey, and proves the distributable free of the bridge.
+The harness; the `first-run` scenario fully green against the real application on macOS across three consecutive runs, each completing in about two seconds; the non-vacuity demonstration; the `return-and-use` scenario, **all nine steps green** (`bun run e2e:extended`) — returning shield, unlock, masked open, sealed-on-disk, reveal, edit and save, the staged exposure and its insistent alert, the recency warning followed by sealing from the alert, and the supervised password change after which the old password no longer opens Seal; and the continuous-integration workflow, gated on the stable scenario, that builds the harness binary, drives the journey, and proves the distributable free of the bridge.
 
 **The freeze that blocked the tail is resolved.** It was never a freeze in the application or in the embedded server: the client's focus check, which runs before every element command, reads `window.__wdio_original_core__` and waits five seconds for a global that nothing in the service ever assigns. Every `$`, `$$`, `findElement`, `findElements` and `elementClick` therefore paid five seconds and then threw, so scenario waits expired against a page that had been ready throughout — and *where* a run appeared to hang moved with timing, which is what made it look like a wandering freeze. Binding that global to the webview's own IPC invoke in the runner's `before` hook removed the tax outright: `first-run` went from minutes and a mid-run wedge to eight of eight in 2.2 seconds.
 
 Removing the delay exposed two assumptions the tax had been masking, both fixed in the scenarios. The first-run drive now meets the recency warning before the acknowledgement gate, because it seals a file it wrote moments earlier — correct product behaviour that the slower run had reordered. And the returning scenario, which runs as a second worker against the same live application, locks first if it arrives already unlocked, rather than assuming a fresh launch.
 
+**All typing goes through one helper, and every field asserts what landed.** This is the harness's most expensive lesson: a per-character key stream **silently drops the spaces** out of a passphrase, so the shield established the vault under `correcthorsebatterystaple` while the scenario believed it had typed four words. Every later unlock typed the same way and so kept working, which hid the mismatch completely — until one field was typed correctly and was refused, which read as the product losing the vault. The plugin's key handling also appends to a field rather than replacing it, and a clear-then-set sequence leaves a React-controlled input's DOM value and component state disagreeing, so a field can read correctly while the component behind it holds nothing. The helper clicks the field, sets the whole string at once, and asserts the value, so any of these fails at the field where it happened.
+
+**Assert what the surface actually shows at that altitude.** The `Repositories` heading belongs to the top-level screen alone; the breadcrumb carries the same word as a button at every other altitude. A step that returns the user to a repository — as the password change does — must not assert the heading, or it fails against a screen that is behaving correctly.
+
 # What is missing
 
-**The password-change step fails, and its defect is in the product.** It is the ninth of the returning scenario's nine steps, it is now reached rather than blocked, and it leaves the vault openable by neither password. It is recorded against the plan that owns it, [ui/password-change.md](ui/password-change.md), rather than here.
-
-**Typing into a controlled field needs the right verb, and the scenarios now assert what landed.** The embedded plugin's key handling appends to a field rather than replacing it, a per-character key stream drops the spaces out of a passphrase, and a clear-then-set sequence leaves a React-controlled input's DOM value and component state disagreeing — so a field can read correctly while the component behind it holds nothing. Fields that start empty are clicked and set; a field with existing text is set directly; and every case asserts the resulting value, so a typing failure fails at the field it happened in rather than as an unexplained error several steps later.
-
-Also missing: a green run of the workflow on the hosted runner, and scenarios for the command-line resolve, an interrupted password change, and plaintext expiry.
+A green run of the workflow on the hosted runner, and scenarios for the command-line resolve, an interrupted password change, and plaintext expiry.
 
 # Steps
 
 - [x] Research driver options against the constraints — macOS first, then stability and maintainability — and choose
 - [x] Build the harness and the `first-run` scenario against a fresh profile
 - [x] Prove it non-vacuous: wire an inert control deliberately, watch the run fail, remove it
-- [~] The `return-and-use` scenario: eight of nine steps green in sequence; the ninth fails on the password-change defect owned by [ui/password-change.md](ui/password-change.md)
+- [x] The `return-and-use` scenario: all nine steps green in sequence, across two consecutive runs
 - [~] Gate it in continuous integration — the workflow is authored, gated on the stable scenario; its first run on the hosted runner is pending
 - [x] Resolve the bridge freeze — it was the client's unassigned `__wdio_original_core__` global, and the harness now installs it
 - [ ] Report the missing global upstream, so the harness's `before` hook can eventually be dropped

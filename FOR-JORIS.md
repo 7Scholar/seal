@@ -119,15 +119,15 @@ Fixing it needs an Apple Developer Program membership — **$99/year** — after
 
 ---
 
-## 9. Something you should know: changing the master password can currently lock you out — **Not a question, and not blocking anything you do**
+## 9. Correction: the password change is fine — the earlier warning was wrong — **Not a question**
 
-This one needs no answer. It is here because it is the most serious thing found so far and you should not learn it by hitting it.
+This one needs no answer, and it retracts something you may have read here.
 
-The harness that drives the real application was stuck for a while and is now unstuck, which meant the master-password change got driven end to end for the first time. It fails, and it fails in the worst available direction: after the change, **the vault opens with neither the old password nor the new one**. On a real installation that would mean losing access to every protected file.
+A previous note warned you not to change your master password, because a driven run appeared to leave the vault openable by neither the old password nor the new one. **That was not a product defect.** The rotation works correctly and is now driven end to end in the real application: the run completes, the old password is refused afterwards, the new one opens Seal, and the protected file is still sealed. The step is also confirmed non-vacuous — deliberately making the rotation skip the password check-file makes it fail, as it should.
 
-Two things to hold alongside that. It is reproducible only through the interface so far — driving the same operation directly, over the same staged state, converts everything correctly — so the defect is somewhere in the path rather than in the encryption itself. And every test at both layers passed straight through it, which is exactly why the product is judged by driving it rather than by its tests.
+What actually happened is that the test harness typed the password one character at a time and **the spaces were silently dropped**, so the vault was set up under `correcthorsebatterystaple` rather than the four words intended. Every later unlock typed the same wrong way and so kept working, which hid it completely — until one field was typed correctly, was rightly refused, and that looked like the product losing the vault. The harness now types whole strings and checks what actually landed in each field, so this class of mistake fails loudly at the field where it happens.
 
-**What it means for you today:** do not change the master password on anything you care about until this is fixed. It is recorded at [context/plans/app/desktop/ui/password-change.md](context/plans/app/desktop/ui/password-change.md) and is the next thing an agent should pick up.
+**What it means for you:** nothing to avoid. Changing the master password is safe as far as this axis can tell. The one thing still not demonstrated is an *interrupted* change — quitting the app partway through — which is the next thing to drive.
 
 ---
 

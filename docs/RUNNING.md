@@ -59,7 +59,7 @@ bun run e2e
 
 `e2e:build` builds the frontend and then the release binary with `--features e2e,custom-protocol` — the `e2e` feature is what compiles the embedded WebDriver bridge in, and the harness cannot start without it. `e2e` drives the `first-run` journey from a scratch profile; it takes several minutes and **a real Seal window opens on your screen and operates itself — leave it alone**; closing it mid-run fails the run.
 
-`bun run e2e:extended` runs the returning-user scenario as well. It drives eight of its nine steps; the ninth fails on a password-change defect recorded in [its plan](../context/plans/app/desktop/ui/password-change.md).
+`bun run e2e:extended` runs the returning-user scenario as well — all nine of its steps, ending with the supervised password change and the proof that the old password no longer opens Seal.
 
 Two environment variables, both minted automatically by `e2e/wdio.conf.ts` and shared with the app: `SEAL_E2E_HOME` is the scratch home the app runs against, and `SEAL_E2E_PICK_FOLDER` is the folder the folder-pick command returns instead of showing the native dialog (harness builds only — the webview's IPC internals are readonly, so the dialog cannot be stubbed from the page).
 
@@ -71,4 +71,4 @@ Two environment variables, both minted automatically by `e2e/wdio.conf.ts` and s
 - **The app looks like an older version** — the binary embedded a stale `dist/`; rebuild frontend then binary, which is what `e2e:build` and `update-local` both do in order.
 - **`seal open` still shows the old interface after a rebuild** — the `seal` on your path resolves somewhere with no desktop binary beside it, so the launcher fell through to an installed copy that the rebuild never touched. `bun run update-local` reports this case; the search it fell through is in [the CLI plan](../context/plans/app/cli.md).
 - **Every command takes five seconds and the run appears to hang** — the client's Tauri bridge global is missing. The runner's `before` hook installs it; if that hook is removed or fails, every element command pays a five-second timeout. See [the harness plan](../context/plans/app/desktop/journey-harness.md).
-- **The extended scenario's last step fails** — the known password-change defect; not the harness. See [its plan](../context/plans/app/desktop/ui/password-change.md).
+- **A step fails on a password being refused** — suspect the harness's typing before the product. Passwords go through the `typeInto`/`enterPassphrase` helper in `e2e/journeys/typing.ts`, which asserts what landed in the field; typing one with `browser.keys` instead silently drops its spaces, which establishes a vault under a password nobody intended. See [the harness plan](../context/plans/app/desktop/journey-harness.md).

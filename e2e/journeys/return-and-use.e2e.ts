@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { browser, $, expect } from "@wdio/globals";
+import { enterPassphrase, typeInto } from "./typing";
 
 const PASSWORD = "correct horse battery staple";
 const NEW_PASSWORD = "an entirely new master password";
@@ -10,14 +11,6 @@ const repo = () => process.env.SEAL_E2E_PICK_FOLDER ?? "";
 const status = () => $('[role="status"][aria-label="Unlock status"]');
 const repoName = () => repo().split("/").pop() ?? "";
 const repoTile = () => $(`button*=${repoName()}`);
-
-async function type(selector: string, text: string) {
-  const field = $(selector);
-  await field.waitForDisplayed();
-  await field.click();
-  await field.setValue(text);
-  await expect(field).toHaveValue(text);
-}
 
 async function openTheRepository() {
   const crumb = $('nav[aria-label="Breadcrumb"] [aria-current="page"]');
@@ -53,12 +46,10 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
       const step = (name: string) => console.log("FIXTURE", name);
       writeFileSync(join(repo(), ".env"), "API_KEY=sk-live-1234567890abcdef\n");
       step("typing first entry");
-      await browser.keys([...PASSWORD]);
-      await browser.keys("Enter");
+      await enterPassphrase(PASSWORD);
       await browser.pause(600);
       step("typing confirmation");
-      await browser.keys([...PASSWORD]);
-      await browser.keys("Enter");
+      await enterPassphrase(PASSWORD);
       await browser.pause(2500);
       step("waiting for empty state");
       await $(".tile--add button").waitForClickable();
@@ -110,8 +101,7 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
   });
 
   it("unlocks into the repository view with the sealed file", async () => {
-    await browser.keys([...PASSWORD]);
-    await browser.keys("Enter");
+    await enterPassphrase(PASSWORD);
     await expect($("h1=Repositories")).toBeDisplayed();
     await openTheRepository();
     await expect($("span=Sealed")).toBeDisplayed();
@@ -171,8 +161,7 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
 
     await $("button=Lock").click();
     await expect($("h1=Seal is locked")).toBeDisplayed();
-    await browser.keys([...PASSWORD]);
-    await browser.keys("Enter");
+    await enterPassphrase(PASSWORD);
     await expect($("h1=Repositories")).toBeDisplayed();
     await openTheRepository();
 
@@ -207,26 +196,25 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
     await expect($("h1=Change your master password")).toBeDisplayed();
     await expect($("p*=Both passwords must be remembered")).toBeDisplayed();
 
-    await type("#current", PASSWORD);
-    await type("#replacement", NEW_PASSWORD);
-    await type("#confirmation", NEW_PASSWORD);
-    await type("#phrase", "CHANGE MY PASSWORD");
+    await typeInto("#current", PASSWORD);
+    await typeInto("#replacement", NEW_PASSWORD);
+    await typeInto("#confirmation", NEW_PASSWORD);
+    await typeInto("#phrase", "CHANGE MY PASSWORD");
     await $("button=Change the password").click();
 
-    await expect($("h1=Repositories")).toBeDisplayed();
+    await expect($("h1=Change your master password")).not.toBeDisplayed();
+    await expect($("button=Lock")).toBeDisplayed();
 
     await $("button=Lock").click();
     await expect($("h1=Seal is locked")).toBeDisplayed();
 
-    await browser.keys([...PASSWORD]);
-    await browser.keys("Enter");
+    await enterPassphrase(PASSWORD);
     await expect(status()).toHaveText(
       expect.stringContaining("did not open your files"),
     );
 
-    await browser.keys([...NEW_PASSWORD]);
-    await browser.keys("Enter");
-    await expect($("h1=Repositories")).toBeDisplayed();
+    await enterPassphrase(NEW_PASSWORD);
+    await expect($("h1=Seal is locked")).not.toBeDisplayed();
     await openTheRepository();
     await expect($("span=Sealed")).toBeDisplayed();
   });

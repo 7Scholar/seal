@@ -53,7 +53,7 @@ The work decomposes into the children below: the sealing engine is the seam ever
 - [x] engine/ -> the sealing engine: age-based seal/unseal, the password model, session and key-handling semantics
 - [x] registry.md -> the registry of seal repos and their managed files, including the candidate scan
 - [x] cli.md -> the standalone CLI resolver
-- [~] desktop/ -> the Tauri desktop application: shell, IPC surface, and the management UI. **not done** — its journeys are unsatisfied, and `ui/navigation/`'s surfaces need a depth pass.
+- [~] desktop/ -> the Tauri desktop application: shell, IPC surface, and the management UI. **not done** — its journeys are unsatisfied, `ui/navigation/`'s surfaces need a depth pass, and `ui/navigation/freshness.md` is blocked on the product owner.
 - [~] publishing/ -> everything around the code: repo docs, CI, packaging, releases, maintainability. **Reopened:** a hosted documentation site is framed and unstarted.
 
 # Cursor
@@ -109,6 +109,8 @@ Plan completeness is **not** the definition of done for this product. [context/j
 The axis exists because the first person to open the built application could not get past the first screen, and both defects sat between plans that were individually correct and individually tested. **Three of six journeys are now satisfied** — first-run, exposure and [change-the-password](../../journeys/change-the-password.md), each driven end to end against a release build. The last of those needed an interrupted run as well as a clean one, and driving the interruption is what exposed the manifest defect above.
 
 The axis also taught itself something: a driven failure is evidence about the whole system, harness included. A run that appeared to show the master-password change destroying the vault was the harness typing passwords with the spaces dropped, and it was recorded here as a product defect before it was understood. **Diagnose to a mechanism before writing a finding down** — a wrong finding in the tree costs more than an unwritten one.
+
+[living-with-it](../../journeys/living-with-it.md) has now been **driven for the first time and is not satisfied**. It behaved exactly as the axis predicts a journey about accumulated texture would: it found one defect and two *missing concerns*. The defect is the signature shape — the overview reported each file's recorded state rather than what reconciliation observed, so a file deleted outside Seal read as `Sealed` with a live open control, while the registry library that detected the divergence correctly and every suite on both sides stayed green. It is fixed and re-driven. The missing concerns are framed as [desktop/ui/navigation/freshness.md](desktop/ui/navigation/freshness.md) and blocked on the product owner: the interface only re-reads disk when the session unlocks, and nothing anywhere states that everything *is* protected — so the product's central question is answerable only by reading every tile and inferring safety from silence. Its step 5, plaintext expiry, is still undriven and blocked on a hard-coded lifetime rather than on a missing scenario.
 
 Read [docs/plans/JOURNEYS.md](../../../docs/plans/JOURNEYS.md) before working one.
 

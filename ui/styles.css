@@ -428,6 +428,13 @@ input {
 .manage__head h1 { margin: 0; }
 .manage__root { flex-basis: 100%; margin: 0; color: var(--muted); font-size: 0.8rem; font-family: ui-monospace, monospace; }
 .manage__count { color: var(--muted); font-size: 0.8rem; }
+.manage__search { flex-basis: 100%; max-width: 22rem; position: relative; display: block; margin-top: 0.15rem; }
+.manage__search input { width: 100%; padding-left: 2rem; }
+.manage__nomatch {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 0.6rem;
+  padding: 1.5rem 1.75rem; color: var(--muted);
+}
+.manage__nomatch p { margin: 0; }
 .manage__actions {
   display: flex; gap: 0.6rem; align-items: center;
   padding: 0.85rem 1.75rem;

@@ -280,6 +280,100 @@ describe("ManageFlow", () => {
     ]);
   });
 
+  it("reaches an undetected file deep in the tree without opening a single folder", async () => {
+    const user = userEvent.setup();
+    setup();
+
+    expect(
+      screen.queryByRole("treeitem", { name: "settings.toml" }),
+    ).not.toBeInTheDocument();
+
+    await user.type(screen.getByRole("searchbox", { name: "Filter files" }), "settings");
+
+    expect(screen.getByRole("treeitem", { name: "settings.toml" })).toBeInTheDocument();
+    expect(screen.queryByRole("treeitem", { name: "README.md" })).not.toBeInTheDocument();
+  });
+
+  it("matches on the path, so a folder's name reveals what is under it", async () => {
+    const user = userEvent.setup();
+    setup();
+
+    await user.type(screen.getByRole("searchbox", { name: "Filter files" }), "services");
+
+    expect(screen.getByRole("treeitem", { name: "server.ts" })).toBeInTheDocument();
+    expect(screen.getByRole("treeitem", { name: "routes.ts" })).toBeInTheDocument();
+    expect(screen.queryByRole("treeitem", { name: "keys.json" })).not.toBeInTheDocument();
+  });
+
+  it("never changes the selection, and confirms the whole of it while filtered", async () => {
+    const user = userEvent.setup();
+    const { onConfirm } = setup();
+
+    const field = screen.getByRole("searchbox", { name: "Filter files" });
+    await user.type(field, "server");
+
+    expect(screen.getByRole("button", { name: /Manage 2 files/ })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /Manage 2 files/ }));
+    const [selected] = onConfirm.mock.calls[0] as [string[]];
+    expect([...selected].sort()).toEqual([".env.production", "services/api/.env"]);
+  });
+
+  it("restores exactly the expansion that was in force before the filter was typed", async () => {
+    const user = userEvent.setup();
+    setup();
+
+    await user.click(screen.getByRole("button", { name: "Expand config" }));
+    expect(screen.getByRole("treeitem", { name: "keys.json" })).toBeInTheDocument();
+
+    const field = screen.getByRole("searchbox", { name: "Filter files" });
+    await user.type(field, "settings");
+    expect(screen.getByRole("treeitem", { name: "settings.toml" })).toBeInTheDocument();
+    expect(screen.queryByRole("treeitem", { name: "README.md" })).not.toBeInTheDocument();
+
+    await user.clear(field);
+
+    expect(screen.getByRole("treeitem", { name: "keys.json" })).toBeInTheDocument();
+    expect(screen.getByRole("treeitem", { name: "README.md" })).toBeInTheDocument();
+  });
+
+  it("does not carry an expansion made while filtering back into the cleared tree", async () => {
+    const user = userEvent.setup();
+    setup();
+
+    expect(
+      screen.queryByRole("treeitem", { name: "settings.toml" }),
+    ).not.toBeInTheDocument();
+
+    const field = screen.getByRole("searchbox", { name: "Filter files" });
+    await user.type(field, "config");
+
+    await user.click(screen.getByRole("button", { name: "Collapse config" }));
+    await user.click(screen.getByRole("button", { name: "Expand config" }));
+
+    await user.clear(field);
+
+    expect(
+      screen.queryByRole("treeitem", { name: "settings.toml" }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("treeitem", { name: "README.md" })).toBeInTheDocument();
+  });
+
+  it("says so when nothing matches, and offers to clear the field", async () => {
+    const user = userEvent.setup();
+    setup();
+
+    await user.type(
+      screen.getByRole("searchbox", { name: "Filter files" }),
+      "nothing-matches-this",
+    );
+
+    expect(screen.getByText(/No file or folder matches/)).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Clear the filter" }));
+    expect(screen.getByRole("treeitem", { name: "README.md" })).toBeInTheDocument();
+  });
+
   it("cannot confirm an empty selection", async () => {
     const user = userEvent.setup();
     setup();

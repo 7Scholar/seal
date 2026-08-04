@@ -70,6 +70,18 @@ So **the classifier gives no reason where the name is the reason**, rather than 
 
 Confidence is unaffected: an env file is still `Secret` and still preselected. What is dropped is the sentence, not the judgement.
 
+## Finding a file the scan did not detect
+
+The tree expands to follow the *detected* files, so an undetected one — the entire reason undetected files are selectable — is reachable only by hand-opening the chain to it. The filter is what makes that case tractable, and its behaviour is binding rather than a matter of taste:
+
+- It matches **case-insensitively on the path**, not the leaf name, so naming a folder reveals everything under it.
+- It **prunes to matches and keeps their ancestors** for context, and the pruned tree is what the tree renders — a collapsed branch still renders none of its children, so the filter cannot reintroduce the cost the collapse avoids.
+- Clearing it **restores exactly the expansion in force before the first keystroke**, which is captured on entry rather than recomputed. A branch the filter opened closes again; a branch the user had opened stays open.
+- It **never touches the selection**, in either direction. The tally and the confirm button keep stating the whole selection while a filter is active, because that count is the surface's blast-radius statement and narrowing it to the visible set would understate what confirming does.
+- With no match the region says so in its own language and offers to clear the field, rather than showing an empty tree.
+
+**The tree stays operable while filtered.** Expansion during a filter is a union — the revealed ancestors are added to the user's expansion rather than replacing it — so a folder can still be collapsed and reopened by hand. Driving the first implementation caught the alternative: passing the revealed set directly as the expansion made every twisty inert, because a toggle wrote to state the render ignored. That is the same defect class the whole surface was rebuilt to remove, reintroduced by the filter.
+
 ## What the surface still says with a sentence
 
 Nothing in the layout. The assurances — that confirming encrypts nothing, that files stay where they are, that a rescan changes nothing already managed — stay behind the toggletip the user chooses to open, per [the parent's prose rule](../README.md).
@@ -84,13 +96,16 @@ The inert-folder guard was confirmed non-vacuous by restoring the defect and wat
 
 **The annotation rule is guarded in both directions.** One test asserts that no env-like name carries a reason and that the six names whose reason is informative still explain themselves. Confirmed non-vacuous by restoring `an environment file` and watching it fail naming the row. Nothing had asserted a scan reason before — the classification test discarded the reason and matched only confidence, which is why the most repeated string on the surface was never covered by anything.
 
+**The filter is built and driven**, five checks green in the real webview (`bun run e2e:filter`) against a repository holding a file the scan does not detect, three directories deep in a chain nothing expands. What is measured there is exactly the case the filter exists for: the file is absent from the tree, naming it reveals it without a single folder being opened, naming its *folder* reveals it too, the tally and the confirm button keep stating the whole selection while filtered, and clearing restores the tree without leaving the filter's own expansion behind. Confirmed non-vacuous by disabling the pruning and re-driving — the two checks that depend on it fail while the three that do not still pass.
+
+Six unit tests cover the same contract, and the restore guard among them was **rewritten after being caught vacuous**: the first version passed with the restore deleted, because it never expanded anything while filtering and so had nothing to restore. It now collapses and reopens a branch under an active filter, and fails when the restore is removed.
+
 The full `first-run` journey passes end to end against a release build — password established, repository added through this surface, file sealed, sealed file verified on disk as standard age.
 
 # What is missing
 
 The audit's remaining findings, none of which this pass took. They are real and recorded in [_docs/manage-surface-audit.md](_docs/manage-surface-audit.md); the honest statement is that the frame, the annotation channel and the two defects the owner met are fixed and the surface is not yet finished:
 
-- **A filter over the tree.** [The research](_docs/tree-picker-research.md) argues it is table stakes rather than a refinement, and the argument is structural: expansion follows the *detected* files, so every undetected file — the entire reason undetected files are selectable — is reachable only by hand-opening its chain, which at 1,097 rows is a directory-by-directory hunt for a file the user can already name.
 - **The degraded state.** A partially-walked repository is drawn exactly like a fully-walked one, with nothing at surface level saying the picture is incomplete.
 - **Density and alignment.** Directory and file names misalign by 1px, and the annotation channel has no column at all — measured starting anywhere between x=190 and x=303.
 - **The idle lock discards a live selection**, met by accident during the audit on the one surface designed for slow deliberation.
@@ -105,10 +120,10 @@ The audit's remaining findings, none of which this pass took. They are real and 
 - [x] The scanning state and the surface's own failure state, which required the overlay to open before the scan.
 - [x] Make the fixed frame actually hold: repair the height chain so the tree region is the only scrolling element and the header and footer stay in view. Reproduce first — the measurement above is the reproduction.
 - [x] Drop the "an environment file" annotation, once its owning contracts agree where the change belongs.
-- [ ] The filter over the tree, with the binding behaviour [the research](_docs/tree-picker-research.md) states: matches on path, restores prior expansion exactly when cleared, and never touches selection.
+- [x] The filter over the tree, with the binding behaviour [the research](_docs/tree-picker-research.md) states: matches on path, restores prior expansion exactly when cleared, and never touches selection.
 - [ ] The remaining audit findings above.
 
 # Open threads
 
 - **Whether a bare row click on a folder holding candidates should keep selecting them.** [The research](_docs/tree-picker-research.md) recommends moving all selection to the checkbox, on the grounds that a click which can queue a directory's secrets for encryption should require aiming at a checkbox rather than landing anywhere on a wide row. That is a good argument and it was not taken here, because the behaviour is asserted by three tests and changing it is a deliberate contract change rather than a defect fix. It wants settling on its own merits rather than as a side effect of closing the dead case.
-- The filter and [adopting.md](../repo-layer/adopting.md)'s standing filter thread are the same question and should be closed together.
+Note that the filter thread this node shared with [adopting.md](../repo-layer/adopting.md) is closed on both sides: the filter is built, driven, and holds the two requirements that thread set.

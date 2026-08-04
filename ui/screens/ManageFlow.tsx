@@ -2,10 +2,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ScanView } from "../ipc";
 import {
   FileTree,
+  filterTree,
   managedPaths,
+  pathsToReveal,
   preselectedAncestors,
   preselectedPaths,
 } from "../components/FileTree";
+import { Icon } from "../components/Icon";
 import { Toggletip } from "../components/Toggletip";
 import { fileName } from "../format";
 
@@ -37,6 +40,8 @@ export function ManageFlow({
 }: Props) {
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set());
+  const [query, setQuery] = useState("");
+  const beforeFilter = useRef<ReadonlySet<string> | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [atEnd, setAtEnd] = useState(true);
   const [waited, setWaited] = useState(false);
@@ -59,6 +64,36 @@ export function ManageFlow({
     [scan],
   );
   const rows = useMemo(() => (scan ? countRows(scan.tree) : 0), [scan]);
+
+  const filtering = query.trim() !== "";
+  const visibleTree = useMemo(
+    () => (scan ? filterTree(scan.tree, query) : []),
+    [scan, query],
+  );
+  const noMatch = filtering && visibleTree.length === 0;
+
+  useEffect(() => {
+    if (!filtering) return;
+    setExpanded((current) => {
+      const next = new Set(current);
+      for (const path of pathsToReveal(visibleTree)) next.add(path);
+      return next;
+    });
+  }, [filtering, visibleTree]);
+
+  function filterBy(next: string) {
+    const wasFiltering = query.trim() !== "";
+    const nowFiltering = next.trim() !== "";
+
+    if (!wasFiltering && nowFiltering) {
+      beforeFilter.current = expanded;
+    }
+    if (wasFiltering && !nowFiltering && beforeFilter.current !== null) {
+      setExpanded(beforeFilter.current);
+      beforeFilter.current = null;
+    }
+    setQuery(next);
+  }
 
   useEffect(() => {
     const element = region.current;
@@ -138,6 +173,21 @@ export function ManageFlow({
           </span>
         ) : null}
         <p className="manage__root">{root}</p>
+        {scan ? (
+          <span className="manage__search">
+            <Icon name="search" className="toolbar__search-icon" />
+            <input
+              type="search"
+              aria-label="Filter files"
+              placeholder="Filter by name or folder"
+              autoComplete="off"
+              autoCapitalize="off"
+              spellCheck={false}
+              value={query}
+              onChange={(event) => filterBy(event.target.value)}
+            />
+          </span>
+        ) : null}
       </header>
 
       <div className="manage__region" ref={region} aria-busy={scanning || undefined}>
@@ -152,10 +202,17 @@ export function ManageFlow({
           waited ? (
             <p className="manage__scanning">Looking through {fileName(root)}…</p>
           ) : null
+        ) : noMatch ? (
+          <div className="manage__nomatch">
+            <p>No file or folder matches “{query.trim()}”.</p>
+            <button type="button" onClick={() => filterBy("")}>
+              Clear the filter
+            </button>
+          </div>
         ) : scan ? (
           <FileTree
             label={`Files in ${root}`}
-            nodes={scan.tree}
+            nodes={visibleTree}
             selected={selected}
             expanded={expanded}
             disabled={managed}

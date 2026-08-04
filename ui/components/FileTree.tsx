@@ -68,6 +68,38 @@ export function preselectedAncestors(nodes: TreeNode[]): Set<string> {
   return open;
 }
 
+export function filterTree(nodes: TreeNode[], query: string): TreeNode[] {
+  const needle = query.trim().toLowerCase();
+  if (needle === "") return nodes;
+
+  function keep(node: TreeNode): TreeNode | null {
+    const hit = node.relativePath.toLowerCase().includes(needle);
+    if (node.kind === "file") return hit ? node : null;
+
+    if (hit) return node;
+
+    const children = node.children
+      .map(keep)
+      .filter((child): child is TreeNode => child !== null);
+    return children.length > 0 ? { ...node, children } : null;
+  }
+
+  return nodes.map(keep).filter((node): node is TreeNode => node !== null);
+}
+
+export function pathsToReveal(nodes: TreeNode[]): Set<string> {
+  const open = new Set<string>();
+
+  function walk(node: TreeNode): void {
+    if (node.kind === "file") return;
+    open.add(node.relativePath);
+    for (const child of node.children) walk(child);
+  }
+
+  for (const node of nodes) walk(node);
+  return open;
+}
+
 export function treeFromPaths(paths: string[]): TreeNode[] {
   const roots: TreeNode[] = [];
 

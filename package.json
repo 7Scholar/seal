@@ -19,7 +19,8 @@
     "e2e:expiry": "wdio run e2e/wdio.expiry.conf.ts",
     "e2e:settling": "wdio run e2e/wdio.settling.conf.ts",
     "e2e:deploy": "wdio run e2e/wdio.deploy.conf.ts",
-    "e2e:badday": "wdio run e2e/wdio.badday.conf.ts"
+    "e2e:badday": "wdio run e2e/wdio.badday.conf.ts",
+    "e2e:filter": "wdio run e2e/wdio.filter.conf.ts"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",

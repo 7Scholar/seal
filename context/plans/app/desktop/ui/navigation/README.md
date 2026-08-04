@@ -96,7 +96,7 @@ Three children, one per altitude, each owning its surface's layout and operation
 - [ ] disclosure-primitive.md -> one implementation of the disclosure contract the four collapsed controls each carry separately
 - [~] manage-surface.md -> the manage surface carried to the grid's depth. **The frame holds, the row response, the scan states and the annotation channel are built; the filter and the remaining audit findings are not.**
 - [x] palette.md -> the chosen palette — a white, a black, an accent and a primary — and the role rule governing where each appears
-- [!] freshness.md -> when the product re-observes disk, and how it answers "is everything protected?" at a glance. **Blocked — awaiting answers in QUESTIONS.md.**
+- [~] freshness.md -> when the product re-observes disk, and how it answers "is everything protected?" at a glance. **Unblocked and solutioned** — the owner settled the forks; its Approach is committed and its build has not started.
 
 # Cursor
 
@@ -111,7 +111,7 @@ Neither failure was caught by a test, a journey, or the drive: all of them passe
 
 The audit's most severe finding was not in the brief that ordered it: **the repositories grid reports the user's data as absent while it is loading, and permanently if the load fails**, because empty, loading and failed are the same screen and that screen says *"Seal manages nothing yet"*. A returning user meets it on every launch. It is recorded in [states.md](states.md).
 
-**The repositories grid is finished to production depth, and the other three surfaces are audited and framed.** The product owner re-supplied the reference and settled the empty state ([QUESTIONS.md](QUESTIONS.md) records both answers), which unblocked the build:
+**The repositories grid is finished to production depth, and the other three surfaces are audited and framed.** The product owner re-supplied the reference and settled the empty state, which unblocked the build:
 
 - **Every state the grid can occupy is designed, built and seen running** — empty, one, populated, excessive, loading, error and no-match. The empty state is now an **add tile inside the grid**, so the surface is one visual language at every count, and the explanatory paragraph is gone.
 - **The loading and error states did not exist**, which is why the grid reported the user's data as absent while it loaded and permanently if it failed. Both now exist, and reintroducing either defect fails a test.
@@ -150,7 +150,7 @@ After the fix, driven at the same window size: one drag region, the strip at `to
 
 Note that the **`.manage` height measurement in this node's earlier record and in [manage-surface.md](manage-surface.md) was taken against a large repository only**, which made the fault read as "the surface is too tall". It is not: it is "the surface is its content's height", and a small repository shows the same defect as a surface far too short. A fix validated only against a tall tree would have looked correct while the frame was still broken.
 
-**[freshness.md](freshness.md) is newly framed and blocked**, from driving [living-with-it](../../../../../journeys/living-with-it.md). It holds one concern in two halves: the interface re-reads disk **only when the session unlocks**, so a file deleted or exposed while the window sits open goes unnoticed indefinitely; and nothing anywhere states that everything *is* protected, so the healthy answer exists only as the absence of warnings spread across every tile. They are one node because a standing assurance computed from a stale read is worse than no assurance. Its forks — what triggers a re-read, and whether the positive statement is drawn at all — are in [QUESTIONS.md](QUESTIONS.md) and are the product owner's to settle.
+**[freshness.md](freshness.md) is newly framed and blocked**, from driving [living-with-it](../../../../../journeys/living-with-it.md). It holds one concern in two halves: the interface re-reads disk **only when the session unlocks**, so a file deleted or exposed while the window sits open goes unnoticed indefinitely; and nothing anywhere states that everything *is* protected, so the healthy answer exists only as the absence of warnings spread across every tile. They are one node because a standing assurance computed from a stale read is worse than no assurance. **Its forks are settled and its Approach is committed.** The owner answered the positive statement directly — *nothing; absence is the answer* — so no assurance is drawn anywhere, and delegated the rest with one instruction: long-term stable and robust, whatever the effort. That instruction pointed *away* from a filesystem watch, whose failure modes all end in the product silently ceasing to notice, and towards focus plus a timer on the sweep loop that already exists — a choice a measurement settled rather than taste, since a full reconciliation is 6ms for 500 managed files and under a millisecond for a real vault.
 
 # Open threads
 

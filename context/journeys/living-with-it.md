@@ -84,11 +84,11 @@ It matters more than "advisory" suggests, because [lifecycle.md](../plans/app/de
 
 Fixed: sealing a selection now checks every path in it and warns naming each recently-modified file before touching any of them. `lifecycle.md` owns the behaviour and states it as a property of sealing rather than of one control; `desktop/MEMORY.md` records why the batch check must not be dropped. Confirmed non-vacuous both ways — the reproduction failed before the fix and passes after, and disabling the new check fails the unit guard.
 
-**2. The interface re-reads disk only when the session unlocks. — Open, framed, blocked on the product owner.**
+**2. The interface re-reads disk only when the session unlocks. — Open, solutioned, awaiting build.**
 
 Nothing else triggers a re-read: no timer, no refetch on window focus. A file deleted or exposed while the window sits open goes unnoticed indefinitely — locking and unlocking is the only thing that makes the product look again. This delays the exposure alert too, since it is computed from the same fetch. It is also why finding 1 needed a lock/unlock to become visible, and why the scenario's lock steps are load-bearing rather than incidental.
 
-**3. Nothing states that everything is protected. — Open, framed, blocked on the product owner.**
+**3. Nothing states that everything is protected. — Closed as decided, not fixed.**
 
 Step 3 asks for an answer in a second without reading; the product only ever draws attention to what is *wrong*. A repository tile carries an exposure line only when it has exposures, and the files list shows a `Sealed` tag per row. The healthy answer therefore exists only as the absence of warnings spread across every tile and row, so answering the question means reading all of them and inferring safety from silence.
 
@@ -100,6 +100,10 @@ The product's real guarantee holds — the plaintext is genuinely gone from memo
 
 This is a **missing concern rather than a defect**, and the distinction was itself worth establishing: the first version of the check asserted the value would disappear, and that assertion was wrong about the product as designed. [screens.md](../plans/app/desktop/ui/screens.md) specifies that a revealed value lives in component state and nowhere else, and says nothing about clearing it — the interface has no notion of a held secret's lifetime at all. Routed to [freshness.md](../plans/app/desktop/ui/navigation/freshness.md), because it is the same gap as findings 2 and 3 seen from a third side: the interface only ever learns what Rust knows by asking, and nothing makes it ask.
 
-Findings 2, 3 and 4 are framed together as [freshness.md](../plans/app/desktop/ui/navigation/freshness.md), because an at-a-glance assurance is only worth drawing if it is current — a confident "everything is protected" computed from a snapshot taken at unlock is worse than none. Its design forks are in that node's [QUESTIONS.md](../plans/app/desktop/ui/navigation/QUESTIONS.md) and are the product owner's to settle; this journey does not answer them.
+Findings 2, 3 and 4 are framed together as [freshness.md](../plans/app/desktop/ui/navigation/freshness.md), because an at-a-glance assurance is only worth drawing if it is current — a confident "everything is protected" computed from a snapshot taken at unlock is worse than none. **The product owner has now settled its forks and its Approach is committed**, which changes the standing of these three findings and not their content.
 
-**This journey is not satisfied**, though every step is now driven — steps 5 and 8 were the last two, and 8 found the defect above. Findings 2, 3 and 4 remain open and blocked on the product owner, and a journey with open findings is unsatisfied however complete its demonstration.
+Findings 2 and 4 will close when that plan is built: the interface will re-observe on window focus and on a timer riding the sweep loop already in the application, and a revealed value will re-mask itself when the plaintext behind it expires.
+
+**Finding 3 is closed as decided rather than fixed.** Asked whether the product should state that everything is protected, the owner answered *nothing — absence is the answer*. So step 3's request for a one-glance answer without reading is **deliberately not met**, and this journey records that as the owner's decision rather than as an outstanding defect. It is left visible rather than deleted, because a future reader meeting the same gap should find the decision instead of re-raising it.
+
+**This journey is not satisfied**, though every step is now driven — steps 5 and 8 were the last two, and 8 found the defect above. Finding 3 is closed as decided. Findings 2 and 4 stay open until [freshness.md](../plans/app/desktop/ui/navigation/freshness.md) is built, its forks now being settled and its Approach committed.

@@ -168,103 +168,92 @@ export function RepoDetail({
         </div>
       ) : null}
 
-      {files.length === 0 ? (
-        <p className="surface__empty">
-          Seal manages no files in this repository yet.{" "}
-          <button type="button" onClick={onRescan}>
-            Scan for files
+      {sealable.length > 0 ? (
+        <div className="batch">
+          <span className="batch__count">
+            {chosen.length === 0 ? "" : `${chosen.length} selected`}
+          </span>
+          <button
+            type="button"
+            disabled={chosen.length === 0}
+            onClick={() => onSealMany(chosen)}
+          >
+            {chosen.length <= 1
+              ? "Seal selected file"
+              : `Seal ${chosen.length} selected files`}
           </button>
-        </p>
-      ) : (
-        <>
-          {sealable.length > 0 ? (
-            <div className="batch">
-              <span className="batch__count">
-                {chosen.length === 0 ? "" : `${chosen.length} selected`}
-              </span>
+        </div>
+      ) : null}
+
+      <ul className="rows">
+        {files.map((file) => {
+          const path = filePath(repo, file.relativePath);
+          const canSeal = file.state !== "sealed" && file.state !== "missing";
+          const directory = directoryOf(file.relativePath);
+
+          const missing = file.state === "missing";
+          const whyId = missing ? `why-${path}` : undefined;
+
+          return (
+            <li key={path} className="row" data-alert={file.alert}>
+              {canSeal ? (
+                <input
+                  type="checkbox"
+                  className="row__check"
+                  checked={picked.has(path)}
+                  aria-label={`Select ${file.relativePath}`}
+                  onChange={() => toggle(path)}
+                />
+              ) : null}
+
               <button
                 type="button"
-                disabled={chosen.length === 0}
-                onClick={() => onSealMany(chosen)}
+                className="row__open"
+                aria-label={`Open ${file.relativePath}`}
+                disabled={missing}
+                aria-describedby={whyId}
+                onClick={() => onOpen(path)}
               >
-                {chosen.length <= 1
-                  ? "Seal selected file"
-                  : `Seal ${chosen.length} selected files`}
+                <span className="row__name">{fileName(file.relativePath)}</span>
+                {directory ? (
+                  <span className="row__path">{directory}/</span>
+                ) : null}
+                {missing ? (
+                  <span className="row__why" id={whyId}>
+                    Seal cannot open it — it is no longer at this path.
+                  </span>
+                ) : null}
               </button>
-            </div>
-          ) : null}
 
-          <ul className="rows">
-            {files.map((file) => {
-              const path = filePath(repo, file.relativePath);
-              const canSeal = file.state !== "sealed" && file.state !== "missing";
-              const directory = directoryOf(file.relativePath);
+              <span className="row__state" data-state={file.state}>
+                {file.alert ? "Readable — should be sealed" : LABELS[file.state]}
+              </span>
 
-              const missing = file.state === "missing";
-              const whyId = missing ? `why-${path}` : undefined;
-
-              return (
-                <li key={path} className="row" data-alert={file.alert}>
-                  {canSeal ? (
-                    <input
-                      type="checkbox"
-                      className="row__check"
-                      checked={picked.has(path)}
-                      aria-label={`Select ${file.relativePath}`}
-                      onChange={() => toggle(path)}
-                    />
-                  ) : null}
-
+              <span className="row__actions">
+                {canSeal ? (
                   <button
                     type="button"
-                    className="row__open"
-                    aria-label={`Open ${file.relativePath}`}
-                    disabled={missing}
-                    aria-describedby={whyId}
-                    onClick={() => onOpen(path)}
+                    aria-label={`Seal ${file.relativePath}`}
+                    onClick={() => onSeal(path)}
                   >
-                    <span className="row__name">{fileName(file.relativePath)}</span>
-                    {directory ? (
-                      <span className="row__path">{directory}/</span>
-                    ) : null}
-                    {missing ? (
-                      <span className="row__why" id={whyId}>
-                        Seal cannot open it — it is no longer at this path.
-                      </span>
-                    ) : null}
+                    Seal
                   </button>
+                ) : null}
 
-                  <span className="row__state" data-state={file.state}>
-                    {file.alert ? "Readable — should be sealed" : LABELS[file.state]}
-                  </span>
-
-                  <span className="row__actions">
-                    {canSeal ? (
-                      <button
-                        type="button"
-                        aria-label={`Seal ${file.relativePath}`}
-                        onClick={() => onSeal(path)}
-                      >
-                        Seal
-                      </button>
-                    ) : null}
-
-                    <Overflow label={`More actions for ${file.relativePath}`}>
-                      <button
-                        type="button"
-                        className="overflow__danger"
-                        onClick={() => onRelease(path)}
-                      >
-                        Stop managing this file
-                      </button>
-                    </Overflow>
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        </>
-      )}
+                <Overflow label={`More actions for ${file.relativePath}`}>
+                  <button
+                    type="button"
+                    className="overflow__danger"
+                    onClick={() => onRelease(path)}
+                  >
+                    Stop managing this file
+                  </button>
+                </Overflow>
+              </span>
+            </li>
+          );
+        })}
+      </ul>
     </section>
   );
 }

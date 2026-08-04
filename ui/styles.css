@@ -270,8 +270,6 @@ input {
   font-size: 0.72rem; font-weight: 600; padding: 0.1rem 0.5rem;
 }
 .tile__menu { position: absolute; top: 0.9rem; right: 0.9rem; }
-.grid__empty, .surface__empty { color: var(--muted); }
-
 .surface__count { color: var(--muted); font-size: 0.85rem; }
 
 .tile__add {

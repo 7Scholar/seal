@@ -44,11 +44,13 @@ Above the list: the repository's name is the surface's subject rather than a rep
 
 The same two operations appearing on the tile and here is deliberate: they are the repository's operations, and a user acting on a repository may be at either altitude. One flow, two entry points.
 
-## The empty repository
+## There is no empty repository
 
-A repository with nothing managed states that and offers the scan, rather than showing an empty list.
+**A repository is a non-empty set of managed files, so this surface has no empty state and draws none.** The list always holds at least one row.
 
-**This state is not currently reachable**, and whether it should be is [an open question for the owner](QUESTIONS.md). A repository is deleted the moment its last managed file is released, the manage flow refuses an empty selection, and a rescan only ever adds — so no path arrives at a managed repository holding nothing. The markup implementing it is therefore unreached.
+This is a property of the model rather than an omission. A repository is deleted the moment its last managed file is released, the manage flow refuses an empty selection, and a rescan only ever adds — so no path arrives at a managed repository holding nothing. A user who releases every file has stopped managing that repository, and the product takes them back to the grid, which is the surface that now correctly describes their situation.
+
+In the state enumeration's vocabulary the empty case is **not reachable**, with that as the reason.
 
 ## The count, and what the surface knows
 
@@ -87,7 +89,7 @@ Guards confirmed non-vacuous by reintroducing the defect each prevents:
 - [x] The repository header with its path, toggletip and ellipsis.
 - [x] The batch seal re-homed, with its gate and per-file reporting intact.
 - [x] The exposure alert above the list.
-- [!] The empty repository state — blocked, awaiting answer in QUESTIONS.md. Built, but unreachable through any path.
+- [x] The empty repository: settled as not reachable, and its unreached markup removed.
 - [x] The count, the missing-file explanation, and the stale notice.
 - [x] Tests, with each load-bearing rule confirmed non-vacuous.
 

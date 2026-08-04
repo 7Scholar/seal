@@ -13,11 +13,23 @@ Both sessions since have found defects that **were** real, and both only after m
 
 This session's own instance: the `living-with-it` run failed five of nine checks on its first drive. Two of those were the product, one was a harness selector, and two were **my own test asserting a surface that does not exist** — which turned out to be the most valuable finding of the session, but only after being diagnosed rather than filed as a bug.
 
+## Git: work on `main`, and do not create a branch
+
+**This repository has no origin and has never been published.** Every branch has been merged into `main` and deleted; `main` is the only branch and it holds everything.
+
+**Work directly on `main` and commit there.** Do not branch. A branch exists to become a pull request, and with no remote there is no push, no PR and no merge — so a branch only hides your work from the next session, which reads `main`. The manuals have been updated to say so ([GIT_WORKFLOW.md](docs/plans/GIT_WORKFLOW.md) owns the rule under **While this repository has no remote**; [INSTRUCTIONS.md](docs/plans/INSTRUCTIONS.md) and [UI_IMPROVEMENTS.md](docs/plans/UI_IMPROVEMENTS.md) defer to it). **If you find any remaining instruction telling you to branch off `main` or hand a branch off, it is superseded — ignore it.**
+
+Everything else about landing is unchanged and matters more, not less: code and prose commit first, **coverage stamps last as its own final commit**, and the detector must report no drift before you stop. **Still never push** — there is nowhere to push to, and adding a remote is the product owner's call, not a step you take to satisfy an instruction.
+
+One caution the branchless workflow trades for: **run one task at a time.** Concurrent tasks used to collide loudly on a shared `coverage.json` at merge time. On `main` there is no merge, so nothing flags it — two sessions just interleave.
+
 ## Where things stand
 
-Work is on the branch **`journeys/living-with-it`**, three commits, not pushed and no PR opened. There is no remote.
+Everything is committed on **`main`**. The working tree is clean and there is no remote.
 
-**The harness is healthy and fast. Four scenarios, all green:** `first-run` 8/8 (~2s), `return-and-use` 9/9 (~6s), `interrupted-rekey` 5/5 (~15s), `living-with-it` 6/6 (~17s, green across two consecutive runs). `bun run e2e:living` runs the new one.
+**The harness is healthy and fast. Five specs, all green:** `first-run` 8/8 (~2s), `return-and-use` 9/9 (~13s), `interrupted-rekey` 5/5 (~16s), `living-with-it` 6/6 (~18s), and `window-frame` 4/4 (~1s). `bun run e2e:living` and `bun run e2e:frame` run the last two.
+
+**`window-frame` is not a journey** — it drives the window *as a window* (drag region present, surfaces below the traffic lights, the manage tree scrolling rather than the document). It exists because all four journeys passed while three surfaces had no title bar at all: a journey asks whether a task completes, and the tasks completed.
 
 **Journeys: three of six satisfied.**
 
@@ -41,31 +53,21 @@ Work is on the branch **`journeys/living-with-it`**, three commits, not pushed a
 
 They are one node because an assurance computed from a stale read is worse than no assurance.
 
-## What to do next — the repo import surface, by the product owner's direction
+## The repo import surface — done, and what it taught
 
-**This is your task.** The owner reviewed the repository import screen (the manage surface, met when adding a repository or rescanning one) and named four things. All four are recorded in [manage-surface.md](context/plans/app/desktop/ui/navigation/manage-surface.md), and the structural one in [the navigation README](context/plans/app/desktop/ui/navigation/README.md). **Read both before touching code** — they carry measurements you would otherwise have to re-derive.
+**All four of the product owner's items are fixed and driven.** They were: the missing always-present header, the title/subtitle pinned at top, Cancel/Manage files pinned at bottom, and *"Remove 'an environment file', that's so useless."* Recorded in [manage-surface.md](context/plans/app/desktop/ui/navigation/manage-surface.md) and [the navigation README](context/plans/app/desktop/ui/navigation/README.md), which own the measurements.
 
-The owner's four, in their words and what each turns out to be:
+Items 1–3 were one defect: `App.tsx` had three early returns rendering outside `.shell` — the only element drawing the title bar **and** the only one setting `100vh`. The shell is now unconditional and every surface renders as its content; the locked screen and the two overlays get a **bare** strip (transparent, no divider, drag region intact), with the unlock shield's gradient moved onto the shell so it reaches behind it.
 
-1. **"The traffic lights are not part of a header, the page goes under them, and I have no header to double-click or drag. That header should ALWAYS be present, on every page."**
-2. **"The title and subtitle sticky fixed at the top."**
-3. **"Cancel and Manage files sticky fixed at the bottom."**
-4. **"Remove 'an environment file', that's so useless."**
+**The measurement worth carrying forward, because the earlier handoff got it half right.** The previous session recorded `.manage` at 2630px in a shorter viewport and framed the fault as "the surface is too tall". It is not. `height: 100%` against an auto-height ancestor resolves to **the content's own height**, so the same defect measured **322px in a 720px viewport** against a small repository. Two opposite symptoms, one cause — and a fix validated only against a tall tree would have looked correct while the frame was still broken. If you ever re-measure a height chain, do it at two content sizes.
 
-**These are not four independent tweaks — 1, 2 and 3 share one cause**, which was measured rather than guessed. Driving a ~80-file repository at the default window size:
+Item 4 was narrower than "remove the string". Every *other* scan reason names a category the filename does not — `id_ed25519` → "a private key". Only `an environment file` restated its own row. The classifier now returns no reason where the name is the reason; the boundary and tree already accepted a null one. **Nothing had ever asserted a scan reason** — the classification test discarded it and matched only confidence — which is why the most repeated string on the surface was uncovered. It is guarded in both directions now.
 
-- `[data-tauri-drag-region]` matches **nothing** while the manage surface is open — hence no drag, no double-click zoom, and the surface starting at `top: 0` under the window controls.
-- `.manage` renders **2630px tall** in a much shorter viewport, and `.manage__region` reports `scrollHeight === clientHeight`, so **the tree region is not scrolling at all** — the whole document is. That is why the header and footer scroll away.
+`manage-surface.md`'s "What exists" is honest again, and its two frame steps are `[x]`.
 
-The cause of all three: `App.tsx` has **three early returns that render outside `.shell`** — the manage overlay, the password-change overlay, and the locked screen. `.shell` is the only element that draws `.shell__titlebar` (which carries the drag region and the 5.5rem inset clearing the traffic lights) **and** the only one setting `100vh`. Outside it, `.manage { height: 100% }` resolves against an auto-height `body`/`#root`, so the three-band grid expands to its content instead of the window.
+## What to do next
 
-So the CSS reads as correct and the surface behaves as though it were not, and **fixing the header fixes the sticky chrome too.** Note this also means the password-change and locked screens have no title bar — which is why the owner said *every* page. Settle the shape of that fix at [the navigation node](context/plans/app/desktop/ui/navigation/README.md) (it owns the shell) **before** doing the manage surface's own frame work; the direction is already settled by the owner, so this is not a question for `QUESTIONS.md`.
-
-**Item 4 is a different kind of thing and is not frontend copy.** `an environment file` is a scan *reason* returned by `crates/seal-registry/src/scan.rs:201` for any env-like name, rendered by the tree as `.tree__reason`. It is the most repeated string on the surface — in the driven run the first six annotations were all identical — and it restates the filename beside it. Removing it means either dropping the reason at source or having the tree suppress a reason that adds nothing to the name; that touches [scan-shape.md](context/plans/app/desktop/ui/repo-layer/scan-shape.md) and [vocabulary.md](context/plans/app/desktop/ui/repo-layer/vocabulary.md), so check those contracts rather than deleting the string.
-
-**A correction you should know about:** `manage-surface.md`'s Approach claims the fixed header and footer were delivered. They were not, in the running application — the claim is true of the CSS only. The plan now records the measurement and the honest state. Do not trust that section's "What exists" over what you measure yourself.
-
-**After the import surface**, if the product owner has answered [QUESTIONS.md](context/plans/app/desktop/ui/navigation/QUESTIONS.md), build `freshness.md` — the largest open concern, and the one the product's finish is most visibly decided by.
+**If the product owner has answered [QUESTIONS.md](context/plans/app/desktop/ui/navigation/QUESTIONS.md), build `freshness.md`** — the largest open concern, and the one the product's finish is most visibly decided by. It was still unanswered as of this session, so it stayed blocked.
 
 **Otherwise, the journeys work, in this order:**
 
@@ -99,7 +101,7 @@ So the CSS reads as correct and the surface behaves as though it were not, and *
 - **Every load-bearing guard is confirmed non-vacuous** — break it deliberately, watch the matching test fail, restore it.
 - **Never put a plan question to the user directly.** It goes in `QUESTIONS.md` and that line of work stops. Delete the file once it is empty.
 - **Code carries no comments and no docstrings.** Explanation lives in the plans.
-- **You commit locally and stop.** You do not push and do not open a PR.
+- **You commit on `main` and stop.** No branch, no push — see the git section at the top.
 
 ## Traps this repository has actually fallen into
 
@@ -115,7 +117,7 @@ So the CSS reads as correct and the surface behaves as though it were not, and *
 ## Still open, unchanged from the last handoff
 
 - **The missing `__wdio_original_core__` global was not reported upstream.** A genuine defect in the published `@wdio/tauri-service`; the runner's `before` hook can be dropped once fixed.
-- **The CI workflow still has no green run on a hosted runner**, and still gates on `first-run` only. Four scenarios are stable now, so widening it is worth doing.
+- **The CI workflow still has no green run on a hosted runner**, and still gates on `first-run` only. Five specs are stable now, so widening it is worth doing — though with no remote there is nothing running CI, which makes this lower value until the repo lands somewhere.
 - **No per-file progress display** during a long rekey run. The manifest is per-file accurate on disk; a live view is missing. Recorded on `password-change.md`.
 - **A stashed `titlebar.rs` change.** `git stash list` shows *"stray unsafe-removal in titlebar.rs"* — removes seven `unsafe` blocks the current `objc2` no longer requires, compiles, clears seven build warnings. Found in the working tree by an earlier session that had not written it.
 - **Two pre-existing clippy failures in that same file** (`expect()` on an `Option`, in its test module), present at `HEAD` independently of the stash.

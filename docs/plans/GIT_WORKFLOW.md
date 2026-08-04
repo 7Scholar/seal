@@ -2,7 +2,23 @@
 
 > **This document is the full design of how work moves through git** — how an agent takes a plan from a branch to a merged change, and the one guarantee that keeps the coverage machinery ([SYNC.md](SYNC.md)) intact across a merge. It is system description (home is [README.md](README.md)); the distilled agent-facing steps live in [INSTRUCTIONS.md](INSTRUCTIONS.md).
 
+## While this repository has no remote: work directly on `main`
+
+**This overrides the branch-and-PR shape described below, everywhere it appears in this document tree.** The repository has no origin and has never been published, so the entire remote half of the workflow — the branch, the push, the pull request, the review, the merge — has nothing to act on. A branch with no remote is a local pointer nobody will ever open a PR against, and the handoff it is supposed to enable is just the next session running `git checkout`.
+
+So, until the repository lands somewhere:
+
+- **Work on `main` and commit there.** Do not branch, and do not create a branch "to be safe" — an unmerged branch is how work becomes invisible to the next session, which reads `main`.
+- **Everything else is unchanged, and matters more rather than less.** Code and prose commit first, coverage stamps last as its own final commit, and the detector must report no drift before you stop. Nothing about the plan system's reconcile depends on a branch; it is the *landing* that does.
+- **Still never push.** There is nowhere to push to. If an origin is ever added, that is the moment this section is deleted and the shape below resumes.
+
+**Why the stamp-last rule survives intact.** Its guarantee is that a covered file's newest commit is its stamp, so the file's window is empty. On `main` that is unchanged — there is simply no merge commit at the end of the window, and a merge commit attributes no files anyway. The merge-commit-never-squash guarantee below is likewise unaffected: with no PR, no SHA is ever rewritten, which is the strongest form of the property it protects.
+
+**One caution this trades for.** The subtree partition below exists to stop two concurrent tasks conflicting on one `coverage.json`. Branches were what let those tasks proceed in parallel and fail loudly at merge time; on `main` there is no merge to fail. So **run one task at a time** while this section applies. Two agents committing to `main` at once will interleave, and nothing will flag it.
+
 ## The shape
+
+> The shape described from here on is **suspended while the repository has no remote** — see the section above, which is the rule in force. Read on for the design it will resume when there is somewhere to land.
 
 An **agent** works one plan on a branch off `main` and **commits its work locally**. When the branch is ready, the **human** pushes it and opens a **pull request into `main`**, then reviews and merges it on GitHub. `main` is the integration trunk — nothing deploys from it automatically, so it tolerates a brief out-of-sync state without consequence.
 
@@ -47,6 +63,8 @@ Two things are local git state, established once per clone before work happens i
 - **`gh`, installed and authenticated** — the **human** pushes the branch and opens the PR (with `gh pr create` or the GitHub UI), so the GitHub CLI must be present and logged in for that step. The agent never invokes it.
 
 ## End to end
+
+> While the repository has no remote, steps 2, 3 and 5 collapse: work on `main`, and stop after step 4. The **no remote** section above governs.
 
 1. **Set up the clone, once:** pull latest `main`, run `install_hook`, ensure `gh` is authenticated.
 2. **Assign** the task a plan subtree, disjoint from any other in-flight task's.

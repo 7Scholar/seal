@@ -30,6 +30,7 @@
     "e2e/journeys/first-run.e2e.ts": "70f8ce6ebe6a7977a47f1a6e8f98b2c42d00d7e8",
     "e2e/journeys/interrupted-rekey.e2e.ts": "3f4593bf0131ac12d0b822da2dda97d4f845d6aa",
     "e2e/journeys/living-with-it.e2e.ts": "1fd42d7388f8ab76706adbdf45c80da321ec996e",
+    "e2e/journeys/manage-filter.e2e.ts": "63f6a1ee6a83e2c1e52259bf9b56b773dc2a189b",
     "e2e/journeys/plaintext-expiry.e2e.ts": "db24d4cb17eb391ac3e78bd4682655b594ba587b",
     "e2e/journeys/return-and-use.e2e.ts": "70f8ce6ebe6a7977a47f1a6e8f98b2c42d00d7e8",
     "e2e/journeys/settling-in.e2e.ts": "8ee6485b96c5205c67068c9c17bbedb5ca7e7cab",
@@ -40,6 +41,7 @@
     "e2e/wdio.conf.ts": "5319e50a1dbdb9802cc1812b494317ba57aab09c",
     "e2e/wdio.deploy.conf.ts": "7a5177e4c2b4394f7c07e9840c96d6b2a8acdf57",
     "e2e/wdio.expiry.conf.ts": "db24d4cb17eb391ac3e78bd4682655b594ba587b",
+    "e2e/wdio.filter.conf.ts": "63f6a1ee6a83e2c1e52259bf9b56b773dc2a189b",
     "e2e/wdio.settling.conf.ts": "8ee6485b96c5205c67068c9c17bbedb5ca7e7cab"
   },
   "lifecycle.md": {

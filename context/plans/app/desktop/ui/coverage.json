@@ -1,6 +1,6 @@
 {
   "errors.md": {
-    "ui/App.tsx": "9eda9f1877c9b740336e710d7292b981d3fe661b",
+    "ui/App.tsx": "13c2312a097a3c3fce76e9676cf063134413dd0e",
     "ui/components/Problem.test.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "ui/components/Problem.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "ui/errors.test.ts": "a0b3f33bc64a56a499060d82bb90794330e3227e",
@@ -13,7 +13,7 @@
     "ui/screens/PasswordChange.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e"
   },
   "screens.md": {
-    "ui/App.tsx": "9eda9f1877c9b740336e710d7292b981d3fe661b",
+    "ui/App.tsx": "13c2312a097a3c3fce76e9676cf063134413dd0e",
     "ui/components/Confirm.test.tsx": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b",
     "ui/components/Confirm.tsx": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b",
     "ui/components/ExposureAlert.test.tsx": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b",
@@ -25,28 +25,28 @@
     "ui/screens/Acknowledge.test.tsx": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b",
     "ui/screens/Acknowledge.tsx": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b",
     "ui/screens/EnvEditor.test.tsx": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
-    "ui/screens/EnvEditor.tsx": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
+    "ui/screens/EnvEditor.tsx": "13c2312a097a3c3fce76e9676cf063134413dd0e",
     "ui/screens/ManageFlow.test.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
     "ui/screens/ManageFlow.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
     "ui/screens/Unlock.test.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "ui/screens/Unlock.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "ui/screens/sandShield.ts": "423b3896f02fede5de3cd42015098a16fc28fc6a",
-    "ui/styles.css": "a74340e1cb980f392bd8dbba828ab9ab43f7f1fa",
+    "ui/styles.css": "13c2312a097a3c3fce76e9676cf063134413dd0e",
     "ui/test-setup.ts": "2b72f4a1974077a8a59db94f8a5910edade8369b"
   },
   "shell-layout.md": {
     "e2e/journeys/first-run.e2e.ts": "70f8ce6ebe6a7977a47f1a6e8f98b2c42d00d7e8",
-    "ui/App.test.tsx": "9eda9f1877c9b740336e710d7292b981d3fe661b",
-    "ui/App.tsx": "9eda9f1877c9b740336e710d7292b981d3fe661b",
+    "ui/App.test.tsx": "13c2312a097a3c3fce76e9676cf063134413dd0e",
+    "ui/App.tsx": "13c2312a097a3c3fce76e9676cf063134413dd0e",
     "ui/components/Overflow.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
     "ui/components/Toggletip.test.tsx": "db87c4406dff9b30e905080324f0986b2ec4b576",
     "ui/components/Toggletip.tsx": "db87c4406dff9b30e905080324f0986b2ec4b576",
     "ui/screens/RepoDetail.test.tsx": "9eda9f1877c9b740336e710d7292b981d3fe661b",
     "ui/screens/RepoDetail.tsx": "a74340e1cb980f392bd8dbba828ab9ab43f7f1fa",
-    "ui/styles.css": "a74340e1cb980f392bd8dbba828ab9ab43f7f1fa"
+    "ui/styles.css": "13c2312a097a3c3fce76e9676cf063134413dd0e"
   },
   "shell.md": {
-    "package.json": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
+    "package.json": "13c2312a097a3c3fce76e9676cf063134413dd0e",
     "tsconfig.json": "1c1500f0dcd0679debced048c43e570e85081a3b",
     "ui/index.html": "1c1500f0dcd0679debced048c43e570e85081a3b",
     "ui/ipc.ts": "d94b0fe6754a2d59df78858772e4dddf19c81cad",

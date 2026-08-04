@@ -18,7 +18,9 @@ The flow is gated on a typed phrase, the second and last place in the applicatio
 
 ## The manifest
 
-Committing a plan writes a manifest listing the password sentinel first and then every managed file as pending, alongside the registry, **before any file is touched**. The sentinel leads because converting it first moves the password that unlocks the application to the new password the moment a run begins — the semantics are [first-open.md](../first-open.md)'s. Each entry moves to converted or failed as the run proceeds, and the manifest is rewritten after each pass. A completed run deletes it; an unfinished one leaves it, which is how the next launch knows to say so.
+Committing a plan writes a manifest listing the password sentinel first and then every managed file as pending, alongside the registry, **before any file is touched**. The sentinel leads because converting it first moves the password that unlocks the application to the new password the moment a run begins — the semantics are [first-open.md](../first-open.md)'s. A completed run deletes it; an unfinished one leaves it, which is how the next launch knows to say so.
+
+**Each entry is rewritten to converted or failed the moment that file settles, not when the run returns.** The engine re-seals a list in one call, so a manifest written only from its final report is still all-pending for the whole time the run is working — and a force-quit in that window leaves a manifest that names nothing as moved even though files on disk already carry the new password. The resume screen then asks for the old password on files that no longer need it, which is the misleading half-done report this whole design exists to prevent. The desktop therefore drives the engine's observed variant and persists after every file, so the durable record tracks the disk rather than trailing it. The engine's own progress stays derived and unrecorded — that contract is [operations.md](../../engine/operations.md)'s and is not changed here; the manifest is the desktop's separate, durable view over it.
 
 Resuming reads the manifest and retries only entries that have not converted, so a file already on the new password is never attempted again with the old one. Starting a fresh change while a manifest exists is refused outright — that is how a repository ends up spread across three passwords.
 
@@ -40,6 +42,10 @@ The flow is **driven end to end in the real application** as the last step of th
 
 Note for anyone reading the run: after the change completes the application returns to **the altitude it was already at**, which for this scenario is a repository rather than the repository list. There is no `Repositories` heading to assert on — that heading belongs to the top-level screen alone.
 
+**The interrupted run is driven too**, by the [interrupted-rekey scenario](../journey-harness.md), and it found the defect above. Six managed files are sealed, a rotation is started, and the application is force-killed the moment a file's ciphertext on disk is seen to change — a real `SIGKILL`, after which the process is relaunched and the driver reconnects. Before the fix the manifest read **0 of 7 converted** while `.env.five` had already moved to the new password, and the resume screen listed that file as still needing the old one; after it the same interruption records **2 of 7** and the screen names only files that genuinely still need the old password. The step is non-vacuous by the mutation that removes the per-file write: the manifest reverts to 0 of 7 and the step fails by name.
+
+Recovery itself was never broken — the engine's derived progress re-opens each file under the new password first, so a resumed run finishes correctly either way. What the interruption broke was the *report*, which is the half of this flow the user actually reads.
+
 # Steps
 
 - [x] Design the flow, including where the manifest lives and how an unfinished run is surfaced on next launch.
@@ -47,8 +53,8 @@ Note for anyone reading the run: after the change completes the application retu
 - [x] Build the flow.
 - [x] Tests: a run interrupted partway is resumable and reports honestly which files sit on which password.
 - [x] Drive it in the real application, and prove the drive non-vacuous.
-- [ ] Drive an **interrupted** run — kill the application partway through the rotation and reopen it — which is the property the durable manifest exists for and the one a clean run cannot demonstrate. [change-the-password.md](../../../../journeys/change-the-password.md) requires it.
+- [x] Drive an **interrupted** run — kill the application partway through the rotation and reopen it — which is the property the durable manifest exists for and the one a clean run cannot demonstrate. [change-the-password.md](../../../../journeys/change-the-password.md) requires it.
 
 # Open threads
 
-- Progress is reported per pass rather than per file. A channel would give a live per-file view, which matters only once a user has enough files for the run to be slow; the durable manifest already carries the information the display needs.
+- The interface still reports progress per pass rather than streaming it per file. The manifest is now per-file accurate on disk, so an unfinished run is reported correctly on the next launch; what remains is a live view during a long run, which matters only once a user has enough files for the run to be slow.

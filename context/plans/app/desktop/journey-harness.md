@@ -22,7 +22,9 @@ The harness is **WebdriverIO with `@wdio/tauri-service`**, driving the applicati
 
 **The native folder dialog is bridged by a seam, not stubbed.** The webview's IPC internals object is readonly, so page-side stubbing of plugin calls is impossible. Instead the folder pick is a purpose-built command on the app's own surface, and in harness builds only, that command honours an environment variable naming the folder to return instead of showing the native dialog. The scenario writes its fixture repository into that folder before clicking the add control.
 
-**Two scenarios, ordered.** `first-run` drives the install experience end to end: choosing the password with the typo caught and unrecoverability stated, the sealed sentinel proven on disk, adding through the picker with conservative preselection, the acknowledgement gate on the first seal, the sealed file proven armored in place, and lock followed by a plainly-refused wrong password. `return-and-use` relaunches against the same home: the returning shield, unlock, masked structure with no value in the page, reveal and conceal, an edit saved with the file still sealed on disk, a staged exposure surfaced by the insistent alert, the recency warning on sealing it back, and a supervised password change after which the old password no longer opens Seal.
+**A scenario may restart the application, and does so by killing the process rather than by resetting the session.** Reloading the WebDriver session reconnects the driver to the *same* process — measured, the process identity is unchanged across it and the application stays unlocked — so it cannot demonstrate anything about surviving a crash. An interruption is therefore a real `SIGKILL` against the running binary, followed by relaunching the same wrapper script and reconnecting; the relaunched process reads the scratch home the run has been using throughout, so it comes up as the returning user with whatever state the kill left on disk. The bridge global is reinstalled after the reconnect, since a new process starts without it.
+
+**Three scenarios, ordered.** `first-run` drives the install experience end to end: choosing the password with the typo caught and unrecoverability stated, the sealed sentinel proven on disk, adding through the picker with conservative preselection, the acknowledgement gate on the first seal, the sealed file proven armored in place, and lock followed by a plainly-refused wrong password. `return-and-use` relaunches against the same home: the returning shield, unlock, masked structure with no value in the page, reveal and conceal, an edit saved with the file still sealed on disk, a staged exposure surfaced by the insistent alert, the recency warning on sealing it back, and a supervised password change after which the old password no longer opens Seal. `interrupted-rekey` runs against its own scratch home, because it establishes a vault of six managed files in order to have a rotation long enough to interrupt: it seals them, starts a password change, force-kills the application the moment a file's ciphertext on disk is observed to change, relaunches, and drives the resume — the unprompted banner, the screen naming which files still need the old password, the retry that finishes the job, and the old password refused afterwards.
 
 **The client's Tauri bridge global is installed by the harness.** The service runs a focus check before every `findElement`, `findElements`, `$`, `$$` and `elementClick`, and that check reaches Tauri through `window.__wdio_original_core__` — a page global the service reads but never assigns. Absent it, every one of those commands waits five seconds and then throws, so a scenario's waits expire against a page that was ready the whole time and the run appears to hang at a wandering point. The harness therefore binds that global to the webview's own IPC invoke once per session, in the runner's `before` hook, which is the client's defect and so belongs on the client side rather than in the application.
 
@@ -40,9 +42,11 @@ Removing the delay exposed two assumptions the tax had been masking, both fixed 
 
 **Assert what the surface actually shows at that altitude.** The `Repositories` heading belongs to the top-level screen alone; the breadcrumb carries the same word as a button at every other altitude. A step that returns the user to a repository — as the password change does — must not assert the heading, or it fails against a screen that is behaving correctly.
 
+**The interrupted password change is driven, and it found a real defect.** The rotation's durable manifest was written only from the engine's final report, so throughout the run it still read all-pending: a force-quit left a manifest recording **0 of 7 converted** while a file on disk had already moved to the new password, and the resume screen asked for the old password on that file. The manifest now persists per file, and the same interruption records **2 of 7**. Recovery was never broken — the engine's derived progress finishes correctly either way — but the report the user reads was wrong in exactly the state the flow exists to handle. `password-change.md` owns the fix.
+
 # What is missing
 
-A green run of the workflow on the hosted runner, and scenarios for the command-line resolve, an interrupted password change, and plaintext expiry.
+A green run of the workflow on the hosted runner, and scenarios for the command-line resolve and plaintext expiry.
 
 # Steps
 
@@ -52,8 +56,9 @@ A green run of the workflow on the hosted runner, and scenarios for the command-
 - [x] The `return-and-use` scenario: all nine steps green in sequence, across two consecutive runs
 - [~] Gate it in continuous integration — the workflow is authored, gated on the stable scenario; its first run on the hosted runner is pending
 - [x] Resolve the bridge freeze — it was the client's unassigned `__wdio_original_core__` global, and the harness now installs it
+- [x] The `interrupted-rekey` scenario: a force-quit partway through a rotation, relaunched and resumed, green across consecutive runs
 - [ ] Report the missing global upstream, so the harness's `before` hook can eventually be dropped
-- [ ] Scenarios for what remains undriven: the command-line resolve, an interrupted password change, plaintext expiry
+- [ ] Scenarios for what remains undriven: the command-line resolve, plaintext expiry
 
 # Open threads
 

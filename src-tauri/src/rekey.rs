@@ -175,7 +175,34 @@ pub fn run(
         return Ok(manifest);
     }
 
-    let report = match reseal::reseal(&outstanding, from, to, manifest.work_factor, ATTEMPTS) {
+    let mut progress = manifest.clone();
+    let checkpoint = |settled: reseal::Settled<'_>| {
+        match settled {
+            reseal::Settled::Converted(converted) => {
+                if let Some(entry) = progress.entry_mut(&converted.path) {
+                    entry.standing = Standing::Converted;
+                    entry.reason = None;
+                }
+            }
+            reseal::Settled::Unfinished(unfinished) => {
+                if let Some(entry) = progress.entry_mut(&unfinished.path) {
+                    entry.standing = Standing::Failed;
+                    entry.reason =
+                        Some(format!("{:?}", CommandError::kind_of(&unfinished.reason)));
+                }
+            }
+        }
+        let _ = ledger.write(&progress);
+    };
+
+    let report = match reseal::reseal_observed(
+        &outstanding,
+        from,
+        to,
+        manifest.work_factor,
+        ATTEMPTS,
+        checkpoint,
+    ) {
         Ok(report) => report,
         Err(reseal::PlanError::Unusable { path, reason }) => {
             manifest.fail(&path, CommandError::kind_of(&reason));

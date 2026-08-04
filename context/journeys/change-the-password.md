@@ -50,7 +50,11 @@ They are anxious. Reassurance must be earned by the product actually being safe,
 
 # Demonstration
 
-**The clean run is driven end to end and green; the interrupted run is not. Not yet satisfied.** The harness's `return-and-use` scenario drives this path as its last step, against a release build from a scratch profile. What was witnessed:
+**Both runs are driven end to end and green. Satisfied.** The clean run is the last step of the harness's `return-and-use` scenario; the interrupted run is the `interrupted-rekey` scenario. Both drive a release build from a scratch profile.
+
+## The clean run
+
+What was witnessed:
 
 - The route in: the settings control, then **Change master password**.
 - The screen states that both passwords must be remembered until the change finishes, before anything is typed.
@@ -60,8 +64,19 @@ They are anxious. Reassurance must be earned by the product actually being safe,
 
 The step is confirmed non-vacuous by the mutation that would break exactly this promise: dropping the sentinel from the manifest the rotation plans, which would leave the old password still opening Seal. The step fails with the sentinel dropped and passes with it restored.
 
-**Not driven: the interrupted run** — killing the application partway through the rotation and reopening it. That is this journey's own requirement, because resumability is the property that matters most and a clean run cannot demonstrate it. The durable manifest that makes resumability possible is covered by the Rust suite, which this axis does not accept as a substitute.
+## The interrupted run
+
+Six secret files are brought under management and sealed, so the rotation is long enough to catch in flight. A password change is started, and the application is **force-killed** — a real `SIGKILL`, not a quit — the moment a managed file's ciphertext on disk is seen to change, so the kill lands with the rotation genuinely partway through. The process is then relaunched and driven onward. What was witnessed, on steps 5, 6 and 7 of the path:
+
+- **It says so unprompted.** The relaunched application comes up locked; unlocking lands on the ordinary surface with a banner already present — *"A password change was not finished"*, telling the user to keep both passwords. Nobody had to go looking for it.
+- **It names files, not a count.** The resume screen lists the files still on the old password by name, and the count of what already moved.
+- **Retrying continues rather than restarting**, and the run completes; the banner goes away and the manifest is cleared.
+- **Afterwards the old password opens nothing** — it is refused with *"did not open your files"* — the new one opens Seal, and all six files are still sealed on disk.
+
+**This run found a defect, and it is fixed.** Before the fix the manifest recorded **0 of 7 converted** at the moment of the kill, even though a file on disk had already been re-sealed under the new password — so the resume screen asked for the old password on a file that no longer needed it. The cause was that the durable manifest was written only from the engine's final report, leaving it all-pending for the whole time the run was working. It is now written as each file settles; the same interruption records **2 of 7**. Confirmed non-vacuous by removing the per-file write: the manifest returns to 0 of 7 and the step fails by name.
+
+Worth stating plainly, because it bounds the severity: **recovery was never broken.** The engine re-opens each file under the new password before trying the old one, so a resumed run always finished correctly. What was wrong was the report — which, for a flow whose entire purpose is telling an anxious user which password each file is on, is the half that matters.
 
 # Findings
 
-**None open.** Driving this journey found no defect in the product. It did find two in the harness, both fixed: passwords were typed with a per-character key stream that silently dropped the spaces, so the vault was established under a password nobody intended and only the correctly-typed field ever revealed the mismatch; and the run asserted a `Repositories` heading after the change, which belongs to the top-level screen alone and never appears when the change returns the user to a repository. The journey is unsatisfied only because the interrupted run is still to be driven.
+**None open.** The interrupted run found one defect in the product, now fixed and re-driven: an interrupted rotation's durable manifest under-reported what had moved, so the resume screen asked for the old password on files already converted. Driving this journey also found two harness defects, both fixed: passwords were typed with a per-character key stream that silently dropped the spaces, so the vault was established under a password nobody intended and only the correctly-typed field ever revealed the mismatch; and the run asserted a `Repositories` heading after the change, which belongs to the top-level screen alone and never appears when the change returns the user to a repository.

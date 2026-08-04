@@ -34,6 +34,12 @@ impl Unfinished {
     }
 }
 
+#[derive(Debug)]
+pub enum Settled<'a> {
+    Converted(&'a Converted),
+    Unfinished(&'a Unfinished),
+}
+
 #[derive(Debug, Default)]
 pub struct Report {
     pub converted: Vec<Converted>,
@@ -126,6 +132,17 @@ pub fn reseal(
     work_factor: u8,
     attempts: u8,
 ) -> Result<Report, PlanError> {
+    reseal_observed(paths, from, to, work_factor, attempts, |_| {})
+}
+
+pub fn reseal_observed(
+    paths: &[PathBuf],
+    from: &SecretString,
+    to: &SecretString,
+    work_factor: u8,
+    attempts: u8,
+    mut settled: impl FnMut(Settled<'_>),
+) -> Result<Report, PlanError> {
     prove_passphrase(to, work_factor)?;
     let planned = plan(paths)?;
 
@@ -134,12 +151,20 @@ pub fn reseal(
 
     for path in planned {
         match reseal_one(&path, &candidates, to, work_factor, attempts.max(1)) {
-            Ok(state) => report.converted.push(Converted { path, state }),
-            Err((attempts, reason)) => report.unfinished.push(Unfinished {
-                path,
-                attempts,
-                reason,
-            }),
+            Ok(state) => {
+                let converted = Converted { path, state };
+                settled(Settled::Converted(&converted));
+                report.converted.push(converted);
+            }
+            Err((attempts, reason)) => {
+                let unfinished = Unfinished {
+                    path,
+                    attempts,
+                    reason,
+                };
+                settled(Settled::Unfinished(&unfinished));
+                report.unfinished.push(unfinished);
+            }
         }
     }
 

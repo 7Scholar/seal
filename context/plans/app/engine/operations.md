@@ -20,6 +20,8 @@ Verified by eleven operations tests and seven lock tests: a real env file sealed
 
 Progress is derived rather than recorded. Each file is unsealed with the new passphrase first and the old second: opening under the first candidate means the file is already converted and is skipped, and opening under the second means it converts. Nothing is written down, so re-running is always safe and always finishes exactly the remainder — which makes retrying the recovery mechanism rather than a fallback.
 
+The operation reports each file to a caller-supplied observer as it settles, in addition to returning the whole report at the end. The engine still records nothing itself — the observer is how a caller that *does* keep a durable record, such as the desktop's rekey manifest, can persist per file instead of learning the outcome only when the whole list returns. The plain entry point is the same operation with an observer that does nothing, so the derived-progress contract above is unchanged.
+
 A file that fails transiently — busy, interrupted, momentarily unreadable — is retried up to a bounded count. A file that fails for a reason retrying cannot fix, such as being sealed under neither passphrase, is reported immediately without burning attempts. The report names every converted file and every unfinished one with its reason and whether it is worth retrying, which is what lets the interface offer a one-click retry rather than a count.
 
 Sealing also range-checks the work factor before it reaches the library, which panics rather than erroring on an out-of-range value — see `MEMORY.md`.

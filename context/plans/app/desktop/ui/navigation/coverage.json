@@ -1,9 +1,9 @@
 {
   "breadcrumbs.md": {
-    "ui/App.test.tsx": "13c2312a097a3c3fce76e9676cf063134413dd0e",
-    "ui/App.tsx": "13c2312a097a3c3fce76e9676cf063134413dd0e",
-    "ui/components/Breadcrumbs.tsx": "6af8515a56ce649aaf6c17568ae434baa072681d",
-    "ui/components/Switcher.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db"
+    "ui/App.test.tsx": "d14f1fa6c6e33529d0d098de586751ab686385f8",
+    "ui/App.tsx": "d14f1fa6c6e33529d0d098de586751ab686385f8",
+    "ui/components/Breadcrumbs.tsx": "d14f1fa6c6e33529d0d098de586751ab686385f8",
+    "ui/components/Switcher.tsx": "d14f1fa6c6e33529d0d098de586751ab686385f8"
   },
   "file.md": {
     "ui/screens/EnvEditor.test.tsx": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
@@ -11,7 +11,7 @@
     "ui/screens/FileStates.tsx": "13c2312a097a3c3fce76e9676cf063134413dd0e"
   },
   "files.md": {
-    "ui/App.tsx": "13c2312a097a3c3fce76e9676cf063134413dd0e",
+    "ui/App.tsx": "d14f1fa6c6e33529d0d098de586751ab686385f8",
     "ui/screens/RepoDetail.test.tsx": "9eda9f1877c9b740336e710d7292b981d3fe661b",
     "ui/screens/RepoDetail.tsx": "a74340e1cb980f392bd8dbba828ab9ab43f7f1fa",
     "ui/styles.css": "e99a7fbf6cdab4293dd0b99987e286104451408d"
@@ -20,7 +20,7 @@
     "crates/seal-session/src/lib.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "src-tauri/src/commands.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "src-tauri/src/view.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
-    "ui/App.tsx": "13c2312a097a3c3fce76e9676cf063134413dd0e",
+    "ui/App.tsx": "d14f1fa6c6e33529d0d098de586751ab686385f8",
     "ui/ipc.ts": "d94b0fe6754a2d59df78858772e4dddf19c81cad"
   },
   "icons.md": {

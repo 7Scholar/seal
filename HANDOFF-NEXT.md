@@ -23,7 +23,7 @@ Landing is unchanged: code and prose commit first, **coverage stamps last as its
 
 ## Where things stand
 
-Everything is committed on **`main`**. Working tree clean, no drift, no `DRIFT.md`, no stashes. **One `QUESTIONS.md` is live**, under `ui/navigation/` — see above.
+Everything is committed on **`main`**. Working tree clean, no drift, no `DRIFT.md`, no stashes. **No `QUESTIONS.md` anywhere** — the one raised last session was answered and removed.
 
 ### All six journeys are satisfied
 
@@ -52,10 +52,6 @@ This is the axis's own bar for production-ready, and it is the first time the pr
 - **The folder picker's second use is not covered.** The seam returns a folder fixed in the application's environment at launch, so a second repository can only be added across the boundary. `desktop/MEMORY.md` records why driving the picker twice cannot work.
 - **The title bar's drag has no automated coverage at all.** The harness's synthesized press carries no click count, so the framework's listener refuses it. A person confirms it; the check in place fails whether the drag is broken *or* merely undrivable, so **it must never be read as a pass**.
 
-## There is now an unanswered question waiting on the owner
-
-`context/plans/app/desktop/ui/navigation/QUESTIONS.md` holds **one** question: whether the files list's empty state should be made reachable. **Read it before touching `files.md`** — its step 5 is `[!]` and that line of work is closed until the owner answers. If it is still unanswered when you arrive, do not start it and do not route around it.
-
 ## What the last session did
 
 **Carried the files list through the depth pass** — item 1 below, for the middle altitude. Three defects fixed, driven and guarded:
@@ -66,7 +62,7 @@ This is the axis's own bar for production-ready, and it is the first time the pr
 
 **Two of that surface's states resolved to something other than "build it",** and both are recorded rather than skipped quietly:
 
-- **The empty repository is unreachable.** A repository is dropped when its last file is released (`lifecycle::release`), the manage flow refuses an empty selection, and a rescan only adds. The markup exists and nothing reaches it. That is the question now waiting on the owner.
+- **The empty repository is unreachable, and its markup is now gone.** A repository is dropped when its last file is released (`lifecycle::release`), the manage flow refuses an empty selection, and a rescan only adds. The owner settled the fork this raised: a repository is a non-empty set of managed files, so a user who releases every file has stopped managing it and the grid is the surface that says so.
 - **The files list needs no loading state.** Every launch lands on the grid, and both paths that could leave the route at this altitude with nothing loaded navigate back up instead. A skeleton there would guard a state that cannot occur.
 
 Both are in `navigation/MEMORY.md`, because either one costs a session to rediscover.
@@ -97,15 +93,20 @@ The journeys axis is done. **What remains is the depth pass on `ui/navigation/`*
 
 In rough order of value:
 
-1. **The states beyond populated**, [states.md](context/plans/app/desktop/ui/navigation/states.md). Done for the repositories grid and now for the files list; **the file surface is still populated-only** — no loading, no surface-level failure, and no treatment for a file with hundreds of variables. `file.md` carries the note. The files list's one remaining item is blocked on the owner's answer above.
+1. **The states beyond populated**, [states.md](context/plans/app/desktop/ui/navigation/states.md). Done for the repositories grid and now for the files list; **the file surface is still populated-only** — no loading, no surface-level failure, and no treatment for a file with hundreds of variables. `file.md` carries the note. The files list is `[x]` — its empty state and its loading state are both settled as not reachable.
 2. **The manage surface's last two findings**, [manage-surface.md](context/plans/app/desktop/ui/navigation/manage-surface.md) — the **degraded state** (a partially-walked repository is drawn exactly like a fully-walked one) and the **alignment findings** (names misalign by 1px; the annotation channel has no column, measured starting anywhere between x=190 and x=303).
 3. **`breadcrumbs.md`** — the root segment has no switcher, and the chevron is not the referenced icon.
 4. **[disclosure-primitive.md](context/plans/app/desktop/ui/navigation/disclosure-primitive.md)** — unstarted. Four collapsed controls each carry the disclosure contract separately.
 5. **`publishing/`** — reopened; a hosted documentation site is framed. [FOR-JORIS.md](FOR-JORIS.md) has two items waiting on the owner about it. **Do not duplicate them.**
 
-### One thing that is not mine to decide
+### The suite is no longer flaky, and both flakes were real
 
-**A pre-existing flaky test**, `the_lock_is_released_when_dropped` (`crates/seal-engine/tests/lock.rs:37`). Fails intermittently under full-workspace parallel load; passes 5/5 in isolation. It predates the last several sessions and no session has touched `crates/seal-engine`. This is the exact shape the traps section warns about. **Ask the user** whether to take it on before spending time — it is unrelated drift.
+The two intermittent failures the last handoff flagged are **fixed**, each reproduced to a mechanism first. **20 consecutive full-workspace runs are clean**, against roughly one failure every 6 to 12 before.
+
+- **`the_lock_is_released_when_dropped` was a product defect**, not a test defect. `FileLock::drop` relied on closing the descriptor to release the `flock`; the kernel does release it that way, but not ordered against a re-acquisition issued immediately afterwards, so `acquire → drop → acquire` could report `Busy`. It now unlocks explicitly before the close. It never failed in isolation — 480 runs of that test alone — and failed within 2 to 5 rounds with twelve concurrent copies of its binary, which is what made it look like test noise.
+- **`no_secret_value_appears_anywhere_in_the_opened_view` was a test defect that read like a security failure.** It searched the whole serialized view, path included, for the fixture's secrets — one of which is the two-character string `pw`. A `tempfile` directory named `.tmpwOwhWo` therefore failed an assertion about secrets crossing the boundary while every value was correctly masked. The assertion now excludes the path and keeps its short needles.
+
+Both are in `MEMORY.md` at their nodes. The lesson generalises: **an intermittent failure is not evidence that a test is bad.** One of these two was the product.
 
 ## Read these, in this order
 
@@ -142,7 +143,7 @@ In rough order of value:
 - **Casing across the boundary.** A serde casing mismatch once made every field arrive `undefined`. Both unit suites passed throughout. `rename_all` on an **enum** renames variants, not their fields.
 - **A correct library with a consumer that discards its answer.** Both sides' tests pass; only the driven application sees it.
 - **A guard that passes with its code deleted.** The filter's expansion-restore test did exactly this, because it never expanded anything while filtering and so had nothing to restore.
-- **A timing-dependent unit test.** One that polled a file from a thread passed alone and failed under parallel load. Deleted rather than stabilised. Do not re-add that shape.
+- **A timing-dependent unit test.** One that polled a file from a thread passed alone and failed under parallel load. Deleted rather than stabilised. Do not re-add that shape. **But do not read that as licence to delete a flaky test:** of the two intermittent failures fixed since, one was a genuine product defect in the lock and the other was a correct test with an over-broad assertion. Reproduce to a mechanism first; the "passes alone, fails under load" signature fits a real concurrency bug at least as well as it fits a bad test.
 - **Two lockfiles.** `bun.lock` is the only lockfile for the application. (The site under `site/` has its own, deliberately.)
 
 ## Still open

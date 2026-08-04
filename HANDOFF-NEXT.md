@@ -1,131 +1,145 @@
-# Handoff — the repo import (manage) surface, then the journeys axis
+# Handoff — the journeys axis is satisfied; the depth pass is what is left
 
 > **You are picking this up cold.** Read this, then read what it points you at, then go and drive the real application. Do not start writing code on the strength of this document alone — it tells you where things stand and what is binding, not what to build.
 
 ## Read this first: the lesson this axis keeps re-teaching
 
-A previous session recorded, in six places across the tree, that **a master-password change left the vault openable by neither password** — framed as the most serious defect the journeys axis had ever found. **It was not a product defect.** The harness had been typing passwords with `browser.keys([...text])`, which silently drops the spaces. Walking that back cost a whole session.
-
-Both sessions since have found defects that **were** real, and both only after measuring a mechanism rather than trusting what the screen implied.
+A session once recorded, in six places across the tree, that **a master-password change left the vault openable by neither password** — framed as the most serious defect the journeys axis had ever found. **It was not a product defect.** The harness had been typing passwords with `browser.keys([...text])`, which silently drops the spaces. Walking that back cost a whole session.
 
 - **A driven failure is evidence about the whole system, harness included.** It is not proof of a product defect.
 - **Diagnose to a mechanism before writing a finding down.** A finding you can state as *"X is written only at Y, so Z"* is real; *"the screen looked wrong"* is not yet.
 
-This session's own instance: the `living-with-it` run failed five of nine checks on its first drive. Two of those were the product, one was a harness selector, and two were **my own test asserting a surface that does not exist** — which turned out to be the most valuable finding of the session, but only after being diagnosed rather than filed as a bug.
+The last session hit this three times and it paid off every time. The freshness build failed four driven checks; a probe found the cause was **my own guard**, not the product. A rescan check failed because I asserted `"Readable"` against a row that correctly reads `"Readable — should be sealed"`. And a filter test **passed with the code deleted** — a vacuous guard I only caught by breaking it deliberately. All three would have been misfiled as product defects by a session in a hurry.
 
 ## Git: work on `main`, and do not create a branch
 
-**This repository has no origin and has never been published.** Every branch has been merged into `main` and deleted; `main` is the only branch and it holds everything.
+**This repository has no origin and has never been published.** `main` is the only branch and it holds everything.
 
-**Work directly on `main` and commit there.** Do not branch. A branch exists to become a pull request, and with no remote there is no push, no PR and no merge — so a branch only hides your work from the next session, which reads `main`. The manuals have been updated to say so ([GIT_WORKFLOW.md](docs/plans/GIT_WORKFLOW.md) owns the rule under **While this repository has no remote**; [INSTRUCTIONS.md](docs/plans/INSTRUCTIONS.md) and [UI_IMPROVEMENTS.md](docs/plans/UI_IMPROVEMENTS.md) defer to it). **If you find any remaining instruction telling you to branch off `main` or hand a branch off, it is superseded — ignore it.**
+**Work directly on `main` and commit there.** A branch exists to become a pull request, and with no remote there is no push, no PR and no merge — so a branch only hides your work from the next session. [GIT_WORKFLOW.md](docs/plans/GIT_WORKFLOW.md) owns the rule under **While this repository has no remote**. **If you find any instruction telling you to branch off `main`, it is superseded — ignore it.**
 
-Everything else about landing is unchanged and matters more, not less: code and prose commit first, **coverage stamps last as its own final commit**, and the detector must report no drift before you stop. **Still never push** — there is nowhere to push to, and adding a remote is the product owner's call, not a step you take to satisfy an instruction.
+Landing is unchanged: code and prose commit first, **coverage stamps last as its own final commit**, and the detector must report no drift before you stop. **Never push.**
 
-One caution the branchless workflow trades for: **run one task at a time.** Concurrent tasks used to collide loudly on a shared `coverage.json` at merge time. On `main` there is no merge, so nothing flags it — two sessions just interleave.
+**Run one task at a time.** On `main` there is no merge, so nothing flags two sessions interleaving on a shared `coverage.json`.
 
 ## Where things stand
 
-Everything is committed on **`main`**. The working tree is clean and there is no remote.
+Everything is committed on **`main`**. Working tree clean, no drift, no `DRIFT.md`, **no `QUESTIONS.md` anywhere**, no stashes.
 
-**The harness is healthy and fast. Five specs, all green:** `first-run` 8/8 (~2s), `return-and-use` 9/9 (~13s), `interrupted-rekey` 5/5 (~16s), `living-with-it` 6/6 (~18s), and `window-frame` 4/4 (~1s). `bun run e2e:living` and `bun run e2e:frame` run the last two.
+### All six journeys are satisfied
 
-**`window-frame` is not a journey** — it drives the window *as a window* (drag region present, surfaces below the traffic lights, the manage tree scrolling rather than the document). It exists because all four journeys passed while three surfaces had no title bar at all: a journey asks whether a task completes, and the tasks completed.
+This is the axis's own bar for production-ready, and it is the first time the product has met it. Every step of every journey is driven against a release build and every finding is closed.
 
-**Journeys: three of six satisfied.**
+**Eleven scenario runs, all green — 72 driven checks across 11 specs:**
 
-- [first-run.md](context/journeys/first-run.md) — satisfied.
-- [exposure.md](context/journeys/exposure.md) — satisfied.
-- [change-the-password.md](context/journeys/change-the-password.md) — satisfied, clean and interrupted runs both driven.
-- [protect-a-repo.md](context/journeys/protect-a-repo.md) — 6 of 7. Step 7 unstaged.
-- [use-a-secret.md](context/journeys/use-a-secret.md) — 5 of 8. Steps 6 and 7 unstaged; **step 8 is blocked, not unstaged** (see below).
-- [living-with-it.md](context/journeys/living-with-it.md) — **driven, not satisfied.** Findings below.
+| Command | Checks | Time |
+|---|---|---|
+| `bun run e2e` (`first-run`) | 8 | ~2s |
+| `bun run e2e:extended` (+ `return-and-use`) | 8 + 9 | ~9s |
+| `bun run e2e:interrupted` | 5 | ~16s |
+| `bun run e2e:living` | 6 | ~18s |
+| `bun run e2e:frame` | 4 | ~1s |
+| `bun run e2e:expiry` | 6 | ~13s |
+| `bun run e2e:settling` | 8 | ~9s |
+| `bun run e2e:deploy` | 7 | ~4s |
+| `bun run e2e:badday` | 9 | ~3s |
+| `bun run e2e:filter` | 5 | ~1s |
+| `bun run e2e:freshness` | 5 | ~17s |
+
+**Two of those are not journeys.** `window-frame` drives the window *as a window*; `manage-filter` drives the filter against a file no journey's fixture buries deeply enough to need. Both exist because their defect class is invisible to a journey asking whether a *task* completes — every journey passed while three surfaces had no title bar at all.
+
+### Two coverage limits, stated rather than glossed
+
+- **The folder picker's second use is not covered.** The seam returns a folder fixed in the application's environment at launch, so a second repository can only be added across the boundary. `desktop/MEMORY.md` records why driving the picker twice cannot work.
+- **The title bar's drag has no automated coverage at all.** The harness's synthesized press carries no click count, so the framework's listener refuses it. A person confirms it; the check in place fails whether the drag is broken *or* merely undrivable, so **it must never be read as a pass**.
 
 ## What the last session did
 
-**Drove `living-with-it` for the first time.** It behaved exactly as [JOURNEYS.md](docs/plans/JOURNEYS.md) predicts a journey about accumulated texture would: it produced one defect and **two missing concerns**, which that manual calls the most valuable output of the axis.
+**Answered all five `QUESTIONS.md` items** (the owner answered; I acted) and deleted the file.
 
-**The defect, fixed.** `app::overview` computed a reconciliation, used it **only** to derive the exposure flag, and then served `file.last_known` for the state itself. So a managed file deleted outside Seal read as `Sealed` with a **live open control**, and any file sealed or unsealed outside Seal reported whatever it had last been. The registry library was correct throughout — its own suite proves a missing file is reported without alarm — and every Rust and interface suite passed while the driven application showed the wrong state. The overview now serves the observed state, falling back to the recorded one only where reconciliation said nothing. Non-vacuity confirmed both ways. `commands.md` owns it; `desktop/MEMORY.md` records why it must not be "simplified" back.
+**Drove the last three journey steps.** `use-a-secret` step 7 needed the only genuinely different scenario shape: it drives **both binaries**, sealing through the app's interface then running a real shell script against that file with the built `seal`. That seam was structurally unreachable from either side's suite, since every CLI test seals through the engine library.
 
-**The two missing concerns, framed and blocked.** Both are in [freshness.md](context/plans/app/desktop/ui/navigation/freshness.md), with forks in its [QUESTIONS.md](context/plans/app/desktop/ui/navigation/QUESTIONS.md). **Do not answer them yourself.**
+**Found and fixed a real defect in `living-with-it` step 8.** The same just-modified file **warned** when sealed from its row and was sealed **silently** from the batch control — `seal_warning` was only ever consulted by the single-file path. That warning is the only thing in front of a hazard this tree has reproduced end to end (an editor's unsaved buffer overwriting the sealed file). Fixed as a property of sealing rather than of one control.
 
-1. **The interface re-reads disk only when the session unlocks.** No timer, no refetch on window focus. A file deleted or exposed while the window sits open goes unnoticed indefinitely. This delays the exposure alert too, since it comes from the same fetch — and it is why the fixed defect above needed a lock/unlock to become visible.
-2. **Nothing states that everything is protected.** The product only ever draws attention to what is *wrong*; the healthy answer exists solely as the absence of warnings spread across every tile. `living-with-it` step 3 asks for an answer in a second without reading, and today that means reading every tile and inferring safety from silence.
+**Built `freshness.md`** — the largest open concern. The interface now re-observes on focus and every five seconds while unlocked, re-reading the **registry from disk** rather than the in-memory mirror, and a revealed value re-masks itself when Seal drops the plaintext behind it.
 
-They are one node because an assurance computed from a stale read is worse than no assurance.
+**Built the manage surface's filter**, plus three audit findings (the rescan now says it is a rescan; inert rows stopped lighting up on hover).
 
-## The repo import surface — done, and what it taught
+**Tidied `titlebar.rs`.** Clippy now passes across the workspace for the first time and the build carries zero warnings.
 
-**All four of the product owner's items are fixed and driven.** They were: the missing always-present header, the title/subtitle pinned at top, Cancel/Manage files pinned at bottom, and *"Remove 'an environment file', that's so useless."* Recorded in [manage-surface.md](context/plans/app/desktop/ui/navigation/manage-surface.md) and [the navigation README](context/plans/app/desktop/ui/navigation/README.md), which own the measurements.
+### Three decisions worth carrying forward
 
-Items 1–3 were one defect: `App.tsx` had three early returns rendering outside `.shell` — the only element drawing the title bar **and** the only one setting `100vh`. The shell is now unconditional and every surface renders as its content; the locked screen and the two overlays get a **bare** strip (transparent, no divider, drag region intact), with the unlock shield's gradient moved onto the shell so it reaches behind it.
-
-**The measurement worth carrying forward, because the earlier handoff got it half right.** The previous session recorded `.manage` at 2630px in a shorter viewport and framed the fault as "the surface is too tall". It is not. `height: 100%` against an auto-height ancestor resolves to **the content's own height**, so the same defect measured **322px in a 720px viewport** against a small repository. Two opposite symptoms, one cause — and a fix validated only against a tall tree would have looked correct while the frame was still broken. If you ever re-measure a height chain, do it at two content sizes.
-
-Item 4 was narrower than "remove the string". Every *other* scan reason names a category the filename does not — `id_ed25519` → "a private key". Only `an environment file` restated its own row. The classifier now returns no reason where the name is the reason; the boundary and tree already accepted a null one. **Nothing had ever asserted a scan reason** — the classification test discarded it and matched only confidence — which is why the most repeated string on the surface was uncovered. It is guarded in both directions now.
-
-`manage-surface.md`'s "What exists" is honest again, and its two frame steps are `[x]`.
+1. **No positive assurance is drawn anywhere.** Asked whether the product should state that everything is protected, the owner answered *nothing — absence is the answer*. `living-with-it` step 3 asks for a one-glance answer the product deliberately does not give. It is recorded there as **closed-as-decided**, not as an outstanding defect. **Do not re-raise it.** If it is ever revisited, the mechanism it would need now exists.
+2. **A filesystem watch was refused**, on a measurement rather than a preference: reconciliation is **6ms for 500 managed files, under 1ms for a realistic vault**, while a watch's failure modes (descriptor limits, save-by-rename, network volumes) all end with the product silently ceasing to notice.
+3. **The re-observation timer must not guard on `document.hidden`.** A Tauri window behind another window reports itself **hidden**, so that guard — ordinary practice for a poller — disables the feature in exactly the case it exists for. `desktop/MEMORY.md` owns this.
 
 ## What to do next
 
-**If the product owner has answered [QUESTIONS.md](context/plans/app/desktop/ui/navigation/QUESTIONS.md), build `freshness.md`** — the largest open concern, and the one the product's finish is most visibly decided by. It was still unanswered as of this session, so it stayed blocked.
+The journeys axis is done. **What remains is the depth pass on `ui/navigation/`**, which is the honest gap between "every journey passes" and "this looks finished". Read [SURFACE_AUDIT.md](docs/plans/SURFACE_AUDIT.md) before starting — this is that axis, not the journeys axis.
 
-**Otherwise, the journeys work, in this order:**
+In rough order of value:
 
-1. **`use-a-secret` step 8 / `living-with-it` step 5 — plaintext expiry.** Driving it once serves both journeys. **It is blocked on a seam, not on a scenario:** the fifteen-minute lifetime is hard-coded through `Session::new` (`crates/seal-session/src/lib.rs`), so nothing a run finishing in seconds can set makes a held secret expire. It needs a lifetime override honoured **only** in `e2e`-feature builds, of the same shape as the existing folder-pick override — which is a change to the command surface, so frame it on [commands.md](context/plans/app/desktop/commands.md) first. Recorded on [journey-harness.md](context/plans/app/desktop/journey-harness.md). Note what is *already known* about the mechanism: expiry is checked on access, and a background sweep runs every 30s, so nothing pushes anything to the interface — the user learns a secret expired only from a `notOpen` error on their next action. Whether that is acceptable is exactly what step 5 asks.
-2. **`use-a-secret` step 7, the command-line resolve.** Drives the **CLI binary**, not the desktop app, so it needs a different harness shape. Design work, not just staging.
-3. **`use-a-secret` step 6 and `protect-a-repo` step 7.** Straightforward.
-4. **`living-with-it` step 8, the bad day.** Only partly walked. The irreversible acts are correctly ceremonious and Rust-enforced; nobody has systematically checked the *other* direction — that routine reversible actions are free of ceremony.
-5. **[The manage surface's remaining findings](context/plans/app/desktop/ui/navigation/manage-surface.md)** — the filter over the tree, plus the remaining audit findings.
+1. **The states beyond populated**, [states.md](context/plans/app/desktop/ui/navigation/states.md). Done for the repositories grid; **the files list and the file surface are still populated-only**. `repositories.md`, `files.md` and `file.md` each carry the same note. This is the largest remaining block and the one a stranger notices first: an empty or failed surface in a visual language the rest of the product does not use.
+2. **The manage surface's last two findings**, [manage-surface.md](context/plans/app/desktop/ui/navigation/manage-surface.md) — the **degraded state** (a partially-walked repository is drawn exactly like a fully-walked one) and the **alignment findings** (names misalign by 1px; the annotation channel has no column, measured starting anywhere between x=190 and x=303).
+3. **`breadcrumbs.md`** — the root segment has no switcher, and the chevron is not the referenced icon.
+4. **[disclosure-primitive.md](context/plans/app/desktop/ui/navigation/disclosure-primitive.md)** — unstarted. Four collapsed controls each carry the disclosure contract separately.
+5. **`publishing/`** — reopened; a hosted documentation site is framed. [FOR-JORIS.md](FOR-JORIS.md) has two items waiting on the owner about it. **Do not duplicate them.**
+
+### One thing that is not mine to decide
+
+**A pre-existing flaky test**, `the_lock_is_released_when_dropped` (`crates/seal-engine/tests/lock.rs:37`). Fails intermittently under full-workspace parallel load; passes 5/5 in isolation. It predates the last several sessions and no session has touched `crates/seal-engine`. This is the exact shape the traps section warns about. **Ask the user** whether to take it on before spending time — it is unrelated drift.
 
 ## Read these, in this order
 
 1. **[AGENTS.md](AGENTS.md)** then **[docs/plans/AGENT_ENTRY.md](docs/plans/AGENT_ENTRY.md)** — the entry manual and the close-out you must run.
-2. **[docs/plans/JOURNEYS.md](docs/plans/JOURNEYS.md)** — before touching a journey document.
-3. **[docs/plans/INTAKE.md](docs/plans/INTAKE.md)** — this journey surfaces unplaced concerns; expect to need it.
-4. **[context/plans/app/desktop/MEMORY.md](context/plans/app/desktop/MEMORY.md)** — the entries you will otherwise fall into, one of them new: why the overview serves reconciled state.
-5. **[docs/RUNNING.md](docs/RUNNING.md)** — before you build or launch anything.
-6. **[context/plans/app/desktop/journey-harness.md](context/plans/app/desktop/journey-harness.md)** — the harness's design and what remains undriven.
-7. **[FOR-JORIS.md](FOR-JORIS.md)** — questions waiting on the product owner. Do not duplicate them.
+2. **[docs/plans/SURFACE_AUDIT.md](docs/plans/SURFACE_AUDIT.md)** — the axis the remaining work sits on.
+3. **[context/plans/app/desktop/MEMORY.md](context/plans/app/desktop/MEMORY.md)** — the entries you will otherwise fall into. Several are new.
+4. **[docs/RUNNING.md](docs/RUNNING.md)** — before you build or launch anything.
+5. **[docs/plans/JOURNEYS.md](docs/plans/JOURNEYS.md)** — only if you touch a journey. They are all satisfied; **a change that breaks one un-satisfies the product.**
+6. **[FOR-JORIS.md](FOR-JORIS.md)** — questions waiting on the owner.
 
 ## Binding constraints — do not design around these
 
-- **A journey is satisfied only by driving the real application.** Unit tests are not accepted as a substitute.
-- **Type through the helper.** `e2e/journeys/typing.ts` — `typeInto` and `enterPassphrase`. Never `browser.keys` for text; it drops spaces. Every field asserts what landed.
-- **Restarting the app means killing the process.** `browser.reloadSession()` reconnects the driver to the *same* process — measured, same PID, still unlocked.
-- **`pgrep`/`pkill` need the sandbox disabled.** Every scenario that kills or relaunches uses them, so e2e runs need `dangerouslyDisableSandbox`. A sandboxed `pgrep` fails with "Cannot get process list", which looks like nothing is running when something is.
-- **Never run two drives at the same time**, and **check for a leftover process before believing a failure**: `pgrep -f 'target/release/seal-desktop'`. A scenario that relaunches the app leaves one behind on failure — this bit twice this session, once presenting as a `before`-hook failure that had nothing to do with the code.
+- **A journey is satisfied only by driving the real application.** Unit tests are not accepted as a substitute. **All six are satisfied now — re-drive the affected ones before you finish** if you touch anything they cross.
+- **Type through the helper.** `e2e/journeys/typing.ts` — `typeInto` and `enterPassphrase`. Never `browser.keys` for text; it drops spaces.
+- **Restarting the app means killing the process.** `reloadSession()` reconnects to the *same* process — measured, same PID, still unlocked.
+- **`pgrep`/`pkill` need the sandbox disabled**, so e2e runs need `dangerouslyDisableSandbox`.
+- **Never run two drives at once**, and **check for a leftover process before believing a failure**: `pgrep -f 'target/release/seal-desktop'`.
 - **Assert what the surface shows at that altitude.** `Repositories` is an `<h1>` only on the top-level screen.
-- **The bridge must never reach a distributable build.** It rides an `e2e` cargo feature whose capability grant lives in a separate directory the build script includes only with that feature.
+- **The bridge must never reach a distributable build.**
 - **A real window opens and operates itself.** Do not touch it, and do not assume a failure is real until you have re-run it once cleanly.
-- **A bug fix reproduces before it fixes** — and the reproduction must reach a *mechanism*, not just a red run.
-- **Every load-bearing guard is confirmed non-vacuous** — break it deliberately, watch the matching test fail, restore it.
-- **Never put a plan question to the user directly.** It goes in `QUESTIONS.md` and that line of work stops. Delete the file once it is empty.
-- **Code carries no comments and no docstrings.** Explanation lives in the plans.
-- **You commit on `main` and stop.** No branch, no push — see the git section at the top.
+- **A bug fix reproduces before it fixes** — and the reproduction must reach a *mechanism*.
+- **Every load-bearing guard is confirmed non-vacuous** — break it, watch the matching test fail, restore it. The last session caught one of its own guards passing with the code deleted; assume yours might too.
+- **Never put a plan question to the user directly.** It goes in `QUESTIONS.md` and that line of work stops. Delete the file once empty.
+- **Code carries no comments and no docstrings.**
+- **You commit on `main` and stop.** No branch, no push.
 
 ## Traps this repository has actually fallen into
 
 - **A stale `dist/`.** The frontend is embedded at compile time; `bun run e2e:build` rebuilds both in order.
 - **A blank window.** A hand-built binary without `--features custom-protocol` loads a dev-server URL.
-- **A bridge-less harness binary.** Any plain `cargo build --release` overwrites it — and so does **`cargo test --workspace`**, which bit this session: the close-out's own test run silently replaced the harness binary, and the next drive failed with "Embedded WebDriver server did not become ready", which reads like a hang in the app. Check: `strings target/release/seal-desktop | grep -ci webdriver` — zero means no bridge, then `bun run e2e:build`. **Order matters: run the Rust suite before the scenarios, not between them.**
-- **Back-to-back scenario runs contend.** Running all four in one shell without a pause failed `interrupted-rekey` once; it passed 5/5 immediately on a clean re-run. Pause and `pkill` between scenarios before believing a failure.
-- **Casing across the boundary.** A serde casing mismatch once made every field arrive `undefined`. Both unit suites passed throughout.
-- **A correct library with a consumer that discards its answer.** This session's defect. Both sides' tests pass because each is right about its own contract; only the driven application sees it.
-- **A timing-dependent unit test.** One that polled a file from a thread passed alone and failed under parallel load. It was deleted rather than stabilised. Do not re-add that shape.
+- **A bridge-less harness binary.** Any plain `cargo build --release` overwrites it — and so does **`cargo test --workspace`**. Check `strings target/release/seal-desktop | grep -ci webdriver`; zero means no bridge, then `bun run e2e:build`. **Run the Rust suite before the scenarios, not between them.** This bit again last session.
+- **`cargo build --release --bin seal` also strips the bridge**, because it shares the target directory. Rebuild after touching the CLI.
+- **Back-to-back scenario runs contend.** Pause and `pkill` between scenarios before believing a failure.
+- **Casing across the boundary.** A serde casing mismatch once made every field arrive `undefined`. Both unit suites passed throughout. `rename_all` on an **enum** renames variants, not their fields.
+- **A correct library with a consumer that discards its answer.** Both sides' tests pass; only the driven application sees it.
+- **A guard that passes with its code deleted.** The filter's expansion-restore test did exactly this, because it never expanded anything while filtering and so had nothing to restore.
+- **A timing-dependent unit test.** One that polled a file from a thread passed alone and failed under parallel load. Deleted rather than stabilised. Do not re-add that shape.
 - **Two lockfiles.** `bun.lock` is the only lockfile for the application. (The site under `site/` has its own, deliberately.)
 
-## Still open, unchanged from the last handoff
+## Still open
 
 - **The missing `__wdio_original_core__` global was not reported upstream.** A genuine defect in the published `@wdio/tauri-service`; the runner's `before` hook can be dropped once fixed.
-- **The CI workflow still has no green run on a hosted runner**, and still gates on `first-run` only. Five specs are stable now, so widening it is worth doing — though with no remote there is nothing running CI, which makes this lower value until the repo lands somewhere.
-- **No per-file progress display** during a long rekey run. The manifest is per-file accurate on disk; a live view is missing. Recorded on `password-change.md`.
-- **A stashed `titlebar.rs` change.** `git stash list` shows *"stray unsafe-removal in titlebar.rs"* — removes seven `unsafe` blocks the current `objc2` no longer requires, compiles, clears seven build warnings. Found in the working tree by an earlier session that had not written it.
-- **Two pre-existing clippy failures in that same file** (`expect()` on an `Option`, in its test module), present at `HEAD` independently of the stash.
-
-Neither of the last two is yours to decide unilaterally. If you are touching `titlebar.rs` anyway, raise them together.
+- **The CI workflow has no green run on a hosted runner**, and still gates on `first-run` only. Eleven runs are stable now, so widening it is worth doing — though with no remote there is nothing running CI.
+- **No per-file progress display** during a long rekey run. Recorded on `password-change.md`.
+- **A relock discards a live manage selection.** Left open deliberately, and its stated cause **corrected**: the audit blamed a 15-minute session lifetime, but the session has no expiry — that deadline is per held file. The remaining triggers are an explicit lock and a poisoned mutex, so it is far rarer than recorded and **has not been reproduced**. Reproducing it is the next move; a fix on an unreproduced trigger would be unfalsifiable.
+- **The freshness interval is 5 seconds, chosen not measured.** Fast enough that an exposure surfaces before a user could act on stale information, cheap enough not to matter, but nobody has asked whether it *feels* immediate.
 
 ## Before you finish
 
-Run the close-out in [AGENT_ENTRY.md](docs/plans/AGENT_ENTRY.md): targeted checks pass, commit code and prose, **then** stamp coverage (the order is enforced — the stamp records `HEAD`), then confirm `uv run run_coverage --all --verbose` reports no drift and no `DRIFT.md` exists. Note that `package.json` is covered by two plans (`desktop/ui/shell.md` and `publishing/tooling.md`), so adding an npm script drifts both.
+Run the close-out in [AGENT_ENTRY.md](docs/plans/AGENT_ENTRY.md): targeted checks pass, commit code and prose, **then** stamp coverage (the order is enforced — the stamp records `HEAD`), then confirm `uv run run_coverage --all --verbose` reports no drift and no `DRIFT.md` exists.
 
-Then update the journey documents. A journey's **Demonstration** records exactly what was witnessed and what was not, and its **Findings** stay open until every finding is closed. Update the cursor at [context/plans/app/README.md](context/plans/app/README.md) and at [context/journeys/README.md](context/journeys/README.md).
+Two coverage notes that will otherwise cost you time. `package.json` is covered by **two** plans (`desktop/ui/shell.md` and `publishing/tooling.md`), so adding an npm script drifts both. And `ui/App.tsx`, `ui/styles.css` and `ui/ipc.ts` are each covered by **many** plans — the fastest route is `uv run run_coverage --all --verbose`, then stamp exactly the pairs it names rather than guessing.
+
+Then update the journey documents if you touched anything they cross, and the cursors at [context/plans/app/README.md](context/plans/app/README.md) and [context/journeys/README.md](context/journeys/README.md).
+
+**And update this file.** The last session did not, and the next one would have started from a document claiming three of six journeys were satisfied and pointing at a `QUESTIONS.md` that no longer exists.

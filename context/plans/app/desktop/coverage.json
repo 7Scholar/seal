@@ -1,11 +1,11 @@
 {
   "commands.md": {
-    "src-tauri/src/app.rs": "db87c4406dff9b30e905080324f0986b2ec4b576",
+    "src-tauri/src/app.rs": "1fd42d7388f8ab76706adbdf45c80da321ec996e",
     "src-tauri/src/commands.rs": "6af8515a56ce649aaf6c17568ae434baa072681d",
     "src-tauri/src/error.rs": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "src-tauri/src/lib.rs": "fc48741e20953ee3d195f734bdc5e6b65e1602ab",
     "src-tauri/src/view.rs": "db87c4406dff9b30e905080324f0986b2ec4b576",
-    "src-tauri/tests/commands.rs": "db87c4406dff9b30e905080324f0986b2ec4b576"
+    "src-tauri/tests/commands.rs": "1fd42d7388f8ab76706adbdf45c80da321ec996e"
   },
   "dotenv.md": {
     "crates/seal-dotenv/Cargo.toml": "c748b3d474ea5a614da765fa854050eb14b5a7b1",
@@ -13,7 +13,7 @@
     "crates/seal-dotenv/tests/roundtrip.rs": "c748b3d474ea5a614da765fa854050eb14b5a7b1"
   },
   "first-open.md": {
-    "src-tauri/src/app.rs": "db87c4406dff9b30e905080324f0986b2ec4b576",
+    "src-tauri/src/app.rs": "1fd42d7388f8ab76706adbdf45c80da321ec996e",
     "src-tauri/src/commands.rs": "6af8515a56ce649aaf6c17568ae434baa072681d",
     "src-tauri/tests/first_open.rs": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "ui/App.tsx": "eaa3aed0b11b9608c8dc1f0ecb6184f86f524d78",
@@ -25,6 +25,7 @@
     ".github/workflows/journeys.yml": "40cd3f67e2e44b529590db3ede8868c7fd0eaa6c",
     "e2e/journeys/first-run.e2e.ts": "70f8ce6ebe6a7977a47f1a6e8f98b2c42d00d7e8",
     "e2e/journeys/interrupted-rekey.e2e.ts": "3f4593bf0131ac12d0b822da2dda97d4f845d6aa",
+    "e2e/journeys/living-with-it.e2e.ts": "1fd42d7388f8ab76706adbdf45c80da321ec996e",
     "e2e/journeys/return-and-use.e2e.ts": "70f8ce6ebe6a7977a47f1a6e8f98b2c42d00d7e8",
     "e2e/journeys/typing.ts": "70f8ce6ebe6a7977a47f1a6e8f98b2c42d00d7e8",
     "e2e/launch-fresh.sh": "a0b3f33bc64a56a499060d82bb90794330e3227e",

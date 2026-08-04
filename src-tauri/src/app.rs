@@ -27,16 +27,19 @@ pub fn overview(state: &State) -> Vec<RepoView> {
                 .iter()
                 .map(|file| {
                     let absolute = repo.root.join(&file.relative_path);
-                    let alert = reconciliation.findings.iter().any(|finding| {
-                        finding.path == absolute
-                            && matches!(
-                                finding.divergence,
-                                reconcile::Divergence::BecamePlaintext { .. }
-                            )
+                    let finding = reconciliation
+                        .findings
+                        .iter()
+                        .find(|finding| finding.path == absolute);
+                    let alert = finding.is_some_and(|finding| {
+                        matches!(
+                            finding.divergence,
+                            reconcile::Divergence::BecamePlaintext { .. }
+                        )
                     });
                     FileView {
                         relative_path: file.relative_path.clone(),
-                        state: file.last_known,
+                        state: finding.map_or(file.last_known, |finding| finding.observed),
                         alert,
                     }
                 })

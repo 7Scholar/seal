@@ -49,10 +49,34 @@ Nothing here is a feature. It is all the accumulated texture of using something 
 
 # Demonstration
 
-**Fragments driven, 2026-07-31:** the returning experience's skeleton — relaunching into the locked shield rather than the choosing one, unlocking into the repository view, deliberate locking from the header, and a wrong password answered plainly — is exercised by the harness's scenarios. The texture this journey is actually about — the glance, expiry after stepping away, errors met in real use, the bad day — has not been driven.
+**Driven 2026-08-04, `living-with-it` scenario, six of six green against a release build from a scratch profile.** What was witnessed, step by step:
 
-This journey is best driven after a gap — return to it on a later session rather than immediately after building, since it is about returning rather than about first use.
+- **Steps 1, 2 and 6 — reopening, unlocking, locking deliberately.** Exercised here and by the other scenarios: the relaunch lands on the locked shield rather than the choosing one, unlock returns the user to the repositories, and Lock is reachable from the strip at every altitude. A force-kill mid-session was driven and the application returns from it.
+- **Step 4 — the one thing they came for.** Revealing, editing and saving a value are driven by `return-and-use`, in two or three interactions.
+- **Step 7 — something goes wrong.** Driven in earnest: a managed file deleted outside Seal, and an entire repository directory removed while the window was open. The second leaves a way forward and no fault text anywhere in the interface. The first found a real defect, below.
+- **Step 3 — the glance.** Driven and **found missing**, below. What exists is the negative case only.
+
+**Not driven, and why:**
+
+- **Step 5 — stepping away.** Still never driven, and it is not a scenario that was skipped: the fifteen-minute lifetime is hard-coded through `Session::new`, so nothing a scenario can set makes a held secret expire inside a run that finishes in seconds. Driving it needs a lifetime seam of the same shape as the folder-pick override, which is a change to the command surface. Recorded on [journey-harness.md](../plans/app/desktop/journey-harness.md) and unchanged as `use-a-secret` step 8.
+- **Step 8 — the bad day.** Partly seen rather than driven. The irreversible acts are ceremonious in the right direction — sealing gates on typing `I UNDERSTAND`, the password change on typing `CHANGE MY PASSWORD` — and both are enforced in Rust rather than by the interface. The other direction, whether routine reversible actions are *free* of ceremony, was not systematically walked; releasing a file and releasing a repository each carry a plain confirmation with no typing gate, which is the right shape, but no pass judged every routine action against that bar.
 
 # Findings
 
-Open, pending the journey being driven.
+**1. A managed file deleted outside Seal still read as `Sealed`, with a live open control. — Fixed, re-driven, closed.**
+
+Measured: with `.env.beta` deleted on disk, the row kept its `Sealed` tag and its open button stayed enabled. The mechanism is a consumer discarding what the library correctly reported — `app::overview` computed a reconciliation, used it *only* to derive the exposure flag, and served `file.last_known` for the state itself, so every divergence except "recorded sealed, found readable" was invisible. The registry library was never wrong: its own suite proves a missing file is reported without alarm. The overview now serves the observed state and falls back to the recorded one only where reconciliation said nothing. Both directions are covered by tests confirmed non-vacuous, and the driven scenario asserts the tag *and* the disabled control. Owned by [commands.md](../plans/app/desktop/commands.md).
+
+This is squarely the axis's own defect class: the Rust suites and the frontend suites all passed throughout, because each side was correct about its own contract and the defect sat in the seam between them.
+
+**2. The interface re-reads disk only when the session unlocks. — Open, framed, blocked on the product owner.**
+
+Nothing else triggers a re-read: no timer, no refetch on window focus. A file deleted or exposed while the window sits open goes unnoticed indefinitely — locking and unlocking is the only thing that makes the product look again. This delays the exposure alert too, since it is computed from the same fetch. It is also why finding 1 needed a lock/unlock to become visible, and why the scenario's lock steps are load-bearing rather than incidental.
+
+**3. Nothing states that everything is protected. — Open, framed, blocked on the product owner.**
+
+Step 3 asks for an answer in a second without reading; the product only ever draws attention to what is *wrong*. A repository tile carries an exposure line only when it has exposures, and the files list shows a `Sealed` tag per row. The healthy answer therefore exists only as the absence of warnings spread across every tile and row, so answering the question means reading all of them and inferring safety from silence.
+
+Findings 2 and 3 are framed together as [freshness.md](../plans/app/desktop/ui/navigation/freshness.md), because an at-a-glance assurance is only worth drawing if it is current — a confident "everything is protected" computed from a snapshot taken at unlock is worse than none. Its design forks are in that node's [QUESTIONS.md](../plans/app/desktop/ui/navigation/QUESTIONS.md) and are the product owner's to settle; this journey does not answer them.
+
+**This journey is not satisfied.** Step 5 is undriven and blocked on a harness seam, step 8 is only partly walked, and findings 2 and 3 are open.

@@ -68,7 +68,7 @@ Reveal is not an edit and must never mark a file dirty — a demonstrated failur
 - [x] errors.md -> how a command failure reaches the user: plain language for every kind, the problem banner, and the re-lock on an ended session
 - [x] shell-layout.md -> the application shell: the repository sidebar, the detail surface, and the disclosure architecture
 - [x] repo-layer/ -> making the product read as a layer over an existing repository rather than a tool that extracts files into itself
-- [~] navigation/ -> the navigation model: breadcrumb routing over three full-width altitudes, the themes, and the title bar as a real window surface. **Audited and part-rebuilt: the repositories grid is finished to production depth with every state, and the interface now has an icon system. The files list, the file surface and the root segment's missing switcher remain, and two further concerns are freshly framed — the manage surface's depth pass and the product's palette.**
+- [~] navigation/ -> the navigation model: breadcrumb routing over three full-width altitudes, the themes, and the title bar as a real window surface. **Audited and part-rebuilt: the repositories grid is finished to production depth with every state, and the interface now has an icon system. The files list, the file surface and the root segment's missing switcher remain. `freshness.md` is freshly framed and blocked on the product owner — the interface re-reads disk only on unlock, and nothing states that everything is protected.**
 
 # Cursor
 

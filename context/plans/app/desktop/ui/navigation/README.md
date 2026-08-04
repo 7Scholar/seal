@@ -88,6 +88,7 @@ Three children, one per altitude, each owning its surface's layout and operation
 - [ ] disclosure-primitive.md -> one implementation of the disclosure contract the four collapsed controls each carry separately
 - [~] manage-surface.md -> the manage surface carried to the grid's depth. **The frame, the row response and the scan states are built; the filter and the remaining audit findings are not.**
 - [x] palette.md -> the chosen palette — a white, a black, an accent and a primary — and the role rule governing where each appears
+- [!] freshness.md -> when the product re-observes disk, and how it answers "is everything protected?" at a glance. **Blocked — awaiting answers in QUESTIONS.md.**
 
 # Cursor
 
@@ -130,6 +131,8 @@ What it has not taken is the filter, the degraded state, the alignment findings,
 Every child except `manage-surface.md` and the three named above is `[x]`. The two that carried risk beyond layout both landed on their designed shape: `theme.md`, because persisting a preference contradicts the memory-only webview and had to go to a Rust-side store rather than `localStorage`; and `title-bar.md`, because the drag region was present in the markup all along and did nothing, which made it a bug fix with a reproduction rather than a styling change.
 
 The design fork this redesign genuinely exposed — where the cross-repository exposure alert lives once the sidebar carrying it is gone — was raised as a blocking question and settled by the product owner: it moves to the title bar strip. The Approach above records the decision and why the two alternatives were refused.
+
+**[freshness.md](freshness.md) is newly framed and blocked**, from driving [living-with-it](../../../../../journeys/living-with-it.md). It holds one concern in two halves: the interface re-reads disk **only when the session unlocks**, so a file deleted or exposed while the window sits open goes unnoticed indefinitely; and nothing anywhere states that everything *is* protected, so the healthy answer exists only as the absence of warnings spread across every tile. They are one node because a standing assurance computed from a stale read is worse than no assurance. Its forks — what triggers a re-read, and whether the positive statement is drawn at all — are in [QUESTIONS.md](QUESTIONS.md) and are the product owner's to settle.
 
 # Open threads
 

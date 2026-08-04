@@ -320,6 +320,36 @@ fn the_overview_reports_a_file_found_plaintext_as_an_alert() {
 }
 
 #[test]
+fn the_overview_reports_a_deleted_file_as_missing_rather_than_its_last_state() {
+    let fixture = fixture();
+
+    std::fs::remove_file(&fixture.path).unwrap();
+
+    let overview = app::overview(&fixture.state);
+
+    assert_eq!(
+        overview[0].files[0].state,
+        SealedState::Missing,
+        "a managed file deleted on disk must read as missing, not as whatever it was last recorded as"
+    );
+}
+
+#[test]
+fn the_overview_reports_a_file_sealed_outside_seal_as_sealed() {
+    let mut fixture = fixture();
+
+    fixture.state.repos[0].files[0].last_known = SealedState::Plaintext;
+
+    let overview = app::overview(&fixture.state);
+
+    assert_eq!(
+        overview[0].files[0].state,
+        SealedState::Sealed,
+        "a file that became sealed outside Seal must be reported as it actually is on disk"
+    );
+}
+
+#[test]
 fn the_overview_carries_no_secret_material() {
     let fixture = fixture();
     let overview = app::overview(&fixture.state);

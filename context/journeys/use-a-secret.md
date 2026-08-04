@@ -49,7 +49,9 @@ Someone who has protected files and now needs to actually work with them — rea
 
 **Steps 1 through 5 driven, automated, 2026-07-31**, in the harness's `return-and-use` scenario running after `first-run` (`bun run e2e:extended`): the sealed file opens as masked structure with the secret provably absent from the page, the file on disk stays armored the whole time it is open, one value reveals on request and conceals again, an edit saves with the dirty count clearing and the file still sealed on disk, and closing returns to the repository view with the file protected.
 
-**Not driven:** step 6 (a non-env file's no-editor treatment), step 7 (the command-line resolve from a script), and step 8 (plaintext expiring after time away). These are undriven because no scenario stages them, not because anything blocks the run — the harness defect that used to cut the scenario short is resolved, and steps 1 through 5 now re-drive in seconds. The journey is not satisfied until all steps are driven.
+**Not driven:** step 6 (a non-env file's no-editor treatment), step 7 (the command-line resolve from a script), and step 8 (plaintext expiring after time away). The harness defect that used to cut the scenario short is resolved, and steps 1 through 5 now re-drive in seconds. The journey is not satisfied until all steps are driven.
+
+Steps 6 and 7 are undriven because no scenario stages them — step 7 additionally drives the **CLI binary** rather than the desktop app, so it needs a different harness shape. **Step 8 is blocked rather than merely unstaged**, and the reason was established by driving [living-with-it](living-with-it.md), whose step 5 is the same behaviour: the fifteen-minute lifetime is hard-coded through `Session::new`, so no scenario can make a held secret expire inside a run that completes in seconds. It needs a lifetime seam honoured only in harness builds, which is a change to the command surface — recorded on [journey-harness.md](../plans/app/desktop/journey-harness.md). Driving it once satisfies this step and `living-with-it`'s step 5 together.
 
 # Findings
 

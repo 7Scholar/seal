@@ -16,7 +16,8 @@
     "e2e:interrupted": "wdio run e2e/wdio.conf.ts --spec e2e/journeys/interrupted-rekey.e2e.ts",
     "e2e:living": "wdio run e2e/wdio.conf.ts --spec e2e/journeys/living-with-it.e2e.ts",
     "e2e:frame": "wdio run e2e/wdio.conf.ts --spec e2e/journeys/window-frame.e2e.ts",
-    "e2e:expiry": "wdio run e2e/wdio.expiry.conf.ts"
+    "e2e:expiry": "wdio run e2e/wdio.expiry.conf.ts",
+    "e2e:settling": "wdio run e2e/wdio.settling.conf.ts"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",

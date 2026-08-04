@@ -51,7 +51,9 @@ Someone who has protected files and now needs to actually work with them — rea
 
 **Step 8 driven, automated, 2026-08-04**, in the harness's `plaintext-expiry` scenario (`bun run e2e:expiry`), six of six green against an application launched with a three-second held-plaintext lifetime. What was witnessed: the value reveals normally while the user is working; after the lifetime elapses the plaintext is gone from Rust, proven by invoking `reveal` across the boundary and requiring the refusal to be `notOpen` specifically rather than any error; the refusal reaches the user as an explanation in their own language rather than as a dead control; the file was left sealed on disk throughout; and opening it again picks straight back up. Confirmed non-vacuous by compiling the lifetime seam out and re-driving — the two checks that measure the deadline fail, the four that do not still pass.
 
-**Not driven:** step 6 (a non-env file's no-editor treatment) and step 7 (the command-line resolve from a script). Neither is blocked; no scenario stages them. Step 7 additionally drives the **CLI binary** rather than the desktop app, so it needs a different harness shape. The journey is not satisfied until both are driven.
+**Step 6 driven, automated, 2026-08-04**, in the harness's `settling-in` scenario (`bun run e2e:settling`), seven of seven green. What was witnessed: a `terraform.tfvars` sealed alongside an env file opens with no editable row, no value input and no save control anywhere on the surface — the shape that was measured corrupting exactly this file type before the name gate existed; the surface states both why there is nothing to edit and that the file is stored exactly as it was written; and the file is still armored on disk after the round trip. Confirmed non-vacuous by removing the editable-env-file name gate and re-driving: those two checks fail while the rest pass, and the file survived on disk in the broken build too — the gate protects the editor, and sealing protects the bytes.
+
+**Not driven:** step 7, the command-line resolve from a script. It is not blocked; it drives the **CLI binary** rather than the desktop app, so it needs a different harness shape. The journey is not satisfied until it is driven.
 
 # Findings
 
@@ -61,4 +63,4 @@ Found while driving step 8. Revealing a value copies it into the editor's compon
 
 Worth stating precisely, because the first version of this check asserted the value would disappear and that assertion was wrong about the product as designed: [screens.md](../plans/app/desktop/ui/screens.md) specifies that a revealed value lives in component state and nowhere else, and says nothing about clearing it on expiry. So this is a missing concern rather than a defect against a stated contract — the interface has no notion of a held secret's lifetime at all. It belongs with the same question the axis has already raised twice: the interface only learns what Rust knows when it asks, and nothing makes it ask. Routed to [freshness.md](../plans/app/desktop/ui/navigation/freshness.md), which owns that gap and is blocked on the product owner.
 
-Steps 6 and 7 remain to be driven.
+Step 7 remains to be driven.

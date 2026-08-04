@@ -87,11 +87,11 @@ Three children, one per altitude, each owning its surface's layout and operation
 - [x] theme.md -> light, dark and system themes, the switcher, and the persistence the memory-only webview cannot provide
 - [~] breadcrumbs.md -> the trail, the switcher popover, and the route. **The root segment has no switcher, and the chevron is not the referenced icon.**
 - [~] repositories.md -> the repositories grid: tiles, search, per-tile ellipsis, add. **States beyond populated are undesigned; the empty state is a different visual language.**
-- [~] files.md -> one repository's files as large rows, with the repository's operations. **States beyond populated are undesigned.**
+- [~] files.md -> one repository's files as large rows, with the repository's operations. **The count, the missing-file explanation and the stale notice are built and driven; the empty repository is blocked on a question, and loading is not reachable.**
 - [~] file.md -> the file altitude, and the env editor re-homed into it. **States beyond populated are undesigned.**
 - [x] shape.md -> the shared visual language: the radius, the surfaces, and the tokens the themes resolve
 - [x] _docs/surface-audit.md -> the audit of the four built surfaces (a supporting doc, not a child)
-- [~] states.md -> the states beyond populated. **Done for the repositories grid; the files list and the file surface are still populated-only.**
+- [~] states.md -> the states beyond populated. **Done for the repositories grid and the files list; the file surface is still populated-only.**
 - [x] icons.md -> an icon system, replacing the text characters standing in for glyphs throughout the interface
 - [ ] disclosure-primitive.md -> one implementation of the disclosure contract the four collapsed controls each carry separately
 - [~] manage-surface.md -> the manage surface carried to the grid's depth. **The frame, the row response, the scan states, the annotation channel, the filter and the rescan's own statement are built; the degraded state and the alignment findings are not.**
@@ -118,7 +118,17 @@ The audit's most severe finding was not in the brief that ordered it: **the repo
 - **Tiles are a fixed height.** Measured in the running application: the 120-character name that used to make its tile 283px against its neighbours' 177px now measures 177px like every other.
 - **The interface has an icon system** ([icons.md](icons.md)): every text character standing in for a glyph is now an inline SVG, including the `⌃⌄` the reference showed as a chevron-up-down, and the tile ellipsis is vertical as the reference draws it.
 
-**What is not done, and is the next session's work:** the `Repositories` root segment still carries no switcher — the audit's other reference deviation, which belongs to [breadcrumbs.md](breadcrumbs.md) rather than the grid; the files list and the file surface are still built for the populated state only ([states.md](states.md)); and the four disclosure controls still carry four copies of one contract ([disclosure-primitive.md](disclosure-primitive.md)).
+**The files list has since been carried through the same pass, and it is where the depth work now stands.** Three of its defects are fixed, driven and guarded, and two of its states resolved to something other than "build it" — which is recorded rather than quietly skipped:
+
+- **The silent disable is gone.** A `missing` file's open control was disabled with nothing said about why — measured in the running application against a file genuinely deleted from disk while the window sat open. It now states that Seal cannot open it because it is no longer at that path, tied to the control by `aria-describedby` so the reason reaches a screen reader as the control's own.
+- **The surface states its managed-file count**, the fact the tile already carried one altitude up.
+- **A failed re-read is stated rather than hidden.** Every operation here re-reads the overview when it finishes; that call can fail, and the surface kept showing the rows it already had while saying nothing at all. It now says the contents are what Seal last saw, that the files are untouched and still sealed, and offers a retry — with the rows still visible, because stale information a user is told is stale beats a blank screen. This is the files-list form of the defect the grid had.
+- **The empty repository is not reachable**, so the markup implementing it is unreached: a repository is deleted when its last file is released, the manage flow refuses an empty selection, and a rescan only adds. Making it reachable is a decision about what managing a repository *means*, so it is [a question for the owner](QUESTIONS.md) rather than something to settle while building.
+- **The files list needs no loading state today.** Every launch lands on the grid, and both paths that could leave the route here with nothing loaded navigate back up instead — so the surface is only ever reached with its data in hand. Building a skeleton would guard a state that cannot occur.
+
+All eleven scenario runs were re-driven green after the change — 72 driven checks, the same bar the journeys axis set — and each new guard was confirmed non-vacuous by reintroducing the defect it prevents.
+
+**What is not done, and is the next session's work:** the `Repositories` root segment still carries no switcher — the audit's other reference deviation, which belongs to [breadcrumbs.md](breadcrumbs.md) rather than the grid; the file surface is still built for the populated state only ([states.md](states.md)); and the four disclosure controls still carry four copies of one contract ([disclosure-primitive.md](disclosure-primitive.md)).
 
 [HANDOFF.md](HANDOFF.md) briefed this work and is now spent for the grid; it stays until the remaining surfaces are carried to the same depth.
 

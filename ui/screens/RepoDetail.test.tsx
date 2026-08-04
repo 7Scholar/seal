@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { RepoDetail } from "./RepoDetail";
+import type { Load } from "./Repositories";
 import type { RepoView, SealOutcome } from "../ipc";
 
 const app: RepoView = {
@@ -16,6 +17,7 @@ const app: RepoView = {
 function setup(
   repo: RepoView = app,
   outcomes: SealOutcome[] | null = null,
+  load: Load = "ready",
 ) {
   const handlers = {
     onOpen: vi.fn(),
@@ -25,8 +27,9 @@ function setup(
     onReleaseRepo: vi.fn(),
     onRescan: vi.fn(),
     onDismissOutcomes: vi.fn(),
+    onRetry: vi.fn(),
   };
-  render(<RepoDetail repo={repo} outcomes={outcomes} {...handlers} />);
+  render(<RepoDetail repo={repo} load={load} outcomes={outcomes} {...handlers} />);
   return handlers;
 }
 
@@ -238,5 +241,64 @@ describe("RepoDetail and sealing several files at once", () => {
       .getAllByRole("button", { name: /^Open / })
       .map((button) => button.getAttribute("aria-label"));
     expect(names).toEqual(["Open .env", "Open a/.env", "Open z/.env"]);
+  });
+
+  it("states how many files it manages", () => {
+    setup();
+    expect(document.querySelector(".surface__count")).toHaveTextContent(
+      "2 managed files",
+    );
+  });
+
+  it("states the count in the singular for one file", () => {
+    setup({
+      ...app,
+      files: [{ relativePath: ".env", state: "plaintext", alert: false }],
+    });
+    expect(document.querySelector(".surface__count")).toHaveTextContent(
+      "1 managed file",
+    );
+  });
+
+  it("says why a missing file cannot be opened rather than disabling it silently", () => {
+    setup({
+      ...app,
+      files: [{ relativePath: "gone/.env", state: "missing", alert: false }],
+    });
+
+    const open = screen.getByRole("button", { name: "Open gone/.env" });
+    expect(open).toBeDisabled();
+
+    const why = open.getAttribute("aria-describedby");
+    expect(why).toBeTruthy();
+    expect(document.getElementById(why!)).toHaveTextContent(
+      "Seal cannot open it — it is no longer at this path.",
+    );
+  });
+
+  it("says nothing about why on a file that opens normally", () => {
+    setup();
+    const open = screen.getByRole("button", { name: "Open .env" });
+    expect(open).not.toBeDisabled();
+    expect(open.getAttribute("aria-describedby")).toBeNull();
+    expect(document.querySelector(".row__why")).not.toBeInTheDocument();
+  });
+
+  it("marks the list stale when the last re-read failed, without hiding the rows", async () => {
+    const user = userEvent.setup();
+    const handlers = setup(app, null, "failed");
+
+    expect(document.querySelector(".stale")).toHaveTextContent(
+      "Seal could not re-read this repository",
+    );
+    expect(screen.getAllByRole("button", { name: /^Open / })).toHaveLength(2);
+
+    await user.click(screen.getByRole("button", { name: "Try again" }));
+    expect(handlers.onRetry).toHaveBeenCalled();
+  });
+
+  it("says nothing about staleness when the read succeeded", () => {
+    setup();
+    expect(document.querySelector(".stale")).not.toBeInTheDocument();
   });
 });

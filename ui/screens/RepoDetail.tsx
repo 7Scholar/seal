@@ -3,11 +3,14 @@ import { ExposureAlert } from "../components/ExposureAlert";
 import { Toggletip } from "../components/Toggletip";
 import { Overflow } from "../components/Overflow";
 import type { RepoView, SealedState, SealOutcome } from "../ipc";
+import type { Load } from "./Repositories";
 import { reason } from "../errors";
 import { fileName } from "../format";
 
 interface Props {
   repo: RepoView;
+  load: Load;
+  onRetry: () => void;
   onOpen: (path: string) => void;
   onSeal: (path: string) => void | Promise<void>;
   onSealMany: (paths: string[]) => void | Promise<void>;
@@ -16,6 +19,20 @@ interface Props {
   onRescan: () => void;
   outcomes: SealOutcome[] | null;
   onDismissOutcomes: () => void;
+}
+
+export function StaleNotice({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div className="stale" role="alert">
+      <span className="stale__text">
+        Seal could not re-read this repository, so what is below is what it last
+        saw. Your files are untouched and still sealed.
+      </span>
+      <button type="button" onClick={onRetry}>
+        Try again
+      </button>
+    </div>
+  );
 }
 
 const LABELS: Record<SealedState, string> = {
@@ -36,6 +53,8 @@ function directoryOf(relativePath: string) {
 
 export function RepoDetail({
   repo,
+  load,
+  onRetry,
   onOpen,
   onSeal,
   onSealMany,
@@ -84,12 +103,21 @@ export function RepoDetail({
   const failures = outcomes?.filter((outcome) => !outcome.sealed) ?? [];
   const succeeded = outcomes?.filter((outcome) => outcome.sealed).length ?? 0;
 
+  const count =
+    files.length === 0
+      ? null
+      : files.length === 1
+        ? "1 managed file"
+        : `${files.length} managed files`;
+
   return (
     <section className="surface">
       <header className="repo-head">
         <div className="repo-head__text">
           <p className="repo-head__path">{repo.root}</p>
         </div>
+
+        {count ? <span className="surface__count">{count}</span> : null}
 
         <Toggletip label="What Seal does with these files">
           Seal <strong>watches</strong> every file listed here, and{" "}
@@ -107,6 +135,8 @@ export function RepoDetail({
           </button>
         </Overflow>
       </header>
+
+      {load === "failed" ? <StaleNotice onRetry={onRetry} /> : null}
 
       <ExposureAlert exposures={exposures} onSeal={onSeal} />
 
@@ -170,6 +200,9 @@ export function RepoDetail({
               const canSeal = file.state !== "sealed" && file.state !== "missing";
               const directory = directoryOf(file.relativePath);
 
+              const missing = file.state === "missing";
+              const whyId = missing ? `why-${path}` : undefined;
+
               return (
                 <li key={path} className="row" data-alert={file.alert}>
                   {canSeal ? (
@@ -186,12 +219,18 @@ export function RepoDetail({
                     type="button"
                     className="row__open"
                     aria-label={`Open ${file.relativePath}`}
-                    disabled={file.state === "missing"}
+                    disabled={missing}
+                    aria-describedby={whyId}
                     onClick={() => onOpen(path)}
                   >
                     <span className="row__name">{fileName(file.relativePath)}</span>
                     {directory ? (
                       <span className="row__path">{directory}/</span>
+                    ) : null}
+                    {missing ? (
+                      <span className="row__why" id={whyId}>
+                        Seal cannot open it — it is no longer at this path.
+                      </span>
                     ) : null}
                   </button>
 

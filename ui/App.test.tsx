@@ -428,4 +428,61 @@ describe("the theme control", () => {
     );
     expect(document.querySelector(".tile--add")).not.toBeInTheDocument();
   });
+
+  it("says the files list is stale rather than passing off a failed re-read as current", async () => {
+    const user = userEvent.setup();
+    await openApp();
+    await openRepository(user, "app");
+
+    expect(document.querySelector(".stale")).not.toBeInTheDocument();
+
+    mocked.overview.mockRejectedValue(new Error("no"));
+    mocked.sealFile.mockResolvedValue(undefined);
+    await user.click(screen.getByRole("button", { name: "Seal .env" }));
+
+    await waitFor(() =>
+      expect(document.querySelector(".stale")).toHaveTextContent(
+        "Seal could not re-read this repository",
+      ),
+    );
+    expect(document.querySelector(".stale")).toHaveTextContent(
+      "still sealed",
+    );
+    expect(document.querySelectorAll(".row").length).toBeGreaterThan(0);
+  });
+
+  it("states the managed-file count on the files list", async () => {
+    const user = userEvent.setup();
+    await openApp();
+    await openRepository(user, "app");
+
+    expect(document.querySelector(".surface__count")).toHaveTextContent(
+      "2 managed files",
+    );
+  });
+
+  it("says why a missing file cannot be opened, rather than disabling it silently", async () => {
+    const user = userEvent.setup();
+    mocked.overview.mockResolvedValue([
+      {
+        root: "/code/app",
+        name: "app",
+        files: [
+          { relativePath: ".env", state: "plaintext", alert: false },
+          { relativePath: "gone/.env.local", state: "missing", alert: false },
+        ],
+      },
+    ]);
+    await openApp();
+    await openRepository(user, "app");
+
+    const open = screen.getByRole("button", { name: "Open gone/.env.local" });
+    expect(open).toBeDisabled();
+
+    const why = open.getAttribute("aria-describedby");
+    expect(why).toBeTruthy();
+    expect(document.getElementById(why!)).toHaveTextContent(
+      "Seal cannot open it — it is no longer at this path.",
+    );
+  });
 });

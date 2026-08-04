@@ -330,6 +330,15 @@ input {
 .row__state[data-state="sealed"] { color: var(--ok); }
 .row[data-alert="true"] .row__state { color: var(--danger); font-weight: 600; }
 .row__actions { display: flex; align-items: center; gap: 0.5rem; flex: none; }
+.row__why { font-size: 0.78rem; color: var(--muted); }
+
+.stale {
+  display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.7rem 0.9rem; margin-bottom: 0.9rem;
+  border: 1px solid var(--danger); border-radius: var(--radius-lg);
+  background: var(--danger-surface);
+}
+.stale__text { flex: 1; color: var(--danger); font-size: 0.85rem; }
 
 .batch {
   display: flex; align-items: center; gap: 0.7rem;

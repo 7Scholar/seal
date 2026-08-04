@@ -544,6 +544,11 @@ export function App() {
         {route.at === "repository" && currentRepo ? (
           <RepoDetail
             repo={currentRepo}
+            load={load}
+            onRetry={() => {
+              setLoad("loading");
+              refresh().catch(() => undefined);
+            }}
             onOpen={(path) => void goToFile(currentRepo.root, path)}
             onSeal={seal}
             onSealMany={sealMany}

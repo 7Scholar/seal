@@ -33,10 +33,19 @@ The repositories grid is built to this and is the reference for the rest: [repos
 
 **The repositories grid, completely** — empty, one, populated, excessive, loading, error and no-match, each seen running. The loading and error states are new, the empty state is now an add tile inside the grid, and tiles are a fixed height.
 
-**Not yet done:** the files list and the file surface. Both are still built for the populated case, and both carry the same shape of defect the grid had — an empty repository is a bare sentence where the surface is a list of large rows, a `missing` file's open control is disabled with nothing said about why, and neither has a loading or error state.
+**The files list, except its empty state.** The silent disable is gone — a `missing` file now says why its open control is unavailable, tied to that control by `aria-describedby` — the surface states its managed-file count, and a failed re-read is stated above the list rather than passed off as current. [files.md](files.md) records each in detail.
+
+Two of that surface's states resolved to something other than "build it", and both are recorded rather than glossed:
+
+- **The empty repository is not reachable**, so its markup is unreached. A repository is deleted when its last file is released, the manage flow refuses an empty selection, and a rescan only adds. Whether to make it reachable is [a question for the owner](QUESTIONS.md); it is a decision about what "managing a repository" means, not an implementation detail.
+- **The files list has no loading state and does not need one today.** Every launch lands on the grid, and both paths that could leave the route at this altitude with nothing loaded navigate back up to the grid instead — so the surface is only ever reached with its data already in hand. Building a skeleton for it would be guarding a state that cannot occur.
+
+The error case is real, however, and is where this surface's genuine defect was: an operation's trailing re-read can fail, and the surface kept showing the rows it already had while saying nothing. That is now stated.
+
+**Not yet done:** the file surface. It is still built for the populated case — no loading, no surface-level failure, and no treatment for a file with hundreds of variables.
 
 # Steps
 
 - [x] The repositories grid: every state designed, built and driven.
-- [ ] The files list: the empty repository in the list's own language, the silent disable on a missing file, loading and error.
+- [~] The files list: the silent disable, the count and the stale notice are built and driven; the empty repository is `[!]` blocked in [files.md](files.md), and loading is recorded as not reachable.
 - [ ] The file surface: loading, a surface-level failure, and a file with hundreds of variables.

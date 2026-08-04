@@ -12,10 +12,10 @@
     "crates/seal-engine/tests/vectors/binary_env.age": "a827ba8a5bfcd6988000d7ffb81f6fa84ce888ab"
   },
   "operations.md": {
-    "crates/seal-engine/src/lock.rs": "0fc05de2df77d9beb617819b8ba06c2df1099a93",
+    "crates/seal-engine/src/lock.rs": "a74340e1cb980f392bd8dbba828ab9ab43f7f1fa",
     "crates/seal-engine/src/operations.rs": "bfb3565628e4ed202d1769fc8d272f6360e1b19e",
     "crates/seal-engine/src/reseal.rs": "3f4593bf0131ac12d0b822da2dda97d4f845d6aa",
-    "crates/seal-engine/tests/lock.rs": "0fc05de2df77d9beb617819b8ba06c2df1099a93",
+    "crates/seal-engine/tests/lock.rs": "a74340e1cb980f392bd8dbba828ab9ab43f7f1fa",
     "crates/seal-engine/tests/operations.rs": "e7416b33171725ff63cf9d0f7f89f7d821417339",
     "crates/seal-engine/tests/reseal.rs": "4609e00d5e6eafb233c6c9ad3ff5e4eb5085296e"
   },

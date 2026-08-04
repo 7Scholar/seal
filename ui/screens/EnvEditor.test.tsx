@@ -171,4 +171,65 @@ describe("EnvEditor, when saving fails", () => {
     expect(screen.getByLabelText("Value for API_KEY")).toHaveValue("rotated");
     expect(screen.getByRole("button", { name: "Save" })).toBeEnabled();
   });
+
+  it("re-masks a revealed value when Seal stops holding the plaintext", async () => {
+    const user = userEvent.setup();
+    const onReveal = vi.fn(async () => encode("sk-live-42"));
+    const props = {
+      file,
+      relativePath: ".env.production",
+      state: "sealed" as const,
+      onReveal,
+      onSave: vi.fn(async () => {}),
+      onSeal: vi.fn(),
+    };
+
+    const { rerender } = render(<EnvEditor {...props} expired={false} />);
+
+    await user.click(screen.getByRole("button", { name: "Reveal value for API_KEY" }));
+    expect(await screen.findByText("sk-live-42")).toBeInTheDocument();
+
+    rerender(<EnvEditor {...props} expired={true} />);
+
+    expect(screen.queryByText("sk-live-42")).not.toBeInTheDocument();
+  });
+
+  it("says why the value vanished, rather than blanking it silently", async () => {
+    const user = userEvent.setup();
+    const onReveal = vi.fn(async () => encode("sk-live-42"));
+    const props = {
+      file,
+      relativePath: ".env.production",
+      state: "sealed" as const,
+      onReveal,
+      onSave: vi.fn(async () => {}),
+      onSeal: vi.fn(),
+    };
+
+    const { rerender } = render(<EnvEditor {...props} expired={false} />);
+    await user.click(screen.getByRole("button", { name: "Reveal value for API_KEY" }));
+    await screen.findByText("sk-live-42");
+
+    rerender(<EnvEditor {...props} expired={true} />);
+
+    expect(
+      screen.getByText(/stopped holding this file/i),
+    ).toBeInTheDocument();
+  });
+
+  it("says nothing when the plaintext expires with no value on show", () => {
+    const props = {
+      file,
+      relativePath: ".env.production",
+      state: "sealed" as const,
+      onReveal: vi.fn(async () => encode("sk-live-42")),
+      onSave: vi.fn(async () => {}),
+      onSeal: vi.fn(),
+    };
+
+    const { rerender } = render(<EnvEditor {...props} expired={false} />);
+    rerender(<EnvEditor {...props} expired={true} />);
+
+    expect(screen.queryByText(/stopped holding this file/i)).not.toBeInTheDocument();
+  });
 });

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import * as ipc from "./ipc";
 import { explain } from "./errors";
 import { Acknowledge } from "./screens/Acknowledge";
@@ -15,6 +15,8 @@ import { Overflow } from "./components/Overflow";
 import { ThemeControl } from "./components/ThemeControl";
 import { fileName } from "./format";
 import * as theme from "./theme";
+
+const REOBSERVE_INTERVAL_MS = 5000;
 
 type Overlay =
   | { name: "none" }
@@ -50,6 +52,7 @@ export function App() {
   const [outcomes, setOutcomes] = useState<ipc.SealOutcome[] | null>(null);
   const [rekey, setRekey] = useState<ipc.Manifest | null>(null);
   const [mode, setMode] = useState<theme.Mode>("system");
+  const [expired, setExpired] = useState(false);
 
   const refresh = useCallback(async () => {
     try {
@@ -161,9 +164,57 @@ export function App() {
     }
   }
 
+  const reconcileRef = useRef(reconcile);
+  reconcileRef.current = reconcile;
+
+  const routeRef = useRef(route);
+  routeRef.current = route;
+
   async function refreshAndReconcile() {
     reconcile(await refresh());
   }
+
+
+  const reobserve = useCallback(async (openPath: string | null) => {
+    try {
+      const seen = await ipc.reobserve(openPath);
+      setRepos((current) =>
+        JSON.stringify(current) === JSON.stringify(seen.repos) ? current : seen.repos,
+      );
+      setLoad("ready");
+      if (openPath && !seen.stillHeld) setExpired(true);
+      return seen.repos;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!unlocked) return;
+
+    let running = false;
+    const look = () => {
+      if (running) return;
+      running = true;
+      void reobserve(routeRef.current.at === "file" ? routeRef.current.path : null)
+        .then((fresh) => {
+          if (fresh) reconcileRef.current(fresh);
+        })
+        .finally(() => {
+          running = false;
+        });
+    };
+
+    window.addEventListener("focus", look);
+    document.addEventListener("visibilitychange", look);
+    const timer = window.setInterval(look, REOBSERVE_INTERVAL_MS);
+
+    return () => {
+      window.removeEventListener("focus", look);
+      document.removeEventListener("visibilitychange", look);
+      window.clearInterval(timer);
+    };
+  }, [unlocked, reobserve]);
 
   async function closeOpenFile() {
     if (route.at !== "file") return;
@@ -188,6 +239,7 @@ export function App() {
     await closeOpenFile();
     setRoute({ at: "file", root, path });
     setOutcomes(null);
+    setExpired(false);
     await attempt(`open ${fileName(path)}`, async () => {
       const file = await ipc.openFile(path);
       setOpened(
@@ -508,6 +560,7 @@ export function App() {
             file={opened.file}
             relativePath={openedRelativePath}
             state={openedState}
+            expired={expired}
             onReveal={async (key) => {
               try {
                 return await ipc.reveal(opened.file.path, key);

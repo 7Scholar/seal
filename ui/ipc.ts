@@ -14,6 +14,11 @@ export interface RepoView {
   files: FileView[];
 }
 
+export interface Observation {
+  repos: RepoView[];
+  stillHeld: boolean;
+}
+
 export interface VariableView {
   key: string;
   masked: string;
@@ -130,6 +135,8 @@ export const establish = (passphrase: string) =>
   invoke<void>("establish", { passphrase });
 
 export const overview = () => invoke<RepoView[]>("overview");
+export const reobserve = (open: string | null) =>
+  invoke<Observation>("reobserve", { open });
 export const openFile = (path: string) => invoke<OpenedFile>("open_file", { path });
 export const closeFile = (path: string) => invoke<void>("close_file", { path });
 export const openPaths = () => invoke<string[]>("open_paths");

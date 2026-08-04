@@ -179,6 +179,26 @@ impl Session {
         Ok(())
     }
 
+    pub fn holds(&mut self, path: &Path) -> bool {
+        let Ok(now) = self.now() else {
+            return false;
+        };
+        let Ok(unlocked) = self.active() else {
+            return false;
+        };
+
+        let expired = unlocked
+            .open
+            .get(path)
+            .is_some_and(|held| held.deadline.has_passed(now));
+        if expired {
+            unlocked.open.remove(path);
+            return false;
+        }
+
+        unlocked.open.contains_key(path)
+    }
+
     pub fn open_paths(&mut self) -> Vec<PathBuf> {
         match self.active() {
             Ok(unlocked) => {

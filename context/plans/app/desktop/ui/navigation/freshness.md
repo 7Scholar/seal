@@ -38,11 +38,13 @@ Against that, a watch is the option that *looks* most robust and is least. It br
 
 So the design takes the cheap, boring mechanism and spends the saved effort on making it *honest*, which is where the owner's instruction actually points.
 
-**The timer rides the sweep loop that already exists.** The application already runs a background loop that expires held plaintext every 30 seconds ([commands.md](../../commands.md) owns the sweep, `lifecycle.md` the expiry). Reconciliation joins that loop rather than starting a second one: one timer, one place to reason about wakeups, and no new lifetime to manage. The interval for re-observation is shorter than the sweep's, so the loop ticks at the finer interval and performs the sweep every *n*th tick.
+**The timer lives in the interface, and the sweep stays where it is.** Rust already runs a background loop that expires held plaintext every 30 seconds ([commands.md](../../commands.md) owns the sweep, `lifecycle.md` the expiry), and re-observation deliberately does **not** join it. The two answer different questions on different cadences — the sweep enforces a deadline whether or not anyone is looking, while re-observation exists only to keep a *visible* interface honest — and coupling them would tie the expiry's cadence to a display concern for no gain, since the measurement above showed re-observation is free. The interface asks, at its own interval, and only while it is unlocked; nothing wakes up on behalf of a window nobody has open.
 
 **A re-read that finds nothing changed emits nothing.** The loop compares the reconciliation it just computed against the one the interface was last given, and notifies only on a difference. This is what keeps a timer from being a re-render every few seconds, and it is why the interface can treat an event as *"something is actually different"* rather than as a tick.
 
 **Focus is the trigger that matters most and costs least.** A user who has been away in their editor is exactly the user whose picture is stale, and they are already paying an attention cost switching windows. The timer covers the case focus does not: the window sitting open and visible while something changes underneath it.
+
+**The timer does not skip while the page reports itself hidden**, which is the opposite of the usual advice and is deliberate. Measured in the running application: a Tauri window that is merely behind another window reports `document.hidden` as **true**, so a `document.hidden` guard — the ordinary way to avoid polling a background tab — suppressed every tick and the interface noticed nothing at all. That is precisely the situation this concern exists for, since a user working in their editor has Seal behind it. The guard was removed rather than refined: the reconciliation is sub-millisecond, so there is nothing to save, and skipping it costs exactly the case that matters.
 
 ## The re-read covers the registry, not only the files in it
 
@@ -79,12 +81,20 @@ The expiry semantics, the sweep, the reconciliation algorithm, and the exposure 
 # Steps
 
 - [x] Research solution directions and settle the forks — the owner answered; the measurement above chose between the delegated options.
-- [ ] Re-observe on window focus, and prove the interface notices a change made while it was away.
-- [ ] Join the reconciliation to the existing sweep loop on a shorter tick, emitting only on a difference.
-- [ ] Re-read the registry rather than the in-memory mirror, so an added repository is noticed.
-- [ ] Re-mask a revealed value when its plaintext expires, and say why.
-- [ ] Drive all of it against the real application, including the case that motivated the concern: a file exposed while the window sits open.
+- [x] Re-observe on window focus, and prove the interface notices a change made while it was away.
+- [x] Join the reconciliation to a timer, emitting only on a difference.
+- [x] Re-read the registry rather than the in-memory mirror, so an added repository is noticed.
+- [x] Re-mask a revealed value when its plaintext expires, and say why.
+- [x] Drive all of it against the real application, including the case that motivated the concern: a file exposed while the window sits open.
+
+# What exists
+
+All of the Approach. `reobserve` is one command that re-reads the registry from disk, reconciles it, and reports both the observation and whether a named open file is still held; the interface calls it on focus, on `visibilitychange`, and every **5 seconds**, discarding the result when it is identical to what is already shown. `Session::holds` answers the held-file question **without refreshing the deadline**, which is guarded by a test that fails if asking extends the lifetime — the mistake that would silently make a watched file immortal.
+
+**Driven, five checks green** (`bun run e2e:freshness`), against the case that motivated the concern: a sealed file overwritten in the clear while the window sits open is noticed with **no user action**, the exposure alert rises from the same observation, a file deleted underneath the window becomes `Not found` with its open control dead, nothing anywhere draws a positive assurance, and sealing from the alert clears it again. Confirmed non-vacuous by neutering the timer callback: the four checks that depend on re-observation fail, and the one that does not — that no assurance is drawn — still passes.
+
+Nine unit tests cover the rest: four on `Session::holds` and three on the editor's re-masking, including that it says nothing when nothing was revealed.
 
 # Open threads
 
-- The re-observation interval is not yet chosen. It wants picking against the sweep's 30 seconds — a small integer divisor keeps one timer — and against how quickly an exposure should surface, which is the only latency a user can perceive. Decide it when the loop is built and the latency is observable rather than on paper.
+- The 5-second interval is a first choice rather than a measured one. It is fast enough that an exposure surfaces before a user could act on stale information, and cheap enough not to matter, but nobody has asked a user whether it feels immediate. Revisit if the latency is ever observed as too slow.

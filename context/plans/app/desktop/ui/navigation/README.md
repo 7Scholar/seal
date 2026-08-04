@@ -94,9 +94,9 @@ Three children, one per altitude, each owning its surface's layout and operation
 - [~] states.md -> the states beyond populated. **Done for the repositories grid; the files list and the file surface are still populated-only.**
 - [x] icons.md -> an icon system, replacing the text characters standing in for glyphs throughout the interface
 - [ ] disclosure-primitive.md -> one implementation of the disclosure contract the four collapsed controls each carry separately
-- [~] manage-surface.md -> the manage surface carried to the grid's depth. **The frame holds, the row response, the scan states and the annotation channel are built; the filter and the remaining audit findings are not.**
+- [~] manage-surface.md -> the manage surface carried to the grid's depth. **The frame, the row response, the scan states, the annotation channel, the filter and the rescan's own statement are built; the degraded state and the alignment findings are not.**
 - [x] palette.md -> the chosen palette — a white, a black, an accent and a primary — and the role rule governing where each appears
-- [~] freshness.md -> when the product re-observes disk, and how it answers "is everything protected?" at a glance. **Unblocked and solutioned** — the owner settled the forks; its Approach is committed and its build has not started.
+- [x] freshness.md -> when the product re-observes disk, and how it answers "is everything protected?" at a glance. Built and driven; the owner's answer to the positive statement was *nothing*, so none is drawn.
 
 # Cursor
 

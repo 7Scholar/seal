@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SecretValue } from "../components/SecretValue";
 import { decodeSecret } from "../format";
 import type { EnvView, SealedState } from "../ipc";
@@ -7,6 +7,7 @@ interface Props {
   file: EnvView;
   relativePath: string;
   state: SealedState;
+  expired?: boolean;
   onReveal: (key: string) => Promise<Uint8Array>;
   onSave: (edits: [string, string][]) => Promise<void>;
   onSeal: () => void | Promise<void>;
@@ -23,6 +24,7 @@ export function EnvEditor({
   file,
   relativePath,
   state,
+  expired = false,
   onReveal,
   onSave,
   onSeal,
@@ -31,12 +33,24 @@ export function EnvEditor({
   const [edits, setEdits] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
 
+  const [hidNote, setHidNote] = useState(false);
+
+  useEffect(() => {
+    if (!expired) return;
+    setRevealed((current) => {
+      if (Object.keys(current).length === 0) return current;
+      setHidNote(true);
+      return {};
+    });
+  }, [expired]);
+
   const dirtyKeys = Object.keys(edits);
   const isDirty = dirtyKeys.length > 0;
 
   async function reveal(key: string) {
     try {
       const bytes = await onReveal(key);
+      setHidNote(false);
       setRevealed((current) => ({ ...current, [key]: decodeSecret(bytes) }));
     } catch {
       return;
@@ -78,6 +92,13 @@ export function EnvEditor({
           {STATE_LABELS[state]}
         </span>
       </header>
+
+      {hidNote ? (
+        <p className="env-editor__notice" role="status">
+          Seal stopped holding this file after a spell of inactivity, so the
+          value you had revealed was hidden again. Reveal it to look once more.
+        </p>
+      ) : null}
 
       {file.duplicateKeys.length > 0 ? (
         <p className="env-editor__notice" role="note">

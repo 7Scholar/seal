@@ -14,7 +14,7 @@ use crate::error::{CommandError, Kind};
 use crate::lifecycle::{self, ScanView};
 use crate::rekey;
 use crate::theme;
-use crate::view::{OpenedFile, RepoView, SealOutcome};
+use crate::view::{Observation, OpenedFile, RepoView, SealOutcome};
 
 pub const RETRY_ATTEMPTS: u8 = 5;
 
@@ -81,6 +81,16 @@ impl Held {
         self.registry
             .lock()
             .map_err(|_| CommandError::new(Kind::Registry))
+    }
+
+    pub fn reread(&self) -> Result<(), CommandError> {
+        let fresh = self
+            .store
+            .load()
+            .map_err(|_| CommandError::new(Kind::Registry))?;
+        let mut registry = self.registry()?;
+        *registry = fresh;
+        Ok(())
     }
 
     pub fn ledger(&self) -> rekey::Ledger {
@@ -156,6 +166,27 @@ pub async fn is_unlocked(held: Managed<'_, Held>) -> Result<bool, CommandError> 
 pub async fn overview(held: Managed<'_, Held>) -> Result<Vec<RepoView>, CommandError> {
     let registry = held.registry()?;
     Ok(app::overview(&registry))
+}
+
+#[tauri::command]
+pub async fn reobserve(
+    held: Managed<'_, Held>,
+    open: Option<PathBuf>,
+) -> Result<Observation, CommandError> {
+    let still_held = {
+        let mut session = held.session()?;
+        if !session.is_unlocked() {
+            return Err(CommandError::new(Kind::Locked));
+        }
+        open.as_deref().is_none_or(|path| session.holds(path))
+    };
+
+    held.reread()?;
+    let registry = held.registry()?;
+    Ok(Observation {
+        repos: app::overview(&registry),
+        still_held,
+    })
 }
 
 #[tauri::command]

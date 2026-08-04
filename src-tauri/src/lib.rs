@@ -47,6 +47,7 @@ pub fn run() {
             commands::establish,
             commands::pick_folder,
             commands::overview,
+            commands::reobserve,
             commands::open_file,
             commands::reveal,
             commands::save,

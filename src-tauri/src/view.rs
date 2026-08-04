@@ -24,6 +24,13 @@ pub struct RepoView {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct Observation {
+    pub repos: Vec<RepoView>,
+    pub still_held: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct VariableView {
     pub key: String,
     pub masked: String,

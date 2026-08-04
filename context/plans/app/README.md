@@ -53,7 +53,7 @@ The work decomposes into the children below: the sealing engine is the seam ever
 - [x] engine/ -> the sealing engine: age-based seal/unseal, the password model, session and key-handling semantics
 - [x] registry.md -> the registry of seal repos and their managed files, including the candidate scan
 - [x] cli.md -> the standalone CLI resolver
-- [~] desktop/ -> the Tauri desktop application: shell, IPC surface, and the management UI. **not done** — its journeys are unsatisfied, `ui/navigation/`'s surfaces need a depth pass, and `ui/navigation/freshness.md` is blocked on the product owner.
+- [~] desktop/ -> the Tauri desktop application: shell, IPC surface, and the management UI. **Its journeys are all satisfied**; what remains is `ui/navigation/`'s depth pass — four surfaces whose states beyond populated are undesigned, and the manage surface's degraded and alignment findings.
 - [~] publishing/ -> everything around the code: repo docs, CI, packaging, releases, maintainability. **Reopened:** a hosted documentation site is framed and unstarted.
 
 # Cursor
@@ -132,7 +132,11 @@ The finding is the freshness gap at a new altitude: **a whole repository registe
 
 It also produced a third missing concern, which went to the same node: **a revealed value stays on screen after Rust has expired it.** The guarantee itself holds — the plaintext is genuinely gone and the file stays sealed, both verified in the same run — but the interface has no notion of a held secret's lifetime, so the screen keeps displaying a secret the product no longer holds. The first version of that check asserted the value would disappear and was wrong about the product as designed, which is the axis's own lesson applying to a test rather than to a finding: it is a missing concern, not a defect against a stated contract.
 
-**Every step of every journey is now driven**, and the axis is no longer waiting on a decision. The product owner settled [freshness.md](desktop/ui/navigation/freshness.md)'s three forks, so what remains is that plan's build rather than an answer. One of its findings closed as *decided rather than fixed* — the owner chose that the product should draw no positive assurance, so the healthy answer stays the absence of warnings, and the journey records that as a decision. `first-run`, `exposure` and `change-the-password` are satisfied; the other three are driven end to end and wait on that build.
+**All six journeys are satisfied** — every step driven against a release build, every finding closed. That is this axis's own bar for production-readiness, and it is the first time the product has met it.
+
+The last three findings closed with [freshness.md](desktop/ui/navigation/freshness.md), the concern the axis raised and the owner settled. The product now **re-observes the world while the window is open** — on focus and every five seconds, re-reading the registry from disk rather than reconciling a remembered picture — so a secret that becomes readable underneath the user is noticed with no action from them, which is the case the whole concern existed for. A revealed value re-masks itself when Seal drops the plaintext behind it, so the fifteen-minute bound now governs what is on screen and not only what is in memory.
+
+Two decisions in it are worth carrying forward. The owner chose that the product draws **no positive assurance** — absence remains the answer — so `living-with-it` step 3's request for a one-glance answer is deliberately unmet and recorded as decided rather than outstanding. And a **filesystem watch was refused** in favour of polling, on a measurement rather than a preference: a reconciliation is 6ms for 500 managed files and under a millisecond for a realistic vault, while a watch's failure modes (descriptor limits, save-by-rename, network volumes) all end with the product silently ceasing to notice. Building it also caught the inverse trap — a `document.hidden` guard on the timer, which is ordinary practice and disabled the feature entirely, because a Tauri window behind another window reports itself hidden.
 
 Read [docs/plans/JOURNEYS.md](../../../docs/plans/JOURNEYS.md) before working one.
 

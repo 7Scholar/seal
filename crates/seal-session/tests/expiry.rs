@@ -450,3 +450,53 @@ fn clearing_a_repo_override_returns_it_to_the_master_password() {
 
     assert_eq!(secret_of(&mut session, "/repos/legacy/.env"), "master");
 }
+
+#[test]
+fn holds_reports_a_live_file_and_does_not_refresh_its_deadline() {
+    let clock = TestClock::new();
+    let mut session = unlocked(clock.clone());
+    open_a_file(&mut session);
+
+    clock.advance_both(600);
+    assert!(session.holds(Path::new("/repo/.env")));
+
+    clock.advance_both(400);
+    assert!(
+        !session.holds(Path::new("/repo/.env")),
+        "asking whether a file is held must not extend how long it is held",
+    );
+}
+
+#[test]
+fn holds_reports_an_expired_file_as_gone_and_drops_it() {
+    let clock = TestClock::new();
+    let mut session = unlocked(clock.clone());
+    open_a_file(&mut session);
+
+    clock.advance_both(901);
+
+    assert!(!session.holds(Path::new("/repo/.env")));
+    assert!(session.open_paths().is_empty());
+    assert!(matches!(
+        session.plaintext(Path::new("/repo/.env")),
+        Err(SessionError::NotOpen { .. })
+    ));
+}
+
+#[test]
+fn holds_reports_a_file_that_was_never_opened_as_gone() {
+    let clock = TestClock::new();
+    let mut session = unlocked(clock.clone());
+
+    assert!(!session.holds(Path::new("/repo/.env.other")));
+}
+
+#[test]
+fn holds_reports_nothing_when_the_session_is_locked() {
+    let clock = TestClock::new();
+    let mut session = unlocked(clock.clone());
+    open_a_file(&mut session);
+    session.wipe();
+
+    assert!(!session.holds(Path::new("/repo/.env")));
+}

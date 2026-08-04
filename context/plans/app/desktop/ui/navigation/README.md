@@ -143,7 +143,7 @@ All twelve scenario runs were re-driven green after the change — **76 driven c
 
 **The four disclosures now share one contract** ([disclosure-primitive.md](disclosure-primitive.md)), as a hook rather than a wrapper component: what they have in common is the open state and the rules for leaving it, while their markup — a menu, a bubble with a live region, a popover holding a listbox — has nothing in common at all. The switcher's divergence is closed: it handled Escape only within its own subtree, so a user who opened it, moved focus to the surface behind and pressed Escape found it still open while every other disclosure would have closed.
 
-**Every child of this node is now `[x]` except the manage surface**, whose one remaining item is the relock that discards a live selection — an item that wants reproducing before it is repaired rather than building.
+**Every child of this node is now `[x]`**, the manage surface included: its last item was the relock that discards a live selection, which was pursued to a reproduction and found not to be a defect.
 
 [HANDOFF.md](HANDOFF.md) briefed this work and is now spent for the grid; it stays until the remaining surfaces are carried to the same depth.
 

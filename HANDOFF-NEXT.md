@@ -1,4 +1,4 @@
-# Handoff — the depth pass is done; what is left is one reproduction and the things only the owner can settle
+# Handoff — the reproduction is done and found no defect; what is left is the things only the owner can settle
 
 > **You are picking this up cold.** Read this, then read what it points you at, then go and drive the real application. Do not start writing code on the strength of this document alone — it tells you where things stand and what is binding, not what to build.
 
@@ -49,7 +49,7 @@ Everything is committed on **`main`**. Working tree clean, no drift, no `DRIFT.m
 
 **Four of those are not journeys.** `window-frame` drives the window *as a window*; `manage-filter` drives the filter against a file no journey's fixture buries deeply enough; `large-file` drives a four-hundred-variable env file; `manage-density` measures the manage surface's geometry. Each exists because its defect class is invisible to a journey asking whether a *task* completes.
 
-**192 interface unit tests**, and the Rust workspace is green.
+**194 interface unit tests**, and the Rust workspace is green.
 
 ### Two coverage limits, stated rather than glossed
 
@@ -58,7 +58,22 @@ Everything is committed on **`main`**. Working tree clean, no drift, no `DRIFT.m
 
 ## What the last session did
 
-It took the four remaining items on `ui/navigation/` and finished all of them. **Every child of that node is now `[x]` except `manage-surface.md`, whose one open item is a reproduction rather than a build.**
+It took the top item — **reproduce the relock that discards a live manage selection** — and found that **the defect does not exist as stated.** `ui/navigation/` is now `[x]` in every child.
+
+The reproduction was driven against the real component tree and reached a mechanism on every path:
+
+- **The surface's own two calls cannot carry a lock.** `scan_folder` and `manage` lock only the registry, whose failure is `Kind::Registry`. Neither takes the session guard, so a locked session is invisible to the manage surface's own traffic.
+- **The one concurrent caller that checks the session throws its answer away.** `reobserve` does return `Kind::Locked`, and the 5-second poll is the only thing running while the overlay is up — but its caller's bare `catch` swallows it. **This is deliberate and is now a `ui/MEMORY.md` entry**, because it reads exactly like a bug: routing that error through `fail` looks like plainly correct error handling and is the one change that would make a live selection genuinely destroyable.
+- **The explicit lock is unreachable** behind the overlay, which returns before the shell's chrome renders.
+- **The audit's stated cause was never a mechanism.** There is no session lifetime; that deadline is per held file and surfaces as `stillHeld: false`, not as a lock.
+
+What remains are a poisoned session mutex and an unreadable clock — process-level faults that leave every command returning `locked` until restart, so a discarded selection is the least of their consequences and neither is fixable at this surface.
+
+**The one path that does discard a selection is the confirm itself failing, and that is correct.** Both behaviours are guarded in `App.test.tsx`, each confirmed non-vacuous by breaking the code beneath it. **No product code changed** — the honest outcome of a reproduction that finds nothing to fix.
+
+## What the session before it did
+
+It took the four remaining items on `ui/navigation/` and finished all of them, leaving one reproduction behind — the item the session above closed.
 
 **The file surface got every state it was missing, and two of them were broken rather than unfinished.** All established by measuring the running application, not by reading the code:
 
@@ -87,10 +102,9 @@ It took the four remaining items on `ui/navigation/` and finished all of them. *
 
 In rough order of value:
 
-1. **Reproduce the relock that discards a live manage selection**, the single open item on [manage-surface.md](context/plans/app/desktop/ui/navigation/manage-surface.md). Its stated cause was **corrected** — the audit blamed a 15-minute session lifetime, but the session has no expiry; that deadline is per held file. The remaining triggers are an explicit lock and a poisoned mutex, so it is far rarer than recorded and **has never been reproduced**. A fix on an unreproduced trigger would be unfalsifiable, so reproducing it *is* the work.
-2. **`publishing/`** — reopened; a hosted documentation site is framed. [FOR-JORIS.md](FOR-JORIS.md) has items waiting on the owner about it. **Do not duplicate them.**
-3. **A sweep of the remaining prose against the interface's own rule.** `ui/README.md`'s open threads name this: the rule was stated after most screens were built, so only the surfaces two nodes touched have been judged against it. It wants a deliberate pass, not a blanket deletion — the acknowledgement's copy may well be legitimate, being a destructive-act confirmation stating a consequence.
-4. **The excessive state is contained but not reduced.** Nothing virtualizes anywhere — 400 variables is 2,850 DOM nodes, 1,097 tree rows is more. Every surface states its count so the size is knowable, and the frames now hold, but the DOM cost is untouched. This is a real thread on three plans and nobody has decided whether it matters at this product's scale.
+1. **`publishing/`** — reopened; a hosted documentation site is framed. [FOR-JORIS.md](FOR-JORIS.md) has items waiting on the owner about it. **Do not duplicate them.**
+2. **A sweep of the remaining prose against the interface's own rule.** `ui/README.md`'s open threads name this: the rule was stated after most screens were built, so only the surfaces two nodes touched have been judged against it. It wants a deliberate pass, not a blanket deletion — the acknowledgement's copy may well be legitimate, being a destructive-act confirmation stating a consequence.
+3. **The excessive state is contained but not reduced.** Nothing virtualizes anywhere — 400 variables is 2,850 DOM nodes, 1,097 tree rows is more. Every surface states its count so the size is knowable, and the frames now hold, but the DOM cost is untouched. This is a real thread on three plans and nobody has decided whether it matters at this product's scale.
 
 ## Read these, in this order
 

@@ -83,7 +83,7 @@ Three children, one per altitude, each owning its surface's layout and operation
 # Plans
 
 - [x] _docs/navigation-research.md -> the prior-art survey and the behavioural rules (a supporting doc, not a child)
-- [x] title-bar.md -> the title bar as a real window control surface: drag, double-click zoom, and the interactive-child exclusion
+- [x] title-bar.md -> the title bar as a real window control surface: drag, double-click zoom, and the interactive-child exclusion. Its behaviour is done; two housekeeping items on its file are `[!]` awaiting answers in [QUESTIONS.md](QUESTIONS.md)
 - [x] theme.md -> light, dark and system themes, the switcher, and the persistence the memory-only webview cannot provide
 - [~] breadcrumbs.md -> the trail, the switcher popover, and the route. **The root segment has no switcher, and the chevron is not the referenced icon.**
 - [~] repositories.md -> the repositories grid: tiles, search, per-tile ellipsis, add. **States beyond populated are undesigned; the empty state is a different visual language.**
@@ -134,7 +134,9 @@ It also closed a real conformance failure: `--line` was **1.34:1 on dark and 1.2
 - **The surface is a three-band frame** at full window height, with the tree as the only scrolling region. The tree's own `max-height: 26rem` was the worse of the two causes of "doesn't fill the screen", holding it to 416px and leaving 362px dead below the footer at 1280×720.
 - **The surface owns its scan.** It previously awaited the scan before existing, so a loading state could not render — the audit measured a **42-second scan** spent on the previous screen with no feedback, and a failed scan losing the user's folder choice to a banner on the screen they had just left.
 
-What it has not taken is the filter, the degraded state, the alignment findings, and the idle lock discarding a live selection. Its cursor holds them.
+**The filter is now built and driven**, which was the largest of its remaining items and the one [the research](_docs/tree-picker-research.md) calls table stakes: the tree expands to follow the *detected* files, so an undetected one was reachable only by hand-opening its chain. A rescan also says on its face that it is a rescan rather than leaving that fact inside a toggletip, and inert rows no longer light up on hover.
+
+What it has not taken is the degraded state and the alignment findings. The relock that discards a live selection stays open with its stated cause **corrected** — the audit blamed a session lifetime that does not exist, since that deadline is per held file — so it is far rarer than recorded and wants reproducing before it is repaired. Its cursor holds them.
 
 Every child except `manage-surface.md` and the three named above is `[x]`. The two that carried risk beyond layout both landed on their designed shape: `theme.md`, because persisting a preference contradicts the memory-only webview and had to go to a Rust-side store rather than `localStorage`; and `title-bar.md`, because the drag region was present in the markup all along and did nothing, which made it a bug fix with a reproduction rather than a styling change.
 

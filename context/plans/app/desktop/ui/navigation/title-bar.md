@@ -68,6 +68,7 @@ The earlier version of this check tested the framework's decision *function* ove
 - [x] Suppress text selection and the text cursor on the strip's own labels.
 - [x] Centre the platform's window controls against the strip, with a test coupling the two heights.
 - [x] Confirm the reproduction is gone by driving it again, and that every strip control still responds.
+- [!] Settle this file's two housekeeping items — the stashed `unsafe` removal and the two clippy failures in its test module — blocked, awaiting answers in [QUESTIONS.md](QUESTIONS.md).
 
 # Open threads
 

@@ -85,6 +85,10 @@ Searching for something absent replaces the grid with `<p>No repository matches 
 | Excessive | **not audited** — a file with hundreds of variables was not reached |
 | Unavailable | designed — a non-env file opens opaque |
 
+The two absences and the unaudited state were reached afterwards, and both absences were worse than this table records. **Loading** is not "no indication": the content region was measured holding zero bytes for the whole open, so the window below the trail was blank. **Error** is not merely mis-routed: a rejected open leaves the altitude current with no contents, and every render branch guards on those contents — so dismissing the global banner leaves a blank window under a trail claiming the user is inside a file.
+
+**Excessive, once reached, was the only *broken* state on any of the four surfaces.** At 400 variables the surface rendered **26,756px inside a 673px content region**, the document scrolled, and the save control sat at 26,776px in a 720px window — so a user could not save a large file. All of it is fixed and driven; [states.md](../states.md) and [file.md](../file.md) record what was built.
+
 ## Title bar and breadcrumb
 
 | State | Verdict |
@@ -168,6 +172,5 @@ Confirmed by search: no spinner, skeleton or pending treatment exists anywhere i
 
 ## What was not audited
 
-- **The file surface at excessive size** — a file with hundreds of variables.
 - **Breadcrumb truncation with long segments** in the running app.
 - **The title bar drag**, which [MEMORY.md](../MEMORY.md) records as undrivable by the harness and needing a hand check.

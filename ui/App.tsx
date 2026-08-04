@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import * as ipc from "./ipc";
-import { explain } from "./errors";
+import { explain, reason } from "./errors";
 import { Acknowledge } from "./screens/Acknowledge";
 import { EnvEditor } from "./screens/EnvEditor";
+import { FileOpening, FileFailed } from "./screens/FileStates";
 import { ManageFlow } from "./screens/ManageFlow";
 import { RepoDetail, filePath } from "./screens/RepoDetail";
 import { Repositories, type Load } from "./screens/Repositories";
@@ -29,6 +30,8 @@ type Route =
   | { at: "file"; root: string; path: string };
 
 type Opened =
+  | { kind: "opening" }
+  | { kind: "failed"; why: string }
   | { kind: "env"; file: ipc.EnvView }
   | { kind: "opaque"; path: string; bytes: number };
 
@@ -240,14 +243,26 @@ export function App() {
     setRoute({ at: "file", root, path });
     setOutcomes(null);
     setExpired(false);
-    await attempt(`open ${fileName(path)}`, async () => {
+    setOpened({ kind: "opening" });
+    try {
       const file = await ipc.openFile(path);
       setOpened(
         file.kind === "env"
           ? { kind: "env", file }
           : { kind: "opaque", path: file.path, bytes: file.bytes },
       );
-    });
+    } catch (error) {
+      if (ipc.isCommandError(error) && error.kind === "locked") {
+        relock();
+        return;
+      }
+      setOpened({
+        kind: "failed",
+        why: ipc.isCommandError(error)
+          ? reason(error.kind)
+          : "Something unexpected went wrong — nothing was changed.",
+      });
+    }
   }
 
   async function sealNow(path: string) {
@@ -557,6 +572,19 @@ export function App() {
             onRescan={() => void startRescan(currentRepo.root)}
             outcomes={outcomes}
             onDismissOutcomes={() => setOutcomes(null)}
+          />
+        ) : null}
+
+        {route.at === "file" && opened?.kind === "opening" ? (
+          <FileOpening relativePath={openedRelativePath} />
+        ) : null}
+
+        {route.at === "file" && opened?.kind === "failed" ? (
+          <FileFailed
+            relativePath={openedRelativePath}
+            why={opened.why}
+            onRetry={() => void goToFile(route.root, route.path)}
+            onBack={() => void goToRepository(route.root)}
           />
         ) : null}
 

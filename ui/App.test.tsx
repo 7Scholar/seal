@@ -485,4 +485,150 @@ describe("the theme control", () => {
       "Seal cannot open it — it is no longer at this path.",
     );
   });
+
+  it("draws the file surface while the open is in flight, rather than nothing at all", async () => {
+    const user = userEvent.setup();
+    let settle: (view: ipc.OpenedFile) => void = () => {};
+    mocked.openFile.mockReturnValue(
+      new Promise<ipc.OpenedFile>((resolve) => {
+        settle = resolve;
+      }),
+    );
+    await openApp();
+    await openRepository(user, "app");
+
+    await user.click(screen.getByRole("button", { name: "Open .env" }));
+
+    const opening = await screen.findByLabelText("Opening .env");
+    expect(opening).toBeInTheDocument();
+    expect(document.querySelector(".env-editor")).toHaveAttribute(
+      "aria-busy",
+      "true",
+    );
+    expect(document.querySelector(".env-editor .file-head__path")).toHaveTextContent(
+      ".env",
+    );
+
+    settle({
+      kind: "env",
+      path: "/code/app/.env",
+      variables: [{ key: "API_KEY", masked: "••••••••", empty: false }],
+      duplicateKeys: [],
+      unparseableLines: 0,
+    });
+    await screen.findByText("API_KEY");
+    expect(screen.queryByLabelText("Opening .env")).not.toBeInTheDocument();
+  });
+
+  it("states a failed open on the surface, with a retry and a way back", async () => {
+    const user = userEvent.setup();
+    mocked.openFile.mockRejectedValue({
+      kind: "damaged",
+      path: "/code/app/.env",
+      message: "no",
+    });
+    await openApp();
+    await openRepository(user, "app");
+
+    await user.click(screen.getByRole("button", { name: "Open .env" }));
+
+    const failed = await screen.findByRole("alert");
+    expect(failed).toHaveTextContent("Seal could not open this file");
+    expect(failed).toHaveTextContent("The file could not be read as a sealed file");
+
+    expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Back to the repository" }));
+
+    await screen.findByRole("button", { name: "Open .env" });
+    expect(document.querySelector(".file-failed")).not.toBeInTheDocument();
+  });
+
+  it("retries the open from the surface it failed on", async () => {
+    const user = userEvent.setup();
+    mocked.openFile.mockRejectedValueOnce({
+      kind: "io",
+      path: "/code/app/.env",
+      message: "no",
+    });
+    await openApp();
+    await openRepository(user, "app");
+
+    await user.click(screen.getByRole("button", { name: "Open .env" }));
+    await screen.findByRole("alert");
+
+    mocked.openFile.mockResolvedValue({
+      kind: "env",
+      path: "/code/app/.env",
+      variables: [{ key: "API_KEY", masked: "••••••••", empty: false }],
+      duplicateKeys: [],
+      unparseableLines: 0,
+    });
+    await user.click(screen.getByRole("button", { name: "Try again" }));
+
+    await screen.findByText("API_KEY");
+  });
+
+  it("states the file's variable count, in the singular and the plural", async () => {
+    const user = userEvent.setup();
+    mocked.openFile.mockResolvedValue({
+      kind: "env",
+      path: "/code/app/.env",
+      variables: [
+        { key: "API_KEY", masked: "••••••••", empty: false },
+        { key: "DATABASE_URL", masked: "••••••••", empty: false },
+      ],
+      duplicateKeys: [],
+      unparseableLines: 0,
+    });
+    await openApp();
+    await openRepository(user, "app");
+    await user.click(screen.getByRole("button", { name: "Open .env" }));
+
+    await screen.findByText("API_KEY");
+    expect(document.querySelector(".env-editor .surface__count")).toHaveTextContent(
+      "2 variables",
+    );
+
+    await user.click(screen.getByRole("button", { name: "app" }));
+    mocked.openFile.mockResolvedValue({
+      kind: "env",
+      path: "/code/app/.env",
+      variables: [{ key: "API_KEY", masked: "••••••••", empty: false }],
+      duplicateKeys: [],
+      unparseableLines: 0,
+    });
+    await user.click(screen.getByRole("button", { name: "Open .env" }));
+
+    await screen.findByText("API_KEY");
+    expect(document.querySelector(".env-editor .surface__count")).toHaveTextContent(
+      "1 variable",
+    );
+  });
+
+  it("keeps the save control out of the scrolling region, whatever the file holds", async () => {
+    const user = userEvent.setup();
+    mocked.openFile.mockResolvedValue({
+      kind: "env",
+      path: "/code/app/.env",
+      variables: Array.from({ length: 400 }, (_, i) => ({
+        key: `VARIABLE_${i}`,
+        masked: "••••••••",
+        empty: false,
+      })),
+      duplicateKeys: [],
+      unparseableLines: 0,
+    });
+    await openApp();
+    await openRepository(user, "app");
+    await user.click(screen.getByRole("button", { name: "Open .env" }));
+
+    await screen.findByText("VARIABLE_0");
+
+    const region = document.querySelector(".env-editor__region");
+    const save = screen.getByRole("button", { name: "Save" });
+    expect(region).toBeInTheDocument();
+    expect(region!.contains(screen.getByText("VARIABLE_0"))).toBe(true);
+    expect(region!.contains(save)).toBe(false);
+  });
 });

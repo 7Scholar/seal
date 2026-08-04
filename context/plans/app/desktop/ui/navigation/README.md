@@ -88,10 +88,10 @@ Three children, one per altitude, each owning its surface's layout and operation
 - [~] breadcrumbs.md -> the trail, the switcher popover, and the route. **The root segment has no switcher, and the chevron is not the referenced icon.**
 - [~] repositories.md -> the repositories grid: tiles, search, per-tile ellipsis, add. **States beyond populated are undesigned; the empty state is a different visual language.**
 - [x] files.md -> one repository's files as large rows, with the repository's operations. Every state it can occupy is built and driven; the empty repository and loading are settled as not reachable.
-- [~] file.md -> the file altitude, and the env editor re-homed into it. **States beyond populated are undesigned.**
+- [x] file.md -> the file altitude, and the env editor re-homed into it. Every state it can occupy is built and driven, including the frame that makes a file of any size editable.
 - [x] shape.md -> the shared visual language: the radius, the surfaces, and the tokens the themes resolve
 - [x] _docs/surface-audit.md -> the audit of the four built surfaces (a supporting doc, not a child)
-- [~] states.md -> the states beyond populated. **Done for the repositories grid and the files list; the file surface is still populated-only.**
+- [x] states.md -> the states beyond populated, for all three altitudes. Every state each surface can occupy is designed and built, or recorded as not reachable with its reason.
 - [x] icons.md -> an icon system, replacing the text characters standing in for glyphs throughout the interface
 - [ ] disclosure-primitive.md -> one implementation of the disclosure contract the four collapsed controls each carry separately
 - [~] manage-surface.md -> the manage surface carried to the grid's depth. **The frame, the row response, the scan states, the annotation channel, the filter and the rescan's own statement are built; the degraded state and the alignment findings are not.**
@@ -128,9 +128,18 @@ The audit's most severe finding was not in the brief that ordered it: **the repo
 
 **`files.md` is now `[x]`.** Both of those are the first cases in this tree where a state on the enumeration resolved to *not reachable* rather than to a treatment, which is a real outcome rather than a skipped one — an unreachable state left implemented reads as a live surface, and a plan claiming it exists sends the next agent to test what never renders.
 
-All eleven scenario runs were re-driven green after the change — 72 driven checks, the same bar the journeys axis set — and each new guard was confirmed non-vacuous by reintroducing the defect it prevents.
+**The file surface has since been carried through the same pass, which finishes [states.md](states.md) across all three altitudes.** It held the worst of the three surfaces' states, and both of its serious ones were established by measurement rather than by reading:
 
-**What is not done, and is the next session's work:** the `Repositories` root segment still carries no switcher — the audit's other reference deviation, which belongs to [breadcrumbs.md](breadcrumbs.md) rather than the grid; the file surface is still built for the populated state only ([states.md](states.md)); and the four disclosure controls still carry four copies of one contract ([disclosure-primitive.md](disclosure-primitive.md)).
+- **A large file could not be saved.** At 400 variables the surface rendered **26,756px inside a 673px content region** and the save control sat at 26,776px in a 720px window — below the fold, past every row. It now carries the three-band frame the manage surface established, with the rows as the only scrolling region; driven at 400 variables, the save control is on screen with the rows scrolled to their end.
+- **A failed open was a dead end.** The route is set before the open resolves, so a rejection left the altitude current with no contents and only the dismissible global banner — dismissing it left a blank window under a trail claiming the user was inside a file. The surface now states the failure itself, with the reason, a retry, and a way back to the repository.
+- **An open in flight rendered nothing at all.** Measured: the content region held zero bytes for the whole open. It now draws the surface's own skeleton, with the path the route already knows.
+- **The surface states its variable count**, the fact both sibling altitudes state.
+
+**One defect found here belonged to no surface.** With the frame correct and every element in the chain measuring at the window's height or less, the document still scrolled to 26,695px — the visually-hidden span each masked value carries is absolutely positioned with no offsets, so it escapes any scrolling region that is not itself positioned, and 394 of them extended the document. Fixed on the utility; [the interface memory](../MEMORY.md) holds why the offsets must stay.
+
+All twelve scenario runs were re-driven green after the change — **76 driven checks**, including the surface's own new scenario (`bun run e2e:largefile`) — and each new guard was confirmed non-vacuous by reintroducing the defect it prevents.
+
+**What is not done, and is the next session's work:** the `Repositories` root segment still carries no switcher — the audit's other reference deviation, which belongs to [breadcrumbs.md](breadcrumbs.md) rather than the grid; and the four disclosure controls still carry four copies of one contract ([disclosure-primitive.md](disclosure-primitive.md)).
 
 [HANDOFF.md](HANDOFF.md) briefed this work and is now spent for the grid; it stays until the remaining surfaces are carried to the same depth.
 

@@ -29,6 +29,8 @@ Why it matters beyond tidiness: these are the states a user meets at exactly the
 
 The repositories grid is built to this and is the reference for the rest: [repositories.md](repositories.md) records its states in detail.
 
+**A surface that fills the window is a frame, not a document.** Where a surface's content can grow without bound — a repository's tree, a file's variables — the surface is the window's height with exactly one scrolling band inside it, so the operations at its foot stay reachable at every size. A surface that flows instead puts its own save control below its content, which is the shape in which "the state was never designed" becomes "the user cannot complete the task".
+
 # What exists
 
 **The repositories grid, completely** — empty, one, populated, excessive, loading, error and no-match, each seen running. The loading and error states are new, the empty state is now an add tile inside the grid, and tiles are a fixed height.
@@ -44,10 +46,14 @@ Two of that surface's states resolved to **not reachable** rather than to a trea
 
 The error case is real, however, and is where this surface's genuine defect was: an operation's trailing re-read can fail, and the surface kept showing the rows it already had while saying nothing. That is now stated.
 
-**Not yet done:** the file surface. It is still built for the populated case — no loading, no surface-level failure, and no treatment for a file with hundreds of variables.
+**The file surface, completely** — its skeleton while an open is in flight, a surface-level failure carrying both a retry and a way back, the three-band frame that makes a file of any size editable, and the variable count. [file.md](file.md) records each in detail.
+
+Its excessive state was the only one across the three surfaces that was **broken** rather than unfinished: at 400 variables the surface rendered 26,756px tall inside a 673px region and the save control sat below the fold, so a user could not save a large file at all. Its error state was the worst dead end: a failed open left the route inside a file with no contents and only a dismissible global banner, so dismissing it left a blank window under a trail claiming the user was somewhere.
+
+That surface also turned up the one defect in this pass that belonged to no single surface. With the frame correct and every element in the chain measuring at the window's height or less, the document still scrolled to 26,695px — because the visually-hidden span each masked value carries is absolutely positioned with no offsets and therefore escapes any scrolling region that is not itself positioned. Fixed on the utility rather than the surface, and recorded in [the interface memory](../MEMORY.md), because it was one busy surface away from happening anywhere.
 
 # Steps
 
 - [x] The repositories grid: every state designed, built and driven.
 - [x] The files list: the silent disable, the count and the stale notice built and driven; the empty repository and loading settled as not reachable, with the unreached markup removed.
-- [ ] The file surface: loading, a surface-level failure, and a file with hundreds of variables.
+- [x] The file surface: the skeleton, the surface-level failure, the three-band frame and the count, each driven at 400 variables.

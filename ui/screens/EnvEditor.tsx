@@ -82,87 +82,104 @@ export function EnvEditor({
     }
   }
 
+  const count =
+    file.variables.length === 0
+      ? null
+      : file.variables.length === 1
+        ? "1 variable"
+        : `${file.variables.length} variables`;
+
   return (
     <section className="env-editor">
       <header className="file-head">
         <div className="file-head__text">
           <p className="file-head__path">{relativePath}</p>
         </div>
+        {count ? <span className="surface__count">{count}</span> : null}
         <span className="file-head__state" data-state={state}>
           {STATE_LABELS[state]}
         </span>
       </header>
 
-      {hidNote ? (
-        <p className="env-editor__notice" role="status">
-          Seal stopped holding this file after a spell of inactivity, so the
-          value you had revealed was hidden again. Reveal it to look once more.
-        </p>
-      ) : null}
+      <div className="env-editor__notices">
+        {hidNote ? (
+          <p className="env-editor__notice" role="status">
+            Seal stopped holding this file after a spell of inactivity, so the
+            value you had revealed was hidden again. Reveal it to look once more.
+          </p>
+        ) : null}
 
-      {file.duplicateKeys.length > 0 ? (
-        <p className="env-editor__notice" role="note">
-          This file defines {file.duplicateKeys.join(", ")} more than once. Both
-          lines are kept exactly as they are, because tools disagree about which
-          one wins.
-        </p>
-      ) : null}
+        {file.duplicateKeys.length > 0 ? (
+          <p className="env-editor__notice" role="note">
+            This file defines {file.duplicateKeys.join(", ")} more than once. Both
+            lines are kept exactly as they are, because tools disagree about which
+            one wins.
+          </p>
+        ) : null}
 
-      {file.unparseableLines > 0 ? (
-        <p className="env-editor__notice" role="note">
-          {file.unparseableLines === 1
-            ? "1 line is not a variable assignment. It is preserved untouched."
-            : `${file.unparseableLines} lines are not variable assignments. They are preserved untouched.`}
-        </p>
-      ) : null}
+        {file.unparseableLines > 0 ? (
+          <p className="env-editor__notice" role="note">
+            {file.unparseableLines === 1
+              ? "1 line is not a variable assignment. It is preserved untouched."
+              : `${file.unparseableLines} lines are not variable assignments. They are preserved untouched.`}
+          </p>
+        ) : null}
+      </div>
 
-      <ul className="env-editor__rows">
-        {file.variables.map((variable, index) => {
-          const key = variable.key;
-          const rowId = `${key}-${index}`;
-          const isEditing = key in edits;
-          return (
-            <li key={rowId} className="env-editor__row">
-              <span className="env-editor__key">{key}</span>
-
-              {isEditing ? (
-                <input
-                  aria-label={`Value for ${key}`}
-                  value={edits[key] ?? ""}
-                  autoComplete="off"
-                  autoCapitalize="off"
-                  spellCheck={false}
-                  onChange={(event) => edit(key, event.target.value)}
-                />
-              ) : (
-                <SecretValue
-                  variableName={key}
-                  revealed={revealed[key] ?? null}
-                  onReveal={() => reveal(key)}
-                  onConceal={() => conceal(key)}
-                />
-              )}
-
-              {!isEditing ? (
-                <button
-                  type="button"
-                  aria-label={`Edit ${key}`}
-                  onClick={async () => {
-                    try {
-                      const current = revealed[key] ?? decodeSecret(await onReveal(key));
-                      edit(key, current);
-                    } catch {
-                      return;
-                    }
-                  }}
-                >
-                  Edit
-                </button>
-              ) : null}
+      <div className="env-editor__region">
+        <ul className="env-editor__rows">
+          {file.variables.length === 0 ? (
+            <li className="env-editor__none">
+              This file defines no variables.
             </li>
-          );
-        })}
-      </ul>
+          ) : null}
+          {file.variables.map((variable, index) => {
+            const key = variable.key;
+            const rowId = `${key}-${index}`;
+            const isEditing = key in edits;
+            return (
+              <li key={rowId} className="env-editor__row">
+                <span className="env-editor__key">{key}</span>
+
+                {isEditing ? (
+                  <input
+                    aria-label={`Value for ${key}`}
+                    value={edits[key] ?? ""}
+                    autoComplete="off"
+                    autoCapitalize="off"
+                    spellCheck={false}
+                    onChange={(event) => edit(key, event.target.value)}
+                  />
+                ) : (
+                  <SecretValue
+                    variableName={key}
+                    revealed={revealed[key] ?? null}
+                    onReveal={() => reveal(key)}
+                    onConceal={() => conceal(key)}
+                  />
+                )}
+
+                {!isEditing ? (
+                  <button
+                    type="button"
+                    aria-label={`Edit ${key}`}
+                    onClick={async () => {
+                      try {
+                        const current = revealed[key] ?? decodeSecret(await onReveal(key));
+                        edit(key, current);
+                      } catch {
+                        return;
+                      }
+                    }}
+                  >
+                    Edit
+                  </button>
+                ) : null}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
 
       <footer className="env-editor__actions">
         <span role="status" aria-label="Unsaved changes" className="env-editor__dirty">

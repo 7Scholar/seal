@@ -53,7 +53,13 @@ Someone who has protected files and now needs to actually work with them — rea
 
 **Step 6 driven, automated, 2026-08-04**, in the harness's `settling-in` scenario (`bun run e2e:settling`), seven of seven green. What was witnessed: a `terraform.tfvars` sealed alongside an env file opens with no editable row, no value input and no save control anywhere on the surface — the shape that was measured corrupting exactly this file type before the name gate existed; the surface states both why there is nothing to edit and that the file is stored exactly as it was written; and the file is still armored on disk after the round trip. Confirmed non-vacuous by removing the editable-env-file name gate and re-driving: those two checks fail while the rest pass, and the file survived on disk in the broken build too — the gate protects the editor, and sealing protects the bytes.
 
-**Not driven:** step 7, the command-line resolve from a script. It is not blocked; it drives the **CLI binary** rather than the desktop app, so it needs a different harness shape. The journey is not satisfied until it is driven.
+**Step 7 driven, automated, 2026-08-04**, in the harness's `deploy-script` scenario (`bun run e2e:deploy`), seven of seven green. It is the one scenario that drives **both binaries**: the desktop application seals the file through its own interface, and then a real shell script — `e2e/cli/deploy-script.sh`, using the capture-then-evaluate idiom the CLI plan documents — runs the built `seal` binary against that exact file and deploys with the value. That seam is the point: every existing CLI test seals through the engine library, so nothing had ever demonstrated that what the *application* writes is what the *command line* can read.
+
+What was witnessed: the script received the secret the application sealed and nothing else; standard output carried the file's bytes exactly, with no framing and no fabricated newline; the file was still armored on disk afterwards; a wrong password exited `3` while a missing file exited `4`, so the retry loop the plan promises is actually writable; the failure named the password on standard error with no fault text; `status` answered sealed-or-not without any password; and a file that is not sealed was refused with its own code rather than a generic failure.
+
+Confirmed non-vacuous twice. Flattening the wrong-password exit code to the generic failure — the flaw the plan calls out in a reference tool — fails exactly the retry-distinction check. Appending a trailing newline to the output fails exactly the byte-exactness check. That second break is worth recording: **the deploy script itself still passed**, because command substitution strips a trailing newline, which is precisely why the byte-exactness check has to be separate from the script check rather than assumed to follow from it.
+
+**The journey's eight steps are now all driven.**
 
 # Findings
 
@@ -63,4 +69,4 @@ Found while driving step 8. Revealing a value copies it into the editor's compon
 
 Worth stating precisely, because the first version of this check asserted the value would disappear and that assertion was wrong about the product as designed: [screens.md](../plans/app/desktop/ui/screens.md) specifies that a revealed value lives in component state and nowhere else, and says nothing about clearing it on expiry. So this is a missing concern rather than a defect against a stated contract — the interface has no notion of a held secret's lifetime at all. It belongs with the same question the axis has already raised twice: the interface only learns what Rust knows when it asks, and nothing makes it ask. Routed to [freshness.md](../plans/app/desktop/ui/navigation/freshness.md), which owns that gap and is blocked on the product owner.
 
-Step 7 remains to be driven.
+**Every step is driven.** The journey is **not satisfied**, and finding 1 above is the only thing holding it: a journey with an open finding is unsatisfied however complete its demonstration. That finding is routed to [freshness.md](../plans/app/desktop/ui/navigation/freshness.md) and blocked on the product owner, so this journey cannot close until that node does.

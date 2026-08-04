@@ -14,6 +14,8 @@ Verified by nine tests, several of which drive the real binary through a shell: 
 
 Three further tests cover the launcher against a stub application: an application sitting beside the running binary is the one launched even when the platform would have found an installed one; the same holds when the binary is reached through a symbolic link, where the search must follow the link to its target; and a launch that finds nothing exits non-zero naming what was missing, with standard output empty throughout. All three were confirmed non-vacuous by breaking them — dropping the sibling rule sends the first to the installed application, removing the path resolution sends the second to whatever sits beside the link, and returning success on a failed search fails the third.
 
+**The contract is also driven against a file the desktop application sealed**, in the journey harness's `deploy-script` scenario ([journey-harness.md](desktop/journey-harness.md)). Every test above seals through the engine library, which leaves one thing unproven that this plan's own suite structurally cannot reach: that what the *application* writes is what the *command line* reads. A real shell script now resolves an application-sealed file and deploys with the value, alongside checks that standard output is byte-exact, the exit codes stay distinct, and the file remains sealed afterwards.
+
 Byte-exactness and the distinguished exit codes were both confirmed non-vacuous by breaking them: appending a trailing newline, as the secret-lookup tools do, fails the exactness test, and flattening the codes fails the retry-distinction test.
 
 # Approach

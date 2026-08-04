@@ -38,6 +38,10 @@ The scenario runs against its own scratch home and repository, seals one file, a
 
 **A second repository is added across the boundary, because the folder-pick seam cannot yield a second folder.** The seam returns whatever `SEAL_E2E_PICK_FOLDER` names, and the application reads it from the environment it was launched with — so within one process every pick returns the same folder, and no amount of driving the add control reaches a different one. The scenario therefore invokes `scan_folder` and `manage` directly for the second repository. That has a consequence worth stating rather than hiding: an add performed outside the interface is invisible to it until something makes it re-read, which is the gap [freshness.md](ui/navigation/freshness.md) owns. The scenario locks and unlocks to trigger that re-read before asserting both repositories are listed together, so what it demonstrates is that the product holds two repositories side by side, not that the interface notices a repository appearing underneath it.
 
+**One scenario drives both binaries**, `e2e/wdio.deploy.conf.ts` (`bun run e2e:deploy`), because [use-a-secret](../../../journeys/use-a-secret.md) step 7 is about a deploy script rather than a screen. The desktop application seals a file through its own interface, and then a real shell script — checked in at `e2e/cli/deploy-script.sh` and using the capture-then-evaluate idiom [cli.md](../cli.md) documents — runs the built `seal` binary against that same file. **The seam is the whole point:** every test in the CLI's own suite seals through the engine library, so what the application writes had never been demonstrated readable by the command line. The scenario measures the script's success, byte-exact standard output, the file still sealed afterwards, the exit codes a retry loop depends on being distinct, a diagnosis on standard error that names the password without leaking a fault, `status` answering without a password, and an unsealed file refused with its own code.
+
+The CLI half runs as ordinary child processes rather than through WebDriver, which is what "a different harness shape" turned out to mean in practice: no new driver, no new runner, just the existing scenario shape reaching for `execFileSync` once the application has done its part. The password reaches the binary on a numbered file descriptor, the automation path the CLI already specifies, because no pseudo-terminal is available to a scenario.
+
 **One scenario is not a journey.** `window-frame` (`bun run e2e:frame`) drives the window's own frame across the three surfaces that are not an altitude — the locked screen, the manage surface and the password change — asserting that each carries a drag region, starts below the platform's window controls, and, for the manage surface, that its tree region is the scrolling element while the document is not. It exists because that defect is invisible to every scenario that drives a *task*: the surfaces work, the controls respond, and the window is merely unusable as a window. It measures geometry off the running layout rather than asserting on markup, since the shipped defect was one where the CSS read as correct.
 
 **The client's Tauri bridge global is installed by the harness.** The service runs a focus check before every `findElement`, `findElements`, `$`, `$$` and `elementClick`, and that check reaches Tauri through `window.__wdio_original_core__` — a page global the service reads but never assigns. Absent it, every one of those commands waits five seconds and then throws, so a scenario's waits expire against a page that was ready the whole time and the run appears to hang at a wandering point. The harness therefore binds that global to the webview's own IPC invoke once per session, in the runner's `before` hook, which is the client's defect and so belongs on the client side rather than in the application.
@@ -62,9 +66,11 @@ Removing the delay exposed two assumptions the tax had been masking, both fixed 
 
 **Settling in is driven, seven checks green in about nine seconds.** Non-vacuity was confirmed twice, each time with the correct split rather than a blanket failure. Making every already-managed row selectable again — the regression that would let a rescan take managed work away — fails exactly the rescan-safety check, naming the mechanism, while the other six pass. Removing the editable-env-file name gate fails exactly the two non-env checks, and the file survived on disk in both broken builds, which is the honest reading: the gate protects the editor, and sealing protects the bytes.
 
+**The command-line resolve is driven, seven checks green in under four seconds**, across the desktop application and the `seal` binary in one run. Non-vacuity was confirmed twice, each with the correct split. Flattening the wrong-password exit code fails exactly the retry-distinction check. Appending a trailing newline to the resolved output fails exactly the byte-exactness check — and, instructively, **not** the deploy-script check, because command substitution strips a trailing newline. That is why the two are separate checks: a scenario that only ran the script would have passed against a binary that fabricates bytes.
+
 # What is missing
 
-A green run of the workflow on the hosted runner, and a scenario for the command-line resolve.
+A green run of the workflow on the hosted runner.
 
 # Steps
 
@@ -78,8 +84,8 @@ A green run of the workflow on the hosted runner, and a scenario for the command
 - [x] The `living-with-it` scenario: the exposure surfaced and cleared, a file deleted outside Seal, a repository directory removed, and a mid-session kill
 - [x] The `plaintext-expiry` scenario, on the lifetime seam `commands.md` provides: six checks green, confirmed non-vacuous
 - [x] The `settling-in` scenario: the non-env file's treatment and the return to a known repository, seven checks green, confirmed non-vacuous in both directions
+- [x] The `deploy-script` scenario, driving both binaries: the application seals, a real shell script resolves, seven checks green, confirmed non-vacuous twice
 - [ ] Report the missing global upstream, so the harness's `before` hook can eventually be dropped
-- [ ] A scenario for the command-line resolve, which drives the CLI binary and so needs a different harness shape
 
 # Open threads
 

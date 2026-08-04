@@ -3,7 +3,11 @@
     "ui/App.test.tsx": "d14f1fa6c6e33529d0d098de586751ab686385f8",
     "ui/App.tsx": "d14f1fa6c6e33529d0d098de586751ab686385f8",
     "ui/components/Breadcrumbs.tsx": "d14f1fa6c6e33529d0d098de586751ab686385f8",
-    "ui/components/Switcher.tsx": "d14f1fa6c6e33529d0d098de586751ab686385f8"
+    "ui/components/Switcher.tsx": "664ae562a15034f173ad013318a5c2221c24c63c"
+  },
+  "disclosure-primitive.md": {
+    "ui/components/useDisclosure.test.tsx": "664ae562a15034f173ad013318a5c2221c24c63c",
+    "ui/components/useDisclosure.ts": "664ae562a15034f173ad013318a5c2221c24c63c"
   },
   "file.md": {
     "ui/screens/EnvEditor.test.tsx": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
@@ -47,7 +51,7 @@
     "src-tauri/src/lib.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "src-tauri/src/theme.rs": "6af8515a56ce649aaf6c17568ae434baa072681d",
     "src-tauri/tests/theme.rs": "6af8515a56ce649aaf6c17568ae434baa072681d",
-    "ui/components/ThemeControl.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
+    "ui/components/ThemeControl.tsx": "664ae562a15034f173ad013318a5c2221c24c63c",
     "ui/ipc.ts": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "ui/theme.ts": "6af8515a56ce649aaf6c17568ae434baa072681d"
   },

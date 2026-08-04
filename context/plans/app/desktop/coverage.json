@@ -6,7 +6,7 @@
     "src-tauri/src/lib.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "src-tauri/src/view.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "src-tauri/tests/commands.rs": "a74340e1cb980f392bd8dbba828ab9ab43f7f1fa",
-    "src-tauri/tests/lifetime.rs": "db24d4cb17eb391ac3e78bd4682655b594ba587b"
+    "src-tauri/tests/lifetime.rs": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e"
   },
   "dotenv.md": {
     "crates/seal-dotenv/Cargo.toml": "c748b3d474ea5a614da765fa854050eb14b5a7b1",
@@ -23,7 +23,7 @@
     "ui/screens/Unlock.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e"
   },
   "journey-harness.md": {
-    ".github/workflows/journeys.yml": "4bcffc21c1e040581385c31e01f9deb75a813058",
+    ".github/workflows/journeys.yml": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e",
     "e2e/cli/deploy-script.sh": "7a5177e4c2b4394f7c07e9840c96d6b2a8acdf57",
     "e2e/journeys/bad-day.e2e.ts": "7485774b93d3cce60eec09b5ae3099840ebcbd6f",
     "e2e/journeys/deploy-script.e2e.ts": "7a5177e4c2b4394f7c07e9840c96d6b2a8acdf57",
@@ -51,8 +51,8 @@
     "e2e/wdio.settling.conf.ts": "8ee6485b96c5205c67068c9c17bbedb5ca7e7cab"
   },
   "lifecycle.md": {
-    "src-tauri/src/lifecycle.rs": "8b079b85339621deaa93c046211fdefb6ddd2ced",
-    "src-tauri/tests/lifecycle.rs": "396f54c89636e9917866cb2254d109ac65e7088b"
+    "src-tauri/src/lifecycle.rs": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e",
+    "src-tauri/tests/lifecycle.rs": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e"
   },
   "shell.md": {
     "crates/seal-session/Cargo.toml": "a46c0f0c20c571b6d392647f98e9b5af1cd36fda",

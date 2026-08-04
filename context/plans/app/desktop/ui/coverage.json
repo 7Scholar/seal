@@ -7,7 +7,7 @@
     "ui/errors.ts": "db87c4406dff9b30e905080324f0986b2ec4b576"
   },
   "password-change.md": {
-    "src-tauri/src/rekey.rs": "3f4593bf0131ac12d0b822da2dda97d4f845d6aa",
+    "src-tauri/src/rekey.rs": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e",
     "src-tauri/tests/rekey.rs": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "ui/screens/PasswordChange.test.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "ui/screens/PasswordChange.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e"

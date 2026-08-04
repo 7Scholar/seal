@@ -15,9 +15,9 @@
   },
   "scan-shape.md": {
     "crates/seal-registry/src/scan.rs": "8b079b85339621deaa93c046211fdefb6ddd2ced",
-    "crates/seal-registry/tests/scan.rs": "8b079b85339621deaa93c046211fdefb6ddd2ced",
-    "src-tauri/src/lifecycle.rs": "8b079b85339621deaa93c046211fdefb6ddd2ced",
-    "src-tauri/tests/lifecycle.rs": "396f54c89636e9917866cb2254d109ac65e7088b",
+    "crates/seal-registry/tests/scan.rs": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e",
+    "src-tauri/src/lifecycle.rs": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e",
+    "src-tauri/tests/lifecycle.rs": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e",
     "ui/ipc.ts": "d94b0fe6754a2d59df78858772e4dddf19c81cad"
   },
   "vocabulary.md": {
@@ -25,8 +25,8 @@
     "e2e/journeys/return-and-use.e2e.ts": "70f8ce6ebe6a7977a47f1a6e8f98b2c42d00d7e8",
     "src-tauri/src/commands.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "src-tauri/src/lib.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
-    "src-tauri/src/lifecycle.rs": "8b079b85339621deaa93c046211fdefb6ddd2ced",
-    "src-tauri/tests/lifecycle.rs": "396f54c89636e9917866cb2254d109ac65e7088b",
+    "src-tauri/src/lifecycle.rs": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e",
+    "src-tauri/tests/lifecycle.rs": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e",
     "ui/App.tsx": "d14f1fa6c6e33529d0d098de586751ab686385f8",
     "ui/ipc.ts": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "ui/screens/ManageFlow.test.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",

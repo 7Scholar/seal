@@ -493,6 +493,7 @@ input {
 .confirm__actions { display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 1rem; }
 .confirm__danger { border-color: var(--danger); color: var(--danger); }
 .confirm__gate { display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.8rem; }
+.confirm__list { margin: 0.6rem 0 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.25rem; color: var(--muted); }
 
 .shell:has(.unlock) {
   background: radial-gradient(ellipse at 50% 38%, #f7f1e3 0%, #e6ddc9 46%, #c8bfab 100%);

@@ -43,7 +43,10 @@ export function App() {
   const [acknowledging, setAcknowledging] = useState<null | (() => void)>(null);
   const [releasing, setReleasing] = useState<string | null>(null);
   const [releasingRepo, setReleasingRepo] = useState<ipc.RepoView | null>(null);
-  const [sealing, setSealing] = useState<null | { path: string; secondsAgo: number }>(null);
+  const [sealing, setSealing] = useState<null | {
+    paths: string[];
+    recent: { path: string; secondsAgo: number }[];
+  }>(null);
   const [outcomes, setOutcomes] = useState<ipc.SealOutcome[] | null>(null);
   const [rekey, setRekey] = useState<ipc.Manifest | null>(null);
   const [mode, setMode] = useState<theme.Mode>("system");
@@ -206,20 +209,40 @@ export function App() {
     await attempt(`seal ${fileName(path)}`, async () => {
       const warning = await ipc.sealWarning(path);
       if (warning) {
-        setSealing({ path, secondsAgo: warning.modifiedSecondsAgo });
+        setSealing({
+          paths: [path],
+          recent: [{ path, secondsAgo: warning.modifiedSecondsAgo }],
+        });
         return;
       }
       await sealNow(path);
     });
   }
 
+  async function sealManyNow(paths: string[]) {
+    await withAcknowledgement(`seal ${paths.length} files`, async () => {
+      setOutcomes(await ipc.sealFiles(paths));
+      await refreshAndReconcile();
+    });
+  }
+
   async function sealMany(paths: string[]) {
     if (paths.length === 0) return;
     await attempt(`seal ${paths.length} files`, async () => {
-      await withAcknowledgement(`seal ${paths.length} files`, async () => {
-        setOutcomes(await ipc.sealFiles(paths));
-        await refreshAndReconcile();
-      });
+      const warnings = (
+        await Promise.all(
+          paths.map(async (path) => {
+            const warning = await ipc.sealWarning(path);
+            return warning ? { path, secondsAgo: warning.modifiedSecondsAgo } : null;
+          }),
+        )
+      ).filter((entry) => entry !== null);
+
+      if (warnings.length > 0) {
+        setSealing({ paths, recent: warnings });
+        return;
+      }
+      await sealManyNow(paths);
     });
   }
 
@@ -379,6 +402,9 @@ export function App() {
     });
   }
 
+  const onlyRecent =
+    sealing && sealing.recent.length === 1 ? sealing.recent[0] : null;
+
   const openedRelativePath =
     route.at === "file" && currentRepo
       ? route.path.slice(currentRepo.root.length + 1)
@@ -532,22 +558,53 @@ export function App() {
 
       {sealing ? (
         <Confirm
-          title={`Seal ${fileName(sealing.path)} while something may be editing it?`}
-          confirmLabel="Seal it anyway"
+          title={
+            onlyRecent
+              ? `Seal ${fileName(onlyRecent.path)} while something may be editing it?`
+              : `Seal ${sealing.paths.length} files while something may be editing ${sealing.recent.length} of them?`
+          }
+          confirmLabel={
+            sealing.paths.length === 1 ? "Seal it anyway" : "Seal them anyway"
+          }
           cancelLabel="Not yet"
           onCancel={() => setSealing(null)}
           onConfirm={async () => {
-            const path = sealing.path;
+            const { paths } = sealing;
+            const only = paths.length === 1 ? paths[0] : null;
             setSealing(null);
-            await attempt(`seal ${fileName(path)}`, () => sealNow(path));
+            if (only) {
+              await attempt(`seal ${fileName(only)}`, () => sealNow(only));
+              return;
+            }
+            await attempt(`seal ${paths.length} files`, () => sealManyNow(paths));
           }}
         >
-          <p>
-            This file changed {sealing.secondsAgo} seconds ago, so a program may
-            be working in it right now. Seal cannot see an editor's unsaved
-            buffer: if one is open, its next save will overwrite the sealed file
-            with readable text. Close the file in your editor first, then seal.
-          </p>
+          {onlyRecent ? (
+            <p>
+              This file changed {onlyRecent.secondsAgo} seconds ago, so a program
+              may be working in it right now. Seal cannot see an editor's unsaved
+              buffer: if one is open, its next save will overwrite the sealed
+              file with readable text. Close the file in your editor first, then
+              seal.
+            </p>
+          ) : (
+            <>
+              <p>
+                These files changed moments ago, so a program may be working in
+                them right now. Seal cannot see an editor's unsaved buffer: if
+                one is open, its next save will overwrite the sealed file with
+                readable text. Close them in your editor first, then seal.
+              </p>
+              <ul className="confirm__list">
+                {sealing.recent.map((entry) => (
+                  <li key={entry.path}>
+                    {fileName(entry.path)} — changed {entry.secondsAgo} seconds
+                    ago
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
         </Confirm>
       ) : null}
 

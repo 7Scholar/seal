@@ -58,9 +58,13 @@ Nothing here is a feature. It is all the accumulated texture of using something 
 
 **Step 5 driven 2026-08-04**, in the `plaintext-expiry` scenario (`bun run e2e:expiry`), six of six green against an application launched with a three-second held-plaintext lifetime — the seam [commands.md](../plans/app/desktop/commands.md) now provides, which is what unblocked this step. What was witnessed: a secret held while the user works, gone from Rust once the lifetime elapses, the refusal explained in the user's language rather than swallowed, the file sealed on disk throughout, and reopening working normally. The journey's own bar — *"the product should never have quietly held a decrypted secret in memory all afternoon"* — is met, and was checked at its mechanism rather than at the screen: the scenario invokes `reveal` across the boundary and requires the refusal to be `notOpen` specifically, since a reveal can fail for several reasons and only that one means the deadline did it. What is *not* met is the screen half of the same question, finding 4 below.
 
-**Not driven, and why:**
+**Step 8 driven, automated, 2026-08-04**, in the harness's `bad-day` scenario (`bun run e2e:badday`), eight of eight green. This step has two directions and the second is the one that had never been walked.
 
-- **Step 8 — the bad day.** Partly seen rather than driven. The irreversible acts are ceremonious in the right direction — sealing gates on typing `I UNDERSTAND`, the password change on typing `CHANGE MY PASSWORD` — and both are enforced in Rust rather than by the interface. The other direction, whether routine reversible actions are *free* of ceremony, was not systematically walked; releasing a file and releasing a repository each carry a plain confirmation with no typing gate, which is the right shape, but no pass judged every routine action against that bar.
+Ceremony **where it belongs**: the first seal in a fresh vault puts the two irreversible facts to the user behind a typed `I UNDERSTAND` gate, and the confirm control is genuinely inert until the phrase is typed — checked rather than assumed, because a gate that can be clicked through is not a gate. Releasing a sealed file, which writes the plaintext back to disk, is confirmed and says in the dialog that the contents become readable.
+
+Ceremony **where it does not**: the acknowledgement is asked once and never again, so a second seal goes straight through; opening a file to look at it, revealing a value, hiding it again, navigating between altitudes with nothing unsaved, and locking all complete with no confirmation at all. Locking is checked deliberately, being the one action that only ever makes things safer. Releasing a file is confirmed but **not** gated on a typed phrase — the scenario asserts the absence of that gate, because the journey's bar is violated as much by too much friction on a reversible act as by too little on an irreversible one.
+
+Driving the *absence* of ceremony is worth noting as a shape: most checks assert something appears, and these assert that nothing does. That only means anything because the same run proves the dialog machinery works — the two gates it does expect are found in the same scenario, so a silent breakage of the dialog would fail those rather than passing these vacuously.
 
 # Findings
 
@@ -69,6 +73,16 @@ Nothing here is a feature. It is all the accumulated texture of using something 
 Measured: with `.env.beta` deleted on disk, the row kept its `Sealed` tag and its open button stayed enabled. The mechanism is a consumer discarding what the library correctly reported — `app::overview` computed a reconciliation, used it *only* to derive the exposure flag, and served `file.last_known` for the state itself, so every divergence except "recorded sealed, found readable" was invisible. The registry library was never wrong: its own suite proves a missing file is reported without alarm. The overview now serves the observed state and falls back to the recorded one only where reconciliation said nothing. Both directions are covered by tests confirmed non-vacuous, and the driven scenario asserts the tag *and* the disabled control. Owned by [commands.md](../plans/app/desktop/commands.md).
 
 This is squarely the axis's own defect class: the Rust suites and the frontend suites all passed throughout, because each side was correct about its own contract and the defect sat in the seam between them.
+
+**5. The recency warning was skipped entirely when sealing a selection. — Fixed, re-driven, closed.**
+
+Found by walking step 8's ceremony question in the other direction. The same file, modified moments earlier, behaved differently depending on which control the user reached for: sealing it from its own row warned that a program may be working in it and offered a way out, while sealing it from the batch control sealed it immediately with no warning at all. Measured in the driven application — the file was already sealed by the time the check looked.
+
+The mechanism is narrow and was reached before anything was written down: `seal_warning` is consulted only by the interface's single-file path, and neither Rust command consults it, so the batch path never had it. This is not the acknowledgement gate, which *is* enforced in Rust and was never bypassable; it is the advisory warning that sits in front of it.
+
+It matters more than "advisory" suggests, because [lifecycle.md](../plans/app/desktop/lifecycle.md) records that the hazard is real and reproduced: an editor holding an unsaved buffer overwrites the sealed file on its next save, and no check can see that buffer. The warning is the only thing standing between the user and that sequence, and the batch control is exactly where someone in a hurry seals several files at once. Every unit suite passed throughout, because each route was correct about the contract it had — the axis's signature shape again.
+
+Fixed: sealing a selection now checks every path in it and warns naming each recently-modified file before touching any of them. `lifecycle.md` owns the behaviour and states it as a property of sealing rather than of one control; `desktop/MEMORY.md` records why the batch check must not be dropped. Confirmed non-vacuous both ways — the reproduction failed before the fix and passes after, and disabling the new check fails the unit guard.
 
 **2. The interface re-reads disk only when the session unlocks. — Open, framed, blocked on the product owner.**
 
@@ -88,4 +102,4 @@ This is a **missing concern rather than a defect**, and the distinction was itse
 
 Findings 2, 3 and 4 are framed together as [freshness.md](../plans/app/desktop/ui/navigation/freshness.md), because an at-a-glance assurance is only worth drawing if it is current — a confident "everything is protected" computed from a snapshot taken at unlock is worse than none. Its design forks are in that node's [QUESTIONS.md](../plans/app/desktop/ui/navigation/QUESTIONS.md) and are the product owner's to settle; this journey does not answer them.
 
-**This journey is not satisfied.** Step 8 is only partly walked, and findings 2, 3 and 4 are open. Step 5 is now driven.
+**This journey is not satisfied**, though every step is now driven — steps 5 and 8 were the last two, and 8 found the defect above. Findings 2, 3 and 4 remain open and blocked on the product owner, and a journey with open findings is unsatisfied however complete its demonstration.

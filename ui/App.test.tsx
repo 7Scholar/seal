@@ -15,6 +15,8 @@ vi.mock("./ipc", async () => {
     openFile: vi.fn(),
     closeFile: vi.fn(),
     sealFiles: vi.fn(),
+    sealFile: vi.fn(),
+    sealWarning: vi.fn(),
     hasAcknowledged: vi.fn(),
     lock: vi.fn(),
     themeMode: vi.fn(),
@@ -49,6 +51,8 @@ beforeEach(() => {
   mocked.overview.mockResolvedValue(repos);
   mocked.rekeyStatus.mockResolvedValue(null);
   mocked.hasAcknowledged.mockResolvedValue(true);
+  mocked.sealWarning.mockResolvedValue(null);
+  mocked.sealFile.mockResolvedValue(undefined);
   mocked.themeMode.mockResolvedValue("system");
   mocked.setThemeMode.mockResolvedValue(undefined);
 });
@@ -270,6 +274,33 @@ describe("the application shell", () => {
 
     expect(mocked.sealFiles).toHaveBeenCalledWith(["/code/app/.env"]);
     expect(await screen.findByText(/1 file is now sealed/)).toBeInTheDocument();
+  });
+
+  it("warns before sealing a selection holding a recently modified file", async () => {
+    const user = userEvent.setup();
+    mocked.sealWarning.mockResolvedValue({
+      path: "/code/app/.env",
+      modifiedSecondsAgo: 4,
+    });
+    mocked.sealFiles.mockResolvedValue([
+      { path: "/code/app/.env", sealed: true, reason: null },
+    ]);
+    await openApp();
+    await openRepository(user, "app");
+
+    await user.click(screen.getByRole("checkbox", { name: "Select .env" }));
+    await user.click(screen.getByRole("button", { name: "Seal selected file" }));
+
+    expect(mocked.sealFiles).not.toHaveBeenCalled();
+    expect(mocked.sealFile).not.toHaveBeenCalled();
+    expect(await screen.findByText(/may be editing it/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Seal it anyway" }));
+    await waitFor(() =>
+      expect(
+        mocked.sealFile.mock.calls.length + mocked.sealFiles.mock.calls.length,
+      ).toBe(1),
+    );
   });
 
   it("falls back to the repository when the open file stops being managed", async () => {

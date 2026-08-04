@@ -32,3 +32,7 @@ e2e/logs/
 # the documentation site's build output
 site/dist/
 site/.astro/
+
+# Session scaffolding addressed to the owner, kept local rather than published
+FOR-JORIS.md
+HANDOFF-NEXT.md

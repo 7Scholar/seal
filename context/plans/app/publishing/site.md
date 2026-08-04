@@ -69,7 +69,7 @@ The check fails rather than skips when `site/dist` is absent, exiting non-zero w
 # What is missing
 
 - **Screenshots.** The site launches with none, and the sequencing that justified deferring them is now spent: [palette.md](../desktop/ui/navigation/palette.md) and [manage-surface.md](../desktop/ui/navigation/manage-surface.md) have both landed, so images taken now would no longer be stale on arrival. This is the next thing the site wants, and [docs.md](docs.md)'s standing open thread is the same gap.
-- **The site has never been seen deployed**, and the reason is no longer a setting. The repository now has an origin, and the workflow ran on the first push: the build job passed and the **deploy job failed**, because GitHub Pages refuses the repository — *"Your current plan does not support GitHub Pages for this repository"*, the API's answer to a **private** repository on a plan without Pages for private repositories. So publishing is blocked on an account decision rather than on a toggle: make the repository public, or raise the organisation's plan. It is a question for the product owner, raised in [QUESTIONS.md](QUESTIONS.md).
+- **The site has never been seen deployed.** The repository now has an origin, and the workflow ran on the first push: the build job passed and the **deploy job failed**, because GitHub Pages refuses a **private** repository on the organisation's plan — *"Your current plan does not support GitHub Pages for this repository"*. The owner has settled the direction: the repository **goes public**, which makes Pages free on every plan and matches the root intent's aim of an open-source project. What remains is the owner's own visibility change, then enabling Pages with **Source: GitHub Actions**, and a first deployment observed rather than assumed.
 
 # Steps
 
@@ -79,7 +79,7 @@ The check fails rather than skips when `site/dist` is absent, exiting non-zero w
 - [x] The checks that hold the boundary: the build failing on a missing rendered source, and the claim check across all four surfaces.
 - [x] The link check over the built site and the repository's Markdown.
 - [ ] Screenshots, now that the interface work they waited on has landed.
-- [!] Publish the site — blocked, awaiting answer in [QUESTIONS.md](QUESTIONS.md).
+- [~] Publish the site: the repository goes public, Pages is enabled with **Source: GitHub Actions**, and the first deployment is observed rather than assumed.
 
 # Open threads
 

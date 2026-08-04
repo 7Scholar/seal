@@ -22,7 +22,7 @@ Everything the documentation claims is verified rather than believed: the README
 - [x] docs.md -> the README and the documents a stranger needs to trust and contribute
 - [x] packaging.md -> bundling, distribution, and the release process
 - [x] tooling.md -> the developer-facing build scripts that encode the procedures a rebuild must follow
-- [~] site.md -> a hosted documentation website, matched against the leaders the owner named. **Built and checked, link check included; screenshots remain, and publishing is `[!]` blocked — GitHub Pages refuses a private repository on this plan.**
+- [~] site.md -> a hosted documentation website, matched against the leaders the owner named. **Built and checked, link check included; screenshots remain, and publishing awaits the repository going public.**
 
 # Cursor
 
@@ -48,7 +48,7 @@ Both guarantees were confirmed non-vacuous by breaking them.
 
 **The link check is now the third**, covering the built site's routes and the repository's Markdown as two passes because a broken link fails differently on each. It was proved non-vacuous on both, and it immediately found what neither of the other two could see: every page requested a `favicon.svg` the repository never supplied, so all eleven carried a 404 for their icon — invisible to a build that treats a missing asset as no error, and to a claim check that reads prose rather than routes.
 
-**The repository now has an origin, and publishing turned out not to be a setting.** The workflow ran on the first push, built the site, passed its checks, and failed at deploy: Pages refuses the repository because it is **private** on a plan without Pages for private repositories. That is an account decision — go public, raise the plan, or host elsewhere — so it is `[!]` blocked and awaiting the owner in [QUESTIONS.md](QUESTIONS.md). Screenshots remain, and are unaffected by it.
+**The repository now has an origin, and publishing turned out not to be a setting.** The workflow ran on the first push, built the site, passed its checks, and failed at deploy: Pages refuses the repository because it is **private** on a plan without Pages for private repositories. The owner settled it by taking the repository **public**, which makes Pages free on every plan and is where the root intent was always headed. Two session-scaffolding documents left the repository in the same move — a to-do sheet addressed to the owner and a handoff note whose git instructions ("no origin", "never push") the origin had made false — since neither is project documentation and both would have met a stranger beside the README. Screenshots remain, and are unaffected.
 
 # Open threads
 

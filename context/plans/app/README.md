@@ -54,7 +54,7 @@ The work decomposes into the children below: the sealing engine is the seam ever
 - [x] registry.md -> the registry of seal repos and their managed files, including the candidate scan
 - [x] cli.md -> the standalone CLI resolver
 - [~] desktop/ -> the Tauri desktop application: shell, IPC surface, and the management UI. **Its journeys are all satisfied**; what remains is `ui/navigation/`'s depth pass — four surfaces whose states beyond populated are undesigned, and the manage surface's degraded and alignment findings.
-- [~] publishing/ -> everything around the code: repo docs, CI, packaging, releases, maintainability. The documentation site is built and checked; **its publishing is `[!]` blocked on the owner**, and screenshots remain.
+- [~] publishing/ -> everything around the code: repo docs, CI, packaging, releases, maintainability. The documentation site is built and checked; **publishing it awaits the repository going public**, and screenshots remain.
 
 # Cursor
 
@@ -106,7 +106,7 @@ The owner's fourth item was not layout: the tree annotated every env file `an en
 
 Each of those three guarantees was confirmed non-vacuous by breaking it: restoring the inert folder fails a test, removing `SECURITY.md` fails the build, and softening the landing page fails the claim check by name.
 
-**The repository gained an origin**, and that turned two of the site's remaining items from local work into observed facts. A link check now covers the built site's routes and the repository's Markdown, and found that all eleven pages requested a favicon the repository never supplied. And the site's own publishing is **blocked rather than pending**: the deploy workflow ran and failed because GitHub Pages does not serve a private repository on this plan, which is an account decision for the owner rather than a change in this tree.
+**The repository gained an origin**, and that turned two of the site's remaining items from local work into observed facts. A link check now covers the built site's routes and the repository's Markdown, and found that all eleven pages requested a favicon the repository never supplied. And the site's own publishing met a gate no local run could show: the deploy workflow ran and failed because GitHub Pages does not serve a private repository on this plan. The owner settled it by taking the repository **public** — free Pages on every plan, and the open-source end state this intent has aimed at from the first paragraph.
 
 # Open threads
 

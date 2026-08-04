@@ -60,11 +60,16 @@ Two guarantees are enforced by machine rather than by discipline, and each was c
 
 The two guides were **moved** out of the README rather than copied, so the README contracted to a sentence and a link for each — which is what stops the site being a second README.
 
+**The link check** covers the two surfaces separately, because a broken link fails differently on each. Over the **built site** it resolves every internal `href` and `src` against the emitted files, which is the only place a route can be checked as it will actually be served, base path included. Over the **repository's Markdown** it resolves relative links against the working tree, which is what a reader following a link on the git host does. Site *sources* are excluded from the second pass deliberately: their links are site routes, already proved by the first pass, and resolving them as file paths reports every one of them broken. Links inside code spans and fences are skipped, since a link written to illustrate the format is not one anybody follows — both live instances are in this tree's own manual, teaching the trigger-plus-link shape.
+
+Wiring it caught the site's own first casualty: **every page requested a `favicon.svg` that did not exist**, Starlight emitting the tag by default and the repository never supplying the file, so all eleven pages carried a 404 for their icon. The mark now drawn there is the interface's own icon language — a 20×20 viewBox, 1.6 stroke, round caps and joins — on the application's tile, so the tab and the window read as one product. It is a real defect the build was structurally unable to notice: a missing asset in `public/` is not a build error, and the claim check reads prose rather than routes.
+
+The check fails rather than skips when `site/dist` is absent, exiting non-zero with the command that fixes it. That is `ci.md`'s standing rule holding here: a link check that quietly passes on an unbuilt site would report success having verified nothing, which is the one failure mode that makes a check worse than no check.
+
 # What is missing
 
 - **Screenshots.** The site launches with none, and the sequencing that justified deferring them is now spent: [palette.md](../desktop/ui/navigation/palette.md) and [manage-surface.md](../desktop/ui/navigation/manage-surface.md) have both landed, so images taken now would no longer be stale on arrival. This is the next thing the site wants, and [docs.md](docs.md)'s standing open thread is the same gap.
-- **A link check over the built site**, which the Approach names among its four checks and which is not yet wired.
-- **The site has never been seen deployed.** It builds and is checked locally; GitHub Pages must be enabled for the repository before the workflow can publish, which is a repository setting rather than a change in this tree.
+- **The site has never been seen deployed**, and the reason is no longer a setting. The repository now has an origin, and the workflow ran on the first push: the build job passed and the **deploy job failed**, because GitHub Pages refuses the repository — *"Your current plan does not support GitHub Pages for this repository"*, the API's answer to a **private** repository on a plan without Pages for private repositories. So publishing is blocked on an account decision rather than on a toggle: make the repository public, or raise the organisation's plan. It is a question for the product owner, raised in [QUESTIONS.md](QUESTIONS.md).
 
 # Steps
 
@@ -72,8 +77,9 @@ The two guides were **moved** out of the README rather than copied, so the READM
 - [x] Settle the content boundary against [docs.md](docs.md) — what the site holds, what it links to, and where each fact lives once.
 - [x] Build the site: the landing page, the nine pages, and the visual identity drawn from the application's palette.
 - [x] The checks that hold the boundary: the build failing on a missing rendered source, and the claim check across all four surfaces.
-- [ ] The link check over the built site and the repository's Markdown.
+- [x] The link check over the built site and the repository's Markdown.
 - [ ] Screenshots, now that the interface work they waited on has landed.
+- [!] Publish the site — blocked, awaiting answer in [QUESTIONS.md](QUESTIONS.md).
 
 # Open threads
 

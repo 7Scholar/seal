@@ -22,7 +22,7 @@ Everything the documentation claims is verified rather than believed: the README
 - [x] docs.md -> the README and the documents a stranger needs to trust and contribute
 - [x] packaging.md -> bundling, distribution, and the release process
 - [x] tooling.md -> the developer-facing build scripts that encode the procedures a rebuild must follow
-- [~] site.md -> a hosted documentation website, matched against the leaders the owner named. **Built and checked; screenshots and a link check remain, and Pages must be enabled to publish.**
+- [~] site.md -> a hosted documentation website, matched against the leaders the owner named. **Built and checked, link check included; screenshots remain, and publishing is `[!]` blocked — GitHub Pages refuses a private repository on this plan.**
 
 # Cursor
 
@@ -44,7 +44,11 @@ Being a plain binary rather than a bundle grants no exemption: an unsigned comma
 
 Its content boundary against `docs.md` is the decision it existed to settle, and it is **enforced rather than agreed**. The security policy and the contributing guide are rendered from `SECURITY.md` and `CONTRIBUTING.md` at build time, so no second copy exists to go stale; removing a source fails the build. The two task guides were **moved** out of the README rather than copied, so the README contracted to a sentence and a link for each — which is what stops the site being a second README. The install commands and the two absolute limits are deliberate duplications, held identical across four surfaces by a check that refuses any page claiming a protection Seal does not have.
 
-Both guarantees were confirmed non-vacuous by breaking them. What remains: screenshots, now unblocked since the interface work they waited on has landed; a link check; and enabling Pages on the repository, which is a setting rather than a change in this tree.
+Both guarantees were confirmed non-vacuous by breaking them.
+
+**The link check is now the third**, covering the built site's routes and the repository's Markdown as two passes because a broken link fails differently on each. It was proved non-vacuous on both, and it immediately found what neither of the other two could see: every page requested a `favicon.svg` the repository never supplied, so all eleven carried a 404 for their icon — invisible to a build that treats a missing asset as no error, and to a claim check that reads prose rather than routes.
+
+**The repository now has an origin, and publishing turned out not to be a setting.** The workflow ran on the first push, built the site, passed its checks, and failed at deploy: Pages refuses the repository because it is **private** on a plan without Pages for private repositories. That is an account decision — go public, raise the plan, or host elsewhere — so it is `[!]` blocked and awaiting the owner in [QUESTIONS.md](QUESTIONS.md). Screenshots remain, and are unaffected by it.
 
 # Open threads
 

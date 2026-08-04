@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" role="img" aria-label="Seal">
+  <rect width="20" height="20" rx="4.5" fill="#17171b" />
+  <path
+    d="M7 9V7.25a3 3 0 0 1 6 0V9M6.75 9h6.5a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-6.5a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1Z"
+    fill="none"
+    stroke="#3b82f6"
+    stroke-width="1.6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

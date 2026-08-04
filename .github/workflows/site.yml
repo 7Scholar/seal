@@ -25,6 +25,7 @@ jobs:
       - run: bun run build
         working-directory: site
       - run: bun run scripts/check-site-claims.ts
+      - run: bun run scripts/check-links.ts
       - uses: actions/upload-pages-artifact@v3
         if: github.ref == 'refs/heads/main'
         with:

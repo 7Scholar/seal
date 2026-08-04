@@ -20,13 +20,13 @@ These are typographic characters standing in for icons. They inherit font metric
 
 The reference the product owner supplied shows a real chevron-up-down icon in the position the `⌃⌄` occupies, so at least one of these is a stated reference deviation rather than an internal preference.
 
-[A strict CSP blocks every external resource](../../../shell.md), so whatever this becomes is inlined or bundled — no icon font from a CDN, no remote sprite sheet. Inline SVG is the obvious route; whether to hand-roll the handful needed or vendor a small set is a maintainability judgement this node exists to make.
+[A strict CSP blocks every external resource](../shell.md), so whatever this becomes is inlined or bundled — no icon font from a CDN, no remote sprite sheet. Inline SVG is the obvious route; whether to hand-roll the handful needed or vendor a small set is a maintainability judgement this node exists to make.
 
 # Approach
 
 One component, `Icon`, holding a **path table keyed by name** and rendering a single `<svg>` on a fixed `0 0 20 20` grid with `currentColor` and a fixed stroke. Nothing else in the interface draws a glyph.
 
-Hand-rolled rather than vendored. The set is small and closed — chevron-up-down, chevron-down, chevron-right, vertical ellipsis, check, plus, search, theme — and a dependency for eight paths would cost more in bundle and supply chain than it saves. Inline SVG also satisfies [the CSP](../../../shell.md) without a build step: nothing is fetched.
+Hand-rolled rather than vendored. The set is small and closed — chevron-up-down, chevron-down, chevron-right, vertical ellipsis, check, plus, search, theme — and a dependency for eight paths would cost more in bundle and supply chain than it saves. Inline SVG also satisfies [the CSP](../shell.md) without a build step: nothing is fetched.
 
 The glyphs are `aria-hidden` and `focusable="false"` throughout. Every one sits inside a control that already carries its own accessible name, so an icon that announced itself would double it.
 

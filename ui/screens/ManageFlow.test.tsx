@@ -374,6 +374,43 @@ describe("ManageFlow", () => {
     expect(screen.getByRole("treeitem", { name: "README.md" })).toBeInTheDocument();
   });
 
+  it("says on the visible surface that a rescan is a rescan", () => {
+    setup({ alreadyRegistered: true });
+
+    expect(
+      screen.getByRole("heading", { name: /More files in app/ }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Already managed")).toBeInTheDocument();
+  });
+
+  it("does not claim a first add is already managed", () => {
+    setup();
+
+    expect(screen.getByRole("heading", { name: /Seal in app/ })).toBeInTheDocument();
+    expect(screen.queryByText("Already managed")).not.toBeInTheDocument();
+  });
+
+  it("accounts for the files a rescan will leave alone", () => {
+    setup({
+      alreadyRegistered: true,
+      tree: [
+        file(".env.production", {
+          confidence: "secret",
+          reason: "an env file",
+          preselected: true,
+          alreadyManaged: true,
+        }),
+        file(".env.staging", {
+          confidence: "secret",
+          reason: "an env file",
+          preselected: true,
+        }),
+      ],
+    });
+
+    expect(screen.getByText(/1 already managed, left as it is/)).toBeInTheDocument();
+  });
+
   it("cannot confirm an empty selection", async () => {
     const user = userEvent.setup();
     setup();

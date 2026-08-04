@@ -136,9 +136,11 @@ Its explanation shares `.tree__note` styling with `already managed` ([styles.css
 
 **M12 — The session can idle-lock underneath the surface and discard the selection with no warning.** *(broken)*
 
-Reached accidentally in the running application: after a long run, the manage surface was replaced by the `Seal is locked` screen and the entire selection was gone. `relock()` calls `setOverlay({ name: "none" })` ([App.tsx:93-106](../../../../../../../ui/App.tsx#L93-L106)) unconditionally, and the session lifetime is **15 minutes** (`DEFAULT_LIFETIME`, `crates/seal-session/src/lib.rs:13`).
+Reached accidentally in the running application: after a long run, the manage surface was replaced by the `Seal is locked` screen and the entire selection was gone. `relock()` calls `setOverlay({ name: "none" })` ([App.tsx:93-106](../../../../../../../ui/App.tsx#L93-L106)) unconditionally, so any `locked` error discards the surface and everything the user had chosen on it.
 
-This is a real user path, not an artefact: a user reviewing which of a thousand files to manage — the exact careful reading this surface is for, on a repository whose scan alone took 42 seconds — is doing work that plausibly exceeds 15 minutes of no IPC traffic. Nothing on the surface counts down, nothing warns, and the selection is not preserved across the unlock. The screen designed for deliberation is the one that punishes it.
+**The stated cause was wrong and is corrected here.** This finding attributed it to a 15-minute *session* lifetime, reading `DEFAULT_LIFETIME` in `crates/seal-session/src/lib.rs` as the session's own. It is not: that deadline is carried per **held file**, and the session deliberately has no expiry of its own — [desktop/MEMORY.md](../../../MEMORY.md) records why, and states that a session deadline would lock a working user out mid-task, which is exactly the complaint here. So the reachable triggers are an explicit lock and a poisoned mutex, not idling.
+
+What survives the correction is the **shape**: losing a deliberated selection to a relock is real, and the surface built for slow reading is the one where that costs most. What does not survive is the frequency, and with it the urgency — this is not something a user meets by thinking for fifteen minutes. It is left open rather than fixed, because a fix on a trigger nobody has reproduced would be unfalsifiable; the reproduction is the work, and it wants doing before the repair.
 
 **M13 — The toggletip carries the surface's guarantees, and its already-registered clause reads as an afterthought.** *(inconsistent)*
 

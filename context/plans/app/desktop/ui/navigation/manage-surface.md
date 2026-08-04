@@ -48,7 +48,7 @@ A folder holding no detected files was inert — the click handler returned havi
 
 Such a folder now **expands**, which is the act the user was reaching for. A folder that *does* hold candidates keeps selecting them on a row click, because that is a documented behaviour with tests asserting it; the fix closes the dead case rather than redefining the live one. Expansion remains separate from selection in both paths, so browsing still cannot queue a file for encryption.
 
-Rows that genuinely cannot act — a pruned directory, an already-managed file — carry an inert marker and lose the pointer cursor.
+Rows that genuinely cannot act — a pruned directory, an already-managed file — carry an inert marker, lose the pointer cursor, **and do not light up on hover**. The hover rule was unqualified, so an inert row highlighted exactly like an actionable one and then refused: the same false promise the pointer cursor was making, in the channel a user actually reads first.
 
 ## The surface owns its own scan
 
@@ -82,6 +82,12 @@ The tree expands to follow the *detected* files, so an undetected one — the en
 
 **The tree stays operable while filtered.** Expansion during a filter is a union — the revealed ancestors are added to the user's expansion rather than replacing it — so a folder can still be collapsed and reopened by hand. Driving the first implementation caught the alternative: passing the revealed set directly as the expansion made every twisty inert, because a toggle wrote to state the render ignored. That is the same defect class the whole surface was rebuilt to remove, reintroduced by the filter.
 
+## A rescan says on its face that it is one
+
+A rescan and a first add drew identically — same heading, same path, same tree, same two buttons — with the one fact that changes what confirming means (*nothing already managed is changed*) reachable only by opening the toggletip. The surface now says it where the user is already looking: the heading reads **More files in `<repository>`** rather than *Seal in*, a small **Already managed** marker sits beside it, and the footer states what the confirm will leave alone — *"3 files selected · 2 already managed, left as they are"* — beside the count of what it will act on. The toggletip keeps its fuller sentence; what changed is that the visible surface no longer depends on it.
+
+Already-managed rows are marked in the accent rather than in the same muted grey as *not looked in*. The two notes had one treatment for facts with opposite consequences: *Seal already covers this* and *Seal did not look here*.
+
 ## What the surface still says with a sentence
 
 Nothing in the layout. The assurances — that confirming encrypts nothing, that files stay where they are, that a rescan changes nothing already managed — stay behind the toggletip the user chooses to open, per [the parent's prose rule](../README.md).
@@ -98,7 +104,9 @@ The inert-folder guard was confirmed non-vacuous by restoring the defect and wat
 
 **The filter is built and driven**, five checks green in the real webview (`bun run e2e:filter`) against a repository holding a file the scan does not detect, three directories deep in a chain nothing expands. What is measured there is exactly the case the filter exists for: the file is absent from the tree, naming it reveals it without a single folder being opened, naming its *folder* reveals it too, the tally and the confirm button keep stating the whole selection while filtered, and clearing restores the tree without leaving the filter's own expansion behind. Confirmed non-vacuous by disabling the pruning and re-driving — the two checks that depend on it fail while the three that do not still pass.
 
-Six unit tests cover the same contract, and the restore guard among them was **rewritten after being caught vacuous**: the first version passed with the restore deleted, because it never expanded anything while filtering and so had nothing to restore. It now collapses and reopens a branch under an active filter, and fails when the restore is removed.
+**The rescan now reads as a rescan**, guarded by three unit tests and driven in the `settling-in` scenario, which asserts the visible heading or marker *and* the footer's account of what will be left alone. Confirmed non-vacuous by restoring the shared heading and dropping the footer clause, which fails exactly those checks.
+
+Six unit tests cover the filter, and the restore guard among them was **rewritten after being caught vacuous**: the first version passed with the restore deleted, because it never expanded anything while filtering and so had nothing to restore. It now collapses and reopens a branch under an active filter, and fails when the restore is removed.
 
 The full `first-run` journey passes end to end against a release build — password established, repository added through this surface, file sealed, sealed file verified on disk as standard age.
 
@@ -106,10 +114,9 @@ The full `first-run` journey passes end to end against a release build — passw
 
 The audit's remaining findings, none of which this pass took. They are real and recorded in [_docs/manage-surface-audit.md](_docs/manage-surface-audit.md); the honest statement is that the frame, the annotation channel and the two defects the owner met are fixed and the surface is not yet finished:
 
-- **The degraded state.** A partially-walked repository is drawn exactly like a fully-walked one, with nothing at surface level saying the picture is incomplete.
+- **The degraded state.** A partially-walked repository is drawn exactly like a fully-walked one, with nothing at surface level saying the picture is incomplete. The per-row *not looked in* note exists and is now visually distinct from *already managed*, but there is still no surface-level statement that the scan is partial.
 - **Density and alignment.** Directory and file names misalign by 1px, and the annotation channel has no column at all — measured starting anywhere between x=190 and x=303.
-- **The idle lock discards a live selection**, met by accident during the audit on the one surface designed for slow deliberation.
-- **The confirm gives no account of already-managed files** in a rescan.
+- **A relock discards a live selection.** Left open deliberately, and its stated cause corrected: the audit blamed a 15-minute *session* lifetime, but the session has no expiry — that deadline is per held file. The remaining triggers are an explicit lock and a poisoned mutex, so this is far rarer than recorded and **has not been reproduced**. Reproducing it is the next move; a fix on an unreproduced trigger would be unfalsifiable.
 
 # Steps
 

@@ -428,6 +428,12 @@ input {
 .manage__head h1 { margin: 0; }
 .manage__root { flex-basis: 100%; margin: 0; color: var(--muted); font-size: 0.8rem; font-family: ui-monospace, monospace; }
 .manage__count { color: var(--muted); font-size: 0.8rem; }
+.manage__already {
+  color: var(--accent); font-size: 0.72rem; letter-spacing: 0.02em;
+  border: 1px solid var(--line); border-radius: var(--radius-sm);
+  padding: 0.08rem 0.4rem;
+}
+.manage__untouched { color: var(--muted); }
 .manage__search { flex-basis: 100%; max-width: 22rem; position: relative; display: block; margin-top: 0.15rem; }
 .manage__search input { width: 100%; padding-left: 2rem; }
 .manage__nomatch {
@@ -461,7 +467,7 @@ input {
   padding: 0.2rem 0.4rem 0.2rem 0; border-radius: var(--radius-sm); cursor: pointer;
 }
 .tree__row[data-inert="true"] { cursor: default; }
-.tree__row:hover { background: var(--hover); }
+.tree__row:not([data-inert="true"]):not([data-unwalked="true"]):hover { background: var(--hover); }
 .tree__row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .tree__twisty {
   background: none; border: 0; padding: 0 0.1rem; color: var(--muted);
@@ -474,6 +480,7 @@ input {
 .tree__name { font-family: ui-monospace, SFMono-Regular, monospace; overflow-wrap: anywhere; }
 .tree__row[data-kind="directory"] .tree__name { font-family: inherit; }
 .tree__reason, .tree__note { color: var(--muted); font-size: 0.78rem; }
+.tree__note--managed { color: var(--accent); }
 .tree__row[data-quiet="true"] .tree__name { color: var(--muted); }
 .tree__row[data-unwalked="true"] { cursor: default; }
 .tree__row[data-unwalked="true"] .tree__name { color: var(--muted); font-style: italic; }

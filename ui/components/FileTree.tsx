@@ -369,7 +369,7 @@ function Row({
           <span className="tree__reason">{node.reason}</span>
         ) : null}
         {node.kind === "file" && node.alreadyManaged ? (
-          <span className="tree__note">already managed</span>
+          <span className="tree__note tree__note--managed">already managed</span>
         ) : null}
         {isDirectory && !node.walked ? (
           <span className="tree__note">not looked in</span>

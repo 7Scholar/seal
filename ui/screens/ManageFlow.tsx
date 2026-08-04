@@ -158,7 +158,14 @@ export function ManageFlow({
       onKeyDown={onKeyDown}
     >
       <header className="manage__head" data-scrolled={scrolled || undefined}>
-        <h1 id="manage-heading">Seal in {fileName(root)}</h1>
+        <h1 id="manage-heading">
+          {scan?.alreadyRegistered
+            ? `More files in ${fileName(root)}`
+            : `Seal in ${fileName(root)}`}
+        </h1>
+        {scan?.alreadyRegistered ? (
+          <span className="manage__already">Already managed</span>
+        ) : null}
         <Toggletip label="What managing these files does">
           Seal records which files it manages here. It does not encrypt
           anything — sealing stays a separate, deliberate action. Your files
@@ -234,6 +241,13 @@ export function ManageFlow({
                 : selected.size === 1
                   ? "1 file selected"
                   : `${selected.size} files selected`}
+          {managed.size > 0 && !scanning && !failure ? (
+            <span className="manage__untouched">
+              {managed.size === 1
+                ? " · 1 already managed, left as it is"
+                : ` · ${managed.size} already managed, left as they are`}
+            </span>
+          ) : null}
         </span>
         <span className="manage__spacer" />
         <button type="button" onClick={onCancel}>

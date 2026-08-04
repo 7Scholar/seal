@@ -25,6 +25,8 @@ Ordered as a person meets them.
 
 ## Status
 
+**Every step of every journey is now driven.** What stands between the axis and being satisfied is no longer demonstration but three open findings — the interface re-reading disk only on unlock, nothing stating that everything is protected, and a revealed value outliving the plaintext behind it. All three are the same gap seen from different sides, all are framed in [freshness.md](../plans/app/desktop/ui/navigation/freshness.md), and all are blocked on the product owner. No amount of further driving closes them.
+
 **Three of six are satisfied on macOS**, each driven end to end by the automated harness against a release build from a scratch profile, with no open findings: [first-run.md](first-run.md), green across three consecutive runs; [exposure.md](exposure.md) — the alert, the rotate instruction and its reason, the fix beside the problem, the recency warning, and the file armored on disk afterwards; and [change-the-password.md](change-the-password.md), whose interrupted run is now driven by force-killing the application partway through a rotation and relaunching it.
 
 **Eight scenarios now run:** `first-run` (8 steps), `return-and-use` (9), `interrupted-rekey` (5), `living-with-it` (6), `plaintext-expiry` (6), `settling-in` (7), `deploy-script` (7) and `bad-day` (9).

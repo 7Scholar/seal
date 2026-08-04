@@ -1,65 +1,96 @@
-# Handoff — drive the journeys that have never been driven
+# Handoff — finish the journeys axis, starting with `living-with-it`
 
 > **You are picking this up cold.** Read this, then read what it points you at, then go and drive the real application. Do not start writing code on the strength of this document alone — it tells you where things stand and what is binding, not what to build.
 
-## Read this first: a correction that is the whole lesson
+## Read this first: the lesson this axis keeps re-teaching
 
 A previous session recorded, in six places across the tree, that **a master-password change left the vault openable by neither password** — framed as the most serious defect the journeys axis had ever found, and flagged to the product owner as "do not change your password."
 
-**It was not a product defect.** The master-password change works correctly and is now driven end to end.
+**It was not a product defect.** The harness had been typing passwords with `browser.keys([...text])`, which silently drops the spaces, so the vault was established under a password nobody intended. Walking that back cost a whole session.
 
-What had actually happened: the harness typed passwords with `browser.keys([...text])`, which **silently drops the spaces**. The vault was established under `correcthorsebatterystaple` while the scenario believed it had typed `correct horse battery staple`. Every later unlock typed the same wrong way, so it kept working and the mismatch stayed invisible — until one field was typed a different way, arrived correct, and was rightly refused. That looked exactly like the rotation destroying the vault.
+The session after it drove the *interrupted* password change and found a defect that **was** real — but only after measuring the manifest on disk before and after the kill, rather than trusting what the screen implied.
 
-Two things follow, and they are worth more than any code in this repository:
+Both point the same way:
 
-- **A driven failure is evidence about the whole system, harness included.** It is not proof of a product defect. The harness is as capable of lying as the product.
-- **Diagnose to a mechanism before writing a finding down.** A wrong finding in the tree is worse than an unwritten one: it gets propagated to parents, journeys, and the owner, and every one of those has to be walked back. The measurement that settled this — reading the sentinel from disk before and after a failed run, finding it byte-identical and *already* refusing the password — took minutes, and would have prevented all of it had it come first.
+- **A driven failure is evidence about the whole system, harness included.** It is not proof of a product defect.
+- **Diagnose to a mechanism before writing a finding down.** A wrong finding in the tree gets propagated to parents, journeys and the owner, and every one has to be walked back. A finding you can state as *"X is written only at Y, so Z"* is real; *"the screen looked wrong"* is not yet.
 
 ## Where things stand
 
-**The harness is healthy and fast.** `first-run` drives 8/8 in about two seconds, `return-and-use` all nine steps, and `interrupted-rekey` five steps in about fifteen. All three were green on the last run.
+`main` carries everything below; there is no remote, so nothing has been pushed anywhere. The three most recent commits are this handoff, the deletion of a consumed question sheet, and the interrupted-rotation work described below.
+
+**The harness is healthy and fast.** Three scenarios, all green on the last run: `first-run` 8/8 in about two seconds, `return-and-use` 9/9, `interrupted-rekey` 5/5 in about fifteen seconds.
 
 **Journeys: three of six satisfied.**
 
 - [first-run.md](context/journeys/first-run.md) — satisfied.
-- [exposure.md](context/journeys/exposure.md) — satisfied. The alert that finds the user, the rotate instruction with its reason, the fix beside the problem, the recency warning, the file armored on disk.
-- [change-the-password.md](context/journeys/change-the-password.md) — **satisfied.** Both the clean run and the interrupted run are driven, and the interrupted one found a real product defect (below), now fixed and re-driven.
-- [protect-a-repo.md](context/journeys/protect-a-repo.md) — 6 of 7. Step 7 (rescanning a known repository, and a second repository) is unstaged.
+- [exposure.md](context/journeys/exposure.md) — satisfied.
+- [change-the-password.md](context/journeys/change-the-password.md) — **satisfied**, clean run and interrupted run both driven.
+- [protect-a-repo.md](context/journeys/protect-a-repo.md) — 6 of 7. Step 7 (rescanning a known repository, and adding a second repository) is unstaged.
 - [use-a-secret.md](context/journeys/use-a-secret.md) — 5 of 8. Steps 6–8 (a non-env file's no-editor treatment, the command-line resolve, plaintext expiry) are unstaged.
-- [living-with-it.md](context/journeys/living-with-it.md) — **never driven.** Read it before assuming it resembles the others; it is about trust over time and may need staging nobody has built.
+- [living-with-it.md](context/journeys/living-with-it.md) — **never driven.** Fragments of its skeleton are exercised by other scenarios; the texture it is actually about is untouched.
 
-**What the interrupted run found.** The rotation's durable manifest was written only from the engine's final report, so for the whole time a run was working it still read all-pending. A force-quit left it recording *0 of 7 converted* while a file on disk had already moved to the new password, and the resume screen then asked for the old password on a file that no longer needed it. It now persists as each file settles, and the same interruption records *2 of 7*. **Recovery was never broken** — the engine tries the new passphrase before the old, so a resumed run always finished correctly; what was wrong was the report the user reads. That is also why the Rust suite never caught it: its interruption tests hand-write the manifest rather than interrupting a real run.
+**What the last session found.** Driving the interrupted rotation showed the durable manifest was written only from the engine's final report, so it read all-pending for the whole time a run was working: a force-quit left it recording *0 of 7 converted* while a file on disk had already moved to the new password, and the resume screen then asked for the old password on a file that no longer needed it. It now persists per file. **Recovery was never broken** — the engine tries the new passphrase before the old — so what was wrong was the report, not the data. That is also why the Rust suite missed it: its interruption tests hand-write the manifest instead of interrupting a real run.
 
-## What to pick up, in the order I would pick it
+## What to do: carve and implement `living-with-it`
 
-Runs take seconds rather than minutes, so staging new scenarios is cheap.
+**This is your task.** It is the largest genuinely-unstarted concern left, and it is the one the product's finish is actually decided by.
 
-1. **`use-a-secret` steps 6–8 and `protect-a-repo` step 7.** Ordinary staging work against a harness that behaves. This is the shortest path to a fourth and fifth satisfied journey.
-2. **`living-with-it`.** Read it first, then decide what it needs — it is about trust over time and may want staging nobody has built.
-3. **Widen the CI gate.** It still gates on `first-run` alone, and has never had a green run on a hosted runner. Two more scenarios are stable now.
+### Why this one
 
-The [manage surface's remaining findings](context/plans/app/desktop/ui/navigation/manage-surface.md) — a filter over the tree, a degraded state, alignment findings, an idle lock that discards a live selection — are audited, framed, and ready if the journey work stalls.
+The other two unsatisfied journeys are *staging* work — the surfaces exist and nobody has driven them. `living-with-it` is different in kind: read it and you will see it is **not a feature list**. It is about the second week, when the novelty is gone. Its own words: *"it is all the accumulated texture of using something repeatedly — and it is where 'feels like an unfinished side project' is actually decided."*
+
+That means it will almost certainly surface **missing concerns rather than defects**, which [JOURNEYS.md](docs/plans/JOURNEYS.md) calls the most valuable output of the axis and tells you to expect. A missing concern is large by definition, so intake's rules apply in full — frame it as a folder, raise its design forks in `QUESTIONS.md`, and **do not answer them yourself**.
+
+### How to approach it, in order
+
+1. **Read the journey whole before touching anything.** All eight steps, then the "What good looks like" bar. Reading it a step at a time reproduces exactly the blind spot the axis exists to close.
+
+2. **Drive what can be driven today, and write down what you meet.** Not only what breaks — what is *confusing*, what is slow, what makes you unsure whether something worked. The bar is "feels like a finished product," not "does not crash." Several steps have no staging yet; say so plainly rather than skipping them quietly.
+
+3. **Expect the hard ones to be steps 3, 5, 7 and 8**, and treat them as the real work:
+   - **Step 3, the glance.** *"Is everything that should be protected actually protected?"* — answerable in a second, without reading. The product has an exposure alert for when something is wrong; whether it has an at-a-glance answer for the ordinary case where everything is fine is exactly the kind of gap this axis exists to find.
+   - **Step 5, stepping away.** Plaintext expires after fifteen minutes (`DEFAULT_LIFETIME` in `crates/seal-session/src/lib.rs`), by a two-clock deadline checked on access. **Nobody has ever driven what the user actually sees when that fires.** Does an open file change under them? Is it explained? This is also `use-a-secret` step 8, so driving it once serves two journeys.
+   - **Step 7, something goes wrong.** A file moved, a repository deleted, a disk full — *"explains in their language and suggests what to do, rather than surfacing a fault."* Go and actually delete a managed file, actually remove a repository directory, and see what appears. The error type is deliberately incapable of carrying secret material, which is right, but it may also mean the messages are thin.
+   - **Step 8, the bad day.** Irreversible things must be hard; routine reversible things must not be ceremonious. Both failure directions are real, and the second is the one products usually get wrong.
+
+4. **Route every finding through intake**, per [INTAKE.md](docs/plans/INTAKE.md). The journey never fixes code itself. A defect goes to the plan that owns the code; a missing capability becomes a framed plan.
+
+5. **Then build.** Carry one part to full depth before starting the next — [INSTRUCTIONS.md](docs/plans/INSTRUCTIONS.md) is explicit that a request with many parts is many tasks, and that five surfaces each at 20% is the failure mode the tree exists to prevent. A cursor saying *"step 5 is complete to production depth; steps 7 and 8 are framed and untouched"* is a **better** outcome than all of it thin. You have long autonomous runs; spend them on depth, not on breadth.
+
+### If it stalls
+
+Fall back to the staging work, in this order — it is ordinary and the harness behaves:
+
+1. **`use-a-secret` step 8 (plaintext expiry)** — overlaps `living-with-it` step 5, so it is not really a detour.
+2. **`use-a-secret` step 7, the command-line resolve.** Note this drives the **CLI binary**, not the desktop app, so it needs a different harness shape than the three existing scenarios. That is design work, not just staging.
+3. **`use-a-secret` step 6 and `protect-a-repo` step 7.** Straightforward.
+4. **[The manage surface's remaining findings](context/plans/app/desktop/ui/navigation/manage-surface.md)** — the filter over the tree, plus the remaining audit findings. Audited, framed, ready.
 
 ## Read these, in this order
 
 1. **[AGENTS.md](AGENTS.md)** then **[docs/plans/AGENT_ENTRY.md](docs/plans/AGENT_ENTRY.md)** — the entry manual. Not optional; it routes you to everything else and to the close-out you must run.
 2. **[docs/plans/JOURNEYS.md](docs/plans/JOURNEYS.md)** — the manual for this axis, before touching a journey document.
-3. **[context/plans/app/desktop/MEMORY.md](context/plans/app/desktop/MEMORY.md)** — four entries you will otherwise fall into, two of them from this session: why the harness installs that page global, why all typing goes through one helper that asserts what landed, and why `Repositories` is a heading only at the top altitude.
-4. **[docs/RUNNING.md](docs/RUNNING.md)** — before you build or launch anything. Its traps produce failures that look like app defects and are not.
-5. **[context/plans/app/desktop/journey-harness.md](context/plans/app/desktop/journey-harness.md)** — the harness's design and what remains undriven.
-6. **[FOR-JORIS.md](FOR-JORIS.md)** — questions waiting on the product owner. Do not duplicate them.
+3. **[docs/plans/INTAKE.md](docs/plans/INTAKE.md)** — you will need it, because this journey is expected to surface unplaced concerns.
+4. **[context/plans/app/desktop/MEMORY.md](context/plans/app/desktop/MEMORY.md)** — the entries you will otherwise fall into, two of them new: why restarting the app means killing the process, and why the rekey manifest is written per file.
+5. **[docs/RUNNING.md](docs/RUNNING.md)** — before you build or launch anything. Its traps produce failures that look like app defects and are not.
+6. **[context/plans/app/desktop/journey-harness.md](context/plans/app/desktop/journey-harness.md)** — the harness's design and what remains undriven.
+7. **[FOR-JORIS.md](FOR-JORIS.md)** — questions waiting on the product owner. Do not duplicate them.
 
 ## Binding constraints — do not design around these
 
 - **A journey is satisfied only by driving the real application.** Unit tests are not accepted as a substitute.
-- **Type through the helper.** `e2e/journeys/typing.ts` — `typeInto` and `enterPassphrase`. Never `browser.keys` for text; it drops spaces. Every field asserts what landed, and those assertions are load-bearing, not decoration.
+- **Type through the helper.** `e2e/journeys/typing.ts` — `typeInto` and `enterPassphrase`. Never `browser.keys` for text; it drops spaces. Every field asserts what landed, and those assertions are load-bearing.
+- **Restarting the app means killing the process.** `browser.reloadSession()` reconnects the driver to the *same* process — measured, same PID, still unlocked. `interrupted-rekey.e2e.ts` shows the working shape.
 - **Assert what the surface shows at that altitude.** `Repositories` is an `<h1>` only on the top-level screen; elsewhere it is a breadcrumb button.
 - **The bridge must never reach a distributable build.** It rides an `e2e` cargo feature whose capability grant lives in a separate directory the build script includes only with that feature, and CI proves the shipped binary free of it by scanning. That property survives whatever you do.
-- **Never run two drives at the same time.** They contend for the bridge port. A scenario that relaunches the application can also leave a process behind: if a run fails at the very first wait, check `pgrep -f 'target/release/seal-desktop'` before believing the failure is real.\n- **Restarting the app in a scenario means killing the process.** `browser.reloadSession()` reconnects the driver to the *same* process — measured, same PID, still unlocked — so it demonstrates nothing about surviving a crash.
+- **Never run two drives at the same time.** They contend for the bridge port. A scenario that relaunches the app can also leave a process behind: if a run fails at the very first wait, check `pgrep -f 'target/release/seal-desktop'` before believing the failure is real.
 - **A real window opens and operates itself.** Do not touch it, and do not assume a failure is real until you have re-run it once cleanly.
-- **A bug fix reproduces before it fixes** — and the reproduction must reach a *mechanism*, not just a red run. See the correction above.
-- **Every load-bearing guard is confirmed non-vacuous** — break it deliberately, watch the matching test fail, restore it. The password-change step was proven this way: drop the sentinel from the rotation's manifest and it fails.
+- **A bug fix reproduces before it fixes** — and the reproduction must reach a *mechanism*, not just a red run.
+- **Every load-bearing guard is confirmed non-vacuous** — break it deliberately, watch the matching test fail, restore it.
+- **Never put a plan question to the user directly.** It goes in `QUESTIONS.md` and that line of work stops. Delete the file once it is empty — a fully answered, already-consumed sheet was found and removed this session.
 - **Code carries no comments and no docstrings.** Explanation lives in the plans.
+- **You commit locally and stop.** You do not push and do not open a PR. A previous session merged to `main` only because the owner directed it explicitly and there is no remote; that is not standing permission.
 
 ## Traps this repository has actually fallen into
 
@@ -67,16 +98,23 @@ The [manage surface's remaining findings](context/plans/app/desktop/ui/navigatio
 - **A blank window.** A hand-built binary without `--features custom-protocol` loads a dev-server URL and shows nothing.
 - **A bridge-less harness binary.** Any plain `cargo build --release` overwrites the harness binary with one that has no bridge. Check: `strings target/release/seal-desktop | grep -ci webdriver` — zero means no bridge.
 - **Casing across the boundary.** A serde casing mismatch once made every field arrive `undefined` in the webview. Both unit suites passed throughout; only the driven application caught it.
+- **A timing-dependent unit test.** A test that polled a file from a thread to catch a mid-run state passed alone and failed under parallel load. It was deleted rather than stabilised, because the driven scenario already proved the same property non-vacuously. Do not re-add that shape.
 - **Two lockfiles.** `bun.lock` is the only lockfile for the application. (The site under `site/` has its own, deliberately.)
 
-## What this session did not do
+## What the last session did not do
 
 - **No new staging** for `protect-a-repo` step 7, `use-a-secret` steps 6–8, or `living-with-it`.
-- **The missing `__wdio_original_core__` global was not reported upstream.** It is a genuine defect in the published `@wdio/tauri-service`, and the `before` hook can be dropped once it is fixed.
-- **The CI workflow still has no green run on a hosted runner**, and still gates on `first-run` only. Two more scenarios are stable now, so widening it is worth doing.
+- **The missing `__wdio_original_core__` global was not reported upstream.** It is a genuine defect in the published `@wdio/tauri-service`, and the runner's `before` hook can be dropped once it is fixed.
+- **The CI workflow still has no green run on a hosted runner**, and still gates on `first-run` only. Three scenarios are stable now, so widening it is worth doing.
 - **The manage surface's findings** are untouched.
-- **A per-file progress display was not built.** The manifest is now per-file accurate on disk, so an unfinished run reports correctly on the next launch; what is missing is a live view *during* a long run, which only matters once a user has many files. Recorded as the open thread on `password-change.md`.
-- **`titlebar.rs` has two pre-existing clippy failures** (`expect()` on an `Option`, in the test module) that predate this session and are unrelated to it. Left alone deliberately — see the note at the end.
+- **No per-file progress display.** The manifest is per-file accurate on disk, so an unfinished run reports correctly on next launch; a live view *during* a long run is still missing. Recorded as the open thread on `password-change.md`.
+
+## Two loose ends waiting on the product owner
+
+- **A stashed `titlebar.rs` change.** `git stash list` shows *"stray unsafe-removal in titlebar.rs"* — it removes seven `unsafe` blocks the current `objc2` no longer requires, compiles, and clears seven build warnings. It was found in the working tree at the start of a session and set aside because nobody in that session wrote it.
+- **Two pre-existing clippy failures in that same file** (`expect()` on an `Option`, in its test module), present at `HEAD` independently of the stash.
+
+Neither is urgent, and neither is yours to decide unilaterally. If you are touching `titlebar.rs` anyway, raise them together.
 
 ## Before you finish
 
@@ -85,11 +123,3 @@ Run the close-out in [AGENT_ENTRY.md](docs/plans/AGENT_ENTRY.md). Briefly: targe
 Then update the journey documents. A journey's **Demonstration** records exactly what was witnessed and what was not, and its **Findings** stay open until every finding is closed. *"Driven through step 6 of 7"* is useful; *"mostly working"* is not.
 
 Update the cursor at [context/plans/app/README.md](context/plans/app/README.md) and at [context/journeys/README.md](context/journeys/README.md) so the next agent inherits the truth rather than an impression.
-
-## One loose end, waiting on the product owner
-
-A working-tree change to `src-tauri/src/titlebar.rs` was found at the start of this session and **stashed, not committed** — `git stash list` shows it as *"stray unsafe-removal in titlebar.rs"*. It removes seven `unsafe` blocks that the current `objc2` version no longer requires; it compiles, and it clears seven build warnings. It was set aside rather than folded in because it is unrelated to the journey work and nobody in this session wrote it.
-
-`titlebar.rs` also carries two pre-existing clippy failures (`expect()` on an `Option`, in its test module) that are present at `HEAD` independently of that stash.
-
-Neither is urgent. Both want a decision rather than a guess: apply the stash and fix clippy as one small tidy-up, or drop it.

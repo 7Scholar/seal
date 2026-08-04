@@ -1,8 +1,6 @@
 # Questions
 
-Questions 1–3 are raised by [freshness.md](freshness.md), which is blocked until they are answered. All three come from driving [living-with-it](../../../../../journeys/living-with-it.md); the third also comes from [use-a-secret](../../../../../journeys/use-a-secret.md).
-
-Questions 4 and 5 are raised by [title-bar.md](title-bar.md) and are unrelated to the first three. They are housekeeping on one file rather than design forks, and they are asked together because they touch the same file and answering one without the other leaves it half-tidied.
+Raised by [freshness.md](freshness.md), which is blocked until these are answered. All three come from driving [living-with-it](../../../../../journeys/living-with-it.md); the third also comes from [use-a-secret](../../../../../journeys/use-a-secret.md).
 
 ## 1. When should Seal look at the disk again?
 
@@ -19,6 +17,8 @@ A related sub-question, whichever is chosen: when a re-read finds something chan
 
 **Answer:**
 
+I want long-term stable and robust, no matter the effort. With that in mind, you can decide.
+
 ## 2. Should the product state that everything is protected, and where?
 
 Seal currently draws attention only when something is **wrong** — an exposed file gets a line on its tile and an alert on the repository. When everything is sealed, nothing anywhere states it. The user infers safety from the absence of warnings, which means reading every tile.
@@ -33,6 +33,8 @@ The journey asks for the opposite: one glance, no reading. Directions:
 Worth stating plainly for whoever answers: a standing "everything is protected" is a claim the product must be able to keep. How current it can honestly be depends entirely on question 1, so answering 2 alone does not unblock the work.
 
 **Answer:**
+
+Nothing — absence is the answer.
 
 ## 3. Should a revealed value disappear from the screen when Seal stops holding it?
 
@@ -53,28 +55,4 @@ Worth stating for whoever answers: this cannot be settled independently of quest
 
 **Answer:**
 
-## 4. Should the stashed `unsafe`-removal in `titlebar.rs` be taken?
-
-A change has been sitting in `git stash` since before several sessions ago, described in its own message as *"stray unsafe-removal in titlebar.rs (not this session's work)"*. Nobody recorded writing it, which is the only reason it has not simply been applied.
-
-What it does: removes seven `unsafe` blocks around calls that the current version of the underlying macOS bindings (`objc2`) no longer requires to be unsafe. Verified rather than assumed — applied to the current tree it compiles cleanly, and it takes the build from **seven `unnecessary unsafe block` warnings to zero**. Nothing else in the file changes; the window-control positioning behaves identically.
-
-The case for taking it: the warnings are noise that hides real ones, and `unsafe` that is not required is misleading to a reader deciding what to be careful about — which matters in a security product aimed at open source, where a stranger reads `unsafe` as a signal.
-
-The case against: it is unattributed work, and this repository's rule is that code is verified rather than trusted. Applying it means adopting a change nobody remembers writing, even though it is small and reviewable in full.
-
-Directions: **take it** (apply and commit, having read it in full — it is 15 lines), **drop it** (`git stash drop`, leaving the warnings), or **rewrite it** from scratch so the change has a known author, which produces the same 15 lines by a different route.
-
-**Answer:**
-
-## 5. Should the two clippy failures in `titlebar.rs`'s tests be fixed?
-
-Separately from the stash, `cargo clippy --workspace --all-targets` **fails** — not warns — on two `expect()` calls on an `Option`, both inside `titlebar.rs`'s own test module. They are at `HEAD` independently of the stash and predate this session. The workspace lints `expect_used` at deny level, which is why they are errors rather than warnings, and why clippy currently cannot pass on this repository at all.
-
-The two calls are in a test that reads the strip height out of the stylesheet and asserts the Rust constant matches it — an intentional guard, and `expect()` in a test is ordinarily unremarkable. The friction is that the lint is set to deny across the workspace and this file was never brought in line.
-
-Directions: **fix them** (turn both into assertions that fail the test with a message, which is what the lint wants and keeps the guard intact), **allow the lint in the test module** (one `#![allow]`, as `crates/seal-cli/tests/contract.rs` already does at its top, which is the established pattern in this repository for test code), or **leave it** and accept that clippy does not pass.
-
-Worth stating for whoever answers: the second option is what the rest of the repository already does, so it is the consistent choice rather than a concession. This is only a question at all because it changes a lint boundary, and because a security-adjacent codebase aimed at open source may want its own reason for where that boundary sits.
-
-**Answer:**
+Same answer as to question 1.

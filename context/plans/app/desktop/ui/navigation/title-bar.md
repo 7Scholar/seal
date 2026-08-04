@@ -40,6 +40,10 @@ This is deliberately **not** done with the framework's `trafficLightPosition` wi
 
 The strip's height therefore exists as a number in two places — the stylesheet that draws it and the Rust that centres against it — and a unit test fails the build when they disagree, naming the consequence, because the failure is otherwise invisible until someone looks at the corner of a running window.
 
+**Only the raw-pointer cast is `unsafe`.** Turning the window handle into an `NSWindow` reference is a genuine unchecked promise and carries the keyword. The button calls around it — reading a frame, asking for a standard window button, setting an origin — are safe in the bindings this depends on, so they are written without it. The distinction is the point: `unsafe` marks where a reader must be careful, and spreading it over calls that do not need it spends the signal that makes the one real case visible. The compiler enforces this directly, since an unnecessary `unsafe` block is a warning and this build carries none.
+
+This file's test also states its expectations as assertions rather than `expect()`, which the workspace denies outside test-only crates. The guard is unchanged in strength — a stylesheet with no grid rows, a first row not stated in `rem`, and a height that disagrees with `STRIP_HEIGHT` each fail it by name.
+
 ## Double-click to zoom
 
 The same script handles it, on the same decision: a double press inside a drag region asks the window to toggle its maximised state, on this platform deferred to the release so a drag can cancel it. It follows from the region being correct rather than being separate work.
@@ -68,7 +72,7 @@ The earlier version of this check tested the framework's decision *function* ove
 - [x] Suppress text selection and the text cursor on the strip's own labels.
 - [x] Centre the platform's window controls against the strip, with a test coupling the two heights.
 - [x] Confirm the reproduction is gone by driving it again, and that every strip control still responds.
-- [!] Settle this file's two housekeeping items — the stashed `unsafe` removal and the two clippy failures in its test module — blocked, awaiting answers in [QUESTIONS.md](QUESTIONS.md).
+- [x] Settle this file's two housekeeping items: the seven unnecessary `unsafe` blocks are gone and the test's `expect()` calls are assertions, so `cargo clippy --workspace --all-targets` passes and the build carries no warnings.
 
 # Open threads
 

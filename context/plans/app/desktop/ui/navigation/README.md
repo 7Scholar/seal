@@ -83,7 +83,7 @@ Three children, one per altitude, each owning its surface's layout and operation
 # Plans
 
 - [x] _docs/navigation-research.md -> the prior-art survey and the behavioural rules (a supporting doc, not a child)
-- [x] title-bar.md -> the title bar as a real window control surface: drag, double-click zoom, and the interactive-child exclusion. Its behaviour is done; two housekeeping items on its file are `[!]` awaiting answers in [QUESTIONS.md](QUESTIONS.md)
+- [x] title-bar.md -> the title bar as a real window control surface: drag, double-click zoom, and the interactive-child exclusion
 - [x] theme.md -> light, dark and system themes, the switcher, and the persistence the memory-only webview cannot provide
 - [~] breadcrumbs.md -> the trail, the switcher popover, and the route. **The root segment has no switcher, and the chevron is not the referenced icon.**
 - [~] repositories.md -> the repositories grid: tiles, search, per-tile ellipsis, add. **States beyond populated are undesigned; the empty state is a different visual language.**

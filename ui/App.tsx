@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import * as ipc from "./ipc";
 import { explain } from "./errors";
 import { Acknowledge } from "./screens/Acknowledge";
@@ -255,70 +255,77 @@ export function App() {
     await scanInto(root);
   }
 
+  if (!unlocked && established === null) return <Frame />;
+
   if (!unlocked) {
-    if (established === null) return null;
     return (
-      <Unlock
-        mode={established ? "verify" : "create"}
-        notice={lockNote ?? undefined}
-        onSubmit={async (passphrase) => {
-          if (established) {
-            await ipc.unlock(passphrase);
-          } else {
-            await ipc.establish(passphrase);
-            setEstablished(true);
-          }
-          setLockNote(null);
-          setUnlocked(true);
-        }}
-      />
+      <Frame>
+        <Unlock
+          mode={established ? "verify" : "create"}
+          notice={lockNote ?? undefined}
+          onSubmit={async (passphrase) => {
+            if (established) {
+              await ipc.unlock(passphrase);
+            } else {
+              await ipc.establish(passphrase);
+              setEstablished(true);
+            }
+            setLockNote(null);
+            setUnlocked(true);
+          }}
+        />
+      </Frame>
     );
   }
 
   if (overlay.name === "manage") {
     return (
-      <ManageFlow
-        root={overlay.root}
-        scan={overlay.scan}
-        failure={overlay.failure}
-        onRetry={() => void scanInto(overlay.root)}
-        onCancel={() => setOverlay({ name: "none" })}
-        onConfirm={(selected) =>
-          attempt("add the folder", async () => {
-            const root = overlay.root;
-            await ipc.manageFiles(root, selected);
-            const fresh = await refresh();
-            setOverlay({ name: "none" });
-            if (fresh.some((repo) => repo.root === root)) {
-              setRoute({ at: "repository", root });
-            }
-          })
-        }
-      />
+      <Frame>
+        <ManageFlow
+          root={overlay.root}
+          scan={overlay.scan}
+          failure={overlay.failure}
+          onRetry={() => void scanInto(overlay.root)}
+          onCancel={() => setOverlay({ name: "none" })}
+          onConfirm={(selected) =>
+            attempt("add the folder", async () => {
+              const root = overlay.root;
+              await ipc.manageFiles(root, selected);
+              const fresh = await refresh();
+              setOverlay({ name: "none" });
+              if (fresh.some((repo) => repo.root === root)) {
+                setRoute({ at: "repository", root });
+              }
+            })
+          }
+        />
+      </Frame>
     );
   }
 
   if (overlay.name === "rekey") {
     return (
-      <PasswordChange
-        manifest={rekey}
-        onBegin={async () => {
-          setRekey(await ipc.rekeyBegin());
-        }}
-        onRun={async (current, replacement) => {
-          const outcome = await ipc.rekeyRun(current, replacement);
-          const done = outcome.entries.every((e) => e.standing === "converted");
-          setRekey(done ? null : outcome);
-          if (done) setOverlay({ name: "none" });
-        }}
-        onAbandon={() =>
-          attempt("forget the password change", async () => {
-            await ipc.rekeyAbandon();
-            setRekey(null);
-          })
-        }
-        onClose={() => setOverlay({ name: "none" })}
-      />
+      <Frame>
+        <PasswordChange
+          manifest={rekey}
+          onBegin={async () => {
+            setRekey(await ipc.rekeyBegin());
+          }}
+          onRun={async (current, replacement) => {
+            const outcome = await ipc.rekeyRun(current, replacement);
+            const done = outcome.entries.every((e) => e.standing === "converted");
+            setRekey(done ? null : outcome);
+            if (done) setOverlay({ name: "none" });
+          }}
+          onAbandon={() =>
+            attempt("forget the password change", async () => {
+              await ipc.rekeyAbandon();
+              setRekey(null);
+            })
+          }
+          onClose={() => setOverlay({ name: "none" })}
+        />
+      </Frame>
     );
   }
 
@@ -384,49 +391,47 @@ export function App() {
       : "unknown";
 
   return (
-    <div className="shell">
-      <header className="shell__titlebar" data-tauri-drag-region="deep">
-        <Breadcrumbs crumbs={crumbs} />
+    <Frame
+      trail={<Breadcrumbs crumbs={crumbs} />}
+      controls={
+        <>
+          {exposedRepos.length > 0 && exposedRepos[0] ? (
+            <button
+              type="button"
+              className="exposure-pill"
+              onClick={() => void goToRepository(exposedRepos[0]!.root)}
+            >
+              {exposedRepos.length === 1
+                ? "1 repository has a readable secret"
+                : `${exposedRepos.length} repositories have readable secrets`}
+            </button>
+          ) : null}
 
-        <span className="shell__spacer" />
+          <ThemeControl mode={mode} onChoose={chooseTheme} />
 
-        {exposedRepos.length > 0 && exposedRepos[0] ? (
           <button
             type="button"
-            className="exposure-pill"
-            onClick={() => void goToRepository(exposedRepos[0]!.root)}
+            className="shell__lock"
+            onClick={() =>
+              attempt("lock Seal", async () => {
+                await ipc.lock();
+                setUnlocked(false);
+                setRoute({ at: "repositories" });
+                setOpened(null);
+              })
+            }
           >
-            {exposedRepos.length === 1
-              ? "1 repository has a readable secret"
-              : `${exposedRepos.length} repositories have readable secrets`}
+            Lock
           </button>
-        ) : null}
 
-        <ThemeControl mode={mode} onChoose={chooseTheme} />
-
-        <button
-          type="button"
-          className="shell__lock"
-          onClick={() =>
-            attempt("lock Seal", async () => {
-              await ipc.lock();
-              setUnlocked(false);
-              setRoute({ at: "repositories" });
-              setOpened(null);
-            })
-          }
-        >
-          Lock
-        </button>
-
-        <Overflow label="Seal settings">
-          <button type="button" onClick={() => setOverlay({ name: "rekey" })}>
-            Change master password
-          </button>
-        </Overflow>
-      </header>
-
-      <main className="shell__main">
+          <Overflow label="Seal settings">
+            <button type="button" onClick={() => setOverlay({ name: "rekey" })}>
+              Change master password
+            </button>
+          </Overflow>
+        </>
+      }
+    >
         {rekey !== null ? (
           <div className="shell__rekey" role="alert">
             <span>
@@ -517,7 +522,6 @@ export function App() {
             </p>
           </section>
         ) : null}
-      </main>
 
       {acknowledging ? (
         <Acknowledge
@@ -596,6 +600,31 @@ export function App() {
           </p>
         </Confirm>
       ) : null}
+    </Frame>
+  );
+}
+
+interface FrameProps {
+  trail?: ReactNode;
+  controls?: ReactNode;
+  children?: ReactNode;
+}
+
+function Frame({ trail, controls, children }: FrameProps) {
+  const bare = !trail && !controls;
+  return (
+    <div className="shell">
+      <header
+        className="shell__titlebar"
+        data-bare={bare || undefined}
+        data-tauri-drag-region="deep"
+      >
+        {trail}
+        <span className="shell__spacer" />
+        {controls}
+      </header>
+
+      <main className="shell__main">{children}</main>
     </div>
   );
 }

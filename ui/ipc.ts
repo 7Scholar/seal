@@ -34,7 +34,7 @@ export type OpenedFile =
 export interface CandidateView {
   relativePath: string;
   confidence: "secret" | "ambiguous" | "template";
-  reason: string;
+  reason: string | null;
   preselected: boolean;
   alreadyManaged: boolean;
 }

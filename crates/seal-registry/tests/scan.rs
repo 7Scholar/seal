@@ -151,6 +151,36 @@ fn classifies_the_names_that_matter() {
 }
 
 #[test]
+fn a_reason_is_given_only_where_it_says_more_than_the_name() {
+    let silent = [".env", ".env.production", ".env.local", "production.env"];
+    for name in silent {
+        let reason = scan::classify_name(name).and_then(|(_, reason)| reason);
+        assert_eq!(
+            reason, None,
+            "{name} carries the reason {reason:?}, which only restates the name it sits beside"
+        );
+    }
+
+    let explained = [
+        (".env.example", "example"),
+        (".env.development", "some projects"),
+        ("credentials.json", "credential"),
+        ("id_rsa", "private key"),
+        ("service-account-prod.json", "service account"),
+        ("server.pem", "credential"),
+    ];
+    for (name, fragment) in explained {
+        let reason = scan::classify_name(name).and_then(|(_, reason)| reason);
+        let reason = reason
+            .unwrap_or_else(|| panic!("{name} must say why it was flagged; the name alone does not"));
+        assert!(
+            reason.contains(fragment),
+            "{name} must explain itself as {fragment:?}, got {reason:?}"
+        );
+    }
+}
+
+#[test]
 fn a_public_key_is_never_mistaken_for_a_private_one() {
     assert!(
         scan::classify_name("id_rsa.pub").is_none(),

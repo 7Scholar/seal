@@ -34,6 +34,8 @@ The single cause behind the owner's three faults: the surface was built as a doc
 
 It is a **three-band grid at full window height** — `auto` header, `minmax(0, 1fr)` region, `auto` footer — and the tree region is the **only scrolling thing on the surface**. Both of the caps that held it back are gone: the surface's own `max-width`, and the tree's `max-height`, which was the worse of the two. Measured before the change, the tree was a fixed 416px box regardless of window size, leaving 362px of dead space below the footer at 1280×720 and using half the window — and getting worse as the window grew, which is the opposite of what enlarging a window should do.
 
+The grid gets the window's height from **the shell**, which [the navigation node](README.md) makes unconditional: this surface is content inside the shell's main region rather than a screen that replaces it. That is the whole of the height chain — the surface claims its region as a flex child and the region cannot exceed the window, so the two `auto` bands are pinned and the `1fr` band is what absorbs a tree of any size.
+
 The **repository identity is in the fixed header** and **both actions are in the fixed footer**, so the confirm button's count — the surface's blast-radius statement — is visible at every scroll position rather than scrolling out of reach on any repository whose tree is longer than the window.
 
 The chrome's dividers appear **only when content has scrolled beneath them**, so a surface with nothing to scroll does not draw a bar that looks stuck.
@@ -58,6 +60,16 @@ The overlay **opens first and scans second**. It previously did the reverse, ful
 
 The header states the repository's **size**, which the excessive case had no way to say at 1,097 rows, and the footer states the selection as a tally beside the button.
 
+## An annotation earns its place or is not drawn
+
+The tree annotates a file with the scan's reason for flagging it. That reason is worth a column only where it says something **the filename does not**: `id_ed25519` is *a private key*, `credentials.json` is *a well-known credential file*, and `.env.example` is *conventionally committed as an example rather than holding real values* — a user cannot read any of those off the name.
+
+An env file was the exception, annotated *an environment file* beside a row already named `.env`. It was the most repeated string on the surface — in the driven run the first six annotations were identical — and it restated its own row, which is worse than saying nothing: it fills the channel a reader learns to scan with the one entry that never rewards scanning.
+
+So **the classifier gives no reason where the name is the reason**, rather than the tree suppressing one it was given. The scan is what knows why a file was flagged, and only it can know that the answer adds nothing; a tree filtering strings would be guessing at the classifier's intent. The reason was already optional at the boundary and in the interface — `NodeView` carried `Option<&'static str>` and the tree already drew nothing for a null — so the change is the classifier returning `None`, and the plumbing that was always there finally being used.
+
+Confidence is unaffected: an env file is still `Secret` and still preselected. What is dropped is the sentence, not the judgement.
+
 ## What the surface still says with a sentence
 
 Nothing in the layout. The assurances — that confirming encrypts nothing, that files stay where they are, that a rescan changes nothing already managed — stay behind the toggletip the user chooses to open, per [the parent's prose rule](../README.md).
@@ -68,24 +80,15 @@ All of the Approach, at [ManageFlow.tsx](../../../../../../ui/screens/ManageFlow
 
 The inert-folder guard was confirmed non-vacuous by restoring the defect and watching the covering test fail. That the fixture had to gain a candidate-less folder before the test could catch it at all is why the defect survived a full suite for so long: every directory in the old fixture held a candidate.
 
+**The frame holds in the running application**, which it did not when this plan last claimed it. Driven at the default window size: the surface is 673.6px in a 720px viewport, its tree region scrolls 2180px of content through a 519px window while the document does not scroll at all, and with the tree at its end the header is still below the window controls and the footer still on the window's bottom edge. The height chain it depends on is [the navigation node](README.md)'s unconditional shell; the measurement, the reproduction and the driven check are recorded there.
+
+**The annotation rule is guarded in both directions.** One test asserts that no env-like name carries a reason and that the six names whose reason is informative still explain themselves. Confirmed non-vacuous by restoring `an environment file` and watching it fail naming the row. Nothing had asserted a scan reason before — the classification test discarded the reason and matched only confidence, which is why the most repeated string on the surface was never covered by anything.
+
 The full `first-run` journey passes end to end against a release build — password established, repository added through this surface, file sealed, sealed file verified on disk as standard age.
 
 # What is missing
 
-**The fixed frame does not hold in the running application, and the Approach above overstates what was achieved.** Measured 2026-08-04 by driving a repository of ~80 files at the default window size: `.manage` renders **2630px tall in a viewport far shorter than that**, `.manage__region` reports `scrollHeight === clientHeight` — so the tree region is not the scrolling element at all — and the header sits at `top: 0` with the whole document scrolling instead. Both `.manage__head` and `.manage__actions` therefore leave the viewport, which is precisely the fault the frame was built to fix.
-
-The three-band grid is not wrong; its **height chain is broken**. `.manage` asks for `height: 100%`, but the surface renders through an early return in `App.tsx` that is **outside `.shell`** — and `.shell` is the only element setting `100vh`. Neither `body` nor `#root` establishes a height, so `100%` resolves against auto and the grid expands to its content. This is why the CSS reads as correct and the surface behaves as though it were not.
-
-**The window's title bar is absent from this surface entirely.** Measured in the same run: `document.querySelectorAll("[data-tauri-drag-region]")` returns **nothing** while the manage surface is open. The same early return that breaks the height chain also skips `.shell__titlebar`, so the surface has no drag region and no double-click zoom target, and it starts at `top: 0` **underneath the platform's window controls** rather than below the 5.5rem inset `.shell__titlebar` reserves for them. The product owner met this directly: the page goes under the traffic lights and there is no header to drag.
-
-This is **not only this surface's defect.** Three early returns in `App.tsx` render outside the shell — the manage overlay, the password-change overlay, and the locked/unlock screen — so none of them has a title bar. The owner's instruction is that the header must be present on **every** page, which makes the fix structural rather than local to this node: the shell frame should own the window, and these surfaces should render inside it. Where that fix belongs is a placement question for [the navigation node](README.md), since it owns the shell; this node owns only what the manage surface does within it.
-
-The owner also asked for two changes to this surface's content, neither of which is a defect:
-
-- **The title and subtitle pinned at the top, and Cancel/Manage files pinned at the bottom.** This is what the frame already intends and does not deliver; the fix is the height chain above rather than new chrome.
-- **Remove "an environment file".** This is a scan *reason*, not interface copy — `crates/seal-registry/src/scan.rs:201` returns it as the `Confidence::Secret` reason for any env-like name, and the tree renders every reason as `.tree__reason`. It is the single most repeated string on the surface: in the driven run, the first six annotations were all `an environment file`, restating what the filename beside it already says. Removing it means either dropping that reason at the source or having the tree suppress a reason that adds nothing to the name — a decision that touches [scan-shape.md](../repo-layer/scan-shape.md)'s contract and [vocabulary.md](../repo-layer/vocabulary.md)'s words, so it is not unilaterally this node's to make.
-
-The audit's remaining findings, none of which this pass took. They are real and recorded in [_docs/manage-surface-audit.md](_docs/manage-surface-audit.md); the honest statement is that the frame and the two defects the owner met are fixed and the surface is not yet finished:
+The audit's remaining findings, none of which this pass took. They are real and recorded in [_docs/manage-surface-audit.md](_docs/manage-surface-audit.md); the honest statement is that the frame, the annotation channel and the two defects the owner met are fixed and the surface is not yet finished:
 
 - **A filter over the tree.** [The research](_docs/tree-picker-research.md) argues it is table stakes rather than a refinement, and the argument is structural: expansion follows the *detected* files, so every undetected file — the entire reason undetected files are selectable — is reachable only by hand-opening its chain, which at 1,097 rows is a directory-by-directory hunt for a file the user can already name.
 - **The degraded state.** A partially-walked repository is drawn exactly like a fully-walked one, with nothing at surface level saying the picture is incomplete.
@@ -100,8 +103,8 @@ The audit's remaining findings, none of which this pass took. They are real and 
 - [x] The frame: the three-band full-window shape, fixed chrome, and the tree as the only scrolling region.
 - [x] Every row that draws a pointer responds, and rows that cannot act stop claiming they can.
 - [x] The scanning state and the surface's own failure state, which required the overlay to open before the scan.
-- [ ] Make the fixed frame actually hold: repair the height chain so the tree region is the only scrolling element and the header and footer stay in view. Reproduce first — the measurement above is the reproduction.
-- [ ] Drop the "an environment file" annotation, once its owning contracts agree where the change belongs.
+- [x] Make the fixed frame actually hold: repair the height chain so the tree region is the only scrolling element and the header and footer stay in view. Reproduce first — the measurement above is the reproduction.
+- [x] Drop the "an environment file" annotation, once its owning contracts agree where the change belongs.
 - [ ] The filter over the tree, with the binding behaviour [the research](_docs/tree-picker-research.md) states: matches on path, restores prior expansion exactly when cleared, and never touches selection.
 - [ ] The remaining audit findings above.
 

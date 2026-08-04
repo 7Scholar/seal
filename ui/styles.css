@@ -116,10 +116,11 @@ input {
   user-select: none;
   cursor: default;
 }
+.shell__titlebar[data-bare] { background: transparent; border-bottom-color: transparent; }
 .shell__titlebar button { padding: 0.2rem 0.6rem; font-size: 0.82rem; }
 .shell__titlebar .overflow__trigger { padding: 0; }
 .shell__spacer { flex: 1; }
-.shell__main { overflow-y: auto; display: flex; flex-direction: column; }
+.shell__main { overflow-y: auto; display: flex; flex-direction: column; min-height: 0; }
 .shell__rekey {
   display: flex; gap: 0.8rem; align-items: center;
   border: 1px solid var(--danger); background: var(--danger-surface);
@@ -392,7 +393,7 @@ input {
 .manage {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
-  height: 100%;
+  flex: 1;
   min-height: 0;
   width: 100%;
 }
@@ -493,11 +494,15 @@ input {
 .confirm__danger { border-color: var(--danger); color: var(--danger); }
 .confirm__gate { display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.8rem; }
 
-.unlock {
-  position: fixed;
-  inset: 0;
-  overflow: hidden;
+.shell:has(.unlock) {
   background: radial-gradient(ellipse at 50% 38%, #f7f1e3 0%, #e6ddc9 46%, #c8bfab 100%);
+}
+
+.unlock {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 .unlock__sand { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .unlock__overlay {

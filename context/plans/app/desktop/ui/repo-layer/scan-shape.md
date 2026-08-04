@@ -16,7 +16,9 @@ The candidate data itself is not in question and does not change. What changes i
 
 ## The result is the repository's structure, annotated
 
-The scan returns the repository as a tree of nodes. Each node is a directory or a file, carries its own name and its path relative to the repository root, and a directory carries its children. A file node carries the candidate annotation when the classifier produced one — the confidence and the reason, exactly as they exist today — and carries nothing where it did not. Whether a file is already managed is carried the same way it is today.
+The scan returns the repository as a tree of nodes. Each node is a directory or a file, carries its own name and its path relative to the repository root, and a directory carries its children. A file node carries the candidate annotation when the classifier produced one — the confidence, and the reason where there is one — and carries nothing where it did not. Whether a file is already managed is carried the same way it is today.
+
+**The reason is optional independently of the confidence.** A classification always states how confident the scan is; it states *why* only where the reason says more than the file's own name does, so a flagged file can carry a confidence and no reason at all. Which classifications earn a reason is [manage-surface.md](../navigation/manage-surface.md)'s call, since it owns the channel the reason is drawn in; this node's contract is only that the boundary and the tree must both accept its absence without treating the file as undetected.
 
 **Undetected files are ordinary rows, not a separate category.** The interface draws them dimmed and lets the user select them, so the boundary must not distinguish them beyond the absence of an annotation.
 

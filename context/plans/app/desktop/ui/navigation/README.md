@@ -40,6 +40,14 @@ The title bar holds the breadcrumb trail at its leading edge, after the inset th
 
 The strip is also the window's **drag region**, which it was not before ([title-bar.md](title-bar.md) owns that behaviour and the interactive-child exclusion it needs).
 
+### The shell owns the window, and every surface renders inside it
+
+**The shell is unconditional.** It always draws the strip and is always the element that sets the window's height; a surface is content *within* it, never a replacement for it. The product owner's instruction is that the header is present on every page, and this is the shape that makes that structural rather than remembered: there is no way to render a surface that skips the strip, because no surface draws the frame itself.
+
+This governs the whole window, not only the trail. `.shell` is the sole `100vh` element, so a surface asking to fill the window resolves its height against the shell's main region — which is what lets the manage surface be a fixed frame with one scrolling region rather than a document that flows.
+
+**The strip's contents vary; its presence does not.** The trail and the session controls belong to an unlocked session at an altitude, so the locked screen and the two overlay surfaces carry a **bare** strip: the drag region and the window-control inset, and nothing else. A bare strip draws no background and no divider, because a surface designed to fill the window — the unlock shield — must not be cut by an opaque bar it did not ask for. The shield's own gradient is drawn by the shell in that state so it reaches behind the strip rather than starting below it.
+
 ### The trail's shape
 
 The trail reads `Repositories / <repo> / <file>`, truncated from the left of each segment's own text rather than by dropping segments — the segments are the navigation, so a dropped one is an unreachable altitude.
@@ -86,7 +94,7 @@ Three children, one per altitude, each owning its surface's layout and operation
 - [~] states.md -> the states beyond populated. **Done for the repositories grid; the files list and the file surface are still populated-only.**
 - [x] icons.md -> an icon system, replacing the text characters standing in for glyphs throughout the interface
 - [ ] disclosure-primitive.md -> one implementation of the disclosure contract the four collapsed controls each carry separately
-- [~] manage-surface.md -> the manage surface carried to the grid's depth. **The frame, the row response and the scan states are built; the filter and the remaining audit findings are not.**
+- [~] manage-surface.md -> the manage surface carried to the grid's depth. **The frame holds, the row response, the scan states and the annotation channel are built; the filter and the remaining audit findings are not.**
 - [x] palette.md -> the chosen palette — a white, a black, an accent and a primary — and the role rule governing where each appears
 - [!] freshness.md -> when the product re-observes disk, and how it answers "is everything protected?" at a glance. **Blocked — awaiting answers in QUESTIONS.md.**
 
@@ -132,9 +140,13 @@ Every child except `manage-surface.md` and the three named above is `[x]`. The t
 
 The design fork this redesign genuinely exposed — where the cross-repository exposure alert lives once the sidebar carrying it is gone — was raised as a blocking question and settled by the product owner: it moves to the title bar strip. The Approach above records the decision and why the two alternatives were refused.
 
-**The title bar is missing from three surfaces, and the product owner has ruled that it must be present on every page.** Measured 2026-08-04 with the manage surface open: `[data-tauri-drag-region]` matches **nothing** in the document, so there is no drag region and no double-click zoom target anywhere on that screen, and the surface begins at `top: 0` — underneath the platform's window controls, since the 5.5rem inset that clears them belongs to `.shell__titlebar`. The cause is structural rather than cosmetic: `App.tsx` has three early returns that render **outside `.shell`** — the manage overlay, the password-change overlay, and the locked screen — and `.shell` is what draws the strip. The same early return is why `.manage`'s `height: 100%` resolves against an auto-height ancestor and its "fixed" header and footer scroll away with the page.
+**The title bar reaches every surface, and the frame it establishes is what makes the manage surface hold.** The three early returns that rendered outside `.shell` — the manage overlay, the password-change overlay, and the locked screen — are gone; the shell is unconditional and every surface renders as its content. The Approach above records the shape.
 
-The owner's instruction settles the direction — the header is always present — so this is not a design fork. What remains is the shape of the fix: whether these surfaces move inside the shell frame, or the shell is restructured so the strip is drawn above whatever the route resolves to. That is this node's call, since it owns the shell, and it should be settled before the manage surface's own frame work ([manage-surface.md](manage-surface.md)) begins, because that node's remaining frame defect is a consequence of this one.
+The defect was reproduced before it was fixed, and the reproduction reached the mechanism rather than the symptom. Measured with the manage surface open: `[data-tauri-drag-region]` matched **nothing**, and all three surfaces began at `top: 0`, underneath the platform's window controls. The height chain was the same cause seen from the other side — `.manage` asks for `height: 100%`, and outside `.shell` there is no ancestor with a height, so the surface rendered at **whatever its content happened to be**: 2630px against an ~80-file repository, and **322px in a 720px viewport** against a small one. Both are the same failure; only the direction differs, which is why "the header scrolls away" and "the surface doesn't fill the window" were never two faults.
+
+After the fix, driven at the same window size: one drag region, the strip at `top: 0`, every surface starting at 46.4px below it, and `.manage` at 673.6px in a 720px viewport at **every** tree size. The tree region is the scrolling element — `scrollHeight` 2180 inside `clientHeight` 519 — while the document does not scroll at all, and with the tree scrolled to its end the header is still at 46.4px and the footer's bottom edge is exactly the viewport's. `e2e/journeys/window-frame.e2e.ts` holds all of it (`bun run e2e:frame`), asserting the mechanism at each of the three surfaces rather than the appearance of any one.
+
+Note that the **`.manage` height measurement in this node's earlier record and in [manage-surface.md](manage-surface.md) was taken against a large repository only**, which made the fault read as "the surface is too tall". It is not: it is "the surface is its content's height", and a small repository shows the same defect as a surface far too short. A fix validated only against a tall tree would have looked correct while the frame was still broken.
 
 **[freshness.md](freshness.md) is newly framed and blocked**, from driving [living-with-it](../../../../../journeys/living-with-it.md). It holds one concern in two halves: the interface re-reads disk **only when the session unlocks**, so a file deleted or exposed while the window sits open goes unnoticed indefinitely; and nothing anywhere states that everything *is* protected, so the healthy answer exists only as the absence of warnings spread across every tile. They are one node because a standing assurance computed from a stale read is worse than no assurance. Its forks — what triggers a re-read, and whether the positive statement is drawn at all — are in [QUESTIONS.md](QUESTIONS.md) and are the product owner's to settle.
 

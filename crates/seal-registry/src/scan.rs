@@ -53,7 +53,7 @@ pub enum Confidence {
 pub struct Candidate {
     pub relative_path: PathBuf,
     pub confidence: Confidence,
-    pub reason: &'static str,
+    pub reason: Option<&'static str>,
 }
 
 impl Candidate {
@@ -73,7 +73,7 @@ pub enum Node {
     File {
         name: String,
         relative_path: PathBuf,
-        candidate: Option<(Confidence, &'static str)>,
+        candidate: Option<(Confidence, Option<&'static str>)>,
     },
 }
 
@@ -175,7 +175,7 @@ pub fn scan(root: &Path) -> Vec<Candidate> {
     candidates
 }
 
-pub fn classify_name(name: &str) -> Option<(Confidence, &'static str)> {
+pub fn classify_name(name: &str) -> Option<(Confidence, Option<&'static str>)> {
     let lower = name.to_ascii_lowercase();
 
     if is_env_like(&lower) {
@@ -187,33 +187,33 @@ pub fn classify_name(name: &str) -> Option<(Confidence, &'static str)> {
         {
             return Some((
                 Confidence::Template,
-                "conventionally committed as an example rather than holding real values",
+                Some("conventionally committed as an example rather than holding real values"),
             ));
         }
 
         if AMBIGUOUS_ENV_NAMES.contains(&lower.as_str()) {
             return Some((
                 Confidence::Ambiguous,
-                "some projects commit this and some do not",
+                Some("some projects commit this and some do not"),
             ));
         }
 
-        return Some((Confidence::Secret, "an environment file"));
+        return Some((Confidence::Secret, None));
     }
 
     if CREDENTIAL_NAMES.contains(&lower.as_str()) {
-        return Some((Confidence::Secret, "a well-known credential file"));
+        return Some((Confidence::Secret, Some("a well-known credential file")));
     }
 
     if lower.starts_with("id_rsa") || lower.starts_with("id_ed25519") {
         if lower.ends_with(".pub") {
             return None;
         }
-        return Some((Confidence::Secret, "a private key"));
+        return Some((Confidence::Secret, Some("a private key")));
     }
 
     if lower.starts_with("service-account") && lower.ends_with(".json") {
-        return Some((Confidence::Secret, "a service account key"));
+        return Some((Confidence::Secret, Some("a service account key")));
     }
 
     let extension = Path::new(&lower)
@@ -221,7 +221,7 @@ pub fn classify_name(name: &str) -> Option<(Confidence, &'static str)> {
         .map(|ext| ext.to_string_lossy().into_owned());
     if let Some(extension) = extension {
         if CREDENTIAL_EXTENSIONS.contains(&extension.as_str()) {
-            return Some((Confidence::Secret, "a key or credential file"));
+            return Some((Confidence::Secret, Some("a key or credential file")));
         }
     }
 

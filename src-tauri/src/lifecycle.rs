@@ -15,7 +15,7 @@ pub const RECENTLY_MODIFIED: Duration = Duration::from_secs(120);
 pub struct CandidateView {
     pub relative_path: PathBuf,
     pub confidence: String,
-    pub reason: &'static str,
+    pub reason: Option<&'static str>,
     pub preselected: bool,
     pub already_managed: bool,
 }
@@ -77,7 +77,7 @@ fn to_view(node: scan::Node, managed: &[&PathBuf]) -> NodeView {
             }),
             confidence: candidate
                 .map(|(confidence, _)| format!("{confidence:?}").to_lowercase()),
-            reason: candidate.map(|(_, reason)| reason),
+            reason: candidate.and_then(|(_, reason)| reason),
             name,
             relative_path,
         },

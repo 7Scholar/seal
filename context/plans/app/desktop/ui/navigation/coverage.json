@@ -14,7 +14,7 @@
     "ui/App.tsx": "13c2312a097a3c3fce76e9676cf063134413dd0e",
     "ui/screens/RepoDetail.test.tsx": "9eda9f1877c9b740336e710d7292b981d3fe661b",
     "ui/screens/RepoDetail.tsx": "a74340e1cb980f392bd8dbba828ab9ab43f7f1fa",
-    "ui/styles.css": "13c2312a097a3c3fce76e9676cf063134413dd0e"
+    "ui/styles.css": "e99a7fbf6cdab4293dd0b99987e286104451408d"
   },
   "freshness.md": {
     "crates/seal-session/src/lib.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
@@ -28,19 +28,19 @@
   },
   "manage-surface.md": {
     "ui/components/FileTree.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
-    "ui/screens/ManageFlow.test.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
-    "ui/screens/ManageFlow.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
-    "ui/styles.css": "13c2312a097a3c3fce76e9676cf063134413dd0e"
+    "ui/screens/ManageFlow.test.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
+    "ui/screens/ManageFlow.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
+    "ui/styles.css": "e99a7fbf6cdab4293dd0b99987e286104451408d"
   },
   "palette.md": {
-    "ui/styles.css": "13c2312a097a3c3fce76e9676cf063134413dd0e"
+    "ui/styles.css": "e99a7fbf6cdab4293dd0b99987e286104451408d"
   },
   "repositories.md": {
     "ui/screens/Repositories.test.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
     "ui/screens/Repositories.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db"
   },
   "shape.md": {
-    "ui/styles.css": "13c2312a097a3c3fce76e9676cf063134413dd0e"
+    "ui/styles.css": "e99a7fbf6cdab4293dd0b99987e286104451408d"
   },
   "theme.md": {
     "src-tauri/src/commands.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",

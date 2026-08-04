@@ -23,6 +23,10 @@ vi.mock("./ipc", async () => {
     setThemeMode: vi.fn(),
     save: vi.fn(),
     reveal: vi.fn(),
+    pickFolder: vi.fn(),
+    scanFolder: vi.fn(),
+    manageFiles: vi.fn(),
+    reobserve: vi.fn(),
   };
 });
 
@@ -681,5 +685,77 @@ describe("the theme control", () => {
     expect(region).toBeInTheDocument();
     expect(region!.contains(screen.getByText("VARIABLE_0"))).toBe(true);
     expect(region!.contains(save)).toBe(false);
+  });
+});
+
+describe("a relock arriving while a manage selection is live", () => {
+  const scan: ipc.ScanView = {
+    root: "/code/new",
+    alreadyRegistered: false,
+    candidates: [
+      {
+        relativePath: ".env",
+        confidence: "secret",
+        reason: null,
+        preselected: true,
+        alreadyManaged: false,
+      },
+    ],
+    tree: [
+      {
+        kind: "file",
+        name: ".env",
+        relativePath: ".env",
+        confidence: "secret",
+        reason: null,
+        preselected: true,
+        alreadyManaged: false,
+      },
+      {
+        kind: "file",
+        name: "config.yml",
+        relativePath: "config.yml",
+        confidence: null,
+        reason: null,
+        preselected: false,
+        alreadyManaged: false,
+      },
+    ],
+  };
+
+  async function openManageWithSelection(user: ReturnType<typeof userEvent.setup>) {
+    mocked.pickFolder.mockResolvedValue("/code/new");
+    mocked.scanFolder.mockResolvedValue(scan);
+    await openApp();
+    await user.click(screen.getAllByRole("button", { name: /Add repository/ })[0]!);
+    await screen.findByRole("button", { name: "Manage 1 file" });
+    await user.click(screen.getByRole("treeitem", { name: "config.yml" }));
+    await screen.findByRole("button", { name: "Manage 2 files" });
+  }
+
+  it("keeps the selection when the reobserve poll reports the session locked", async () => {
+    const user = userEvent.setup();
+    await openManageWithSelection(user);
+
+    mocked.reobserve.mockRejectedValue({ kind: "locked", message: "locked" });
+
+    await waitFor(() => expect(mocked.reobserve).toHaveBeenCalled(), { timeout: 8000 });
+
+    expect(screen.getByRole("button", { name: "Manage 2 files" })).toBeInTheDocument();
+  }, 15000);
+
+  it("relocks and discards the selection when confirming reports the session locked", async () => {
+    const user = userEvent.setup();
+    await openManageWithSelection(user);
+
+    mocked.manageFiles.mockRejectedValue({ kind: "locked", message: "locked" });
+    await user.click(screen.getByRole("button", { name: "Manage 2 files" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Seal is locked" })).toBeInTheDocument();
+    });
+    expect(
+      screen.queryByRole("button", { name: "Manage 2 files" }),
+    ).not.toBeInTheDocument();
   });
 });

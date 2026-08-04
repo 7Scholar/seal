@@ -104,6 +104,12 @@ The scan deliberately skips build output and installed dependencies — `node_mo
 
 The surface now states it as a fact beside the size it already carries — **`node_modules not searched`**, or a count once there are several — and the toggletip names every skipped folder and says why, which is where the surface's fuller accounts already live. This is a statement of what the scan did, not an apology for it: the per-row *not looked in* note stays, and what is new is that the incompleteness is legible without finding a pruned row.
 
+## A live selection outlives a background lock
+
+The selection is the user's work, and the surface does not discard it on the strength of something happening behind it. The background re-observation poll is the only thing calling into the session while the overlay is up, and a lock reported there **does not relock the window** — the selection, the expansion and the filter all stand.
+
+The selection is lost in exactly one case, and it is the case where keeping it would be a lie: **the confirm itself fails with a locked session.** The act the selection existed for cannot happen, so the surface relocks and the user unlocks before adding anything.
+
 ## What the surface still says with a sentence
 
 Nothing in the layout. The assurances — that confirming encrypts nothing, that files stay where they are, that a rescan changes nothing already managed — stay behind the toggletip the user chooses to open, per [the parent's prose rule](../README.md).
@@ -134,9 +140,22 @@ The degraded state's two halves are guarded separately in unit tests, each confi
 
 # What is missing
 
-One audit finding remains, and it is the one that wants reproducing rather than building:
+Nothing. The last audit finding was pursued to a reproduction and **the defect it described does not exist as stated** — see below.
 
-- **A relock discards a live selection.** Left open deliberately, and its stated cause corrected: the audit blamed a 15-minute *session* lifetime, but the session has no expiry — that deadline is per held file. The remaining triggers are an explicit lock and a poisoned mutex, so this is far rarer than recorded and **has not been reproduced**. Reproducing it is the next move; a fix on an unreproduced trigger would be unfalsifiable.
+## The relock that discards a live selection
+
+The audit recorded that a relock arriving while the manage surface is open destroys the selection. Driven against the real component tree, **no reachable trigger does that while a selection is live**, and the reason is structural rather than incidental.
+
+`relock` does clear the overlay, and `ManageFlow` does hold `selected` in local state, so *if* a relock arrived the selection would indeed be lost. The finding is wrong about the antecedent: nothing delivers one.
+
+- **The surface's own two calls cannot carry a lock.** `scan_folder` and `manage` lock only the registry, whose failure is `Kind::Registry`; neither takes the session guard, so neither can return `Kind::Locked`. A locked session is therefore invisible to the manage surface's own traffic.
+- **The one concurrent caller that checks the session discards its answer.** `reobserve` returns `Kind::Locked` when the session is not unlocked, and it is the only thing polling while the overlay is up — but its caller swallows every error, so the lock never reaches `relock`. This is what makes the case unreachable in practice, and it is deliberate: a background poll that relocked the window would take the surface away from a user who is mid-task on the strength of a transient failure.
+- **The explicit lock is unreachable from the surface.** The overlay returns before the shell's chrome renders, so the Lock button does not exist while the manage surface is up.
+- **The session has no expiry.** The audit's stated cause — a 15-minute session lifetime — is not a mechanism at all; that deadline is per held file, refreshed on every read, and its expiry surfaces as `stillHeld: false` rather than as a lock.
+
+What remains are a poisoned session mutex and an unreadable clock. Both are process-level faults that leave every subsequent command returning `locked` until restart, so the discarded selection is the least of their consequences and neither is fixable at this surface.
+
+**The reachable path is confirming.** `manage` failing with a lock does relock and discard the selection — but that is the correct behaviour, not the defect: the confirm has failed, the session is gone, and the user must unlock before anything can be added. Both behaviours are guarded, each confirmed non-vacuous by breaking the code beneath it: making the poll relock fails the first, and removing `fail`'s locked branch fails the second.
 
 # Steps
 
@@ -149,7 +168,7 @@ One audit finding remains, and it is the one that wants reproducing rather than 
 - [x] Drop the "an environment file" annotation, once its owning contracts agree where the change belongs.
 - [x] The filter over the tree, with the binding behaviour [the research](_docs/tree-picker-research.md) states: matches on path, restores prior expansion exactly when cleared, and never touches selection.
 - [x] The two channels as columns, with names truncating rather than wrapping, and the degraded state stating where the scan did not look.
-- [ ] Reproduce the relock that discards a live selection, then repair it.
+- [x] Reproduce the relock that discards a live selection — pursued to a mechanism and closed: no reachable trigger discards a live selection, and the one path that does is the confirm failing, which is correct.
 
 # Open threads
 

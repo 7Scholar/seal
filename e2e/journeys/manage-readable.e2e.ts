@@ -100,10 +100,63 @@ describe("managing readable files beside sealed ones", () => {
     expect(await $(".file-failed").isDisplayed().catch(() => false)).toBe(false);
   });
 
-  it("says on the control that saving a readable file will seal it", async () => {
-    const save = $("button*=Save");
-    await save.waitForDisplayed({ timeout: 30000 });
-    expect(await save.getText()).toContain("Save and seal");
+  it("offers exactly Cancel and Save in the footer of a readable file", async () => {
+    await $(".env-editor__actions").waitForDisplayed({ timeout: 30000 });
+
+    const labels = await browser.execute(() =>
+      [...document.querySelectorAll(".env-editor__actions button")].map(
+        (button) => button.textContent,
+      ),
+    );
+    expect(labels).toEqual(["Cancel", "Save"]);
+  });
+
+  it("enables Save only once something has changed", async () => {
+    const save = $("button=Save");
+    expect(await save.isEnabled()).toBe(false);
+    expect(await $("button=Cancel").isEnabled()).toBe(true);
+
+    await $('button[aria-label="Edit API_KEY"]').click();
+    await $('input[aria-label="Value for API_KEY"]').waitForDisplayed({
+      timeout: 10000,
+    });
+    await browser.keys(["1"]);
+
+    await save.waitForEnabled({ timeout: 10000 });
+  });
+
+  it("asks before throwing away pending changes on Cancel", async () => {
+    await $("button=Cancel").click();
+
+    const dialog = $('[role="dialog"]');
+    await dialog.waitForDisplayed({ timeout: 10000 });
+    expect(await dialog.getText()).toContain("Discard your changes?");
+
+    await $("button=Keep editing").click();
+    await browser.waitUntil(
+      async () => !(await dialog.isDisplayed().catch(() => false)),
+      { timeout: 10000 },
+    );
+    expect(await $(".env-editor__rows").isDisplayed()).toBe(true);
+  });
+
+  it("leaves the file when the discard is confirmed", async () => {
+    await $("button=Cancel").click();
+    await $('[role="dialog"]').waitForDisplayed({ timeout: 10000 });
+    await $("button=Discard them").click();
+
+    await $(".rows").waitForDisplayed({ timeout: 30000 });
+  });
+
+  it("offers sealing from the header of a readable file", async () => {
+    await $(`button[aria-label="Open ${READABLE}"]`).click();
+    await $(".env-editor__rows").waitForDisplayed({ timeout: 30000 });
+
+    const header = $(".file-head");
+    expect(await header.$("button=Seal").isDisplayed()).toBe(true);
+
+    await $("button=Cancel").click();
+    await $(".rows").waitForDisplayed({ timeout: 30000 });
   });
 
   it("draws no actions bar until a file is selected", async () => {

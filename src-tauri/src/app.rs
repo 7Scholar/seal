@@ -190,10 +190,23 @@ pub fn save(
             .ok_or_else(|| CommandError::at(Kind::UnknownKey, path))?
     };
 
-    operations::seal_from_memory(path, &updated, &passphrase, WORK_FACTOR)?;
+    let sealed = matches!(operations::classify(path)?, Classification::Sealed { .. });
+    if sealed {
+        operations::reseal_from_memory(path, &updated, &passphrase, WORK_FACTOR)?;
+    } else {
+        operations::write_plaintext(path, &updated)?;
+    }
 
     session.open(path, Plaintext::new(updated))?;
-    record(state, path, SealedState::Sealed);
+    record(
+        state,
+        path,
+        if sealed {
+            SealedState::Sealed
+        } else {
+            SealedState::Plaintext
+        },
+    );
     Ok(())
 }
 

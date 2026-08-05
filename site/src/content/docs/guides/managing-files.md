@@ -33,6 +33,10 @@ Saving preserves your comments, ordering, quoting and line endings exactly, chan
 
 Revealing a value is not an edit and never marks the file as changed.
 
+Saving preserves the state the file was in: a sealed file stays sealed, a readable one stays readable. The save button says which it will do. Editing and sealing are separate decisions, so a save never changes whether a file is protected — that is what Seal and Unseal are for.
+
+If the application stopped holding a file's contents while you were away, the first thing you do that needs them locks Seal rather than leaving you stuck. Unlocking takes you back to the file and the row you were working on.
+
 Files that are **not** env files are stored and encrypted as they are, never edited. The application contains no general-purpose file editor: a managed `.tfvars` or JSON file opens as a plain statement of what it is, with no editing surface at all.
 
 ## Looking at a file never decrypts it on disk

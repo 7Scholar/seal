@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Confirm } from "../components/Confirm";
 import { SecretValue } from "../components/SecretValue";
 import { decodeSecret } from "../format";
 import type { EnvView, SealedState } from "../ipc";
@@ -8,9 +9,13 @@ interface Props {
   relativePath: string;
   state: SealedState;
   expired?: boolean;
+  resumeEditing?: string | null;
   onReveal: (key: string) => Promise<Uint8Array>;
   onSave: (edits: [string, string][]) => Promise<void>;
   onSeal: () => void | Promise<void>;
+  onUnseal: () => void | Promise<void>;
+  onLeave: () => void;
+  onResumed?: () => void;
 }
 
 const STATE_LABELS: Record<SealedState, string> = {
@@ -25,13 +30,18 @@ export function EnvEditor({
   relativePath,
   state,
   expired = false,
+  resumeEditing = null,
   onReveal,
   onSave,
   onSeal,
+  onUnseal,
+  onLeave,
+  onResumed,
 }: Props) {
   const [revealed, setRevealed] = useState<Record<string, string>>({});
   const [edits, setEdits] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [discarding, setDiscarding] = useState(false);
 
   const [hidNote, setHidNote] = useState(false);
 
@@ -46,6 +56,31 @@ export function EnvEditor({
 
   const dirtyKeys = Object.keys(edits);
   const isDirty = dirtyKeys.length > 0;
+
+  useEffect(() => {
+    if (!resumeEditing) return;
+    if (!file.variables.some((variable) => variable.key === resumeEditing)) {
+      onResumed?.();
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        const bytes = await onReveal(resumeEditing);
+        if (cancelled) return;
+        const value = decodeSecret(bytes);
+        setEdits((current) => ({ ...current, [resumeEditing]: value }));
+        setRevealed((current) => ({ ...current, [resumeEditing]: value }));
+      } catch {
+        return;
+      } finally {
+        if (!cancelled) onResumed?.();
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [resumeEditing, file.path]);
 
   async function reveal(key: string) {
     try {
@@ -99,6 +134,15 @@ export function EnvEditor({
         <span className="file-head__state" data-state={state}>
           {STATE_LABELS[state]}
         </span>
+        {state === "sealed" ? (
+          <button type="button" onClick={() => onUnseal()}>
+            Unseal
+          </button>
+        ) : (
+          <button type="button" onClick={() => onSeal()}>
+            Seal
+          </button>
+        )}
       </header>
 
       <div className="env-editor__notices">
@@ -187,13 +231,39 @@ export function EnvEditor({
             ? `${dirtyKeys.length} unsaved ${dirtyKeys.length === 1 ? "change" : "changes"}`
             : "No unsaved changes"}
         </span>
-        <button type="button" disabled={!isDirty || saving} onClick={save}>
-          {state === "sealed" ? "Save" : "Save and seal"}
+        <button type="button" onClick={() => (isDirty ? setDiscarding(true) : onLeave())}>
+          Cancel
         </button>
-        <button type="button" onClick={() => onSeal()}>
-          Seal and close
+        <button
+          type="button"
+          className="button--primary"
+          disabled={!isDirty || saving}
+          onClick={save}
+        >
+          {state === "sealed" ? "Save and seal" : "Save"}
         </button>
       </footer>
+
+      {discarding ? (
+        <Confirm
+          title="Discard your changes?"
+          confirmLabel="Discard them"
+          cancelLabel="Keep editing"
+          onCancel={() => setDiscarding(false)}
+          onConfirm={() => {
+            setDiscarding(false);
+            onLeave();
+          }}
+        >
+          <p>
+            {dirtyKeys.length === 1
+              ? "One value you changed has not been saved."
+              : `${dirtyKeys.length} values you changed have not been saved.`}{" "}
+            Leaving now loses {dirtyKeys.length === 1 ? "it" : "them"}; the file
+            itself is not changed.
+          </p>
+        </Confirm>
+      ) : null}
     </section>
   );
 }

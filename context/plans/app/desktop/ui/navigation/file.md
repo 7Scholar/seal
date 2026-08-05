@@ -18,13 +18,30 @@ Leaving a file is navigating up, which the trail already does. So the editor's o
 
 What Close *did* beyond navigating still happens — navigating up from a file closes it through the same command, releasing the plaintext the session holds rather than merely hiding it ([breadcrumbs.md](breadcrumbs.md) owns that rule). The behaviour is preserved; only the control is gone.
 
-**Seal and close** stays, because it is a verb with a consequence rather than a navigation control, and it is the action a user takes after editing a secret.
-
 ## The surface's header
 
-The trail states which file is open, so the surface does not repeat it as a heading. The header carries what the trail cannot: the file's **path within its repository**, its **state**, and the operations that act on the file.
+The trail states which file is open, so the surface does not repeat it as a heading. The header carries what the trail cannot: the file's **path within its repository**, its **state**, and the operation that changes that state — **Seal** on a readable file, **Unseal** on a sealed one. The state and the control that changes it belong together, which is why this is the header's job rather than the footer's: the footer is about the *edit* in progress, and sealing is about the *file*.
 
-The unsaved-changes indicator and the save control keep their position at the foot of the list and their behaviour exactly — including that revealing a value is never an edit and never marks the file dirty, which is the defect [the interface memory](../MEMORY.md) records a comparable product shipping.
+## The footer is about the edit, and holds exactly two controls
+
+**Cancel** and **Save**, in that order, at the trailing edge. Nothing else — a footer that also holds a state-changing verb makes a user reason about two unrelated axes in the same row.
+
+- **Cancel is always enabled.** Leaving is never blocked, and a disabled way out is how a surface traps someone.
+- **Save is enabled only when something has changed.** With nothing pending there is nothing to save, and an enabled control that would do nothing is a lie about the state of the work.
+- **Save says what it will do**: `Save and seal` on a sealed file, plain `Save` on a readable one. A save honours the file's state rather than overriding it — sealing on save would silently undo a deliberate unseal, which is exactly the choice the user just made.
+- **Cancel with pending changes confirms first**, naming how many values would be lost and stating that the file itself is unchanged. With nothing pending it leaves immediately: a confirmation that fires when there is nothing to lose is the ceremony [the disclosure rules](../shell-layout.md) reserve for consequences.
+
+The unsaved-changes indicator keeps its position and its behaviour exactly — including that revealing a value is never an edit and never marks the file dirty, which is the defect [the interface memory](../MEMORY.md) records a comparable product shipping.
+
+## Meeting an expired file mid-task
+
+The plaintext a session holds expires on its own, so a user who steps away and comes back can press **Edit** on a row whose secret Seal no longer holds. What happened then was the surface's worst failure of its own rule: a banner said the file was no longer open and offered **no way to open it again** — a dead end reached by doing nothing wrong.
+
+The interface now treats an expired file as what it is: **the session is over**. A refusal that reports the plaintext is gone **locks the application**, exactly as a `locked` refusal does, because the two are the same situation reached by different routes. The lock screen says Seal locked itself and that unlocking picks up where the user left off.
+
+**Unlocking then restores where they were**, not the repositories grid: the same file, reopened, with the same row already in edit and its value in the field. That is what makes the lock a continuation rather than a punishment — the user's next action after unlocking is the one they were trying to take before.
+
+Two bounds on it. The resume is recorded only for a lock the *application* imposed; locking deliberately from the title bar returns to the grid, because the user asked to leave rather than to be interrupted. And a resume naming a variable the file no longer holds is dropped silently rather than failing, since the file may have changed while the session was gone.
 
 ## The notices
 
@@ -52,11 +69,11 @@ The frame alone did not settle it, and the second cause is not this surface's at
 
 # What exists
 
-All of the Approach: the editor re-homed with its internals untouched, the header carrying path, state and count, the close control removed with its close behaviour preserved on navigation, the opaque surface, and every state above — the skeleton, the surface-level failure with its retry and its way back, and the three-band frame.
+All of the Approach: the editor re-homed with its internals untouched, the header carrying path, state, count and the seal/unseal control, the two-control footer with its confirmation, the expiry re-lock and its resume, the opaque surface, and every state above — the skeleton, the surface-level failure with its retry and its way back, and the three-band frame.
 
-Interface tests cover that navigating up from a file closes it, that the editor's reveal and save contracts are unchanged in the new container, that a non-env file offers no editing surface, that the skeleton renders while an open is in flight, that a failed open states itself on the surface with both affordances, and the variable count in both singular and plural.
+Interface tests cover that navigating up from a file closes it, that the editor's reveal and save contracts are unchanged in the new container, that a non-env file offers no editing surface, that the skeleton renders while an open is in flight, that a failed open states itself on the surface with both affordances, and the variable count in both singular and plural. The footer's own set: exactly two controls and no more, the label following the file's state in both directions, Cancel enabled while Save is not, an immediate leave with nothing pending, the confirmation appearing with changes pending and leaving only on confirming, and the edits surviving a declined discard. The resume's set: the row reopens with its value, nothing resumes when no row was being edited, and a resume naming a missing variable is dropped without failing.
 
-Driven against the real application by its own scenario (`bun run e2e:largefile`): at 400 variables every row renders, the surface is the window's height rather than its content's, the document does not scroll, the save control is on screen with the rows scrolled to their end, and the surface states the true count.
+Driven against the real application by two scenarios. `bun run e2e:largefile`: at 400 variables every row renders, the surface is the window's height rather than its content's, the document does not scroll, the save control is on screen with the rows scrolled to their end, and the surface states the true count. And a scenario of its own for the expiry path, run against a **three-second** held-plaintext lifetime through the harness seam: pressing Edit after the plaintext has gone locks the application and says why, unlocking returns to the same file with the same row carrying its real value, and the resumed edit then saves with the file still sealed.
 
 Guards confirmed non-vacuous by reintroducing the defect each prevents:
 
@@ -73,6 +90,8 @@ Guards confirmed non-vacuous by reintroducing the defect each prevents:
 - [x] The opaque surface for a non-env file.
 - [x] Tests, including that navigating up actually closes the file.
 - [x] The states beyond populated: the skeleton, the surface-level failure, the three-band frame and the count.
+- [x] The two-control footer, its state-following save label, and the discard confirmation.
+- [x] The expiry re-lock and the resume that returns to the same file and row.
 
 # Open threads
 

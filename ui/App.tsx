@@ -29,6 +29,12 @@ type Route =
   | { at: "repository"; root: string }
   | { at: "file"; root: string; path: string };
 
+interface Resume {
+  root: string;
+  path: string;
+  editing?: string;
+}
+
 type Opened =
   | { kind: "opening" }
   | { kind: "failed"; why: string }
@@ -59,6 +65,8 @@ export function App() {
   const [rekey, setRekey] = useState<ipc.Manifest | null>(null);
   const [mode, setMode] = useState<theme.Mode>("system");
   const [expired, setExpired] = useState(false);
+  const [resume, setResume] = useState<Resume | null>(null);
+  const [resuming, setResuming] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     try {
@@ -102,12 +110,15 @@ export function App() {
     void theme.store(next);
   }
 
-  function relock() {
+  function relock(resume?: Resume) {
     setLockNote(
-      "Seal locked itself while you were away. Everything stayed sealed — unlock to continue.",
+      resume
+        ? "Seal locked itself while you were away. Everything stayed sealed — unlock to pick up where you left off."
+        : "Seal locked itself while you were away. Everything stayed sealed — unlock to continue.",
     );
+    setResume(resume ?? null);
     setUnlocked(false);
-    setRoute({ at: "repositories" });
+    if (!resume) setRoute({ at: "repositories" });
     setOpened(null);
     setOverlay({ name: "none" });
     setAcknowledging(null);
@@ -120,9 +131,13 @@ export function App() {
     setOutcomes(null);
   }
 
-  function fail(doing: string, error: unknown) {
+  function fail(doing: string, error: unknown, resume?: Resume) {
     if (ipc.isCommandError(error) && error.kind === "locked") {
-      relock();
+      relock(resume);
+      return;
+    }
+    if (ipc.isCommandError(error) && error.kind === "notOpen") {
+      relock(resume);
       return;
     }
     setProblem(explain(doing, error));
@@ -389,6 +404,12 @@ export function App() {
             }
             setLockNote(null);
             setUnlocked(true);
+            if (resume) {
+              const target = resume;
+              setResume(null);
+              setResuming(target.editing ?? null);
+              void goToFile(target.root, target.path);
+            }
           }}
         />
       </Frame>
@@ -642,7 +663,11 @@ export function App() {
               try {
                 return await ipc.reveal(opened.file.path, key);
               } catch (error) {
-                fail(`reveal ${key}`, error);
+                fail(`reveal ${key}`, error, {
+                  root: route.root,
+                  path: route.path,
+                  editing: key,
+                });
                 throw error;
               }
             }}
@@ -653,11 +678,18 @@ export function App() {
                   await refreshAndReconcile();
                 });
               } catch (error) {
-                fail("save the changes", error);
+                fail("save the changes", error, {
+                  root: route.root,
+                  path: route.path,
+                });
                 throw error;
               }
             }}
+            resumeEditing={resuming}
+            onResumed={() => setResuming(null)}
             onSeal={() => seal(opened.file.path)}
+            onUnseal={() => setUnsealing([opened.file.path])}
+            onLeave={() => void goToRepository(route.root)}
           />
         ) : null}
 

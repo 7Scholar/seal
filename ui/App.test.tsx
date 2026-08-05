@@ -30,6 +30,7 @@ vi.mock("./ipc", async () => {
     unsealFile: vi.fn(),
     unsealFiles: vi.fn(),
     release: vi.fn(),
+    unlock: vi.fn(),
   };
 });
 
@@ -693,6 +694,73 @@ describe("the theme control", () => {
     expect(region).toBeInTheDocument();
     expect(region!.contains(screen.getByText("VARIABLE_0"))).toBe(true);
     expect(region!.contains(save)).toBe(false);
+  });
+});
+
+async function enterUnlockPassword(user: ReturnType<typeof userEvent.setup>) {
+  const field = screen.getByLabelText("Master password");
+  await user.type(field, "correct horse battery staple");
+  await user.type(field, "{Enter}");
+}
+
+describe("an expired file met mid-task", () => {
+  const envFile: ipc.OpenedFile = {
+    kind: "env",
+    path: "/code/app/.env.production",
+    variables: [{ key: "API_KEY", masked: "••••••••", empty: false }],
+    duplicateKeys: [],
+    unparseableLines: 0,
+  };
+
+  async function openTheFile(user: ReturnType<typeof userEvent.setup>) {
+    mocked.openFile.mockResolvedValue(envFile);
+    await openApp();
+    await openRepository(user, "app");
+    await user.click(screen.getByRole("button", { name: "Open .env.production" }));
+    await screen.findByText("API_KEY");
+  }
+
+  it("locks rather than stranding the user when the plaintext has expired", async () => {
+    const user = userEvent.setup();
+    await openTheFile(user);
+
+    mocked.reveal.mockRejectedValue({ kind: "notOpen", path: null });
+    await user.click(screen.getByRole("button", { name: "Edit API_KEY" }));
+
+    expect(await screen.findByRole("heading", { name: "Seal is locked" })).toBeInTheDocument();
+    expect(screen.getByText(/pick up where you left off/)).toBeInTheDocument();
+  });
+
+  it("returns to the same file and the same row once unlocked", async () => {
+    const user = userEvent.setup();
+    await openTheFile(user);
+
+    mocked.reveal.mockRejectedValueOnce({ kind: "notOpen", path: null });
+    await user.click(screen.getByRole("button", { name: "Edit API_KEY" }));
+    await screen.findByRole("heading", { name: "Seal is locked" });
+
+    mocked.unlock.mockResolvedValue(undefined);
+    mocked.reveal.mockResolvedValue(new TextEncoder().encode("sk-live"));
+    await enterUnlockPassword(user);
+
+    expect(
+      await screen.findByRole("textbox", { name: "Value for API_KEY" }),
+    ).toHaveValue("sk-live");
+  });
+
+  it("does not resume anything when the lock was the user's own doing", async () => {
+    const user = userEvent.setup();
+    await openTheFile(user);
+
+    await user.click(screen.getByRole("button", { name: "Lock" }));
+    await screen.findByRole("heading", { name: "Seal is locked" });
+
+    mocked.unlock.mockResolvedValue(undefined);
+    await enterUnlockPassword(user);
+
+    expect(
+      await screen.findByRole("heading", { name: "Repositories" }),
+    ).toBeInTheDocument();
   });
 });
 

@@ -746,8 +746,34 @@ fn opening_a_readable_file_leaves_it_readable_on_disk() {
 }
 
 #[test]
-fn saving_a_readable_file_seals_it_and_keeps_the_edit() {
+fn saving_a_readable_file_leaves_it_readable() {
     let mut fixture = plaintext_fixture(&[".env"]);
+    let mut session = unlocked();
+
+    app::open_file(&mut session, &fixture.path, &fixture.state).unwrap();
+    app::save(
+        &mut session,
+        &fixture.path,
+        &[("API_KEY".to_owned(), "sk-live-99".to_owned())],
+        &mut fixture.state,
+    )
+    .unwrap();
+
+    let on_disk = std::fs::read_to_string(&fixture.path).unwrap();
+    assert!(
+        !on_disk.starts_with("-----BEGIN AGE"),
+        "saving must honour the state the user chose, not seal a file they deliberately unsealed"
+    );
+    assert!(on_disk.contains("sk-live-99"), "the edit must reach the file");
+    assert!(
+        on_disk.contains("# Production configuration"),
+        "the rest of the file is preserved exactly"
+    );
+}
+
+#[test]
+fn saving_a_sealed_file_leaves_it_sealed() {
+    let mut fixture = fixture();
     let mut session = unlocked();
 
     app::open_file(&mut session, &fixture.path, &fixture.state).unwrap();
@@ -764,7 +790,7 @@ fn saving_a_readable_file_seals_it_and_keeps_the_edit() {
             seal_engine::operations::classify(&fixture.path).unwrap(),
             seal_engine::format::Classification::Sealed { .. }
         ),
-        "saving a readable file seals it, because the engine writes no plaintext to a managed path"
+        "a sealed file stays sealed across a save"
     );
 
     let mut plaintext = Vec::new();
@@ -774,10 +800,23 @@ fn saving_a_readable_file_seals_it_and_keeps_the_edit() {
         &[SecretString::from(PASSPHRASE.to_owned())],
     )
     .unwrap();
+    assert!(String::from_utf8_lossy(&plaintext).contains("sk-live-99"));
+}
+
+#[test]
+fn writing_plaintext_refuses_a_sealed_file() {
+    let fixture = fixture();
+
+    let error = seal_engine::operations::write_plaintext(&fixture.path, b"OVERWRITTEN=yes\n")
+        .unwrap_err();
+
     assert!(
-        String::from_utf8_lossy(&plaintext).contains("sk-live-99"),
-        "the edit must survive the seal"
+        matches!(error, seal_engine::operations::OperationError::AlreadySealed { .. }),
+        "the plaintext writer must never overwrite a sealed file, whatever the caller believes"
     );
+    let on_disk = std::fs::read_to_string(&fixture.path).unwrap();
+    assert!(on_disk.starts_with("-----BEGIN AGE"));
+    assert!(!on_disk.contains("OVERWRITTEN"));
 }
 
 #[test]

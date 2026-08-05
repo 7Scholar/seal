@@ -123,7 +123,7 @@ describe("editing a file with hundreds of variables", () => {
 
     const reach = await browser.execute(() => {
       const save = [...document.querySelectorAll(".env-editor__actions button")].find(
-        (b) => b.textContent?.trim() === "Save",
+        (b) => b.textContent?.trim().startsWith("Save"),
       ) as HTMLElement | undefined;
       const region = document.querySelector(".env-editor__region") as HTMLElement;
       if (!save) return null;

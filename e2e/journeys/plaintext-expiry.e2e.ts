@@ -178,7 +178,7 @@ describe("stepping away: held plaintext expires on its own", () => {
     }
   });
 
-  it("says plainly that it expired rather than failing silently", async () => {
+  it("locks rather than leaving the user at a dead end, and says why", async () => {
     const toggle = $('button[aria-label="Reveal value for API_KEY"]');
     if ((await toggle.getAttribute("aria-pressed")) === "true") {
       await toggle.click();
@@ -186,14 +186,13 @@ describe("stepping away: held plaintext expires on its own", () => {
     await expect(toggle).toHaveAttribute("aria-pressed", "false");
     await toggle.click();
 
-    const problem = $(".problem");
-    await problem.waitForDisplayed({ timeout: 15000 });
+    await $("h1=Seal is locked").waitForDisplayed({ timeout: 15000 });
 
-    const text = await problem.getText();
-    if (!/expired|no longer open/i.test(text)) {
-      throw new Error(
-        `an expired secret was refused without saying why: "${text}"`,
-      );
+    const status = $('[aria-label="Unlock status"]');
+    await status.waitForDisplayed({ timeout: 10000 });
+    const text = await status.getText();
+    if (!/locked itself|pick up where you left off/i.test(text)) {
+      throw new Error(`the lock arrived without saying why: "${text}"`);
     }
     if (/panicked|unwrap|Err\(|NotOpen/.test(text)) {
       throw new Error(`the explanation is in Seal's vocabulary, not the user's: "${text}"`);
@@ -207,15 +206,23 @@ describe("stepping away: held plaintext expires on its own", () => {
   });
 
   it("lets the user pick straight back up by opening it again", async () => {
-    await openTheRepository();
+    if (await $("h1=Seal is locked").isDisplayed().catch(() => false)) {
+      await enterPassphrase(PASSWORD);
+      await $("h1=Seal is locked").waitForDisplayed({
+        timeout: 30000,
+        reverse: true,
+      });
+    }
+    const reveal = $('button[aria-label="Reveal value for API_KEY"]');
+    await browser.pause(1500);
+    if (!(await reveal.isDisplayed().catch(() => false))) {
+      await openTheRepository();
+      const open = $('button[aria-label="Open .env.production"]');
+      await open.waitForClickable({ timeout: 30000 });
+      await open.click();
+    }
 
-    const open = $('button[aria-label="Open .env.production"]');
-    await open.waitForClickable({ timeout: 30000 });
-    await open.click();
-
-    await $('button[aria-label="Reveal value for API_KEY"]').waitForClickable({
-      timeout: 30000,
-    });
+    await reveal.waitForClickable({ timeout: 30000 });
     await $('button[aria-label="Reveal value for API_KEY"]').click();
     await expect($(".secret-value__text")).toHaveText(SECRET);
   });

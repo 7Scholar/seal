@@ -170,6 +170,22 @@ fn replace_with_sealed(
     Ok(SealOutcome { identity })
 }
 
+pub fn write_plaintext(path: &Path, plaintext: &[u8]) -> Result<Identity, OperationError> {
+    let _lock = FileLock::acquire(path).map_err(OperationError::from_lock)?;
+
+    let mut source = open(path)?;
+    if let Classification::Sealed { .. } = classify_handle(path, &mut source)? {
+        return Err(OperationError::AlreadySealed {
+            path: path.to_path_buf(),
+        });
+    }
+    drop(source);
+
+    Replacement::new(&RealFileSystem::new(), Durability::Full)
+        .run(path, |sink| sink.write_all(plaintext))
+        .map_err(OperationError::from_replace)
+}
+
 pub fn release_to_plaintext(
     path: &Path,
     candidates: &[SecretString],

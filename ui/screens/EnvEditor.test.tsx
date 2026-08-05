@@ -23,6 +23,8 @@ function setup(overrides: Partial<EnvView> = {}) {
   );
   const onSave = vi.fn(async () => {});
   const onSeal = vi.fn();
+  const onUnseal = vi.fn();
+  const onLeave = vi.fn();
   render(
     <EnvEditor
       file={{ ...file, ...overrides }}
@@ -31,9 +33,11 @@ function setup(overrides: Partial<EnvView> = {}) {
       onReveal={onReveal}
       onSave={onSave}
       onSeal={onSeal}
+      onUnseal={onUnseal}
+      onLeave={onLeave}
     />,
   );
-  return { onReveal, onSave, onSeal };
+  return { onReveal, onSave, onSeal, onUnseal, onLeave };
 }
 
 describe("EnvEditor", () => {
@@ -66,7 +70,7 @@ describe("EnvEditor", () => {
     await screen.findByText("sk-live-42");
 
     expect(screen.getByRole("status", { name: "Unsaved changes" })).toHaveTextContent("No unsaved changes");
-    expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Save and seal" })).toBeDisabled();
   });
 
   it("counts only genuinely changed variables as unsaved", async () => {
@@ -89,7 +93,7 @@ describe("EnvEditor", () => {
     const field = await screen.findByRole("textbox", { name: "Value for API_KEY" });
     await user.clear(field);
     await user.type(field, "rotated");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Save and seal" }));
 
     expect(onSave).toHaveBeenCalledWith([["API_KEY", "rotated"]]);
   });
@@ -102,14 +106,14 @@ describe("EnvEditor", () => {
     const field = await screen.findByRole("textbox", { name: "Value for API_KEY" });
     await user.clear(field);
     await user.type(field, "rotated");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Save and seal" }));
 
     expect(await screen.findByText("No unsaved changes")).toBeInTheDocument();
   });
 
   it("cannot save when nothing has changed", () => {
     setup();
-    expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Save and seal" })).toBeDisabled();
   });
 
   it("explains duplicate keys rather than hiding them", () => {
@@ -135,11 +139,11 @@ describe("EnvEditor", () => {
     expect(field).toHaveAttribute("autocomplete", "off");
   });
 
-  it("offers sealing straight from the editor", async () => {
+  it("offers unsealing from the header of a sealed file", async () => {
     const user = userEvent.setup();
-    const { onSeal } = setup();
-    await user.click(screen.getByRole("button", { name: "Seal and close" }));
-    expect(onSeal).toHaveBeenCalledOnce();
+    const { onUnseal } = setup();
+    await user.click(screen.getByRole("button", { name: "Unseal" }));
+    expect(onUnseal).toHaveBeenCalledOnce();
   });
 });
 
@@ -157,19 +161,21 @@ describe("EnvEditor, when saving fails", () => {
         onReveal={vi.fn(async () => encode("postgres://real"))}
         onSave={onSave}
         onSeal={vi.fn()}
+        onUnseal={vi.fn()}
+        onLeave={vi.fn()}
       />,
     );
 
     await user.click(screen.getByRole("button", { name: "Edit API_KEY" }));
     await user.clear(screen.getByLabelText("Value for API_KEY"));
     await user.type(screen.getByLabelText("Value for API_KEY"), "rotated");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Save and seal" }));
 
     expect(screen.getByRole("status", { name: "Unsaved changes" })).toHaveTextContent(
       "1 unsaved change",
     );
     expect(screen.getByLabelText("Value for API_KEY")).toHaveValue("rotated");
-    expect(screen.getByRole("button", { name: "Save" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Save and seal" })).toBeEnabled();
   });
 
   it("re-masks a revealed value when Seal stops holding the plaintext", async () => {
@@ -182,6 +188,8 @@ describe("EnvEditor, when saving fails", () => {
       onReveal,
       onSave: vi.fn(async () => {}),
       onSeal: vi.fn(),
+      onUnseal: vi.fn(),
+      onLeave: vi.fn(),
     };
 
     const { rerender } = render(<EnvEditor {...props} expired={false} />);
@@ -204,6 +212,8 @@ describe("EnvEditor, when saving fails", () => {
       onReveal,
       onSave: vi.fn(async () => {}),
       onSeal: vi.fn(),
+      onUnseal: vi.fn(),
+      onLeave: vi.fn(),
     };
 
     const { rerender } = render(<EnvEditor {...props} expired={false} />);
@@ -225,11 +235,150 @@ describe("EnvEditor, when saving fails", () => {
       onReveal: vi.fn(async () => encode("sk-live-42")),
       onSave: vi.fn(async () => {}),
       onSeal: vi.fn(),
+      onUnseal: vi.fn(),
+      onLeave: vi.fn(),
     };
 
     const { rerender } = render(<EnvEditor {...props} expired={false} />);
     rerender(<EnvEditor {...props} expired={true} />);
 
     expect(screen.queryByText(/stopped holding this file/i)).not.toBeInTheDocument();
+  });
+});
+
+describe("EnvEditor's footer", () => {
+  it("offers exactly Cancel and Save, and nothing else", () => {
+    setup();
+    const footer = document.querySelector(".env-editor__actions")!;
+    const labels = [...footer.querySelectorAll("button")].map((b) => b.textContent);
+    expect(labels).toEqual(["Cancel", "Save and seal"]);
+  });
+
+  it("says Save and seal on a sealed file, and Save on a readable one", () => {
+    const props = {
+      file,
+      relativePath: ".env.production",
+      onReveal: vi.fn(async () => encode("v")),
+      onSave: vi.fn(async () => {}),
+      onSeal: vi.fn(),
+      onUnseal: vi.fn(),
+      onLeave: vi.fn(),
+    };
+    const { rerender } = render(<EnvEditor {...props} state="sealed" />);
+    expect(screen.getByRole("button", { name: "Save and seal" })).toBeInTheDocument();
+
+    rerender(<EnvEditor {...props} state="plaintext" />);
+    expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Save and seal" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("keeps Cancel enabled even with nothing to discard", () => {
+    setup();
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Save and seal" })).toBeDisabled();
+  });
+
+  it("leaves immediately on Cancel when nothing has changed", async () => {
+    const user = userEvent.setup();
+    const { onLeave } = setup();
+
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
+
+    expect(onLeave).toHaveBeenCalledOnce();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("asks before discarding pending changes, and leaves only on confirming", async () => {
+    const user = userEvent.setup();
+    const { onLeave } = setup();
+
+    await user.click(screen.getByRole("button", { name: "Edit API_KEY" }));
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
+
+    expect(onLeave).not.toHaveBeenCalled();
+    const dialog = screen.getByRole("dialog");
+    expect(dialog).toHaveTextContent("Discard your changes?");
+
+    await user.click(screen.getByRole("button", { name: "Discard them" }));
+    expect(onLeave).toHaveBeenCalledOnce();
+  });
+
+  it("keeps the edits when the discard is declined", async () => {
+    const user = userEvent.setup();
+    const { onLeave } = setup();
+
+    await user.click(screen.getByRole("button", { name: "Edit API_KEY" }));
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    await user.click(screen.getByRole("button", { name: "Keep editing" }));
+
+    expect(onLeave).not.toHaveBeenCalled();
+    expect(screen.getByText("1 unsaved change")).toBeInTheDocument();
+  });
+});
+
+describe("EnvEditor resuming after a re-lock", () => {
+  it("reopens the row the user had been editing", async () => {
+    const onReveal = vi.fn(async () => encode("sk-live-42"));
+    render(
+      <EnvEditor
+        file={file}
+        relativePath=".env.production"
+        state="sealed"
+        resumeEditing="API_KEY"
+        onReveal={onReveal}
+        onSave={vi.fn(async () => {})}
+        onSeal={vi.fn()}
+        onUnseal={vi.fn()}
+        onLeave={vi.fn()}
+      />,
+    );
+
+    expect(
+      await screen.findByRole("textbox", { name: "Value for API_KEY" }),
+    ).toHaveValue("sk-live-42");
+    expect(onReveal).toHaveBeenCalledWith("API_KEY");
+  });
+
+  it("resumes nothing when no row was being edited", () => {
+    const onReveal = vi.fn(async () => encode("sk-live-42"));
+    render(
+      <EnvEditor
+        file={file}
+        relativePath=".env.production"
+        state="sealed"
+        resumeEditing={null}
+        onReveal={onReveal}
+        onSave={vi.fn(async () => {})}
+        onSeal={vi.fn()}
+        onUnseal={vi.fn()}
+        onLeave={vi.fn()}
+      />,
+    );
+
+    expect(onReveal).not.toHaveBeenCalled();
+    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+  });
+
+  it("survives a resume naming a variable the file no longer has", () => {
+    const onResumed = vi.fn();
+    render(
+      <EnvEditor
+        file={file}
+        relativePath=".env.production"
+        state="sealed"
+        resumeEditing="GONE_AWAY"
+        onReveal={vi.fn(async () => encode("x"))}
+        onSave={vi.fn(async () => {})}
+        onSeal={vi.fn()}
+        onUnseal={vi.fn()}
+        onLeave={vi.fn()}
+        onResumed={onResumed}
+      />,
+    );
+
+    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    expect(onResumed).toHaveBeenCalledOnce();
   });
 });

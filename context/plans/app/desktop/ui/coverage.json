@@ -31,7 +31,7 @@
     "ui/screens/Unlock.test.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "ui/screens/Unlock.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "ui/screens/sandShield.ts": "423b3896f02fede5de3cd42015098a16fc28fc6a",
-    "ui/styles.css": "e99a7fbf6cdab4293dd0b99987e286104451408d",
+    "ui/styles.css": "d220645b6a3aa6e0f4ca9b707477832e65ceb9a0",
     "ui/test-setup.ts": "2b72f4a1974077a8a59db94f8a5910edade8369b"
   },
   "shell-layout.md": {
@@ -43,10 +43,10 @@
     "ui/components/Toggletip.tsx": "664ae562a15034f173ad013318a5c2221c24c63c",
     "ui/screens/RepoDetail.test.tsx": "9eda9f1877c9b740336e710d7292b981d3fe661b",
     "ui/screens/RepoDetail.tsx": "a74340e1cb980f392bd8dbba828ab9ab43f7f1fa",
-    "ui/styles.css": "e99a7fbf6cdab4293dd0b99987e286104451408d"
+    "ui/styles.css": "d220645b6a3aa6e0f4ca9b707477832e65ceb9a0"
   },
   "shell.md": {
-    "package.json": "e99a7fbf6cdab4293dd0b99987e286104451408d",
+    "package.json": "d220645b6a3aa6e0f4ca9b707477832e65ceb9a0",
     "tsconfig.json": "1c1500f0dcd0679debced048c43e570e85081a3b",
     "ui/index.html": "1c1500f0dcd0679debced048c43e570e85081a3b",
     "ui/ipc.ts": "d94b0fe6754a2d59df78858772e4dddf19c81cad",

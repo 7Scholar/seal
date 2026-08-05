@@ -19,12 +19,13 @@
   },
   "site.md": {
     ".github/workflows/site.yml": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e",
+    "package.json": "d220645b6a3aa6e0f4ca9b707477832e65ceb9a0",
     "scripts/check-links.ts": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e",
     "scripts/check-site-claims.ts": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
     "site/astro.config.mjs": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
     "site/bun.lock": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
     "site/package.json": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
-    "site/public/favicon.svg": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e",
+    "site/public/favicon.svg": "d220645b6a3aa6e0f4ca9b707477832e65ceb9a0",
     "site/src/components/Repo.astro": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
     "site/src/content/config.ts": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
     "site/src/content/docs/get-started/first-sealed-file.md": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
@@ -37,10 +38,11 @@
     "site/src/content/docs/reference/security.mdx": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
     "site/src/content/docs/understand/how-it-works.md": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
     "site/src/content/docs/understand/limits.md": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
-    "site/src/styles/seal.css": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962"
+    "site/src/styles/seal.css": "d220645b6a3aa6e0f4ca9b707477832e65ceb9a0"
   },
   "tooling.md": {
-    "package.json": "e99a7fbf6cdab4293dd0b99987e286104451408d",
+    "package.json": "d220645b6a3aa6e0f4ca9b707477832e65ceb9a0",
+    "scripts/render-brand.sh": "d220645b6a3aa6e0f4ca9b707477832e65ceb9a0",
     "scripts/update-local.sh": "fc48741e20953ee3d195f734bdc5e6b65e1602ab"
   }
 }

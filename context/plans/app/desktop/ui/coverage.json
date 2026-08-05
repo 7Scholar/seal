@@ -30,8 +30,8 @@
     "ui/screens/ManageFlow.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
     "ui/screens/Unlock.test.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "ui/screens/Unlock.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e",
-    "ui/screens/sandShield.ts": "423b3896f02fede5de3cd42015098a16fc28fc6a",
-    "ui/styles.css": "37ed805072fcc406b92464aef3a3dd45f8a314a5",
+    "ui/screens/sandShield.ts": "0638f113171543216eb41a881576a7284247e7a9",
+    "ui/styles.css": "0638f113171543216eb41a881576a7284247e7a9",
     "ui/test-setup.ts": "2b72f4a1974077a8a59db94f8a5910edade8369b"
   },
   "shell-layout.md": {
@@ -43,7 +43,7 @@
     "ui/components/Toggletip.tsx": "37ed805072fcc406b92464aef3a3dd45f8a314a5",
     "ui/screens/RepoDetail.test.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
     "ui/screens/RepoDetail.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
-    "ui/styles.css": "37ed805072fcc406b92464aef3a3dd45f8a314a5"
+    "ui/styles.css": "0638f113171543216eb41a881576a7284247e7a9"
   },
   "shell.md": {
     "package.json": "d220645b6a3aa6e0f4ca9b707477832e65ceb9a0",

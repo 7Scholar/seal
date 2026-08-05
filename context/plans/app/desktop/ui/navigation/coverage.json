@@ -18,7 +18,7 @@
     "ui/App.tsx": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
     "ui/screens/RepoDetail.test.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
     "ui/screens/RepoDetail.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
-    "ui/styles.css": "37ed805072fcc406b92464aef3a3dd45f8a314a5"
+    "ui/styles.css": "0638f113171543216eb41a881576a7284247e7a9"
   },
   "freshness.md": {
     "crates/seal-session/src/lib.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
@@ -34,18 +34,18 @@
     "ui/components/FileTree.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
     "ui/screens/ManageFlow.test.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
     "ui/screens/ManageFlow.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
-    "ui/styles.css": "37ed805072fcc406b92464aef3a3dd45f8a314a5"
+    "ui/styles.css": "0638f113171543216eb41a881576a7284247e7a9"
   },
   "palette.md": {
-    "ui/styles.css": "37ed805072fcc406b92464aef3a3dd45f8a314a5"
+    "ui/styles.css": "0638f113171543216eb41a881576a7284247e7a9"
   },
   "repositories.md": {
     "ui/screens/Repositories.test.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
     "ui/screens/Repositories.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
-    "ui/styles.css": "37ed805072fcc406b92464aef3a3dd45f8a314a5"
+    "ui/styles.css": "0638f113171543216eb41a881576a7284247e7a9"
   },
   "shape.md": {
-    "ui/styles.css": "37ed805072fcc406b92464aef3a3dd45f8a314a5"
+    "ui/styles.css": "0638f113171543216eb41a881576a7284247e7a9"
   },
   "theme.md": {
     "src-tauri/src/commands.rs": "d1d3a678c02530f74c4845022358fa06066f9d35",

@@ -45,7 +45,7 @@ Two bounds on it. The resume is recorded only for a lock the *application* impos
 
 ## The notices
 
-The duplicate-key and unparseable-line notices stay. They are statements of fact about the file that affect what saving will do, which makes them state rather than the disallowed explanatory prose — the rule permits neither more nor less than that.
+The duplicate-key notice stays. The unparseable-line notice is **retired**: those lines are now editable rows that [editing/surface.md](editing/surface.md) owns, and a count of things the user can see and act on is noise. It is a statement of fact about the file that affects what saving will do, which makes it state rather than the disallowed explanatory prose — the rule permits neither more nor less than that.
 
 ## A non-env file
 

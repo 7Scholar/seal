@@ -17,7 +17,7 @@
     "src-tauri/src/app.rs": "1fd42d7388f8ab76706adbdf45c80da321ec996e",
     "src-tauri/src/commands.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "src-tauri/tests/first_open.rs": "a0b3f33bc64a56a499060d82bb90794330e3227e",
-    "ui/App.tsx": "d14f1fa6c6e33529d0d098de586751ab686385f8",
+    "ui/App.tsx": "130d9ebbc85cbd98744706b1fa601c4fed470b49",
     "ui/ipc.ts": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "ui/screens/Unlock.test.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "ui/screens/Unlock.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e"
@@ -38,7 +38,7 @@
     "e2e/journeys/return-and-use.e2e.ts": "70f8ce6ebe6a7977a47f1a6e8f98b2c42d00d7e8",
     "e2e/journeys/settling-in.e2e.ts": "74e74580318ac479852ba0c52f563e656df63e0b",
     "e2e/journeys/typing.ts": "70f8ce6ebe6a7977a47f1a6e8f98b2c42d00d7e8",
-    "e2e/journeys/window-frame.e2e.ts": "8b079b85339621deaa93c046211fdefb6ddd2ced",
+    "e2e/journeys/window-frame.e2e.ts": "130d9ebbc85cbd98744706b1fa601c4fed470b49",
     "e2e/launch-fresh.sh": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "e2e/wdio.badday.conf.ts": "7485774b93d3cce60eec09b5ae3099840ebcbd6f",
     "e2e/wdio.conf.ts": "5319e50a1dbdb9802cc1812b494317ba57aab09c",

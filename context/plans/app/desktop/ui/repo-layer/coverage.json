@@ -5,13 +5,13 @@
     "ui/components/FileTree.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
     "ui/screens/ManageFlow.test.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
     "ui/screens/ManageFlow.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
-    "ui/styles.css": "d220645b6a3aa6e0f4ca9b707477832e65ceb9a0"
+    "ui/styles.css": "130d9ebbc85cbd98744706b1fa601c4fed470b49"
   },
   "managed-view.md": {
-    "ui/App.test.tsx": "0a889627cddcbb68656e78d4bb8cf079bd9ecb4b",
+    "ui/App.test.tsx": "130d9ebbc85cbd98744706b1fa601c4fed470b49",
     "ui/screens/RepoDetail.test.tsx": "9eda9f1877c9b740336e710d7292b981d3fe661b",
     "ui/screens/RepoDetail.tsx": "a74340e1cb980f392bd8dbba828ab9ab43f7f1fa",
-    "ui/styles.css": "d220645b6a3aa6e0f4ca9b707477832e65ceb9a0"
+    "ui/styles.css": "130d9ebbc85cbd98744706b1fa601c4fed470b49"
   },
   "scan-shape.md": {
     "crates/seal-registry/src/scan.rs": "8b079b85339621deaa93c046211fdefb6ddd2ced",
@@ -27,10 +27,10 @@
     "src-tauri/src/lib.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "src-tauri/src/lifecycle.rs": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e",
     "src-tauri/tests/lifecycle.rs": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e",
-    "ui/App.tsx": "d14f1fa6c6e33529d0d098de586751ab686385f8",
+    "ui/App.tsx": "130d9ebbc85cbd98744706b1fa601c4fed470b49",
     "ui/ipc.ts": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "ui/screens/ManageFlow.test.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
     "ui/screens/ManageFlow.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
-    "ui/styles.css": "d220645b6a3aa6e0f4ca9b707477832e65ceb9a0"
+    "ui/styles.css": "130d9ebbc85cbd98744706b1fa601c4fed470b49"
   }
 }

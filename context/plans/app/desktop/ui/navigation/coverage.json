@@ -1,12 +1,12 @@
 {
   "breadcrumbs.md": {
-    "ui/App.test.tsx": "0a889627cddcbb68656e78d4bb8cf079bd9ecb4b",
-    "ui/App.tsx": "d14f1fa6c6e33529d0d098de586751ab686385f8",
+    "ui/App.test.tsx": "130d9ebbc85cbd98744706b1fa601c4fed470b49",
+    "ui/App.tsx": "130d9ebbc85cbd98744706b1fa601c4fed470b49",
     "ui/components/Breadcrumbs.tsx": "d14f1fa6c6e33529d0d098de586751ab686385f8",
     "ui/components/Switcher.tsx": "664ae562a15034f173ad013318a5c2221c24c63c"
   },
   "disclosure-primitive.md": {
-    "ui/components/useDisclosure.test.tsx": "664ae562a15034f173ad013318a5c2221c24c63c",
+    "ui/components/useDisclosure.test.tsx": "130d9ebbc85cbd98744706b1fa601c4fed470b49",
     "ui/components/useDisclosure.ts": "664ae562a15034f173ad013318a5c2221c24c63c"
   },
   "file.md": {
@@ -15,48 +15,48 @@
     "ui/screens/FileStates.tsx": "13c2312a097a3c3fce76e9676cf063134413dd0e"
   },
   "files.md": {
-    "ui/App.tsx": "d14f1fa6c6e33529d0d098de586751ab686385f8",
+    "ui/App.tsx": "130d9ebbc85cbd98744706b1fa601c4fed470b49",
     "ui/screens/RepoDetail.test.tsx": "9eda9f1877c9b740336e710d7292b981d3fe661b",
     "ui/screens/RepoDetail.tsx": "a74340e1cb980f392bd8dbba828ab9ab43f7f1fa",
-    "ui/styles.css": "d220645b6a3aa6e0f4ca9b707477832e65ceb9a0"
+    "ui/styles.css": "130d9ebbc85cbd98744706b1fa601c4fed470b49"
   },
   "freshness.md": {
     "crates/seal-session/src/lib.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "src-tauri/src/commands.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "src-tauri/src/view.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
-    "ui/App.tsx": "d14f1fa6c6e33529d0d098de586751ab686385f8",
+    "ui/App.tsx": "130d9ebbc85cbd98744706b1fa601c4fed470b49",
     "ui/ipc.ts": "d94b0fe6754a2d59df78858772e4dddf19c81cad"
   },
   "icons.md": {
-    "ui/components/Icon.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db"
+    "ui/components/Icon.tsx": "130d9ebbc85cbd98744706b1fa601c4fed470b49"
   },
   "manage-surface.md": {
     "ui/components/FileTree.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
     "ui/screens/ManageFlow.test.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
     "ui/screens/ManageFlow.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
-    "ui/styles.css": "d220645b6a3aa6e0f4ca9b707477832e65ceb9a0"
+    "ui/styles.css": "130d9ebbc85cbd98744706b1fa601c4fed470b49"
   },
   "palette.md": {
-    "ui/styles.css": "d220645b6a3aa6e0f4ca9b707477832e65ceb9a0"
+    "ui/styles.css": "130d9ebbc85cbd98744706b1fa601c4fed470b49"
   },
   "repositories.md": {
     "ui/screens/Repositories.test.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
     "ui/screens/Repositories.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db"
   },
   "shape.md": {
-    "ui/styles.css": "d220645b6a3aa6e0f4ca9b707477832e65ceb9a0"
+    "ui/styles.css": "130d9ebbc85cbd98744706b1fa601c4fed470b49"
   },
   "theme.md": {
     "src-tauri/src/commands.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "src-tauri/src/lib.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "src-tauri/src/theme.rs": "6af8515a56ce649aaf6c17568ae434baa072681d",
     "src-tauri/tests/theme.rs": "6af8515a56ce649aaf6c17568ae434baa072681d",
-    "ui/components/ThemeControl.tsx": "664ae562a15034f173ad013318a5c2221c24c63c",
+    "ui/components/ThemeControl.tsx": "130d9ebbc85cbd98744706b1fa601c4fed470b49",
     "ui/ipc.ts": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "ui/theme.ts": "6af8515a56ce649aaf6c17568ae434baa072681d"
   },
   "title-bar.md": {
-    "e2e/journeys/title-bar.e2e.ts": "70f8ce6ebe6a7977a47f1a6e8f98b2c42d00d7e8",
+    "e2e/journeys/title-bar.e2e.ts": "130d9ebbc85cbd98744706b1fa601c4fed470b49",
     "src-tauri/src/titlebar.rs": "981d264f9de89b97984ac971d202de900a99bb5f"
   }
 }

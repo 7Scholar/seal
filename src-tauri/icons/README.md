@@ -1,1 +1,3 @@
-The seal mark on the application's tile, rendered from `site/public/favicon.svg` by `bun run brand:icons`. Regenerate rather than editing these by hand.
+The seal mark on the application's tile, rendered from `icon.svg` by `bun run brand:icons`. Regenerate rather than editing these by hand.
+
+`icon.svg` carries the opaque rounded tile the desktop icon needs, because a dock and a window icon are composited against whatever is behind them and a bare silhouette reads as broken there. The site's `site/public/favicon.svg` draws the same mark **without** the tile, since a browser tab supplies its own background and the tile becomes a dark square sitting in it. The two files are deliberately separate for that reason; a change to the mark belongs in both.

@@ -14,29 +14,22 @@ hero:
       variant: minimal
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { CardGrid } from '@astrojs/starlight/components';
+import LinkTile from '../../components/LinkTile.astro';
 
 <CardGrid>
-  <Card title="Install" icon="rocket">
+  <LinkTile title="Install" icon="rocket" href="/seal/get-started/install/" cta="Get started with installing">
     One command for the command-line tool. The application builds from source.
-
-    [Install Seal](/seal/get-started/install/)
-  </Card>
-  <Card title="How it works" icon="approve-check">
+  </LinkTile>
+  <LinkTile title="How it works" icon="approve-check" href="/seal/understand/how-it-works/" cta="Get started with the design">
     A sealed file is a standard age file. If Seal disappeared, your files still open.
-
-    [How it works](/seal/understand/how-it-works/)
-  </Card>
-  <Card title="What Seal does not protect" icon="warning">
+  </LinkTile>
+  <LinkTile title="What Seal does not protect" icon="warning" href="/seal/understand/limits/" cta="Get started with the limits">
     The threat model in full, including the two things it can never do.
-
-    [Read the limits](/seal/understand/limits/)
-  </Card>
-  <Card title="Contribute" icon="pencil">
+  </LinkTile>
+  <LinkTile title="Contribute" icon="pencil" href="/seal/reference/contributing/" cta="Get started with contributing">
     Plan-driven, with every design decision written down.
-
-    [Contributing](/seal/reference/contributing/)
-  </Card>
+  </LinkTile>
 </CardGrid>
 
 ## From nothing to a sealed secret

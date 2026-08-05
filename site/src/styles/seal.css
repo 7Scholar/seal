@@ -82,8 +82,12 @@
   padding-inline: 0.5rem;
 }
 
-/* The prose column holds its measure regardless of viewport width. */
-.sl-markdown-content {
+/* The prose column holds its measure regardless of viewport width. The measure
+   is a reading constraint on the documentation body, so the landing page — which
+   Starlight marks with `data-has-hero` and lays out in a container twice as wide
+   — is exempt: clamping it there strands the whole page against the left edge of
+   a container that is itself centred. */
+:root:not([data-has-hero]) .sl-markdown-content {
   max-width: 68ch;
 }
 
@@ -220,14 +224,38 @@ starlight-tabs,
 
 /* ---------- landing page ---------- */
 
-/* Starlight's hero pads for an image this page does not carry, which leaves a
-   gap between the tagline and the cards that reads as a missing element. */
+/* The landing page has no hero image, and Starlight's hero reserves a `7fr 4fr`
+   grid for one anyway — so the copy is confined to the left 63% of a container
+   that is itself centred, which reads as the whole page being pushed left. With
+   the image column dropped the hero spans its container like every other block
+   on the page, and the copy centres within it. */
 .hero {
+  grid-template-columns: 1fr;
   padding-block: 3.5rem 2.5rem;
 }
 
+.hero .stack {
+  text-align: center;
+}
+
+.hero .copy {
+  align-items: center;
+}
+
+.hero .actions {
+  justify-content: center;
+}
+
 .hero .tagline {
-  max-width: 46ch;
+  max-width: 52ch;
+}
+
+/* The landing column is narrower than the container Starlight gives a hero page,
+   because 67.5rem of cards and prose is wider than anything on the page wants to
+   be. Centring it is what puts the page in the middle rather than at the edge. */
+:root[data-has-hero] .sl-container {
+  max-width: 60rem;
+  margin-inline: auto;
 }
 
 /* ---------- landing cards ---------- */
@@ -241,12 +269,19 @@ starlight-tabs,
    puts amber, green and red on a page whose colours are the application's.
    Both tokens resolve to the palette so every card icon reads the same. */
 .card-grid .card .icon,
-.card .icon {
+.card .icon,
+.tile__icon {
   border: 1px solid var(--sl-color-hairline);
   background-color: var(--sl-color-gray-6);
   border-radius: var(--seal-radius-control);
   color: var(--sl-color-text-accent);
   padding: 0.3rem;
+}
+
+/* The grid's own children are laid out by Starlight; a tile is an anchor rather
+   than an article, so it needs the same stretch to keep a row's tiles equal. */
+.card-grid > .tile {
+  height: 100%;
 }
 
 .card .title {

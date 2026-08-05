@@ -51,6 +51,27 @@ Menu items (labels + descriptions lifted verbatim from the locale table in the b
 
 Note the URL is built from `window.location.href` with `hash` cleared, then `.md` appended.
 
+### Menu item anatomy — the icon is framed, and it is the real mark
+
+Read off the open menu rather than the bundle, because the framing is invisible in the markup's class names alone. Each item is `flex items-start`, `px-1.5 py-1.5`, `gap-1`, `rounded-xl`, 48px tall, with a 14px title over a smaller muted description.
+
+The icon is **not a bare glyph**. It sits in its own box — `border`, `rounded-md`, `p-1.5`, measuring **30×30 with a 1px hairline and a 6px radius**, holding a **16px** glyph centred in it. That frame is what makes the icons read as deliberate rather than as loose marks beside text.
+
+The glyphs themselves are **the real marks, not generic stand-ins**: *View as Markdown* is the **Markdown badge** (rounded rect enclosing `M` + a down arrow), and *Open in Claude* is the **Anthropic logo** (`viewBox="0 0 256 257"`, `<title>Anthropic</title>`, a filled burst) rather than a document page and a speech bubble. Items that open a new tab carry a small **↗ external-link arrow after the label**.
+
+The panel around them: `p-1`, `rounded-2xl`, 1px hairline, min-width tracking the trigger, items separated only by their own hover fill.
+
+### Landing tiles — the whole tile is the link
+
+The four tiles on `/docs` are the reference for a card grid. Each is `rounded-2xl` with a **1px border at 10% white**, no shadow and no background change; the entire tile is wrapped in an `<a>` with `display: contents`, so **the whole surface is clickable**, not just a link inside it.
+
+The state change on hover is two things at once, and only these two:
+
+- the tile's **border becomes the primary accent** (`hover:border-primary`), and
+- a footer line reading **"Get started with `<thing>`"** followed by a **→ arrow** changes from muted gray to **that same accent**, driven by `group-hover` on the tile rather than by hovering the line itself.
+
+The background stays put. The CTA line sits below the description with a real gap (`mt-8`), which is what gives the tile its weight.
+
 ### The `.md` endpoint — the load-bearing primitive
 
 `GET https://bun.com/docs/runtime/typescript.md` → **`content-type: text/markdown; charset=utf-8`**. Body is frontmatter-ish: an H1, a `>` blockquote description, then the source Markdown with fences. Prepended is a pointer block:

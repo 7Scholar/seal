@@ -1,0 +1,111 @@
+---
+import { Icon } from "@astrojs/starlight/components";
+
+interface Props {
+  icon?: string;
+  title: string;
+  href: string;
+  cta: string;
+}
+
+const { icon, title, href, cta } = Astro.props;
+---
+
+<a class="tile" href={href}>
+  <span class="tile__title">
+    {icon && <Icon name={icon} class="tile__icon" size="1.333em" />}
+    <span set:html={title} />
+  </span>
+
+  <span class="tile__body"><slot /></span>
+
+  <span class="tile__cta">
+    <span>{cta}</span>
+    <svg
+      viewBox="0 0 18 18"
+      width="16"
+      height="16"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M3.75 9h10.5"></path>
+      <path d="M9.75 4.5 14.25 9l-4.5 4.5"></path>
+    </svg>
+  </span>
+</a>
+
+<style>
+  .tile {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.5rem, calc(0.125rem + 1vw), 1rem);
+    padding: clamp(1rem, calc(0.125rem + 3vw), 2.5rem);
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: var(--seal-radius-container);
+    background: var(--sl-color-bg-nav);
+    color: inherit;
+    text-decoration: none;
+    transition:
+      border-color 150ms ease,
+      color 150ms ease;
+  }
+
+  /* The whole tile is the link, so its hover state is the border and the call to
+     action together — the same two-part change the reference makes, and the
+     reason the call to action is inside the anchor rather than beside it. */
+  .tile:hover {
+    border-color: var(--sl-color-text-accent);
+  }
+
+  .tile:focus-visible {
+    outline: var(--seal-focus-width) solid var(--seal-focus-color);
+    outline-offset: var(--seal-focus-offset);
+  }
+
+  .tile__title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--sl-color-white);
+    font-size: var(--sl-text-h4);
+    font-weight: 600;
+    line-height: var(--sl-line-height-headings);
+  }
+
+  .tile__body {
+    color: var(--sl-color-gray-2);
+    font-size: clamp(var(--sl-text-sm), calc(0.5rem + 1vw), var(--sl-text-body));
+    line-height: 1.6;
+  }
+
+  /* Pushed to the tile's foot so every tile's call to action lines up whatever
+     the description's length. */
+  .tile__cta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-block-start: auto;
+    padding-block-start: 1.25rem;
+    color: var(--sl-color-gray-3);
+    font-size: var(--sl-text-sm);
+    font-weight: 500;
+    transition: color 150ms ease;
+  }
+
+  .tile:hover .tile__cta {
+    color: var(--sl-color-text-accent);
+  }
+
+  .tile__cta svg {
+    flex-shrink: 0;
+    transition: transform 150ms ease;
+  }
+
+  .tile:hover .tile__cta svg {
+    transform: translateX(2px);
+  }
+</style>

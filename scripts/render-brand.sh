@@ -2,7 +2,7 @@
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-source_svg="$root/site/public/favicon.svg"
+source_svg="$root/src-tauri/icons/icon.svg"
 icons="$root/src-tauri/icons"
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT

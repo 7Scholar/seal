@@ -13,7 +13,7 @@
   },
   "operations.md": {
     "crates/seal-engine/src/lock.rs": "a74340e1cb980f392bd8dbba828ab9ab43f7f1fa",
-    "crates/seal-engine/src/operations.rs": "37ed805072fcc406b92464aef3a3dd45f8a314a5",
+    "crates/seal-engine/src/operations.rs": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
     "crates/seal-engine/src/reseal.rs": "3f4593bf0131ac12d0b822da2dda97d4f845d6aa",
     "crates/seal-engine/tests/lock.rs": "a74340e1cb980f392bd8dbba828ab9ab43f7f1fa",
     "crates/seal-engine/tests/operations.rs": "e7416b33171725ff63cf9d0f7f89f7d821417339",

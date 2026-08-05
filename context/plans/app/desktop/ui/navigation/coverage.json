@@ -1,7 +1,7 @@
 {
   "breadcrumbs.md": {
-    "ui/App.test.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
-    "ui/App.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
+    "ui/App.test.tsx": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
+    "ui/App.tsx": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
     "ui/components/Breadcrumbs.tsx": "d14f1fa6c6e33529d0d098de586751ab686385f8",
     "ui/components/Switcher.tsx": "664ae562a15034f173ad013318a5c2221c24c63c"
   },
@@ -10,12 +10,12 @@
     "ui/components/useDisclosure.ts": "664ae562a15034f173ad013318a5c2221c24c63c"
   },
   "file.md": {
-    "ui/screens/EnvEditor.test.tsx": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
-    "ui/screens/EnvEditor.tsx": "37ed805072fcc406b92464aef3a3dd45f8a314a5",
+    "ui/screens/EnvEditor.test.tsx": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
+    "ui/screens/EnvEditor.tsx": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
     "ui/screens/FileStates.tsx": "13c2312a097a3c3fce76e9676cf063134413dd0e"
   },
   "files.md": {
-    "ui/App.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
+    "ui/App.tsx": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
     "ui/screens/RepoDetail.test.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
     "ui/screens/RepoDetail.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
     "ui/styles.css": "37ed805072fcc406b92464aef3a3dd45f8a314a5"
@@ -24,7 +24,7 @@
     "crates/seal-session/src/lib.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "src-tauri/src/commands.rs": "d1d3a678c02530f74c4845022358fa06066f9d35",
     "src-tauri/src/view.rs": "d1d3a678c02530f74c4845022358fa06066f9d35",
-    "ui/App.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
+    "ui/App.tsx": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
     "ui/ipc.ts": "d1d3a678c02530f74c4845022358fa06066f9d35"
   },
   "icons.md": {

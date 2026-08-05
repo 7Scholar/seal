@@ -8,7 +8,7 @@
     "ui/styles.css": "37ed805072fcc406b92464aef3a3dd45f8a314a5"
   },
   "managed-view.md": {
-    "ui/App.test.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
+    "ui/App.test.tsx": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
     "ui/screens/RepoDetail.test.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
     "ui/screens/RepoDetail.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
     "ui/styles.css": "37ed805072fcc406b92464aef3a3dd45f8a314a5"
@@ -27,7 +27,7 @@
     "src-tauri/src/lib.rs": "d1d3a678c02530f74c4845022358fa06066f9d35",
     "src-tauri/src/lifecycle.rs": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e",
     "src-tauri/tests/lifecycle.rs": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e",
-    "ui/App.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
+    "ui/App.tsx": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
     "ui/ipc.ts": "d1d3a678c02530f74c4845022358fa06066f9d35",
     "ui/screens/ManageFlow.test.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
     "ui/screens/ManageFlow.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",

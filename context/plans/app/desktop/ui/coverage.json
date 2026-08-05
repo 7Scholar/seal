@@ -1,6 +1,6 @@
 {
   "errors.md": {
-    "ui/App.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
+    "ui/App.tsx": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
     "ui/components/Problem.test.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "ui/components/Problem.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "ui/errors.test.ts": "a0b3f33bc64a56a499060d82bb90794330e3227e",
@@ -13,7 +13,7 @@
     "ui/screens/PasswordChange.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e"
   },
   "screens.md": {
-    "ui/App.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
+    "ui/App.tsx": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
     "ui/components/Confirm.test.tsx": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b",
     "ui/components/Confirm.tsx": "37ed805072fcc406b92464aef3a3dd45f8a314a5",
     "ui/components/ExposureAlert.test.tsx": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b",
@@ -24,8 +24,8 @@
     "ui/format.ts": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b",
     "ui/screens/Acknowledge.test.tsx": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b",
     "ui/screens/Acknowledge.tsx": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b",
-    "ui/screens/EnvEditor.test.tsx": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
-    "ui/screens/EnvEditor.tsx": "37ed805072fcc406b92464aef3a3dd45f8a314a5",
+    "ui/screens/EnvEditor.test.tsx": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
+    "ui/screens/EnvEditor.tsx": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
     "ui/screens/ManageFlow.test.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
     "ui/screens/ManageFlow.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
     "ui/screens/Unlock.test.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e",
@@ -36,8 +36,8 @@
   },
   "shell-layout.md": {
     "e2e/journeys/first-run.e2e.ts": "d14f1fa6c6e33529d0d098de586751ab686385f8",
-    "ui/App.test.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
-    "ui/App.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
+    "ui/App.test.tsx": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
+    "ui/App.tsx": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
     "ui/components/Overflow.tsx": "664ae562a15034f173ad013318a5c2221c24c63c",
     "ui/components/Toggletip.test.tsx": "db87c4406dff9b30e905080324f0986b2ec4b576",
     "ui/components/Toggletip.tsx": "37ed805072fcc406b92464aef3a3dd45f8a314a5",

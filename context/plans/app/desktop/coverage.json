@@ -1,24 +1,24 @@
 {
   "commands.md": {
-    "src-tauri/src/app.rs": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
-    "src-tauri/src/commands.rs": "d1d3a678c02530f74c4845022358fa06066f9d35",
-    "src-tauri/src/error.rs": "a0b3f33bc64a56a499060d82bb90794330e3227e",
+    "src-tauri/src/app.rs": "75494f05c58e8772206909b06c3b1878b0d69088",
+    "src-tauri/src/commands.rs": "75494f05c58e8772206909b06c3b1878b0d69088",
+    "src-tauri/src/error.rs": "75494f05c58e8772206909b06c3b1878b0d69088",
     "src-tauri/src/lib.rs": "d1d3a678c02530f74c4845022358fa06066f9d35",
-    "src-tauri/src/view.rs": "d1d3a678c02530f74c4845022358fa06066f9d35",
-    "src-tauri/tests/commands.rs": "04ac8eaff0362979edb5b1571753286844debe36",
+    "src-tauri/src/view.rs": "75494f05c58e8772206909b06c3b1878b0d69088",
+    "src-tauri/tests/commands.rs": "75494f05c58e8772206909b06c3b1878b0d69088",
     "src-tauri/tests/lifetime.rs": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e"
   },
   "dotenv.md": {
     "crates/seal-dotenv/Cargo.toml": "c748b3d474ea5a614da765fa854050eb14b5a7b1",
-    "crates/seal-dotenv/src/lib.rs": "c748b3d474ea5a614da765fa854050eb14b5a7b1",
-    "crates/seal-dotenv/tests/roundtrip.rs": "c748b3d474ea5a614da765fa854050eb14b5a7b1"
+    "crates/seal-dotenv/src/lib.rs": "75494f05c58e8772206909b06c3b1878b0d69088",
+    "crates/seal-dotenv/tests/roundtrip.rs": "75494f05c58e8772206909b06c3b1878b0d69088"
   },
   "first-open.md": {
-    "src-tauri/src/app.rs": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
-    "src-tauri/src/commands.rs": "d1d3a678c02530f74c4845022358fa06066f9d35",
+    "src-tauri/src/app.rs": "75494f05c58e8772206909b06c3b1878b0d69088",
+    "src-tauri/src/commands.rs": "75494f05c58e8772206909b06c3b1878b0d69088",
     "src-tauri/tests/first_open.rs": "a0b3f33bc64a56a499060d82bb90794330e3227e",
-    "ui/App.tsx": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
-    "ui/ipc.ts": "d1d3a678c02530f74c4845022358fa06066f9d35",
+    "ui/App.tsx": "75494f05c58e8772206909b06c3b1878b0d69088",
+    "ui/ipc.ts": "75494f05c58e8772206909b06c3b1878b0d69088",
     "ui/screens/Unlock.test.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "ui/screens/Unlock.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e"
   },
@@ -27,6 +27,7 @@
     "e2e/cli/deploy-script.sh": "7a5177e4c2b4394f7c07e9840c96d6b2a8acdf57",
     "e2e/journeys/bad-day.e2e.ts": "7485774b93d3cce60eec09b5ae3099840ebcbd6f",
     "e2e/journeys/deploy-script.e2e.ts": "7a5177e4c2b4394f7c07e9840c96d6b2a8acdf57",
+    "e2e/journeys/editing.e2e.ts": "75494f05c58e8772206909b06c3b1878b0d69088",
     "e2e/journeys/first-run.e2e.ts": "d14f1fa6c6e33529d0d098de586751ab686385f8",
     "e2e/journeys/freshness.e2e.ts": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
     "e2e/journeys/interrupted-rekey.e2e.ts": "3f4593bf0131ac12d0b822da2dda97d4f845d6aa",
@@ -46,6 +47,7 @@
     "e2e/wdio.conf.ts": "5319e50a1dbdb9802cc1812b494317ba57aab09c",
     "e2e/wdio.density.conf.ts": "e99a7fbf6cdab4293dd0b99987e286104451408d",
     "e2e/wdio.deploy.conf.ts": "7a5177e4c2b4394f7c07e9840c96d6b2a8acdf57",
+    "e2e/wdio.editing.conf.ts": "75494f05c58e8772206909b06c3b1878b0d69088",
     "e2e/wdio.expiry.conf.ts": "db24d4cb17eb391ac3e78bd4682655b594ba587b",
     "e2e/wdio.filter.conf.ts": "63f6a1ee6a83e2c1e52259bf9b56b773dc2a189b",
     "e2e/wdio.freshness.conf.ts": "d94b0fe6754a2d59df78858772e4dddf19c81cad",

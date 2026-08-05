@@ -1,7 +1,7 @@
 {
   "breadcrumbs.md": {
-    "ui/App.test.tsx": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
-    "ui/App.tsx": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
+    "ui/App.test.tsx": "75494f05c58e8772206909b06c3b1878b0d69088",
+    "ui/App.tsx": "75494f05c58e8772206909b06c3b1878b0d69088",
     "ui/components/Breadcrumbs.tsx": "d14f1fa6c6e33529d0d098de586751ab686385f8",
     "ui/components/Switcher.tsx": "664ae562a15034f173ad013318a5c2221c24c63c"
   },
@@ -10,22 +10,22 @@
     "ui/components/useDisclosure.ts": "664ae562a15034f173ad013318a5c2221c24c63c"
   },
   "file.md": {
-    "ui/screens/EnvEditor.test.tsx": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
-    "ui/screens/EnvEditor.tsx": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
+    "ui/screens/EnvEditor.test.tsx": "75494f05c58e8772206909b06c3b1878b0d69088",
+    "ui/screens/EnvEditor.tsx": "75494f05c58e8772206909b06c3b1878b0d69088",
     "ui/screens/FileStates.tsx": "13c2312a097a3c3fce76e9676cf063134413dd0e"
   },
   "files.md": {
-    "ui/App.tsx": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
+    "ui/App.tsx": "75494f05c58e8772206909b06c3b1878b0d69088",
     "ui/screens/RepoDetail.test.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
     "ui/screens/RepoDetail.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
-    "ui/styles.css": "0638f113171543216eb41a881576a7284247e7a9"
+    "ui/styles.css": "75494f05c58e8772206909b06c3b1878b0d69088"
   },
   "freshness.md": {
     "crates/seal-session/src/lib.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
-    "src-tauri/src/commands.rs": "d1d3a678c02530f74c4845022358fa06066f9d35",
-    "src-tauri/src/view.rs": "d1d3a678c02530f74c4845022358fa06066f9d35",
-    "ui/App.tsx": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
-    "ui/ipc.ts": "d1d3a678c02530f74c4845022358fa06066f9d35"
+    "src-tauri/src/commands.rs": "75494f05c58e8772206909b06c3b1878b0d69088",
+    "src-tauri/src/view.rs": "75494f05c58e8772206909b06c3b1878b0d69088",
+    "ui/App.tsx": "75494f05c58e8772206909b06c3b1878b0d69088",
+    "ui/ipc.ts": "75494f05c58e8772206909b06c3b1878b0d69088"
   },
   "icons.md": {
     "ui/components/Icon.tsx": "130d9ebbc85cbd98744706b1fa601c4fed470b49"
@@ -34,26 +34,26 @@
     "ui/components/FileTree.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
     "ui/screens/ManageFlow.test.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
     "ui/screens/ManageFlow.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
-    "ui/styles.css": "0638f113171543216eb41a881576a7284247e7a9"
+    "ui/styles.css": "75494f05c58e8772206909b06c3b1878b0d69088"
   },
   "palette.md": {
-    "ui/styles.css": "0638f113171543216eb41a881576a7284247e7a9"
+    "ui/styles.css": "75494f05c58e8772206909b06c3b1878b0d69088"
   },
   "repositories.md": {
     "ui/screens/Repositories.test.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
     "ui/screens/Repositories.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
-    "ui/styles.css": "0638f113171543216eb41a881576a7284247e7a9"
+    "ui/styles.css": "75494f05c58e8772206909b06c3b1878b0d69088"
   },
   "shape.md": {
-    "ui/styles.css": "0638f113171543216eb41a881576a7284247e7a9"
+    "ui/styles.css": "75494f05c58e8772206909b06c3b1878b0d69088"
   },
   "theme.md": {
-    "src-tauri/src/commands.rs": "d1d3a678c02530f74c4845022358fa06066f9d35",
+    "src-tauri/src/commands.rs": "75494f05c58e8772206909b06c3b1878b0d69088",
     "src-tauri/src/lib.rs": "d1d3a678c02530f74c4845022358fa06066f9d35",
     "src-tauri/src/theme.rs": "6af8515a56ce649aaf6c17568ae434baa072681d",
     "src-tauri/tests/theme.rs": "6af8515a56ce649aaf6c17568ae434baa072681d",
     "ui/components/ThemeControl.tsx": "130d9ebbc85cbd98744706b1fa601c4fed470b49",
-    "ui/ipc.ts": "d1d3a678c02530f74c4845022358fa06066f9d35",
+    "ui/ipc.ts": "75494f05c58e8772206909b06c3b1878b0d69088",
     "ui/theme.ts": "6af8515a56ce649aaf6c17568ae434baa072681d"
   },
   "title-bar.md": {

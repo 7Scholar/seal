@@ -19,7 +19,7 @@
   },
   "site.md": {
     ".github/workflows/site.yml": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e",
-    "package.json": "d220645b6a3aa6e0f4ca9b707477832e65ceb9a0",
+    "package.json": "75494f05c58e8772206909b06c3b1878b0d69088",
     "scripts/check-links.ts": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e",
     "scripts/check-site-claims.ts": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
     "site/astro.config.mjs": "0a71f9b78a458b960785bf4e9eba19112aaf6183",
@@ -53,7 +53,7 @@
     "site/src/styles/seal.css": "e3604e203d135b525cb5ccb54c7e983138b33172"
   },
   "tooling.md": {
-    "package.json": "d220645b6a3aa6e0f4ca9b707477832e65ceb9a0",
+    "package.json": "75494f05c58e8772206909b06c3b1878b0d69088",
     "scripts/render-brand.sh": "e3604e203d135b525cb5ccb54c7e983138b33172",
     "scripts/update-local.sh": "fc48741e20953ee3d195f734bdc5e6b65e1602ab"
   }

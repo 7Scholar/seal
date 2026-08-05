@@ -81,26 +81,25 @@ The placement is the whole of the argument. Ceremony sits exactly where the dest
 
 # Plans
 
-- [ ] model.md -> the line model grown from value-in-place to structural mutation: stable row identity, the disabled-variable rule, malformed rows, and the edit list applied with byte-exactness intact
-- [ ] boundary.md -> `save` replaced by the edit-list vocabulary, and what the open returns once a row is more than a key and a mask
-- [ ] surface.md -> the row and its verbs: create, rename, delete, duplicate, the enabled toggle, the malformed row's free-text field and Correct, and pending structural change drawn honestly
-- [ ] reordering.md -> moving a row, the interaction that does it, and the keyboard-reachable equivalent
-- [ ] destructive-save.md -> the batch inspection and the one confirmation standing in front of a save that removes variables
+- [x] model.md -> the line model grown from value-in-place to structural mutation: stable row identity, the disabled-variable rule, malformed rows, and the edit list applied with byte-exactness intact
+- [x] boundary.md -> `save` replaced by the edit-list vocabulary, and what the open returns once a row is more than a key and a mask
+- [x] surface.md -> the row and its verbs: create, rename, delete, duplicate, the enabled toggle, the malformed row's free-text field and Correct, and pending structural change drawn honestly
+- [x] reordering.md -> moving a row, the interaction that does it, and the keyboard-reachable equivalent
+- [x] destructive-save.md -> the batch inspection and the one confirmation standing in front of a save that removes variables
 - [ ] bulk-entry.md -> pasting a block of `KEY=value` lines, the path by which a user actually stops hand-writing these files
 
 # Cursor
 
-**Framed, forks settled by the product owner, and ready to be carved.** Nothing is built.
+**Five of six children are complete, and the vocabulary is driven end to end against the real application.** What remains is `bulk-entry.md`, which is framed and unstarted.
 
-The decisions are recorded in the Approach above rather than in a question file, which is now removed. In summary: a structural **edit list** over **stable row ids** rather than whole-document replacement or line-number identity; `# FOO=bar` parsed as a **disabled variable** under a strict rule that fails towards prose; ordinary comments and blank lines **ignored** and left in place, with reordering acting on managed rows only; malformed lines drawn as **editable rows** with a **Correct** that refuses rather than guesses; every operation local until **one deliberate save**; and the save's **batch inspection** raising a single plain confirmation when the batch removes anything.
+A user can now create, read, edit, rename, delete, duplicate, reorder and enable-or-disable a variable, correct a malformed line, and carry all of it through one save. Nine driven checks in the real webview (`bun run e2e:editing`) confirm it where unit tests cannot see: a commented-out assignment appears as a disabled variable with its value still masked, prose containing an equals sign stays a comment, `Correct` refuses text that is still not a variable, and a session of five changes lands on disk with the file's comment heading and blank line exactly where they were.
 
-The next move is `model.md`, and it is first for a reason rather than by convention: it owns stable identity and the disabled-variable rule, which the boundary and the surface both encode. Solutioning the surface before the model would fix the row's shape against an identity scheme that does not exist yet.
+**Three findings from the work are worth carrying forward.** A latent defect was closed on the way past: `reveal` addressed values by key, so in a file defining a key twice — the case the interface already warns about — the second row handed back the first row's secret. Every created row shared one accessible name until a test could not tell two apart, which was the same defect a screen-reader user would have met. And a guard that read as load-bearing turned out **unreachable**, established by three attempts to break it; it is removed rather than left reading as a live check.
 
-Two of the settled decisions are worth carrying into that work as constraints rather than preferences, because both look like tidy-ups to a later reader and both are recorded in [MEMORY.md](MEMORY.md): the strict comment rule's asymmetry, and line numbers being display rather than identity.
+**What was deliberately not built** is `bulk-entry.md` — pasting a block of `KEY=value` lines. It is the largest remaining step towards the owner's stated end state, since setting up a new environment is the case where a per-row create is slowest, and it sits cleanly on top of the create verb rather than changing its design.
 
 # Open threads
 
-- `app::save` applies its pairs against keys that already exist, so the Rust side beneath the command changes as much as the command does. How far the edit list reaches — whether it stops at the line model or restructures what `app::save` is — is `boundary.md`'s to settle against `model.md`'s answer.
 - Nothing virtualizes at this altitude ([file.md](../file.md)'s own open thread): 400 variables is 2,850 DOM nodes. Every verb here adds per-row controls, so the cost per row rises exactly where it is already highest. Worth measuring before the row grows, not after.
-- A rename is unremarkable inside the file and consequential outside it — nothing reading the variable knows it moved. Whether the surface says anything about that is a real question, and it belongs with `surface.md` once the row exists.
-- Duplicate needs a key to be legal on arrival, and the file may already hold the obvious one. Whether the new row lands with a derived key or lands invalid and awaits one is `surface.md`'s, and interacts with how a created row that has not yet been named is drawn.
+- A rename is unremarkable inside the file and consequential outside it — nothing reading the variable knows it moved. The surface says nothing about that today; whether it should is still open, and wants a real user meeting the case rather than a guess.
+- The row now carries eight controls at populated width. That is the most any surface in this product holds, and it has been driven but never judged at a small window size against a long variable name. A density pass belongs here once the surface has been lived in.

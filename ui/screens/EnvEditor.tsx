@@ -170,6 +170,7 @@ export function EnvEditor({
   const [editingKey, setEditingKey] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [discarding, setDiscarding] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [correctFailed, setCorrectFailed] = useState<number | null>(null);
   const [nextId, setNextId] = useState(-1);
 
@@ -192,6 +193,13 @@ export function EnvEditor({
 
   const ops = useMemo(() => opsFor(draft, file), [draft, file]);
   const isDirty = ops.length > 0;
+  const removing = useMemo(
+    () =>
+      draft
+        .filter((row) => row.removed)
+        .map((row) => (row.malformed ? row.originalText : row.originalKey)),
+    [draft],
+  );
 
   const invalid = draft.some(
     (row) => !row.removed && !row.malformed && keyProblem(row.key) !== null,
@@ -330,7 +338,16 @@ export function EnvEditor({
     change(row.id, { malformed: false, key, value: (match[2] ?? "").trim() });
   }
 
+  function requestSave() {
+    if (removing.length > 0) {
+      setConfirmingDelete(true);
+      return;
+    }
+    void save();
+  }
+
   async function save() {
+    setConfirmingDelete(false);
     setSaving(true);
     try {
       await onSave(ops);
@@ -565,11 +582,42 @@ export function EnvEditor({
           type="button"
           className="button--primary"
           disabled={!isDirty || saving || invalid}
-          onClick={save}
+          onClick={requestSave}
         >
           {state === "sealed" ? "Save and seal" : "Save"}
         </button>
       </footer>
+
+      {confirmingDelete ? (
+        <Confirm
+          title={
+            removing.length === 1
+              ? "Delete this variable?"
+              : `Delete ${removing.length} variables?`
+          }
+          tone="danger"
+          confirmLabel="Delete and save"
+          cancelLabel="Keep editing"
+          onCancel={() => setConfirmingDelete(false)}
+          onConfirm={() => void save()}
+        >
+          <p>
+            Saving now removes {removing.length === 1 ? "this" : "these"} from the
+            file:
+          </p>
+          <ul>
+            {removing.slice(0, 8).map((name) => (
+              <li key={name}>{name}</li>
+            ))}
+          </ul>
+          {removing.length > 8 ? <p>and {removing.length - 8} more.</p> : null}
+          <p>
+            Seal keeps no history and no backup, so{" "}
+            {removing.length === 1 ? "this value" : "these values"} cannot be
+            recovered afterwards.
+          </p>
+        </Confirm>
+      ) : null}
 
       {discarding ? (
         <Confirm

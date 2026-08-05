@@ -263,6 +263,7 @@ describe("EnvEditor: deleting", () => {
 
     await user.click(screen.getByRole("button", { name: "Delete API_KEY" }));
     await user.click(screen.getByRole("button", { name: "Save and seal" }));
+    await user.click(screen.getByRole("button", { name: "Delete and save" }));
 
     expect(onSave).toHaveBeenCalledWith([{ kind: "remove", row: 2 }]);
   });
@@ -414,6 +415,7 @@ describe("EnvEditor: correcting a malformed line", () => {
 
     await user.click(screen.getByRole("button", { name: "Delete this line" }));
     await user.click(screen.getByRole("button", { name: "Save and seal" }));
+    await user.click(screen.getByRole("button", { name: "Delete and save" }));
 
     expect(onSave).toHaveBeenCalledWith([{ kind: "remove", row: 7 }]);
   });
@@ -661,5 +663,82 @@ describe("EnvEditor resuming after a re-lock", () => {
 
     expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
     expect(onResumed).toHaveBeenCalledOnce();
+  });
+});
+
+describe("EnvEditor: a save that destroys", () => {
+  it("confirms once for the batch, naming what goes", async () => {
+    const user = userEvent.setup();
+    const { onSave } = setup();
+
+    await user.click(screen.getByRole("button", { name: "Delete API_KEY" }));
+    await user.click(screen.getByRole("button", { name: "Delete DATABASE_URL" }));
+    await user.click(screen.getByRole("button", { name: "Save and seal" }));
+
+    expect(onSave).not.toHaveBeenCalled();
+    const dialog = await screen.findByRole("dialog");
+    expect(dialog).toHaveTextContent("Delete 2 variables?");
+    expect(dialog).toHaveTextContent("API_KEY");
+    expect(dialog).toHaveTextContent("DATABASE_URL");
+    expect(dialog).toHaveTextContent(/cannot be recovered/i);
+
+    await user.click(screen.getByRole("button", { name: "Delete and save" }));
+    expect(onSave).toHaveBeenCalledOnce();
+  });
+
+  it("asks for no typed phrase, since removing a variable is routine", async () => {
+    const user = userEvent.setup();
+    setup();
+
+    await user.click(screen.getByRole("button", { name: "Delete API_KEY" }));
+    await user.click(screen.getByRole("button", { name: "Save and seal" }));
+
+    await screen.findByRole("dialog");
+    expect(screen.queryByRole("textbox", { name: /type/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Delete and save" })).toBeEnabled();
+  });
+
+  it("does not confirm a save that destroys nothing", async () => {
+    const user = userEvent.setup();
+    const { onSave } = setup();
+
+    await user.click(screen.getByRole("button", { name: "Edit API_KEY" }));
+    const field = await screen.findByRole("textbox", { name: "Value for API_KEY" });
+    await user.clear(field);
+    await user.type(field, "rotated");
+    await user.click(screen.getByRole("button", { name: "Save and seal" }));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(onSave).toHaveBeenCalledOnce();
+  });
+
+  it("does not confirm when a created row is dropped before saving", async () => {
+    const user = userEvent.setup();
+    const { onSave } = setup();
+
+    await user.click(screen.getByRole("button", { name: "Add variable" }));
+    await user.type(
+      screen.getByRole("textbox", { name: /Name for the new variable/ }),
+      "TEMPORARY",
+    );
+    await user.click(screen.getByRole("button", { name: "Delete TEMPORARY" }));
+    await user.click(screen.getByRole("switch", { name: /API_KEY is enabled/ }));
+    await user.click(screen.getByRole("button", { name: "Save and seal" }));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(onSave).toHaveBeenCalledOnce();
+  });
+
+  it("declining leaves the whole draft intact, deletions included", async () => {
+    const user = userEvent.setup();
+    const { onSave } = setup();
+
+    await user.click(screen.getByRole("button", { name: "Delete API_KEY" }));
+    await user.click(screen.getByRole("button", { name: "Save and seal" }));
+    await user.click(screen.getByRole("button", { name: "Keep editing" }));
+
+    expect(onSave).not.toHaveBeenCalled();
+    expect(screen.getByText(/will be deleted when you save/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Save and seal" })).toBeEnabled();
   });
 });

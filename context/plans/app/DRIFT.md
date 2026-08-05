@@ -47,13 +47,24 @@
 
 ## desktop/ui/navigation/breadcrumbs.md
 
+- changed ui/App.test.tsx
+  172ade6 (6 files) "surface: give the row its full vocabulary"
 - changed ui/App.tsx
   8a4f947 (12 files) "boundary: carry rows and an edit list across the IPC surface"
+
+## desktop/ui/navigation/file.md
+
+- changed ui/screens/EnvEditor.test.tsx
+  172ade6 (6 files) "surface: give the row its full vocabulary"
+- changed ui/screens/EnvEditor.tsx
+  172ade6 (6 files) "surface: give the row its full vocabulary"
 
 ## desktop/ui/navigation/files.md
 
 - changed ui/App.tsx
   8a4f947 (12 files) "boundary: carry rows and an edit list across the IPC surface"
+- changed ui/styles.css
+  172ade6 (6 files) "surface: give the row its full vocabulary"
 
 ## desktop/ui/navigation/freshness.md
 
@@ -66,12 +77,44 @@
 - changed ui/ipc.ts
   8a4f947 (12 files) "boundary: carry rows and an edit list across the IPC surface"
 
+## desktop/ui/navigation/manage-surface.md
+
+- changed ui/styles.css
+  172ade6 (6 files) "surface: give the row its full vocabulary"
+
+## desktop/ui/navigation/palette.md
+
+- changed ui/styles.css
+  172ade6 (6 files) "surface: give the row its full vocabulary"
+
+## desktop/ui/navigation/repositories.md
+
+- changed ui/styles.css
+  172ade6 (6 files) "surface: give the row its full vocabulary"
+
+## desktop/ui/navigation/shape.md
+
+- changed ui/styles.css
+  172ade6 (6 files) "surface: give the row its full vocabulary"
+
 ## desktop/ui/navigation/theme.md
 
 - changed src-tauri/src/commands.rs
   8a4f947 (12 files) "boundary: carry rows and an edit list across the IPC surface"
 - changed ui/ipc.ts
   8a4f947 (12 files) "boundary: carry rows and an edit list across the IPC surface"
+
+## desktop/ui/repo-layer/adopting.md
+
+- changed ui/styles.css
+  172ade6 (6 files) "surface: give the row its full vocabulary"
+
+## desktop/ui/repo-layer/managed-view.md
+
+- changed ui/App.test.tsx
+  172ade6 (6 files) "surface: give the row its full vocabulary"
+- changed ui/styles.css
+  172ade6 (6 files) "surface: give the row its full vocabulary"
 
 ## desktop/ui/repo-layer/scan-shape.md
 
@@ -86,16 +129,28 @@
   8a4f947 (12 files) "boundary: carry rows and an edit list across the IPC surface"
 - changed ui/ipc.ts
   8a4f947 (12 files) "boundary: carry rows and an edit list across the IPC surface"
+- changed ui/styles.css
+  172ade6 (6 files) "surface: give the row its full vocabulary"
 
 ## desktop/ui/screens.md
 
 - changed ui/App.tsx
   8a4f947 (12 files) "boundary: carry rows and an edit list across the IPC surface"
+- changed ui/screens/EnvEditor.test.tsx
+  172ade6 (6 files) "surface: give the row its full vocabulary"
+- changed ui/screens/EnvEditor.tsx
+  172ade6 (6 files) "surface: give the row its full vocabulary"
+- changed ui/styles.css
+  172ade6 (6 files) "surface: give the row its full vocabulary"
 
 ## desktop/ui/shell-layout.md
 
+- changed ui/App.test.tsx
+  172ade6 (6 files) "surface: give the row its full vocabulary"
 - changed ui/App.tsx
   8a4f947 (12 files) "boundary: carry rows and an edit list across the IPC surface"
+- changed ui/styles.css
+  172ade6 (6 files) "surface: give the row its full vocabulary"
 
 ## desktop/ui/shell.md
 

@@ -181,8 +181,10 @@ input {
 .switcher__tick { color: var(--accent); }
 .switcher__empty { padding: 0.7rem 0.6rem; color: var(--muted); font-size: 0.85rem; }
 .switcher__add {
-  width: 100%; border: 0; border-top: 1px solid var(--line); border-radius: 0;
-  text-align: left; padding: 0.6rem 0.7rem; background: none;
+  display: flex; align-items: center; gap: 0.5rem;
+  width: 100%; min-height: 2.5rem;
+  border: 0; border-top: 1px solid var(--line); border-radius: 0;
+  text-align: left; padding: 0.65rem 0.7rem; background: none;
 }
 .switcher__add:hover:not(:disabled) { background: var(--hover); border-color: transparent; border-top-color: var(--line); }
 
@@ -267,12 +269,15 @@ input {
 .surface__count { color: var(--muted); font-size: 0.85rem; }
 
 .tile__add {
-  align-items: center; justify-content: center; gap: 0.55rem;
-  background: none; border-style: dashed; color: var(--muted);
+  flex-direction: row; align-items: center; justify-content: center; gap: 0.5rem;
+  background: var(--hover); border-style: dashed; border-color: var(--line-strong);
+  color: var(--muted);
 }
-.tile__add:hover:not(:disabled) { color: var(--fg); background: var(--raised); }
+.tile__add:hover:not(:disabled) {
+  color: var(--text); background: var(--selected); border-color: var(--accent);
+}
 .tile__add .tile__name { padding-right: 0; }
-.tile__add-icon { width: 1.35rem; height: 1.35rem; }
+.tile__add-icon { width: 1.1rem; height: 1.1rem; }
 
 .tile__skeleton { gap: 0.55rem; }
 .skeleton {
@@ -310,7 +315,11 @@ input {
 }
 .row:hover { border-color: var(--line-strong); background: var(--hover); }
 .row[data-alert="true"] { border-color: var(--danger); }
-.row__check { flex: none; margin: 0; }
+.row__check {
+  flex: none; margin: 0 0.15rem;
+  width: 1.35rem; height: 1.35rem;
+  accent-color: var(--primary); cursor: pointer;
+}
 .row__open {
   flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.15rem;
   background: none; border: 0; padding: 0; text-align: left; border-radius: var(--radius-md);
@@ -369,7 +378,9 @@ input {
 }
 .toggletip__trigger { font-style: italic; font-family: Georgia, serif; }
 .toggletip__trigger:hover:not(:disabled), .overflow__trigger:hover:not(:disabled) { color: var(--text); border-color: var(--accent); }
-.toggletip__live { position: absolute; top: 100%; left: 0; z-index: 20; }
+.toggletip__live { position: absolute; top: 100%; z-index: 20; }
+.toggletip__live[data-place="right"] { left: 0; }
+.toggletip__live[data-place="left"] { right: 0; }
 .toggletip__bubble {
   display: block; width: max-content; max-width: 24rem; margin-top: 0.4rem;
   background: var(--raised); border: 1px solid var(--line); border-radius: var(--radius-lg);

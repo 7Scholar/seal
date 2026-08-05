@@ -4,6 +4,7 @@ interface Props {
   title: string;
   confirmLabel: string;
   cancelLabel: string;
+  tone?: "danger" | "ordinary";
   typeToConfirm?: string;
   onConfirm: () => void | Promise<void>;
   onCancel: () => void;
@@ -14,6 +15,7 @@ export function Confirm({
   title,
   confirmLabel,
   cancelLabel,
+  tone = "danger",
   typeToConfirm,
   onConfirm,
   onCancel,
@@ -57,7 +59,7 @@ export function Confirm({
         </button>
         <button
           type="button"
-          className="confirm__danger"
+          className={tone === "danger" ? "confirm__danger" : "button--primary"}
           disabled={!satisfied}
           onClick={() => onConfirm()}
         >

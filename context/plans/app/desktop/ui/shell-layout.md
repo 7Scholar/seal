@@ -110,6 +110,8 @@ It is deliberately **not** a hover tooltip and deliberately **not** wired with `
 
 Applied consistently: an information affordance on some titles and not others prevents discovery of all of them, so its absence must be meaningful rather than incidental.
 
+**The bubble states which side it opens toward, and its caller chooses.** It anchors to the trigger's leading edge by default and to the trailing edge where the trigger sits near the window's right — the toggletip is a wide bubble on a narrow anchor, so a trigger in the last few centimetres of the window puts its content off-screen with nothing to scroll it back. Placement is a property the caller passes rather than a measurement the component takes: the surfaces that need the flip are known and few, and a runtime measurement would add a reflow on every open to solve a problem two call sites have.
+
 ## What may never be revealed only by hover
 
 Row-level actions may de-emphasise until hover, and doing so is how the file rows stay quiet. Two rules bound it. Anything revealed on `:hover` is revealed identically on `:focus`, so a keyboard user sees exactly what a pointer user sees. And nothing is reachable **only** by hover — hover-revealed affordances are undiscoverable, since no visual convention announces that an element is hoverable, and they exclude keyboard, touch and assistive-technology users entirely. Where hover-reveal is used, detection is on hover *capability*, never on viewport width.

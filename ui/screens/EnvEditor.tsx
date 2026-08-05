@@ -188,7 +188,7 @@ export function EnvEditor({
             : "No unsaved changes"}
         </span>
         <button type="button" disabled={!isDirty || saving} onClick={save}>
-          Save
+          {state === "sealed" ? "Save" : "Save and seal"}
         </button>
         <button type="button" onClick={() => onSeal()}>
           Seal and close

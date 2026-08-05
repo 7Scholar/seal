@@ -129,13 +129,34 @@ pub fn reseal_from_memory(
     passphrase: &SecretString,
     work_factor: u8,
 ) -> Result<SealOutcome, OperationError> {
+    replace_with_sealed(path, plaintext, passphrase, work_factor, true)
+}
+
+pub fn seal_from_memory(
+    path: &Path,
+    plaintext: &[u8],
+    passphrase: &SecretString,
+    work_factor: u8,
+) -> Result<SealOutcome, OperationError> {
+    replace_with_sealed(path, plaintext, passphrase, work_factor, false)
+}
+
+fn replace_with_sealed(
+    path: &Path,
+    plaintext: &[u8],
+    passphrase: &SecretString,
+    work_factor: u8,
+    require_sealed: bool,
+) -> Result<SealOutcome, OperationError> {
     let _lock = FileLock::acquire(path).map_err(OperationError::from_lock)?;
 
     let mut source = open(path)?;
     if let Classification::Plaintext = classify_handle(path, &mut source)? {
-        return Err(OperationError::NotSealed {
-            path: path.to_path_buf(),
-        });
+        if require_sealed {
+            return Err(OperationError::NotSealed {
+                path: path.to_path_buf(),
+            });
+        }
     }
     drop(source);
 

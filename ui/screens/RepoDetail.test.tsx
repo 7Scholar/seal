@@ -24,6 +24,7 @@ function setup(
     onSeal: vi.fn(),
     onSealMany: vi.fn(),
     onRelease: vi.fn(),
+    onReleaseMany: vi.fn(),
     onReleaseRepo: vi.fn(),
     onRescan: vi.fn(),
     onDismissOutcomes: vi.fn(),
@@ -34,10 +35,20 @@ function setup(
 }
 
 describe("RepoDetail", () => {
-  it("labels each file with its state", () => {
+  it("labels a sealed file, and says nothing where the Seal control is the answer", () => {
     setup();
     expect(screen.getByText("Sealed")).toBeInTheDocument();
-    expect(screen.getByText("Readable")).toBeInTheDocument();
+    expect(screen.queryByText("Readable")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Seal .env" })).toBeInTheDocument();
+  });
+
+  it("still names an exposed file's state, because an alert never collapses", () => {
+    setup({
+      root: "/repos/app",
+      name: "app",
+      files: [{ relativePath: ".env", state: "plaintext", alert: true }],
+    });
+    expect(screen.getByText("Readable — should be sealed")).toBeInTheDocument();
   });
 
   it("offers sealing only for a file that is not already sealed", () => {
@@ -146,11 +157,12 @@ describe("RepoDetail and sealing several files at once", () => {
     ],
   };
 
-  it("seals nothing until files are chosen", () => {
+  it("shows no actions bar at all until something is selected", () => {
     setup(many);
     expect(
-      screen.getByRole("button", { name: /Seal selected file/ }),
-    ).toBeDisabled();
+      screen.queryByRole("group", { name: "Actions for the selected files" }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/selected/)).not.toBeInTheDocument();
   });
 
   it("seals exactly the files the user selected, never all of them", async () => {
@@ -158,9 +170,7 @@ describe("RepoDetail and sealing several files at once", () => {
     const { onSealMany } = setup(many);
 
     await user.click(screen.getByRole("checkbox", { name: "Select .env" }));
-    await user.click(
-      screen.getByRole("button", { name: "Seal selected file" }),
-    );
+    await user.click(screen.getByRole("button", { name: "Seal 1 file" }));
 
     expect(onSealMany).toHaveBeenCalledWith(["/repos/app/.env"]);
   });
@@ -176,18 +186,47 @@ describe("RepoDetail and sealing several files at once", () => {
 
     expect(screen.getByText("2 selected")).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Seal 2 selected files" }),
+      screen.getByRole("button", { name: "Seal 2 files" }),
     ).toBeInTheDocument();
   });
 
-  it("offers no checkbox for a file that cannot be sealed", () => {
+  it("offers a checkbox for a sealed file too, and none for one that is gone", () => {
     setup(many);
     expect(
-      screen.queryByRole("checkbox", { name: "Select .env.production" }),
-    ).not.toBeInTheDocument();
+      screen.getByRole("checkbox", { name: "Select .env.production" }),
+    ).toBeInTheDocument();
     expect(
       screen.queryByRole("checkbox", { name: "Select .env.gone" }),
     ).not.toBeInTheDocument();
+  });
+
+  it("offers no Seal action when the selection holds a sealed file", async () => {
+    const user = userEvent.setup();
+    setup(many);
+
+    await user.click(screen.getByRole("checkbox", { name: "Select .env" }));
+    await user.click(
+      screen.getByRole("checkbox", { name: "Select .env.production" }),
+    );
+
+    expect(screen.queryByRole("button", { name: /^Seal \d+ file/ })).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Stop managing 2 files" }),
+    ).toBeInTheDocument();
+  });
+
+  it("always offers stop-managing, whatever the selection holds", async () => {
+    const user = userEvent.setup();
+    const { onReleaseMany } = setup(many);
+
+    await user.click(
+      screen.getByRole("checkbox", { name: "Select .env.production" }),
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Stop managing 1 file" }),
+    );
+
+    expect(onReleaseMany).toHaveBeenCalledWith(["/repos/app/.env.production"]);
   });
 
   it("names every file that failed and why, rather than reporting a count", () => {

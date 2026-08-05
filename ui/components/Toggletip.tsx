@@ -3,10 +3,11 @@ import { useDisclosure } from "./useDisclosure";
 
 interface Props {
   label: string;
+  place?: "left" | "right";
   children: ReactNode;
 }
 
-export function Toggletip({ label, children }: Props) {
+export function Toggletip({ label, place = "right", children }: Props) {
   const { open, setOpen, wrapper, trigger } = useDisclosure();
   const bubbleId = useId();
 
@@ -24,7 +25,11 @@ export function Toggletip({ label, children }: Props) {
         <span aria-hidden="true">i</span>
       </button>
 
-      <span className="toggletip__live" role={open ? "status" : undefined}>
+      <span
+        className="toggletip__live"
+        data-place={place}
+        role={open ? "status" : undefined}
+      >
         {open ? (
           <span id={bubbleId} className="toggletip__bubble">
             {children}

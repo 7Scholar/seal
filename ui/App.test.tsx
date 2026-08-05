@@ -274,7 +274,7 @@ describe("the application shell", () => {
     await openRepository(user, "app");
 
     await user.click(screen.getByRole("checkbox", { name: "Select .env" }));
-    await user.click(screen.getByRole("button", { name: "Seal selected file" }));
+    await user.click(screen.getByRole("button", { name: "Seal 1 file" }));
 
     expect(mocked.sealFiles).toHaveBeenCalledWith(["/code/app/.env"]);
     expect(await screen.findByText(/1 file is now sealed/)).toBeInTheDocument();
@@ -293,7 +293,7 @@ describe("the application shell", () => {
     await openRepository(user, "app");
 
     await user.click(screen.getByRole("checkbox", { name: "Select .env" }));
-    await user.click(screen.getByRole("button", { name: "Seal selected file" }));
+    await user.click(screen.getByRole("button", { name: "Seal 1 file" }));
 
     expect(mocked.sealFiles).not.toHaveBeenCalled();
     expect(mocked.sealFile).not.toHaveBeenCalled();
@@ -334,7 +334,7 @@ describe("the application shell", () => {
     ]);
 
     await user.click(screen.getByRole("button", { name: "Edit API_KEY" }));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: /^Save/ }));
 
     await waitFor(() => {
       expect(screen.getByText("/code/app")).toBeInTheDocument();
@@ -350,7 +350,7 @@ describe("the application shell", () => {
 
     mocked.overview.mockResolvedValue([repos[1]!]);
     await user.click(screen.getByRole("checkbox", { name: "Select .env" }));
-    await user.click(screen.getByRole("button", { name: "Seal selected file" }));
+    await user.click(screen.getByRole("button", { name: "Seal 1 file" }));
 
     expect(
       await screen.findByRole("heading", { name: "Repositories" }),
@@ -686,10 +686,56 @@ describe("the theme control", () => {
     await screen.findByText("VARIABLE_0");
 
     const region = document.querySelector(".env-editor__region");
-    const save = screen.getByRole("button", { name: "Save" });
+    const save = screen.getByRole("button", { name: /^Save/ });
     expect(region).toBeInTheDocument();
     expect(region!.contains(screen.getByText("VARIABLE_0"))).toBe(true);
     expect(region!.contains(save)).toBe(false);
+  });
+});
+
+describe("adding a repository Seal already manages", () => {
+  it("refuses in a dialog rather than opening the manage surface", async () => {
+    const user = userEvent.setup();
+    mocked.pickFolder.mockResolvedValue("/code/app");
+    await openApp();
+
+    await user.click(screen.getAllByRole("button", { name: /Add repository/ })[0]!);
+
+    const dialog = await screen.findByRole("dialog");
+    expect(dialog).toHaveTextContent("app is already managed");
+    expect(dialog).toHaveTextContent("Scan for more files");
+    expect(mocked.scanFolder).not.toHaveBeenCalled();
+  });
+
+  it("offers the repository it already manages as the way onward", async () => {
+    const user = userEvent.setup();
+    mocked.pickFolder.mockResolvedValue("/code/app");
+    await openApp();
+
+    await user.click(screen.getAllByRole("button", { name: /Add repository/ })[0]!);
+    await user.click(await screen.findByRole("button", { name: "Open it" }));
+
+    await waitFor(() => {
+      expect(screen.getByText("/code/app")).toBeInTheDocument();
+    });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("still scans a known repository when the user asks to rescan it", async () => {
+    const user = userEvent.setup();
+    mocked.scanFolder.mockResolvedValue({
+      root: "/code/app",
+      alreadyRegistered: true,
+      candidates: [],
+      tree: [],
+    });
+    await openApp();
+    await openRepository(user, "app");
+
+    await user.click(screen.getByRole("button", { name: "More actions for app" }));
+    await user.click(screen.getByRole("button", { name: "Scan for more files" }));
+
+    await waitFor(() => expect(mocked.scanFolder).toHaveBeenCalledWith("/code/app"));
   });
 });
 

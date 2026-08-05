@@ -15,6 +15,7 @@ interface Props {
   onSeal: (path: string) => void | Promise<void>;
   onSealMany: (paths: string[]) => void | Promise<void>;
   onRelease: (path: string) => void;
+  onReleaseMany: (paths: string[]) => void;
   onReleaseRepo: () => void;
   onRescan: () => void;
   outcomes: SealOutcome[] | null;
@@ -35,9 +36,9 @@ export function StaleNotice({ onRetry }: { onRetry: () => void }) {
   );
 }
 
-const LABELS: Record<SealedState, string> = {
+const LABELS: Record<SealedState, string | null> = {
   sealed: "Sealed",
-  plaintext: "Readable",
+  plaintext: null,
   missing: "Not found",
   unknown: "Unknown",
 };
@@ -59,6 +60,7 @@ export function RepoDetail({
   onSeal,
   onSealMany,
   onRelease,
+  onReleaseMany,
   onReleaseRepo,
   onRescan,
   outcomes,
@@ -74,11 +76,17 @@ export function RepoDetail({
     a.relativePath.localeCompare(b.relativePath),
   );
 
-  const sealable = files.filter(
-    (file) => file.state !== "sealed" && file.state !== "missing",
+  const selectable = files.filter((file) => file.state !== "missing");
+  const chosen = selectable
+    .map((file) => filePath(repo, file.relativePath))
+    .filter((path) => picked.has(path));
+
+  const chosenFiles = selectable.filter((file) =>
+    picked.has(filePath(repo, file.relativePath)),
   );
-  const sealablePaths = sealable.map((file) => filePath(repo, file.relativePath));
-  const chosen = sealablePaths.filter((path) => picked.has(path));
+  const readable = chosenFiles.filter((file) => file.state !== "sealed");
+  const sealed = chosenFiles.filter((file) => file.state === "sealed");
+  const readablePaths = readable.map((file) => filePath(repo, file.relativePath));
 
   const exposures = files
     .filter((file) => file.alert)
@@ -119,7 +127,7 @@ export function RepoDetail({
 
         {count ? <span className="surface__count">{count}</span> : null}
 
-        <Toggletip label="What Seal does with these files">
+        <Toggletip label="What Seal does with these files" place="left">
           Seal <strong>watches</strong> every file listed here, and{" "}
           <strong>protects</strong> the ones you have sealed. Watching only means
           Seal knows about the file — its contents are still readable by anything
@@ -168,19 +176,28 @@ export function RepoDetail({
         </div>
       ) : null}
 
-      {sealable.length > 0 ? (
-        <div className="batch">
+      {chosen.length > 0 ? (
+        <div className="batch" role="group" aria-label="Actions for the selected files">
           <span className="batch__count">
-            {chosen.length === 0 ? "" : `${chosen.length} selected`}
+            {chosen.length === 1 ? "1 selected" : `${chosen.length} selected`}
           </span>
+
+          {sealed.length === 0 ? (
+            <button type="button" onClick={() => onSealMany(readablePaths)}>
+              {readablePaths.length === 1
+                ? "Seal 1 file"
+                : `Seal ${readablePaths.length} files`}
+            </button>
+          ) : null}
+
           <button
             type="button"
-            disabled={chosen.length === 0}
-            onClick={() => onSealMany(chosen)}
+            className="overflow__danger"
+            onClick={() => onReleaseMany(chosen)}
           >
-            {chosen.length <= 1
-              ? "Seal selected file"
-              : `Seal ${chosen.length} selected files`}
+            {chosen.length === 1
+              ? "Stop managing 1 file"
+              : `Stop managing ${chosen.length} files`}
           </button>
         </div>
       ) : null}
@@ -196,7 +213,7 @@ export function RepoDetail({
 
           return (
             <li key={path} className="row" data-alert={file.alert}>
-              {canSeal ? (
+              {missing ? null : (
                 <input
                   type="checkbox"
                   className="row__check"
@@ -204,7 +221,7 @@ export function RepoDetail({
                   aria-label={`Select ${file.relativePath}`}
                   onChange={() => toggle(path)}
                 />
-              ) : null}
+              )}
 
               <button
                 type="button"
@@ -225,9 +242,11 @@ export function RepoDetail({
                 ) : null}
               </button>
 
-              <span className="row__state" data-state={file.state}>
-                {file.alert ? "Readable — should be sealed" : LABELS[file.state]}
-              </span>
+              {file.alert || LABELS[file.state] ? (
+                <span className="row__state" data-state={file.state}>
+                  {file.alert ? "Readable — should be sealed" : LABELS[file.state]}
+                </span>
+              ) : null}
 
               <span className="row__actions">
                 {canSeal ? (

@@ -47,7 +47,9 @@ export function App() {
   const [overlay, setOverlay] = useState<Overlay>({ name: "none" });
   const [acknowledging, setAcknowledging] = useState<null | (() => void)>(null);
   const [releasing, setReleasing] = useState<string | null>(null);
+  const [releasingMany, setReleasingMany] = useState<string[] | null>(null);
   const [releasingRepo, setReleasingRepo] = useState<ipc.RepoView | null>(null);
+  const [alreadyManaged, setAlreadyManaged] = useState<ipc.RepoView | null>(null);
   const [sealing, setSealing] = useState<null | {
     paths: string[];
     recent: { path: string; secondsAgo: number }[];
@@ -109,7 +111,9 @@ export function App() {
     setOverlay({ name: "none" });
     setAcknowledging(null);
     setReleasing(null);
+    setReleasingMany(null);
     setReleasingRepo(null);
+    setAlreadyManaged(null);
     setSealing(null);
     setOutcomes(null);
   }
@@ -337,6 +341,11 @@ export function App() {
     await attempt("open the folder picker", async () => {
       const root = await ipc.pickFolder();
       if (!root) return;
+      const known = repos.find((repo) => repo.root === root);
+      if (known) {
+        setAlreadyManaged(known);
+        return;
+      }
       await scanInto(root);
     });
   }
@@ -582,6 +591,7 @@ export function App() {
             onSeal={seal}
             onSealMany={sealMany}
             onRelease={setReleasing}
+            onReleaseMany={setReleasingMany}
             onReleaseRepo={() => setReleasingRepo(currentRepo)}
             onRescan={() => void startRescan(currentRepo.root)}
             outcomes={outcomes}
@@ -727,6 +737,71 @@ export function App() {
             Seal will forget this file and leave its readable contents at the
             same path. The file itself is not deleted.
           </p>
+        </Confirm>
+      ) : null}
+
+      {alreadyManaged ? (
+        <Confirm
+          title={`${alreadyManaged.name} is already managed`}
+          tone="ordinary"
+          confirmLabel="Open it"
+          cancelLabel="Cancel"
+          onCancel={() => setAlreadyManaged(null)}
+          onConfirm={() => {
+            const root = alreadyManaged.root;
+            setAlreadyManaged(null);
+            void goToRepository(root);
+          }}
+        >
+          <p>
+            Seal already manages this repository — {alreadyManaged.files.length}{" "}
+            {alreadyManaged.files.length === 1 ? "file" : "files"} in{" "}
+            {alreadyManaged.root}. Nothing was added or changed.
+          </p>
+          <p>
+            To bring in a file Seal missed, open the repository and choose{" "}
+            <strong>Scan for more files</strong>.
+          </p>
+        </Confirm>
+      ) : null}
+
+      {releasingMany ? (
+        <Confirm
+          title={
+            releasingMany.length === 1
+              ? `Stop managing ${fileName(releasingMany[0]!)}?`
+              : `Stop managing ${releasingMany.length} files?`
+          }
+          confirmLabel={
+            releasingMany.length === 1 ? "Stop managing it" : "Stop managing them"
+          }
+          cancelLabel="Keep managing them"
+          onCancel={() => setReleasingMany(null)}
+          onConfirm={async () => {
+            const paths = releasingMany;
+            setReleasingMany(null);
+            await attempt(`stop managing ${paths.length} files`, async () => {
+              for (const path of paths) {
+                await ipc.release(path, "restorePlaintext");
+              }
+              await refreshAndReconcile();
+            });
+          }}
+        >
+          <p>
+            Seal will forget{" "}
+            {releasingMany.length === 1
+              ? "this file"
+              : `these ${releasingMany.length} files`}{" "}
+            and leave the readable contents at their own paths. Any that are
+            sealed are unsealed in place, so a secret that was protected becomes
+            readable on disk again. No file is deleted.
+          </p>
+          <ul className="confirm__list">
+            {releasingMany.map((path) => (
+              <li key={path}>{fileName(path)}</li>
+            ))}
+          </ul>
         </Confirm>
       ) : null}
 

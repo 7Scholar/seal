@@ -275,22 +275,25 @@ describe("settling in: a file with no editor, and coming back to add more", () =
     }
 
     const states = await browser.execute(() => {
-      const out: Record<string, string> = {};
+      const out: Record<string, { state: string; offersSeal: boolean }> = {};
       for (const row of document.querySelectorAll(".row")) {
         const name = row.querySelector(".row__name")?.textContent?.trim() ?? "";
-        out[name] = row.querySelector(".row__state")?.textContent?.trim() ?? "";
+        out[name] = {
+          state: row.querySelector(".row__state")?.textContent?.trim() ?? "",
+          offersSeal: row.querySelector('button[aria-label^="Seal "]') !== null,
+        };
       }
       return out;
     });
 
-    if (states[ENV_FILE] !== "Sealed" || states[OPAQUE_FILE] !== "Sealed") {
+    if (states[ENV_FILE]?.state !== "Sealed" || states[OPAQUE_FILE]?.state !== "Sealed") {
       throw new Error(
         `a rescan changed what the managed files report: ${JSON.stringify(states)}`,
       );
     }
-    if (states[FORGOTTEN_FILE] !== "Readable") {
+    if (!states[FORGOTTEN_FILE]?.offersSeal || states[FORGOTTEN_FILE]?.state !== "") {
       throw new Error(
-        `the newly added file should be watched but readable, not ${states[FORGOTTEN_FILE]}`,
+        `the newly added file should be watched but not sealed — its own Seal control is what says so, not a label: ${JSON.stringify(states[FORGOTTEN_FILE])}`,
       );
     }
   });

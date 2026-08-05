@@ -18,6 +18,12 @@ One row above the grid: a **search field** at the leading edge, and **+ Add repo
 
 Search filters the grid live on a case-insensitive substring of the repository's name or path. It filters rather than reorders, so a tile never moves under the pointer. With no match the grid states that nothing matched and offers to clear the field, which is a state rather than an explanation and so is not the disallowed prose.
 
+**Adding a folder Seal already manages is refused in a dialog, before any scan runs.** The dialog names the repository, states how many files are already managed and that nothing was added or changed, and points at *Scan for more files* as the way to bring in a file Seal missed. It offers opening that repository as its affirmative action, so the refusal ends somewhere useful rather than at a dead end. The refusal is on the **add** entry only: a rescan reaches the same surface deliberately and must keep working, which is [the protect-a-repo journey](../../../../../journeys/protect-a-repo.md)'s seventh step. Routing an add of a known folder into the manage surface is what this rules out — the surface would open in its rescan form, with every already-managed row inert, which answers a question the user did not ask and buries the fact that the folder was already there.
+
+## The add tile
+
+The grid's last cell is an **add tile**, the same size as a repository tile and drawn as an outline rather than a solid: a dashed border at the palette's strong line weight, a muted fill, and the plus and its label on **one row**, centred. It is the same action as the toolbar's primary button, placed where the eye ends up after reading the grid. Stacking the plus above the label is what this rules out — it made the tile read as an empty repository whose name happened to be *Add repository* rather than as an action.
+
 ## The tile
 
 The whole tile navigates into its repository. Inside it exactly one control competes for the press — the **ellipsis** in the top-right corner — which is what keeps a large target unambiguous.

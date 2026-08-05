@@ -707,3 +707,75 @@ fn a_batch_outcome_never_carries_secret_material() {
     assert!(!serialized.contains("sk-live-42"));
     assert!(!serialized.contains(PASSPHRASE));
 }
+
+#[test]
+fn a_readable_managed_file_opens_for_editing_like_a_sealed_one() {
+    let fixture = plaintext_fixture(&[".env"]);
+    let mut session = unlocked();
+
+    let view = env_of(app::open_file(&mut session, &fixture.path, &fixture.state).unwrap());
+
+    let keys: Vec<&str> = view.variables.iter().map(|v| v.key.as_str()).collect();
+    assert_eq!(
+        keys,
+        vec!["DATABASE_URL", "API_KEY", "ENABLE_BETA"],
+        "a managed file that is readable on disk must open in the application"
+    );
+    for variable in &view.variables {
+        assert_eq!(
+            variable.masked, MASK,
+            "a readable file's values are masked exactly as a sealed file's are"
+        );
+    }
+}
+
+#[test]
+fn opening_a_readable_file_leaves_it_readable_on_disk() {
+    let fixture = plaintext_fixture(&[".env"]);
+    let mut session = unlocked();
+
+    app::open_file(&mut session, &fixture.path, &fixture.state).unwrap();
+
+    assert!(
+        !matches!(
+            seal_engine::operations::classify(&fixture.path).unwrap(),
+            seal_engine::format::Classification::Sealed { .. }
+        ),
+        "opening a file must never change what is on disk"
+    );
+}
+
+#[test]
+fn saving_a_readable_file_seals_it_and_keeps_the_edit() {
+    let mut fixture = plaintext_fixture(&[".env"]);
+    let mut session = unlocked();
+
+    app::open_file(&mut session, &fixture.path, &fixture.state).unwrap();
+    app::save(
+        &mut session,
+        &fixture.path,
+        &[("API_KEY".to_owned(), "sk-live-99".to_owned())],
+        &mut fixture.state,
+    )
+    .unwrap();
+
+    assert!(
+        matches!(
+            seal_engine::operations::classify(&fixture.path).unwrap(),
+            seal_engine::format::Classification::Sealed { .. }
+        ),
+        "saving a readable file seals it, because the engine writes no plaintext to a managed path"
+    );
+
+    let mut plaintext = Vec::new();
+    seal_engine::operations::unseal_to(
+        &fixture.path,
+        &mut plaintext,
+        &[SecretString::from(PASSPHRASE.to_owned())],
+    )
+    .unwrap();
+    assert!(
+        String::from_utf8_lossy(&plaintext).contains("sk-live-99"),
+        "the edit must survive the seal"
+    );
+}

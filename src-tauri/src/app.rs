@@ -99,8 +99,14 @@ pub fn open_file(
     require_managed_ref(state, path)?;
     let passphrase = session.passphrase_for(path)?;
 
-    let mut plaintext = Vec::new();
-    operations::unseal_to(path, &mut plaintext, &[passphrase])?;
+    let plaintext = match operations::classify(path)? {
+        Classification::Sealed { .. } => {
+            let mut opened = Vec::new();
+            operations::unseal_to(path, &mut opened, &[passphrase])?;
+            opened
+        }
+        _ => fs::read(path).map_err(|_| CommandError::at(Kind::Io, path))?,
+    };
 
     let held = Plaintext::new(plaintext);
     let opened = if view::is_editable(path) {
@@ -145,7 +151,8 @@ pub fn save(
             .ok_or_else(|| CommandError::at(Kind::UnknownKey, path))?
     };
 
-    operations::reseal_from_memory(path, &updated, &passphrase, WORK_FACTOR)?;
+    operations::seal_from_memory(path, &updated, &passphrase, WORK_FACTOR)?;
+
     session.open(path, Plaintext::new(updated))?;
     record(state, path, SealedState::Sealed);
     Ok(())

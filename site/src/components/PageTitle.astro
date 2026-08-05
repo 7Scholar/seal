@@ -1,0 +1,47 @@
+---
+import PageContextMenu from "./PageContextMenu.astro";
+
+const PAGE_TITLE_ID = "_top";
+
+const { entry } = Astro.props;
+const markdownUrl = `${Astro.url.pathname.replace(/\/$/, "")}.md`;
+---
+
+<div class="page-header">
+  <div class="page-header__row">
+    <h1 id={PAGE_TITLE_ID}>{entry.data.title}</h1>
+    <PageContextMenu markdownUrl={markdownUrl} />
+  </div>
+  {entry.data.description && <p class="page-header__lede">{entry.data.description}</p>}
+</div>
+
+<style>
+  .page-header {
+    margin-block-start: 1rem;
+  }
+
+  .page-header__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: var(--sl-text-h1);
+    line-height: var(--sl-line-height-headings);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--sl-color-white);
+    overflow-wrap: anywhere;
+  }
+
+  .page-header__lede {
+    margin-block: 0.75rem 0;
+    color: var(--sl-color-gray-3);
+    font-size: var(--sl-text-lg);
+    line-height: 1.6;
+  }
+</style>

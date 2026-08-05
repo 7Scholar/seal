@@ -17,6 +17,11 @@ export default defineConfig({
       },
       lastUpdated: true,
       customCss: ["./src/styles/seal.css"],
+      components: {
+        PageTitle: "./src/components/PageTitle.astro",
+        Header: "./src/components/Header.astro",
+        Sidebar: "./src/components/Sidebar.astro",
+      },
       sidebar: [
         {
           label: "Get started",

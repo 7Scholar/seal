@@ -28,6 +28,18 @@ Starlight's default output already carries the references' vocabulary — sideba
 
 The site publishes from a workflow on push to `main`. It is static, small, and costs nothing; a custom domain attaches later without changing anything.
 
+## The page shell, and the Markdown route under it
+
+The shell is Bun's, studied from the live site and recorded in [_docs/bun-docs-anatomy.md](_docs/bun-docs-anatomy.md): a fixed header carrying the mark on the left, the search control in the middle and the theme control on the right; a fixed left sidebar of two-level groups whose active state is held on the list item; a title row whose page-actions control floats to its right; and the on-page contents to the right of the prose. Bun's own navigation top bar is excluded — with eleven pages there is nothing to partition, which is the same reason [_docs/site-research.md](_docs/site-research.md) excluded Anthropic's tabs.
+
+It is reached by **overriding Starlight's components** rather than by replacing the generator. Starlight names `Header`, `PageTitle` and `Sidebar` as replaceable, which is exactly the surface the shape needs, so Pagefind search, the on-page contents, prev/next and the rendered-source mechanism all keep working underneath — and the four checks that hold this plan's guarantees keep passing rather than being rebuilt.
+
+**Every page is also served as Markdown, and that route is what the page actions are built on.** `/<slug>.md` emits the page as `text/markdown`, and `/llms.txt` indexes all of them. The three actions are each one line over that one artefact: *Copy page* fetches it, *View as Markdown* opens it, and *Open in Claude* passes its URL to `claude.ai/new?q=`. Building the route first is what keeps the menu from being three separate mechanisms. The pages rendered from `SECURITY.md` and `CONTRIBUTING.md` resolve their source the same way the HTML does, so the Markdown surface cannot drift from the page beside it.
+
+The menu is **three items, not Bun's five.** Bun's remaining two install an MCP server, and Seal publishes none; a menu item pointing at a server that does not exist is a claim, which this plan's fourth rule forbids.
+
+**The actions degrade rather than break.** Without JavaScript the split button is not rendered at all: what ships in the HTML is a plain *View as Markdown* anchor, and the copy and Claude controls replace it only once the element upgrades. A reader with JavaScript blocked meets a working link rather than a dead button — which is the degraded state [_docs/site-research.md](_docs/site-research.md) names as a hard requirement rather than a nicety, and the reason the anchor is the markup's default rather than its fallback.
+
 ## Nine pages in four groups, plus a landing page
 
 The landing page states what Seal does in one sentence, a four-card grid, the numbered first-run path, and **a named block carrying the two absolute limits** — not a link to them. The research names SOPS as the negative example here: a direct genre peer whose landing page states capabilities and no threat model at all, which is exactly the relegation this product cannot afford.
@@ -52,6 +64,12 @@ Four checks in continuous integration, of the kind [ci.md](ci.md) already runs: 
 All of the Approach. The site lives under `site/`, builds to eleven pages with a static search index, and deploys from a workflow on push to `main`.
 
 Its visual identity resolves the **same palette the application uses**, mapped onto Starlight's own tokens, so the two surfaces read as one product rather than as a tool and a separate marketing site.
+
+The shell is the one the Approach describes, built from three component overrides and a Markdown route. Each behaviour was confirmed by driving the built site rather than by reading the markup: the split button opens its menu and sets `aria-expanded`; *Copy page* fetches the page's Markdown and writes 4,987 characters of it to the clipboard, flipping the label and the icon; *Open in Claude* produces the `claude.ai/new?q=` URL with the `.md` address encoded into it; and the `.md` route answers `200` with `text/markdown`.
+
+Two of those runs are worth keeping, because both look like defects and are not. **A headless browser refuses `clipboard.writeText` whatever permissions are granted it**, so the copy path can only be exercised there with the clipboard call stubbed — the refusal drove the button into its failure branch, which named the failure and opened the file instead of silently doing nothing, which is the copy-failed state the research asks for. And **an Astro `<script>` carrying TypeScript syntax is dropped from the build without an error**, so the menu shipped inert until the block was written as plain JavaScript.
+
+The link check earned its place again during this work: the header's mark was written with a base path that collapsed to `/sealfavicon.svg`, and every page carried it. The build treats a missing asset as no error, so nothing else on the site could have caught it.
 
 Two guarantees are enforced by machine rather than by discipline, and each was confirmed non-vacuous by breaking it and watching the check fail:
 
@@ -78,6 +96,7 @@ The check fails rather than skips when `site/dist` is absent, exiting non-zero w
 - [x] Build the site: the landing page, the nine pages, and the visual identity drawn from the application's palette.
 - [x] The checks that hold the boundary: the build failing on a missing rendered source, and the claim check across all four surfaces.
 - [x] The link check over the built site and the repository's Markdown.
+- [x] The page shell matched to Bun's, and the Markdown route the page actions are built on.
 - [ ] Screenshots, now that the interface work they waited on has landed.
 - [~] Publish the site: the repository goes public, Pages is enabled with **Source: GitHub Actions**, and the first deployment is observed rather than assumed.
 

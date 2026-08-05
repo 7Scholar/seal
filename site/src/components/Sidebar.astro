@@ -1,0 +1,96 @@
+---
+import MobileMenuFooter from "virtual:starlight/components/MobileMenuFooter";
+
+const { sidebar } = Astro.props;
+
+const isLink = (entry) => entry.type === "link";
+---
+
+<nav class="sidebar" aria-label="Documentation">
+  {
+    sidebar.map((entry) =>
+      isLink(entry) ? (
+        <ul class="sidebar__list sidebar__list--loose">
+          <li data-active={entry.isCurrent ? "" : undefined}>
+            <a href={entry.href} aria-current={entry.isCurrent && "page"}>
+              {entry.label}
+            </a>
+          </li>
+        </ul>
+      ) : (
+        <div class="sidebar__group">
+          <h2 class="sidebar__heading">{entry.label}</h2>
+          <ul class="sidebar__list">
+            {entry.entries.map((child) => (
+              <li data-active={child.isCurrent ? "" : undefined}>
+                <a href={child.href} aria-current={child.isCurrent && "page"}>
+                  {child.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    )
+  }
+</nav>
+
+<div class="md:sl-hidden">
+  <MobileMenuFooter {...Astro.props} />
+</div>
+
+<style>
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .sidebar__heading {
+    margin: 0 0 0.4rem;
+    padding-inline: 0.6rem;
+    font-size: var(--sl-text-xs);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--sl-color-gray-3);
+  }
+
+  .sidebar__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  .sidebar__list a {
+    display: block;
+    padding: 0.35rem 0.6rem;
+    border-radius: 0.5rem;
+    color: var(--sl-color-gray-2);
+    font-size: var(--sl-text-sm);
+    line-height: 1.4;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+
+  .sidebar__list a:hover {
+    color: var(--sl-color-white);
+    background: var(--sl-color-gray-6);
+  }
+
+  .sidebar__list a:focus-visible {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: -2px;
+  }
+
+  /* The active state is held on the item and styled through the link. */
+  .sidebar__list li[data-active] > a,
+  .sidebar__list li[data-active] > a:hover {
+    color: var(--sl-color-text-accent);
+    background: var(--sl-color-accent-low);
+    font-weight: 600;
+  }
+</style>

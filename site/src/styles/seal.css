@@ -53,6 +53,74 @@
   letter-spacing: -0.01em;
 }
 
+/* ---------- shell ---------- */
+
+:root {
+  --sl-nav-height: 3.5rem;
+  --sl-sidebar-width: 17rem;
+  --sl-content-width: 47rem;
+  --sl-text-h1: 2.25rem;
+  --sl-text-h2: 1.5rem;
+  --sl-text-h3: 1.175rem;
+}
+
+.header {
+  padding-inline: 0.5rem;
+}
+
+/* The prose column holds its measure regardless of viewport width. */
+.sl-markdown-content {
+  max-width: 68ch;
+}
+
+/* A command must scroll inside its own block rather than be clipped by it. */
+.sl-markdown-content .expressive-code pre {
+  overflow-x: auto;
+}
+
+.sl-markdown-content h2,
+.sl-markdown-content h3 {
+  letter-spacing: -0.01em;
+}
+
+/* The search button is the header's centrepiece rather than a trailing control. */
+site-search button[data-open-modal] {
+  width: 100%;
+  justify-content: space-between;
+  gap: 0.5rem;
+  height: 2.25rem;
+  padding-inline: 0.85rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--sl-color-gray-6);
+  color: var(--sl-color-gray-3);
+}
+
+site-search button[data-open-modal]:hover {
+  background: var(--sl-color-gray-5);
+  color: var(--sl-color-white);
+}
+
+site-search button[data-open-modal] > kbd {
+  background: none;
+  opacity: 0.85;
+}
+
+/* ---------- on-page contents ---------- */
+
+.right-sidebar-panel a {
+  border-inline-start: 1px solid var(--sl-color-hairline);
+  border-radius: 0;
+  padding-inline-start: 0.85rem;
+}
+
+.right-sidebar-panel a[aria-current="true"] {
+  border-inline-start-color: var(--sl-color-text-accent);
+  color: var(--sl-color-text-accent);
+  background: none;
+  font-weight: 600;
+}
+
 .card,
 starlight-tabs,
 .sl-markdown-content pre {

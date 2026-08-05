@@ -1,0 +1,264 @@
+---
+interface Props {
+  markdownUrl: string;
+}
+
+const { markdownUrl } = Astro.props;
+---
+
+<seal-page-menu class="page-menu" data-markdown-url={markdownUrl}>
+  <a class="page-menu__fallback" href={markdownUrl} target="_blank" rel="noopener" data-fallback>
+    <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M11.25 2.75H5.75A1.75 1.75 0 0 0 4 4.5v11A1.75 1.75 0 0 0 5.75 17.25h8.5A1.75 1.75 0 0 0 16 15.5V7.5z"></path>
+      <path d="M11.25 2.75V7.5H16"></path>
+    </svg>
+    <span>View as Markdown</span>
+  </a>
+
+  <button type="button" class="page-menu__copy" data-copy aria-label="Copy page as Markdown" hidden>
+    <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-icon="copy">
+      <rect x="7.25" y="7.25" width="9.5" height="9.5" rx="2.25"></rect>
+      <path d="M13 4.75A2.25 2.25 0 0 0 10.75 3H5.25A2.25 2.25 0 0 0 3 5.25v5.5A2.25 2.25 0 0 0 5.25 13"></path>
+    </svg>
+    <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-icon="done" hidden>
+      <path d="M4.5 10.5 8 14l7.5-8"></path>
+    </svg>
+    <span class="page-menu__label">
+      <span aria-hidden="true" class="page-menu__ghost">Copying…</span>
+      <span data-copy-label>Copy page</span>
+    </span>
+  </button>
+
+  <button
+    type="button"
+    class="page-menu__more"
+    data-more
+    aria-label="More actions"
+    aria-haspopup="menu"
+    aria-expanded="false"
+    hidden
+  >
+    <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M6 8l4 4 4-4"></path>
+    </svg>
+  </button>
+
+  <div class="page-menu__panel" data-panel role="menu" hidden>
+    <a class="page-menu__item" role="menuitem" href={markdownUrl} target="_blank" rel="noopener">
+      <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M11.25 2.75H5.75A1.75 1.75 0 0 0 4 4.5v11A1.75 1.75 0 0 0 5.75 17.25h8.5A1.75 1.75 0 0 0 16 15.5V7.5z"></path>
+        <path d="M11.25 2.75V7.5H16"></path>
+      </svg>
+      <span>
+        <strong>View as Markdown</strong>
+        <small>View this page as plain text</small>
+      </span>
+    </a>
+
+    <button type="button" class="page-menu__item" role="menuitem" data-claude>
+      <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M17 11.5a2.5 2.5 0 0 1-2.5 2.5H7l-4 3V5.5A2.5 2.5 0 0 1 5.5 3h9A2.5 2.5 0 0 1 17 5.5z"></path>
+      </svg>
+      <span>
+        <strong>Open in Claude</strong>
+        <small>Ask questions about this page</small>
+      </span>
+    </button>
+  </div>
+</seal-page-menu>
+
+<style>
+  .page-menu {
+    display: flex;
+    align-items: stretch;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  /* `display` on the rules below would otherwise defeat the attribute. */
+  .page-menu [hidden] {
+    display: none !important;
+  }
+
+  .page-menu__fallback,
+  .page-menu__copy,
+  .page-menu__more {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2.125rem;
+    background: var(--sl-color-bg-nav);
+    border: 1px solid var(--sl-color-hairline);
+    color: var(--sl-color-gray-2);
+    font: inherit;
+    font-size: var(--sl-text-sm);
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  /* The anchor is what a reader without JavaScript gets, so it stands alone. */
+  .page-menu__fallback {
+    padding-inline: 0.75rem;
+    border-radius: 0.75rem;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .page-menu__copy {
+    padding-inline: 0.75rem;
+    border-radius: 0.75rem 0 0 0.75rem;
+    border-inline-end: 0;
+  }
+
+  .page-menu__more {
+    padding-inline: 0.5rem;
+    border-radius: 0 0.75rem 0.75rem 0;
+    color: var(--sl-color-gray-3);
+  }
+
+  .page-menu__fallback:hover,
+  .page-menu__copy:hover,
+  .page-menu__more:hover {
+    background: var(--sl-color-gray-6);
+    color: var(--sl-color-white);
+  }
+
+  .page-menu__fallback:focus-visible,
+  .page-menu__copy:focus-visible,
+  .page-menu__more:focus-visible,
+  .page-menu__item:focus-visible {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 2px;
+  }
+
+  /* The ghost label reserves the widest string so the button never resizes. */
+  .page-menu__label {
+    display: grid;
+  }
+  .page-menu__label > * {
+    grid-area: 1 / 1;
+    white-space: nowrap;
+  }
+  .page-menu__ghost {
+    visibility: hidden;
+  }
+
+  .page-menu__panel {
+    position: absolute;
+    inset-block-start: calc(100% + 0.4rem);
+    inset-inline-end: 0;
+    z-index: 20;
+    min-width: 16rem;
+    padding: 0.3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    background: var(--sl-color-bg-nav);
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 0.75rem;
+    box-shadow: 0 12px 32px rgb(0 0 0 / 0.28);
+  }
+
+  .page-menu__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.5rem 0.6rem;
+    border: 0;
+    border-radius: 0.5rem;
+    background: none;
+    color: var(--sl-color-gray-2);
+    font: inherit;
+    font-size: var(--sl-text-sm);
+    text-align: start;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .page-menu__item:hover {
+    background: var(--sl-color-gray-6);
+    color: var(--sl-color-white);
+  }
+  .page-menu__item svg {
+    margin-block-start: 0.1rem;
+    flex-shrink: 0;
+  }
+  .page-menu__item strong {
+    display: block;
+    font-weight: 500;
+  }
+  .page-menu__item small {
+    display: block;
+    color: var(--sl-color-gray-3);
+    font-size: var(--sl-text-xs);
+  }
+</style>
+
+<script>
+  class SealPageMenu extends HTMLElement {
+    connectedCallback() {
+      const markdownUrl = this.dataset.markdownUrl;
+      const fallback = this.querySelector("[data-fallback]");
+      const copy = this.querySelector("[data-copy]");
+      const more = this.querySelector("[data-more]");
+      const panel = this.querySelector("[data-panel]");
+      const label = this.querySelector("[data-copy-label]");
+      const copyIcon = this.querySelector('[data-icon="copy"]');
+      const doneIcon = this.querySelector('[data-icon="done"]');
+
+      // The split button replaces the plain anchor only once it can actually work.
+      fallback.hidden = true;
+      copy.hidden = false;
+      more.hidden = false;
+
+      const absolute = new URL(markdownUrl, location.href).href;
+
+      const close = () => {
+        panel.hidden = true;
+        more.setAttribute("aria-expanded", "false");
+      };
+
+      more.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const open = panel.hidden;
+        panel.hidden = !open;
+        more.setAttribute("aria-expanded", String(open));
+      });
+
+      document.addEventListener("click", (event) => {
+        if (!this.contains(event.target)) close();
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") close();
+      });
+
+      this.querySelector("[data-claude]").addEventListener("click", () => {
+        const question = `Read from ${absolute} so I can ask questions about it.`;
+        window.open(`https://claude.ai/new?q=${encodeURIComponent(question)}`, "_blank", "noopener");
+        close();
+      });
+
+      copy.addEventListener("click", async () => {
+        label.textContent = "Copying\u2026";
+        try {
+          const response = await fetch(markdownUrl);
+          if (!response.ok) throw new Error(String(response.status));
+          await navigator.clipboard.writeText(await response.text());
+          label.textContent = "Copied";
+          copyIcon.hidden = true;
+          doneIcon.hidden = false;
+        } catch {
+          // A refused clipboard must say so rather than look like a dead button.
+          label.textContent = "Opened instead";
+          window.open(markdownUrl, "_blank", "noopener");
+        }
+        setTimeout(() => {
+          label.textContent = "Copy page";
+          copyIcon.hidden = false;
+          doneIcon.hidden = true;
+        }, 2000);
+      });
+    }
+  }
+
+  customElements.define("seal-page-menu", SealPageMenu);
+</script>

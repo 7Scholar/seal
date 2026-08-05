@@ -22,7 +22,7 @@ Everything the documentation claims is verified rather than believed: the README
 - [x] docs.md -> the README and the documents a stranger needs to trust and contribute
 - [x] packaging.md -> bundling, distribution, and the release process
 - [x] tooling.md -> the developer-facing build scripts that encode the procedures a rebuild must follow
-- [~] site.md -> a hosted documentation website, matched against the leaders the owner named. **Built and checked, link check included; screenshots remain, and publishing awaits the repository going public.**
+- [~] site.md -> a hosted documentation website, matched against the leaders the owner named. **Built and checked, link check included, and its shell now matched to Bun's with the Markdown route the page actions run on; screenshots remain, and publishing awaits the repository going public.**
 
 # Cursor
 
@@ -41,6 +41,8 @@ Being a plain binary rather than a bundle grants no exemption: an unsigned comma
 `tooling.md` is complete, and it closed a gap rather than adding a nicety: two of this repository's build rules fail silently, both presenting as "my change did nothing" — a frontend rebuilt after the binary that embeds it, and a `seal` launcher resolving to somewhere the rebuild never touched. The script encodes the first and warns about the second.
 
 `site.md` is **built**: Astro Starlight on GitHub Pages, eleven pages in four groups plus a landing page, matched for feel against Anthropic, OpenAI, Docker and Stripe, and deliberately small. Its identity resolves the same palette the application now uses, so the two surfaces read as one product.
+
+Its **page shell is now Bun's**, which the owner named as the layout to match: a fixed header of mark, search and theme control, a fixed sidebar of two-level groups, and a page-actions control beside the title offering *Copy page*, *View as Markdown* and *Open in Claude*. It is reached by overriding three Starlight components rather than by replacing the generator, so search, the on-page contents and the rendered-source mechanism keep working underneath and all four checks keep passing. The three actions are one mechanism rather than three: every page is also served as Markdown at `/<slug>.md`, indexed by `/llms.txt`, and each action is a line over that route. Without JavaScript the control is a plain link rather than a dead button.
 
 Its content boundary against `docs.md` is the decision it existed to settle, and it is **enforced rather than agreed**. The security policy and the contributing guide are rendered from `SECURITY.md` and `CONTRIBUTING.md` at build time, so no second copy exists to go stale; removing a source fails the build. The two task guides were **moved** out of the README rather than copied, so the README contracted to a sentence and a link for each — which is what stops the site being a second README. The install commands and the two absolute limits are deliberate duplications, held identical across four surfaces by a check that refuses any page claiming a protection Seal does not have.
 

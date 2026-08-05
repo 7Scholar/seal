@@ -31,3 +31,15 @@ The interface toolchain uses Bun as package manager and script runner only. `bun
 ## 2026-07-31 — `bun.lock` is the only lockfile
 
 `package-lock.json` is deliberately absent rather than merely unused. **Why:** two lockfiles drift, and the one CI does not read is the one that silently goes stale, so a contributor running the other package manager installs a different tree from the one the checks proved. Bun migrated the original resolutions when the lockfile was created, so nothing was re-resolved in the switch. **Mistake it prevents:** restoring `package-lock.json` for the convenience of contributors who prefer npm, which reintroduces exactly the divergence having one lockfile removes.
+
+## 2026-08-05 — An Astro `<script>` carrying TypeScript syntax is dropped silently
+
+The site's client scripts are written as plain JavaScript. A `<script>` block in an `.astro` component that uses TypeScript syntax — a non-null `!`, a `querySelector<T>` generic, a type annotation — is **not** a build error: the block is discarded, the page ships without it, and the component renders inert with no warning anywhere in the output. **Why:** the failure has no error message and no failing check; the markup looks right, so the natural conclusion is that the component is not being rendered at all, and the hunt goes to the component config rather than to the script. **Mistake it prevents:** debugging a dead interactive component by rewriting its wiring or its registration, when the fix is to strip the type syntax out of the script block.
+
+## 2026-08-05 — The page actions are one Markdown route, not three features
+
+*Copy page*, *View as Markdown* and *Open in Claude* are each one line over `/<slug>.md`: the first fetches it, the second opens it, the third passes its URL to `claude.ai`. **Why:** implemented as three separate mechanisms they drift — the copied text stops matching the viewed text, and the address handed to an assistant stops resolving. **Mistake it prevents:** adding a fourth action, or "fixing" one of the three, by generating its content separately instead of pointing it at the route every one of them already shares.
+
+## 2026-08-05 — The page-actions control ships as a plain anchor and upgrades into a button
+
+What is in the HTML is a *View as Markdown* link; the copy and Claude controls carry `hidden` and are revealed only when the custom element upgrades, which also hides the anchor. **Why:** copy and Claude cannot work without JavaScript, and a reader with it blocked must meet a working link rather than a button that does nothing — the site's degraded state is a hard requirement, not a nicety. **Mistake it prevents:** rendering the split button as the default markup and treating the anchor as a fallback, which silently ships a dead control to exactly the locked-down reader a security tool must convince.

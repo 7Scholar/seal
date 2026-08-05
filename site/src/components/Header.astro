@@ -1,0 +1,97 @@
+---
+import config from "virtual:starlight/user-config";
+import Search from "virtual:starlight/components/Search";
+import SocialIcons from "virtual:starlight/components/SocialIcons";
+import ThemeSelect from "virtual:starlight/components/ThemeSelect";
+
+const shouldRenderSearch =
+  config.pagefind ||
+  config.components.Search !== "@astrojs/starlight/components/Search.astro";
+
+const { siteTitleHref } = Astro.props;
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+---
+
+<div class="header">
+  <a class="brand" href={siteTitleHref}>
+    <img class="brand__mark" src={`${base}favicon.svg`} alt="" width="26" height="26" />
+    <span class="brand__name">{config.title.en ?? config.title}</span>
+  </a>
+
+  <div class="header__search">
+    {shouldRenderSearch && <Search {...Astro.props} />}
+  </div>
+
+  <div class="header__right">
+    <div class="header__socials">
+      <SocialIcons {...Astro.props} />
+    </div>
+    <ThemeSelect {...Astro.props} />
+  </div>
+</div>
+
+<style>
+  .header {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    height: 100%;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    text-decoration: none;
+    color: var(--sl-color-white);
+    white-space: nowrap;
+    min-width: 0;
+  }
+
+  .brand__mark {
+    border-radius: 0.45rem;
+    flex-shrink: 0;
+  }
+
+  .brand__name {
+    font-size: var(--sl-text-lg);
+    font-weight: 650;
+    letter-spacing: -0.01em;
+  }
+
+  .header__search {
+    display: flex;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  /* The search button is the header's centrepiece, so it gets a real width to sit in. */
+  .header__search :global(site-search) {
+    width: 100%;
+    max-width: 28rem;
+  }
+
+  .header__right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    justify-self: end;
+  }
+
+  .header__socials {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  @media (max-width: 50rem) {
+    .header__socials {
+      display: none;
+    }
+    .header {
+      grid-template-columns: auto 1fr auto;
+    }
+  }
+</style>

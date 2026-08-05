@@ -1,3 +1,5 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use seal_dotenv::{ApplyError, EnvFile, Line, Op};
 
 const SAMPLE: &str = "# Stripe keys\nSTRIPE_SECRET=sk_live_abc\nSTRIPE_WEBHOOK=whsec_xyz\n\nDATABASE_URL=postgres://localhost/dev\n";

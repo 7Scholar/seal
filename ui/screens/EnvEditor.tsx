@@ -86,6 +86,25 @@ function newRowOrdinal(draft: Draft[], id: number): string {
   return unnamed.length > 1 ? `number ${index + 1}` : "not named yet";
 }
 
+export function canMove(draft: Draft[], id: number, delta: -1 | 1): boolean {
+  const index = draft.findIndex((row) => row.id === id);
+  const target = index + delta;
+  return index >= 0 && target >= 0 && target < draft.length;
+}
+
+export function moved(draft: Draft[], id: number, delta: -1 | 1): Draft[] {
+  const index = draft.findIndex((row) => row.id === id);
+  const target = index + delta;
+  if (index < 0 || target < 0 || target >= draft.length) return draft;
+  const next = [...draft];
+  const carried = next[index];
+  const displaced = next[target];
+  if (!carried || !displaced) return draft;
+  next[index] = displaced;
+  next[target] = carried;
+  return next;
+}
+
 function copyKey(source: string, taken: Set<string>): string {
   let candidate = `${source}_COPY`;
   let suffix = 2;
@@ -100,6 +119,21 @@ export function opsFor(draft: Draft[], original: EnvView): EditOp[] {
   const ops: EditOp[] = [];
   const drafted = new Map<number, Draft>();
   for (const row of draft) drafted.set(row.id, row);
+
+  const wasOrdered = [
+    ...original.variables.map((variable) => variable.id),
+    ...original.malformed.map((line) => line.id),
+  ].sort((left, right) => left - right);
+  const nowOrdered = draft
+    .filter((row) => !row.created)
+    .map((row) => row.id);
+
+  if (
+    nowOrdered.length === wasOrdered.length &&
+    nowOrdered.some((id, index) => id !== wasOrdered[index])
+  ) {
+    ops.push({ kind: "reorder", rows: nowOrdered });
+  }
 
   for (const variable of original.variables) {
     const row = drafted.get(variable.id);
@@ -543,6 +577,26 @@ export function EnvEditor({
                 >
                   Duplicate
                 </button>
+
+                {canMove(draft, row.id, -1) ? (
+                  <button
+                    type="button"
+                    aria-label={`Move ${row.key} up`}
+                    onClick={() => setDraft((current) => moved(current, row.id, -1))}
+                  >
+                    Move up
+                  </button>
+                ) : null}
+
+                {canMove(draft, row.id, 1) ? (
+                  <button
+                    type="button"
+                    aria-label={`Move ${row.key} down`}
+                    onClick={() => setDraft((current) => moved(current, row.id, 1))}
+                  >
+                    Move down
+                  </button>
+                ) : null}
 
                 <button
                   type="button"

@@ -55,8 +55,10 @@
 ## desktop/ui/navigation/file.md
 
 - changed ui/screens/EnvEditor.test.tsx
+  e3327c5 (4 files) "destructive-save: one confirmation, at the write"
   172ade6 (6 files) "surface: give the row its full vocabulary"
 - changed ui/screens/EnvEditor.tsx
+  e3327c5 (4 files) "destructive-save: one confirmation, at the write"
   172ade6 (6 files) "surface: give the row its full vocabulary"
 
 ## desktop/ui/navigation/files.md
@@ -137,8 +139,10 @@
 - changed ui/App.tsx
   8a4f947 (12 files) "boundary: carry rows and an edit list across the IPC surface"
 - changed ui/screens/EnvEditor.test.tsx
+  e3327c5 (4 files) "destructive-save: one confirmation, at the write"
   172ade6 (6 files) "surface: give the row its full vocabulary"
 - changed ui/screens/EnvEditor.tsx
+  e3327c5 (4 files) "destructive-save: one confirmation, at the write"
   172ade6 (6 files) "surface: give the row its full vocabulary"
 - changed ui/styles.css
   172ade6 (6 files) "surface: give the row its full vocabulary"

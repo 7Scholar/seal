@@ -742,3 +742,92 @@ describe("EnvEditor: a save that destroys", () => {
     expect(screen.getByRole("button", { name: "Save and seal" })).toBeEnabled();
   });
 });
+
+describe("EnvEditor: reordering", () => {
+  it("moves a row and sends the whole permutation", async () => {
+    const user = userEvent.setup();
+    const { onSave } = setup();
+
+    await user.click(screen.getByRole("button", { name: "Move API_KEY up" }));
+    await user.click(screen.getByRole("button", { name: "Save and seal" }));
+
+    expect(onSave).toHaveBeenCalledWith([{ kind: "reorder", rows: [2, 1] }]);
+  });
+
+  it("labels each move control with the variable it moves", () => {
+    setup();
+
+    expect(
+      screen.getByRole("button", { name: "Move DATABASE_URL down" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Move API_KEY up" })).toBeInTheDocument();
+  });
+
+  it("omits a move that cannot happen rather than disabling it", () => {
+    setup();
+
+    expect(
+      screen.queryByRole("button", { name: "Move DATABASE_URL up" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Move API_KEY down" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("moving a row back where it started leaves nothing to save", async () => {
+    const user = userEvent.setup();
+    setup();
+
+    await user.click(screen.getByRole("button", { name: "Move API_KEY up" }));
+    await user.click(screen.getByRole("button", { name: "Move API_KEY down" }));
+
+    expect(screen.getByRole("button", { name: "Save and seal" })).toBeDisabled();
+  });
+
+  it("carries every managed row, so omission can never delete one", async () => {
+    const user = userEvent.setup();
+    const { onSave } = setup({
+      variables: [
+        { id: 1, key: "ONE", masked: MASK, empty: false, disabled: false },
+        { id: 2, key: "TWO", masked: MASK, empty: false, disabled: false },
+        { id: 3, key: "THREE", masked: MASK, empty: false, disabled: false },
+      ],
+      malformed: [{ id: 4, text: "nonsense" }],
+      unparseableLines: 1,
+    });
+
+    await user.click(screen.getByRole("button", { name: "Move THREE up" }));
+    await user.click(screen.getByRole("button", { name: "Save and seal" }));
+
+    const ops = onSave.mock.calls[0]?.[0] as EditOp[];
+    const reorder = ops.find((op) => op.kind === "reorder");
+    expect(reorder).toBeDefined();
+    if (reorder?.kind === "reorder") {
+      expect([...reorder.rows].sort((a, b) => a - b)).toEqual([1, 2, 3, 4]);
+      expect(reorder.rows).toEqual([1, 3, 2, 4]);
+    }
+  });
+
+  it("orders the permutation before the removals it accompanies", async () => {
+    const user = userEvent.setup();
+    const { onSave } = setup({
+      variables: [
+        { id: 1, key: "ONE", masked: MASK, empty: false, disabled: false },
+        { id: 2, key: "TWO", masked: MASK, empty: false, disabled: false },
+        { id: 3, key: "THREE", masked: MASK, empty: false, disabled: false },
+      ],
+    });
+
+    await user.click(screen.getByRole("button", { name: "Move THREE up" }));
+    await user.click(screen.getByRole("button", { name: "Delete ONE" }));
+    await user.click(screen.getByRole("button", { name: "Save and seal" }));
+    await user.click(screen.getByRole("button", { name: "Delete and save" }));
+
+    const ops = onSave.mock.calls[0]?.[0] as EditOp[];
+    const reorderAt = ops.findIndex((op) => op.kind === "reorder");
+    const removeAt = ops.findIndex((op) => op.kind === "remove");
+    expect(reorderAt).toBeGreaterThanOrEqual(0);
+    expect(removeAt).toBeGreaterThanOrEqual(0);
+    expect(reorderAt).toBeLessThan(removeAt);
+  });
+});

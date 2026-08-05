@@ -1,9 +1,9 @@
 ---
 title: What Seal does not protect
-description: The threat model in full — what Seal defends against, what it does not, and the two things it can never do.
+description: The threat model in full — what Seal defends against, what it does not, and the two limits that will never have a workaround.
 ---
 
-This page states the boundary of Seal's guarantee. It is the longest page on this site deliberately: a security tool that is vague about its limits is worse than one that has fewer of them, because you cannot make a good decision about a protection you misunderstand.
+This page states the boundary of Seal's guarantee. It is the longest page on this site deliberately: you cannot make a good decision about a protection you misunderstand.
 
 ## What Seal defends against
 
@@ -17,7 +17,7 @@ An adversary observing the machine **while you are actively resolving a secret**
 
 At the moment of resolution the plaintext necessarily exists: in the resolving process's memory, in whatever the caller does with it, and in the unlocked application's memory during a session. A process able to read another process's memory, log your keystrokes, or capture the application's session state defeats Seal by definition, and no amount of engineering inside Seal changes that.
 
-**The guarantee is about data at rest, not data in use.** Seal must never be described as defending against the second, and this page exists partly so that nobody has to guess whether a given limit is a bug.
+**The guarantee is about data at rest, not data in use.** Seal must never be described as defending against the second.
 
 ## The two absolute limits
 
@@ -41,13 +41,13 @@ Any of those would be a copy of the key living on the machine, which is exactly 
 
 The application makes you acknowledge this before you seal anything for the first time.
 
-## Sealing does not reach processes that already had the file open
+## Sealing does not reach an already-open file
 
 A program holding a file descriptor from before the seal keeps reading the original plaintext through it, invisibly. The old contents survive as an unnamed file that appears in no directory listing and lives until that descriptor closes.
 
 This is verified behaviour, not a theoretical concern. The honest statement is that **sealing governs future opens rather than revoking access already granted** — one more reason an exposed credential is rotated rather than merely sealed.
 
-## An editor that read the file earlier can overwrite the sealed file
+## An editor can overwrite a sealed file
 
 This hazard cannot be prevented by checking whether a file is open, and Seal does not claim to.
 
@@ -55,7 +55,7 @@ Measured: an editor with files open in tabs holds **no descriptor** on any of th
 
 Seal therefore warns on a file modified moments ago rather than asserting a file is unused, and treats detection after the fact — reconciliation noticing a sealed file that became plaintext — as the primary defence.
 
-## The remaining exposures, stated rather than accepted silently
+## The remaining exposures
 
 - **A sealed file's size reveals the approximate size of its plaintext.** The number of variables in an env file is inferable by anyone who can see the file. This is acceptable, but it is not nothing, and it should not be described as leaking nothing.
 - **Plaintext held in memory may be written to swap** by the operating system, which is outside Seal's control. **Full-disk encryption is a stated prerequisite** for the guarantee, not an optional extra.

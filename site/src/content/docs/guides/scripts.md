@@ -1,9 +1,9 @@
 ---
 title: Using Seal from scripts
-description: Resolve a sealed file at the moment of use, load a whole env file, and handle exit codes and automation without a terminal.
+description: Resolve a sealed file at the moment of use, without ever writing the plaintext to disk.
 ---
 
-A deploy script asks for a file's contents at the moment it needs them, rather than keeping a decrypted copy anywhere.
+A deploy script asks for a sealed file's contents at the moment it needs them, rather than keeping a decrypted copy anywhere.
 
 ```bash
 value=$(seal resolve .env.production)
@@ -24,7 +24,7 @@ Use this rather than `source <(seal resolve .env.production)`, which looks equiv
 
 ## Exit codes
 
-Exit codes distinguish what a script would act on differently:
+`seal resolve` exits with a distinct code for each failure a script would handle differently:
 
 | Code | Meaning |
 | --- | --- |
@@ -37,7 +37,7 @@ Exit codes distinguish what a script would act on differently:
 | `8` | No terminal available to ask for a password |
 | `130` | Cancelled |
 
-A wrong password and a missing file are deliberately different codes. Some tools in this space flatten both into a generic failure, which leaves a script unable to tell a typo from a path that moved.
+A wrong password and a missing file are deliberately different codes, so a script can tell a typo from a path that moved.
 
 ## Automation without a terminal
 

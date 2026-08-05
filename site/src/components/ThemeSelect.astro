@@ -1,0 +1,139 @@
+---
+const ICONS = [
+  {
+    theme: "auto",
+    path: "M6.25 15.75h7.5M10 13.25v2.5M4.75 4.75h10.5a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H4.75a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1Z",
+  },
+  {
+    theme: "light",
+    path: "M10 3v1.5M10 15.5V17M17 10h-1.5M4.5 10H3M14.95 5.05l-1.06 1.06M6.11 13.89l-1.06 1.06M14.95 14.95l-1.06-1.06M6.11 6.11 5.05 5.05M13 10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z",
+  },
+  {
+    theme: "dark",
+    path: "M16.25 11.4A6.75 6.75 0 1 1 8.6 3.75a5.25 5.25 0 0 0 7.65 7.65Z",
+  },
+];
+---
+
+<starlight-theme-select class="theme-select">
+  <button type="button" data-cycle aria-label="Change theme preference">
+    {
+      ICONS.map(({ theme, path }) => (
+        <svg
+          viewBox="0 0 20 20"
+          width="20"
+          height="20"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+          data-theme-icon={theme}
+        >
+          <path d={path} />
+        </svg>
+      ))
+    }
+  </button>
+  <span class="theme-select__status" role="status" aria-live="polite"></span>
+</starlight-theme-select>
+
+<style>
+  .theme-select {
+    display: flex;
+    align-items: center;
+  }
+
+  .theme-select button {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: 0;
+    border-radius: var(--seal-radius-pill);
+    background: none;
+    color: var(--sl-color-gray-3);
+    cursor: pointer;
+  }
+
+  .theme-select button:hover {
+    background: var(--sl-color-gray-6);
+    color: var(--sl-color-white);
+  }
+
+  .theme-select button:focus-visible {
+    outline: var(--seal-focus-width) solid var(--seal-focus-color);
+    outline-offset: var(--seal-focus-offset);
+  }
+
+  /* All three icons occupy one cell; the theme in play chooses which is shown. */
+  .theme-select svg {
+    grid-area: 1 / 1;
+    display: none;
+  }
+
+  :global(:root[data-theme-select="auto"]) .theme-select svg[data-theme-icon="auto"],
+  :global(:root[data-theme-select="light"]) .theme-select svg[data-theme-icon="light"],
+  :global(:root[data-theme-select="dark"]) .theme-select svg[data-theme-icon="dark"] {
+    display: block;
+  }
+
+  .theme-select__status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+</style>
+
+<script>
+  class SealThemeSelect extends HTMLElement {
+    connectedCallback() {
+      const button = this.querySelector("[data-cycle]");
+      const status = this.querySelector(".theme-select__status");
+      const order = ["auto", "light", "dark"];
+      const names = { auto: "system", light: "light", dark: "dark" };
+
+      const store = (theme) => {
+        try {
+          if (theme === "auto") localStorage.removeItem("starlight-theme");
+          else localStorage.setItem("starlight-theme", theme);
+        } catch {}
+      };
+
+      const apply = (theme) => {
+        const resolved =
+          theme === "auto"
+            ? matchMedia("(prefers-color-scheme: light)").matches
+              ? "light"
+              : "dark"
+            : theme;
+        document.documentElement.dataset.theme = resolved;
+        document.documentElement.dataset.themeSelect = theme;
+        // The name stays stable per APG; the live region announces the change.
+        button.title = `Theme: ${names[theme]}`;
+      };
+
+      const current = () => document.documentElement.dataset.themeSelect || "auto";
+
+      apply(current());
+
+      button.addEventListener("click", () => {
+        const next = order[(order.indexOf(current()) + 1) % order.length];
+        store(next);
+        apply(next);
+        status.textContent = `Theme: ${names[next]}`;
+      });
+
+      matchMedia("(prefers-color-scheme: light)").addEventListener("change", () => {
+        if (current() === "auto") apply("auto");
+      });
+    }
+  }
+
+  customElements.define("starlight-theme-select", SealThemeSelect);
+</script>

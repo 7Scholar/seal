@@ -68,7 +68,7 @@ const isLink = (entry) => entry.type === "link";
   .sidebar__list a {
     display: block;
     padding: 0.35rem 0.6rem;
-    border-radius: 0.5rem;
+    border-radius: var(--seal-radius-control);
     color: var(--sl-color-gray-2);
     font-size: var(--sl-text-sm);
     line-height: 1.4;
@@ -82,8 +82,8 @@ const isLink = (entry) => entry.type === "link";
   }
 
   .sidebar__list a:focus-visible {
-    outline: 2px solid var(--sl-color-accent);
-    outline-offset: -2px;
+    outline: var(--seal-focus-width) solid var(--seal-focus-color);
+    outline-offset: calc(-1 * var(--seal-focus-offset));
   }
 
   /* The active state is held on the item and styled through the link. */

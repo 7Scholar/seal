@@ -1,6 +1,6 @@
 ---
 title: Your first sealed file
-description: The whole path in order — open the application, choose a master password, bring a repository under management, seal a file, and resolve it from a script.
+description: The whole path in order, from opening the application to resolving a sealed secret in a script.
 ---
 
 This walks the path end to end. It assumes the command-line tool is [installed](/seal/get-started/install/) and the application is built.
@@ -13,15 +13,13 @@ seal open
 
 This launches the application and returns immediately. It looks for the application beside the `seal` binary you ran first, then for one installed on your system. If it finds none it says so and exits non-zero rather than appearing to do nothing.
 
-In a source checkout, `./target/release/seal open` opens the build you just made rather than an older copy installed elsewhere.
-
 ## 2. Choose a master password
 
 The first time Seal opens, it asks you to choose a master password rather than to enter one. You type it twice, because a typo you cannot see would seal your files behind a password you do not know.
 
 This password exists **only in your head**. Seal does not store it, and there is no recovery path — see [the limits](/seal/understand/limits/) before you go further, because this is the decision that cannot be undone later.
 
-What Seal does keep is a small sealed sentinel file, so that a password you type later can be checked before the session accepts it. It stores nothing that can be recovered.
+What Seal does keep is a small sealed sentinel file, so a password you type later can be checked before the session accepts it. It stores nothing that can be recovered — it records that a master password exists, not what it is.
 
 ## 3. Bring a repository under management
 
@@ -66,4 +64,4 @@ Use this rather than `source <(seal resolve .env.production)`, which looks equiv
 
 ## What you have now
 
-A repository whose secret files sit in their normal places, unreadable at rest, resolved only at the moment something legitimately asks for them — with the key existing nowhere on the machine.
+A repository whose secret files sit in their normal places, unreadable at rest, resolved only at the moment something asks for them. The password exists nowhere on the machine.

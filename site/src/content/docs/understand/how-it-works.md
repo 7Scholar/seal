@@ -1,13 +1,13 @@
 ---
 title: How it works
-description: A sealed file is a standard age file with a passphrase, replaced atomically in place, opened only by a password that exists nowhere on the machine.
+description: A sealed file is a standard age file, replaced atomically in place, and readable without Seal ever having existed.
 ---
 
 ## A sealed file is a standard age file
 
 A sealed file is a **standard [age](https://age-encryption.org) file** with an scrypt passphrase recipient — nothing proprietary.
 
-This matters more than it sounds. If Seal disappeared tomorrow, every sealed file would still open with the stock `age` tool and your password. Your data does not depend on this project continuing to exist, and that guarantee is verified in both directions by the test suite against the reference implementation.
+This matters more than it sounds. If Seal disappeared tomorrow, every sealed file would still open with the stock `age` tool and your password. That guarantee is verified in both directions by the test suite against the reference implementation.
 
 The file stays ASCII-armored text, so it remains a well-behaved text file in a repository and is visibly, self-evidently sealed to anyone who opens it. Its contents are fully opaque — nothing of the original structure survives.
 
@@ -27,7 +27,7 @@ One password-derived artefact does live on disk: a sealed sentinel file recordin
 
 Because each sealed file carries its own password rather than pointing at a shared key, changing the master password re-seals every file under it. That cost buys real revocation rather than re-wrapping that leaves an already-captured key valid. The operation plans before touching anything, proves the new password by a round trip first, derives its progress from the files themselves so re-running is always safe, and retries transient failures rather than surfacing them.
 
-## Resolution
+## Resolving a secret
 
 Runtime resolution is a standalone command-line tool. A script asks it for a sealed file's contents, it prompts for the password on the terminal on every invocation, and it writes the plaintext to standard output for the caller to consume at the moment of use. It holds no session and never shares the application's unlocked state.
 

@@ -3,7 +3,7 @@ title: Seal
 description: Seal encrypts the secret files in your repositories in place, opened only by a password that exists nowhere on the machine.
 template: splash
 hero:
-  tagline: Your secret files stay exactly where they are, with their names plainly visible and their contents unreadable — to you, to any program on the machine, and to any agent working in the codebase.
+  tagline: Your secret files stay exactly where they are, with their names plainly visible and their contents unreadable. The only thing that opens them is a password that exists nowhere on the machine.
   actions:
     - text: Install
       link: /seal/get-started/install/
@@ -39,14 +39,14 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
   </Card>
 </CardGrid>
 
-## The path from nothing to a sealed secret
+## From nothing to a sealed secret
 
 <ol class="seal-steps">
-  <li>Install the command-line tool, and build the application from source.</li>
+  <li>Install the command-line tool. Build the application from source.</li>
   <li>Open the application and choose a master password. It is never stored anywhere.</li>
   <li>Point it at a repository. Seal finds the files that look like secrets and proposes them.</li>
   <li>Seal a file. It stays at its own path, with its name visible and its contents opaque.</li>
-  <li>Resolve it from a deploy script at the moment it is needed.</li>
+  <li>Resolve the secret from a deploy script at the moment it is needed, with the password typed on your terminal.</li>
 </ol>
 
 <div class="seal-limits">

@@ -1,0 +1,19 @@
+{/* Inlined so the theme — and the control's icon — are correct before paint. */}
+<script is:inline>
+  window.StarlightThemeProvider = (() => {
+    let stored = null;
+    try {
+      stored = localStorage.getItem("starlight-theme");
+    } catch {}
+    const select = stored === "light" || stored === "dark" ? stored : "auto";
+    const resolved =
+      select === "auto"
+        ? window.matchMedia("(prefers-color-scheme: light)").matches
+          ? "light"
+          : "dark"
+        : select;
+    document.documentElement.dataset.theme = resolved;
+    document.documentElement.dataset.themeSelect = select;
+    return { updatePickers() {} };
+  })();
+</script>

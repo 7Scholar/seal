@@ -20,7 +20,17 @@
 
   --seal-danger: #ff7b8a;
   --seal-danger-surface: #3a1d24;
-  --seal-radius: 1rem;
+
+  --seal-radius-pill: 999px;
+  --seal-radius-control: 0.625rem;
+  --seal-radius-container: 1rem;
+  --seal-radius: var(--seal-radius-container);
+
+  --seal-focus-width: 2px;
+  --seal-focus-offset: 2px;
+  --seal-focus-color: var(--sl-color-accent);
+
+  --pagefind-ui-border-radius: var(--seal-radius-container);
 }
 
 :root[data-theme="light"] {
@@ -64,7 +74,11 @@
   --sl-text-h3: 1.175rem;
 }
 
+/* Starlight pads `header.header` on the block axis, so an inner box sized to
+   100% fills the padded area and every child lands below the header's centre.
+   The padding is dropped and the inner grid takes the full height instead. */
 .header {
+  padding-block: 0;
   padding-inline: 0.5rem;
 }
 
@@ -73,9 +87,13 @@
   max-width: 68ch;
 }
 
-/* A command must scroll inside its own block rather than be clipped by it. */
+/* A command must scroll inside its own block rather than be clipped by it, and
+   a command wider than the column must show that it continues — otherwise the
+   clipped edge reads as the end of the command. */
 .sl-markdown-content .expressive-code pre {
   overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--sl-color-gray-4) transparent;
 }
 
 .sl-markdown-content h2,
@@ -90,20 +108,93 @@ site-search button[data-open-modal] {
   gap: 0.5rem;
   height: 2.25rem;
   padding-inline: 0.85rem;
-  border: 0;
-  border-radius: 999px;
+  border: 1px solid transparent;
+  border-radius: var(--seal-radius-pill);
   background: var(--sl-color-gray-6);
   color: var(--sl-color-gray-3);
 }
 
 site-search button[data-open-modal]:hover {
   background: var(--sl-color-gray-5);
+  border-color: var(--sl-color-hairline);
+  color: var(--sl-color-white);
+}
+
+site-search button[data-open-modal]:focus-visible {
+  outline: var(--seal-focus-width) solid var(--seal-focus-color);
+  outline-offset: var(--seal-focus-offset);
   color: var(--sl-color-white);
 }
 
 site-search button[data-open-modal] > kbd {
   background: none;
   opacity: 0.85;
+}
+
+/* ---------- search modal ---------- */
+
+site-search dialog {
+  border-radius: var(--seal-radius-container);
+  border: 1px solid var(--sl-color-hairline);
+}
+
+site-search #starlight__search {
+  --pagefind-ui-border-radius: var(--seal-radius-control);
+}
+
+site-search .pagefind-ui__search-input {
+  border-radius: var(--seal-radius-control);
+}
+
+site-search .pagefind-ui__result {
+  border-radius: var(--seal-radius-control);
+  padding-inline: 0.6rem;
+}
+
+site-search .pagefind-ui__result:hover,
+site-search .pagefind-ui__result:focus-within {
+  background: var(--sl-color-gray-6);
+}
+
+site-search .pagefind-ui__result-link:focus-visible {
+  outline: var(--seal-focus-width) solid var(--seal-focus-color);
+  outline-offset: var(--seal-focus-offset);
+  border-radius: var(--seal-radius-control);
+}
+
+/* The zero-results state is designed rather than left as a bare line of bold
+   text. Pagefind always renders the results list, so the empty list is the
+   hook: when it holds nothing, the message becomes the whole surface and
+   carries the way out of it. */
+site-search .pagefind-ui__results-area:has(.pagefind-ui__results:empty) .pagefind-ui__message {
+  display: block;
+  margin: 0;
+  padding: 1.5rem 1rem 1.75rem;
+  color: var(--sl-color-white);
+  font-size: var(--sl-text-base);
+  font-weight: 600;
+  text-align: center;
+}
+
+site-search
+  .pagefind-ui__results-area:has(.pagefind-ui__results:empty)
+  .pagefind-ui__message::after {
+  content: "Nothing on the site matches. Every page is reachable from the sidebar — search is never the only route.";
+  display: block;
+  max-width: 26rem;
+  margin: 0.5rem auto 0;
+  color: var(--sl-color-gray-3);
+  font-size: var(--sl-text-sm);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+site-search .search-fallback {
+  display: block;
+  padding: 1.25rem 1rem;
+  color: var(--sl-color-gray-3);
+  font-size: var(--sl-text-sm);
+  text-align: center;
 }
 
 /* ---------- on-page contents ---------- */
@@ -124,11 +215,46 @@ site-search button[data-open-modal] > kbd {
 .card,
 starlight-tabs,
 .sl-markdown-content pre {
-  border-radius: var(--seal-radius);
+  border-radius: var(--seal-radius-container);
+}
+
+/* ---------- landing page ---------- */
+
+/* Starlight's hero pads for an image this page does not carry, which leaves a
+   gap between the tagline and the cards that reads as a missing element. */
+.hero {
+  padding-block: 3.5rem 2.5rem;
+}
+
+.hero .tagline {
+  max-width: 46ch;
+}
+
+/* ---------- landing cards ---------- */
+
+.card {
+  border-color: var(--sl-color-hairline);
+  background: var(--sl-color-bg-nav);
+}
+
+/* Starlight tints each card icon from its own hue palette by position, which
+   puts amber, green and red on a page whose colours are the application's.
+   Both tokens resolve to the palette so every card icon reads the same. */
+.card-grid .card .icon,
+.card .icon {
+  border: 1px solid var(--sl-color-hairline);
+  background-color: var(--sl-color-gray-6);
+  border-radius: var(--seal-radius-control);
+  color: var(--sl-color-text-accent);
+  padding: 0.3rem;
+}
+
+.card .title {
+  color: var(--sl-color-white);
 }
 
 .sl-markdown-content :not(pre) > code {
-  border-radius: 0.5rem;
+  border-radius: var(--seal-radius-control);
 }
 
 .seal-limits {
@@ -161,6 +287,19 @@ starlight-tabs,
   position: relative;
   padding-left: 2.6rem;
   margin-block: 0.85rem;
+}
+
+/* ---------- motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 .seal-steps li::before {

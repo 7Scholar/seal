@@ -99,20 +99,20 @@ const { markdownUrl } = Astro.props;
   /* The anchor is what a reader without JavaScript gets, so it stands alone. */
   .page-menu__fallback {
     padding-inline: 0.75rem;
-    border-radius: 0.75rem;
+    border-radius: var(--seal-radius-control);
     text-decoration: none;
     white-space: nowrap;
   }
 
   .page-menu__copy {
     padding-inline: 0.75rem;
-    border-radius: 0.75rem 0 0 0.75rem;
+    border-radius: var(--seal-radius-control) 0 0 var(--seal-radius-control);
     border-inline-end: 0;
   }
 
   .page-menu__more {
     padding-inline: 0.5rem;
-    border-radius: 0 0.75rem 0.75rem 0;
+    border-radius: 0 var(--seal-radius-control) var(--seal-radius-control) 0;
     color: var(--sl-color-gray-3);
   }
 
@@ -127,8 +127,8 @@ const { markdownUrl } = Astro.props;
   .page-menu__copy:focus-visible,
   .page-menu__more:focus-visible,
   .page-menu__item:focus-visible {
-    outline: 2px solid var(--sl-color-accent);
-    outline-offset: 2px;
+    outline: var(--seal-focus-width) solid var(--seal-focus-color);
+    outline-offset: var(--seal-focus-offset);
   }
 
   /* The ghost label reserves the widest string so the button never resizes. */
@@ -155,7 +155,7 @@ const { markdownUrl } = Astro.props;
     gap: 0.1rem;
     background: var(--sl-color-bg-nav);
     border: 1px solid var(--sl-color-hairline);
-    border-radius: 0.75rem;
+    border-radius: var(--seal-radius-container);
     box-shadow: 0 12px 32px rgb(0 0 0 / 0.28);
   }
 
@@ -165,7 +165,7 @@ const { markdownUrl } = Astro.props;
     gap: 0.6rem;
     padding: 0.5rem 0.6rem;
     border: 0;
-    border-radius: 0.5rem;
+    border-radius: var(--seal-radius-control);
     background: none;
     color: var(--sl-color-gray-2);
     font: inherit;
@@ -212,29 +212,70 @@ const { markdownUrl } = Astro.props;
 
       const absolute = new URL(markdownUrl, location.href).href;
 
-      const close = () => {
+      const items = () => Array.from(panel.querySelectorAll('[role="menuitem"]'));
+
+      // Focus returns to the trigger, so a keyboard reader is never dropped at
+      // the top of the document after dismissing the menu.
+      const close = (returnFocus) => {
+        if (panel.hidden) return;
         panel.hidden = true;
         more.setAttribute("aria-expanded", "false");
+        if (returnFocus) more.focus();
+      };
+
+      const open = (focusFirst) => {
+        panel.hidden = false;
+        more.setAttribute("aria-expanded", "true");
+        if (focusFirst) items()[0]?.focus();
       };
 
       more.addEventListener("click", (event) => {
         event.stopPropagation();
-        const open = panel.hidden;
-        panel.hidden = !open;
-        more.setAttribute("aria-expanded", String(open));
+        panel.hidden ? open(false) : close(false);
+      });
+
+      more.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          open(true);
+        } else if (event.key === "ArrowUp") {
+          event.preventDefault();
+          open(false);
+          items().at(-1)?.focus();
+        }
+      });
+
+      panel.addEventListener("keydown", (event) => {
+        const list = items();
+        const at = list.indexOf(document.activeElement);
+        if (event.key === "ArrowDown") {
+          event.preventDefault();
+          list[(at + 1) % list.length]?.focus();
+        } else if (event.key === "ArrowUp") {
+          event.preventDefault();
+          list[(at - 1 + list.length) % list.length]?.focus();
+        } else if (event.key === "Home") {
+          event.preventDefault();
+          list[0]?.focus();
+        } else if (event.key === "End") {
+          event.preventDefault();
+          list.at(-1)?.focus();
+        } else if (event.key === "Tab") {
+          close(false);
+        }
       });
 
       document.addEventListener("click", (event) => {
-        if (!this.contains(event.target)) close();
+        if (!this.contains(event.target)) close(false);
       });
       document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") close();
+        if (event.key === "Escape") close(this.contains(document.activeElement));
       });
 
       this.querySelector("[data-claude]").addEventListener("click", () => {
         const question = `Read from ${absolute} so I can ask questions about it.`;
         window.open(`https://claude.ai/new?q=${encodeURIComponent(question)}`, "_blank", "noopener");
-        close();
+        close(true);
       });
 
       copy.addEventListener("click", async () => {

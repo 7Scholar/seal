@@ -1,6 +1,6 @@
 ---
 title: Install
-description: Install the Seal command-line tool with one command, and build the desktop application from source.
+description: Install the command-line tool with Homebrew or the installer script, and build the desktop application from source.
 ---
 
 ## The command-line tool
@@ -19,7 +19,7 @@ curl -fsSL https://raw.githubusercontent.com/7scholar/seal/main/scripts/install.
 
 The script picks the right build for your platform, checks it against the published checksum, and refuses to install anything that does not match. It installs to `~/.local/bin` or `/usr/local/bin`, whichever it can write to; set `SEAL_INSTALL_DIR` to choose.
 
-If you would rather read it before running it — reasonable for any install script, more so for one shipping a tool that holds your secrets — it is [`scripts/install.sh`](https://github.com/7scholar/seal/blob/main/scripts/install.sh), and you can download it, read it, and run it as separate steps.
+If you would rather read it before running it — reasonable for any install script, more so for one shipping a tool that holds your secrets — it is [`scripts/install.sh`](https://github.com/7scholar/seal/blob/main/scripts/install.sh). Download it, read it, and run it as three steps.
 
 Either way, check what you got:
 
@@ -39,9 +39,7 @@ bun run build
 cargo build --release --manifest-path src-tauri/Cargo.toml --features custom-protocol
 ```
 
-That produces `target/release/seal-desktop`, which you can run directly.
-
-The `--features custom-protocol` is not optional: without it the binary looks for a development server and shows a blank window.
+That produces `target/release/seal-desktop`, which you can run directly. The `--features custom-protocol` is not optional: without it the binary looks for a development server and shows a blank window.
 
 If you also build the command-line tool from the same checkout — `cargo build --release -p seal-cli` — then `./target/release/seal open` launches this build, because `seal open` prefers the application sitting beside it over any other installation.
 

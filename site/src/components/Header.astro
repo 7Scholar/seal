@@ -3,19 +3,18 @@ import config from "virtual:starlight/user-config";
 import Search from "virtual:starlight/components/Search";
 import SocialIcons from "virtual:starlight/components/SocialIcons";
 import ThemeSelect from "virtual:starlight/components/ThemeSelect";
+import BrandMark from "./BrandMark.astro";
 
 const shouldRenderSearch =
   config.pagefind ||
   config.components.Search !== "@astrojs/starlight/components/Search.astro";
 
 const { siteTitleHref } = Astro.props;
-
-const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 ---
 
 <div class="header">
   <a class="brand" href={siteTitleHref}>
-    <img class="brand__mark" src={`${base}favicon.svg`} alt="" width="26" height="26" />
+    <BrandMark size={26} />
     <span class="brand__name">{config.title.en ?? config.title}</span>
   </a>
 
@@ -37,7 +36,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
     grid-template-columns: auto 1fr auto;
     align-items: center;
     gap: 1rem;
-    height: 100%;
+    block-size: var(--sl-nav-height);
   }
 
   .brand {
@@ -50,9 +49,10 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
     min-width: 0;
   }
 
-  .brand__mark {
-    border-radius: 0.45rem;
-    flex-shrink: 0;
+  .brand:focus-visible {
+    outline: var(--seal-focus-width) solid var(--seal-focus-color);
+    outline-offset: var(--seal-focus-offset);
+    border-radius: var(--seal-radius-control);
   }
 
   .brand__name {

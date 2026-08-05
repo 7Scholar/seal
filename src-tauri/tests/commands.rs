@@ -1138,3 +1138,67 @@ fn an_unseal_outcome_never_carries_secret_material() {
     assert!(!serialized.contains("sk-live-42"));
     assert!(!serialized.contains(PASSPHRASE));
 }
+
+#[test]
+fn a_whole_session_of_interface_edits_applies_as_one_batch() {
+    let source =
+        b"# Stripe\nSTRIPE_SECRET=sk_live\nSTRIPE_HOOK=whsec\n\n# DISABLED_ONE=paused\nDATABASE_URL=postgres://x\nthis line is broken\n";
+    let view = seal_desktop::view::env_view(Path::new(".env"), source);
+
+    let id = |key: &str| {
+        view.variables
+            .iter()
+            .find(|variable| variable.key == key)
+            .unwrap_or_else(|| panic!("{key} must be in the view"))
+            .id
+    };
+    let broken = view.malformed[0].id;
+
+    assert!(
+        view.variables
+            .iter()
+            .any(|variable| variable.key == "DISABLED_ONE" && variable.disabled),
+        "the commented-out line reaches the interface as a disabled variable"
+    );
+
+    let ops = vec![
+        Op::Reorder {
+            rows: vec![
+                RowId::new(id("DATABASE_URL")),
+                RowId::new(id("STRIPE_SECRET")),
+                RowId::new(id("STRIPE_HOOK")),
+                RowId::new(id("DISABLED_ONE")),
+                RowId::new(broken),
+            ],
+        },
+        Op::SetKey {
+            row: RowId::new(id("STRIPE_SECRET")),
+            key: "STRIPE_KEY".to_owned(),
+        },
+        Op::SetDisabled {
+            row: RowId::new(id("DISABLED_ONE")),
+            disabled: false,
+        },
+        Op::ReplaceMalformed {
+            row: RowId::new(broken),
+            text: "FIXED=now".to_owned(),
+        },
+        Op::Insert {
+            after: Some(RowId::new(id("DATABASE_URL"))),
+            key: "REDIS_URL".to_owned(),
+            value: "redis://y".to_owned(),
+            disabled: false,
+        },
+        Op::Remove {
+            row: RowId::new(id("STRIPE_HOOK")),
+        },
+    ];
+
+    let written = seal_desktop::view::apply_ops(source, &ops).expect("the batch applies");
+    let text = String::from_utf8(written).expect("utf8");
+
+    assert_eq!(
+        text,
+        "# Stripe\nDATABASE_URL=postgres://x\nREDIS_URL=redis://y\nSTRIPE_KEY=sk_live\n\nDISABLED_ONE=paused\nFIXED=now\n"
+    );
+}

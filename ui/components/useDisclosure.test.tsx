@@ -3,7 +3,6 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Overflow } from "./Overflow";
 import { Toggletip } from "./Toggletip";
-import { ThemeControl } from "./ThemeControl";
 import { Switcher } from "./Switcher";
 
 function open(name: string) {
@@ -34,17 +33,6 @@ const disclosures = [
       </>
     ),
     shown: () => screen.queryByText("Seal watches these files."),
-  },
-  {
-    what: "the theme control",
-    trigger: "Theme: System",
-    render: () => (
-      <>
-        <button type="button">elsewhere</button>
-        <ThemeControl mode="system" onChoose={vi.fn()} />
-      </>
-    ),
-    shown: () => screen.queryByRole("button", { name: /^Dark/ }),
   },
   {
     what: "the switcher",

@@ -56,25 +56,25 @@ describe("the title bar is a real window control surface", () => {
   });
 
   it("keeps the strip's controls operable, and the theme applies live", async () => {
-    await $('button[aria-label^="Theme:"]').click();
-    await expect($("button=Light")).toBeDisplayed();
-    await $("button=Light").click();
+    await $('button[aria-label^="Theme: System"]').click();
 
     const applied = await browser.execute(
       () => document.documentElement.dataset.theme,
     );
     if (applied !== "light") {
-      throw new Error(`choosing Light did not apply it: ${applied}`);
+      throw new Error(`one press did not reach Light: ${applied}`);
     }
 
-    await $('button[aria-label^="Theme:"]').click();
-    await $("button=Dark").click();
+    await $('button[aria-label^="Theme: Light"]').click();
     const back = await browser.execute(
       () => document.documentElement.dataset.theme,
     );
     if (back !== "dark") {
-      throw new Error(`choosing Dark did not apply it: ${back}`);
+      throw new Error(`a second press did not reach Dark: ${back}`);
     }
+
+    await $('button[aria-label^="Theme: Dark"]').click();
+    await expect($('button[aria-label^="Theme: System"]')).toBeDisplayed();
   });
 
   it("does not let the strip's own text be selected like content", async () => {

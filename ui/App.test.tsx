@@ -359,33 +359,38 @@ describe("the application shell", () => {
 });
 
 describe("the theme control", () => {
-  it("offers the three modes with the current one marked", async () => {
-    const user = userEvent.setup();
+  it("names the current mode and the one a press moves to", async () => {
     await openApp();
 
-    await user.click(screen.getByRole("button", { name: "Theme: System" }));
-
-    expect(screen.getByRole("button", { name: "System" })).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
-    expect(screen.getByRole("button", { name: "Light" })).toHaveAttribute(
-      "aria-pressed",
-      "false",
-    );
+    expect(
+      screen.getByRole("button", { name: "Theme: System. Switch to Light." }),
+    ).toBeInTheDocument();
   });
 
-  it("applies and stores a chosen mode", async () => {
+  it("cycles system to light to dark and back on successive presses", async () => {
     const user = userEvent.setup();
     await openApp();
 
-    await user.click(screen.getByRole("button", { name: "Theme: System" }));
-    await user.click(screen.getByRole("button", { name: "Light" }));
-
+    await user.click(
+      screen.getByRole("button", { name: "Theme: System. Switch to Light." }),
+    );
     expect(mocked.setThemeMode).toHaveBeenCalledWith("light");
     await waitFor(() => {
       expect(document.documentElement.dataset.theme).toBe("light");
     });
+
+    await user.click(
+      screen.getByRole("button", { name: "Theme: Light. Switch to Dark." }),
+    );
+    expect(mocked.setThemeMode).toHaveBeenCalledWith("dark");
+    await waitFor(() => {
+      expect(document.documentElement.dataset.theme).toBe("dark");
+    });
+
+    await user.click(
+      screen.getByRole("button", { name: "Theme: Dark. Switch to System." }),
+    );
+    expect(mocked.setThemeMode).toHaveBeenCalledWith("system");
   });
 
   it("starts from the stored mode rather than the default", async () => {
@@ -394,7 +399,7 @@ describe("the theme control", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByRole("button", { name: "Theme: Dark" }),
+        screen.getByRole("button", { name: "Theme: Dark. Switch to System." }),
       ).toBeInTheDocument();
     });
     expect(document.documentElement.dataset.theme).toBe("dark");

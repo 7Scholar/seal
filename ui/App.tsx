@@ -768,14 +768,9 @@ interface FrameProps {
 }
 
 function Frame({ trail, controls, children }: FrameProps) {
-  const bare = !trail && !controls;
   return (
     <div className="shell">
-      <header
-        className="shell__titlebar"
-        data-bare={bare || undefined}
-        data-tauri-drag-region="deep"
-      >
+      <header className="shell__titlebar" data-tauri-drag-region="deep">
         {trail}
         <span className="shell__spacer" />
         {controls}

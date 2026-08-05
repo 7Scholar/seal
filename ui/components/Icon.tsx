@@ -6,7 +6,9 @@ export type IconName =
   | "check"
   | "plus"
   | "search"
-  | "theme";
+  | "sun"
+  | "moon"
+  | "monitor";
 
 const PATHS: Record<IconName, string> = {
   "chevron-up-down": "M7 8.5 10 5l3 3.5M7 11.5l3 3.5 3-3.5",
@@ -16,7 +18,9 @@ const PATHS: Record<IconName, string> = {
   check: "m5 10.5 3.5 3.5L15 6.5",
   plus: "M10 5v10M5 10h10",
   search: "M13 13l3 3M8.75 14a5.25 5.25 0 1 0 0-10.5 5.25 5.25 0 0 0 0 10.5Z",
-  theme: "M10 3.5v13a6.5 6.5 0 0 0 0-13Zm0 0a6.5 6.5 0 0 0 0 13",
+  sun: "M10 13.25a3.25 3.25 0 1 0 0-6.5 3.25 3.25 0 0 0 0 6.5ZM10 2.75v1.5M10 15.75v1.5M4.87 4.87l1.06 1.06M14.07 14.07l1.06 1.06M2.75 10h1.5M15.75 10h1.5M4.87 15.13l1.06-1.06M14.07 5.93l1.06-1.06",
+  moon: "M16 12.35A6.75 6.75 0 0 1 7.65 4a6.75 6.75 0 1 0 8.35 8.35Z",
+  monitor: "M4.25 4.75h11.5a1 1 0 0 1 1 1v6.5a1 1 0 0 1-1 1H4.25a1 1 0 0 1-1-1v-6.5a1 1 0 0 1 1-1ZM7.5 16.25h5M10 13.25v3",
 };
 
 interface Props {

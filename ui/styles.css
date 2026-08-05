@@ -118,7 +118,6 @@ input {
   user-select: none;
   cursor: default;
 }
-.shell__titlebar[data-bare] { background: transparent; border-bottom-color: transparent; }
 .shell__titlebar button { padding: 0.2rem 0.6rem; font-size: 0.82rem; }
 .shell__titlebar .overflow__trigger { padding: 0; }
 .shell__spacer { flex: 1; }
@@ -197,20 +196,13 @@ input {
 }
 .exposure-pill:hover:not(:disabled) { border-color: var(--danger); filter: brightness(1.1); }
 
-.theme { position: relative; display: inline-flex; }
-.theme__menu {
-  position: absolute; top: 100%; right: 0; z-index: 30;
-  display: flex; flex-direction: column; width: max-content; min-width: 9rem;
-  margin-top: 0.3rem; padding: 0.3rem;
-  background: var(--raised); border: 1px solid var(--line);
-  border-radius: var(--radius-lg); box-shadow: var(--shadow);
+.theme__cycle {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.75rem; height: 1.75rem; padding: 0; line-height: 1;
+  border-radius: var(--radius-md); border-color: transparent;
+  background: none; color: var(--muted);
 }
-.theme__menu button {
-  display: flex; align-items: center; gap: 0.5rem;
-  border: 0; background: none; text-align: left; border-radius: var(--radius-md);
-}
-.theme__menu button:hover:not(:disabled) { background: var(--hover); border-color: transparent; }
-.theme__tick { width: 0.9rem; color: var(--accent); }
+.theme__cycle:hover:not(:disabled) { color: var(--text); background: var(--hover); border-color: var(--line); }
 
 /* ---------- repositories grid ---------- */
 
@@ -549,10 +541,6 @@ input {
 .confirm__danger { border-color: var(--danger); color: var(--danger); }
 .confirm__gate { display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.8rem; }
 .confirm__list { margin: 0.6rem 0 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.25rem; color: var(--muted); }
-
-.shell:has(.unlock) {
-  background: radial-gradient(ellipse at 50% 38%, #f7f1e3 0%, #e6ddc9 46%, #c8bfab 100%);
-}
 
 .unlock {
   position: relative;

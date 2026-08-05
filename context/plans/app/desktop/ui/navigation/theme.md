@@ -44,7 +44,7 @@ The mode is read once when the interface starts and applied before the first pai
 
 A single control in the title bar's trailing group, beside Lock. It is a three-way choice rather than a toggle, because a toggle cannot express `system` — and `system` is the default, so a control that cannot reach it would strand every user who never changed it.
 
-It follows the same disclosure contract as every other collapsed thing here: a button carrying `aria-expanded` opening a small menu of the three modes with the current one marked, dismissed on Escape and on an outside click. Its accessible name states the current mode, so a screen-reader user knows what it is set to without opening it.
+It is a single button rather than a disclosure: pressing it advances system → light → dark → system, and it carries the icon of the mode currently in force — a monitor, a sun, a moon — so the setting is legible without opening anything. Its accessible name states both halves of that, the mode now and the mode a press moves to, because an icon-only control that changes on activation is otherwise silent about what it will do. Three modes is short enough for a cycle to stay predictable; a longer list would want the menu back.
 
 Choosing a mode applies it immediately and writes it; there is no confirmation and no save step, because it is instantly reversible and instantly visible.
 

@@ -1,7 +1,11 @@
-import { useId } from "react";
 import { MODE_LABELS, MODES, type Mode } from "../theme";
-import { Icon } from "./Icon";
-import { useDisclosure } from "./useDisclosure";
+import { Icon, type IconName } from "./Icon";
+
+const MODE_ICONS: Record<Mode, IconName> = {
+  system: "monitor",
+  light: "sun",
+  dark: "moon",
+};
 
 interface Props {
   mode: Mode;
@@ -9,42 +13,16 @@ interface Props {
 }
 
 export function ThemeControl({ mode, onChoose }: Props) {
-  const { open, setOpen, wrapper, trigger, dismiss } = useDisclosure();
-  const menuId = useId();
+  const next = MODES[(MODES.indexOf(mode) + 1) % MODES.length]!;
 
   return (
-    <span className="theme" ref={wrapper}>
-      <button
-        type="button"
-        ref={trigger}
-        aria-expanded={open}
-        aria-controls={menuId}
-        aria-label={`Theme: ${MODE_LABELS[mode]}`}
-        onClick={() => setOpen((was) => !was)}
-      >
-        <Icon name="theme" />
-      </button>
-
-      {open ? (
-        <span id={menuId} className="theme__menu">
-          {MODES.map((option) => (
-            <button
-              key={option}
-              type="button"
-              aria-pressed={option === mode}
-              onClick={() => {
-                onChoose(option);
-                dismiss();
-              }}
-            >
-              <span className="theme__tick">
-                {option === mode ? <Icon name="check" /> : null}
-              </span>
-              {MODE_LABELS[option]}
-            </button>
-          ))}
-        </span>
-      ) : null}
-    </span>
+    <button
+      type="button"
+      className="theme__cycle"
+      aria-label={`Theme: ${MODE_LABELS[mode]}. Switch to ${MODE_LABELS[next]}.`}
+      onClick={() => onChoose(next)}
+    >
+      <Icon name={MODE_ICONS[mode]} />
+    </button>
   );
 }

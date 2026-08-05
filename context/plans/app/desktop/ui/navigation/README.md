@@ -46,7 +46,7 @@ The strip is also the window's **drag region**, which it was not before ([title-
 
 This governs the whole window, not only the trail. `.shell` is the sole `100vh` element, so a surface asking to fill the window resolves its height against the shell's main region — which is what lets the manage surface be a fixed frame with one scrolling region rather than a document that flows.
 
-**The strip's contents vary; its presence does not.** The trail and the session controls belong to an unlocked session at an altitude, so the locked screen and the two overlay surfaces carry a **bare** strip: the drag region and the window-control inset, and nothing else. A bare strip draws no background and no divider, because a surface designed to fill the window — the unlock shield — must not be cut by an opaque bar it did not ask for. The shield's own gradient is drawn by the shell in that state so it reaches behind the strip rather than starting below it.
+**The strip's contents vary; its presence does not.** The trail and the session controls belong to an unlocked session at an altitude, so the locked screen and the two overlay surfaces carry an empty strip: the drag region and the window-control inset, and nothing else. It is empty of contents, not of treatment — every surface draws the same background and the same divider, so the window's top edge is one shape throughout and the locked screen is recognisably the same application as the one behind it.
 
 ### The trail's shape
 

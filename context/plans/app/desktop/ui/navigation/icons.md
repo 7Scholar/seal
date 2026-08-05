@@ -12,7 +12,7 @@ There is no icon system in the product. Every glyph in the interface is a **text
 | --- | --- | --- |
 | `⌃⌄` | `Switcher` trigger | chevron-up-down |
 | `···` | `Overflow` trigger | horizontal ellipsis / kebab |
-| `◐` | `ThemeControl` trigger | theme icon |
+| `◐` | `ThemeControl` trigger | the current mode's icon: monitor, sun, or moon |
 | `✓` | `Switcher`, `ThemeControl` | check |
 | `▾` / `▸` | `FileTree` twisty | caret |
 
@@ -26,7 +26,7 @@ The reference the product owner supplied shows a real chevron-up-down icon in th
 
 One component, `Icon`, holding a **path table keyed by name** and rendering a single `<svg>` on a fixed `0 0 20 20` grid with `currentColor` and a fixed stroke. Nothing else in the interface draws a glyph.
 
-Hand-rolled rather than vendored. The set is small and closed — chevron-up-down, chevron-down, chevron-right, vertical ellipsis, check, plus, search, theme — and a dependency for eight paths would cost more in bundle and supply chain than it saves. Inline SVG also satisfies [the CSP](../shell.md) without a build step: nothing is fetched.
+Hand-rolled rather than vendored. The set is small and closed — chevron-up-down, chevron-down, chevron-right, vertical ellipsis, check, plus, search, sun, moon, monitor — and a dependency for ten paths would cost more in bundle and supply chain than it saves. Inline SVG also satisfies [the CSP](../shell.md) without a build step: nothing is fetched.
 
 The glyphs are `aria-hidden` and `focusable="false"` throughout. Every one sits inside a control that already carries its own accessible name, so an icon that announced itself would double it.
 

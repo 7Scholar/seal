@@ -74,24 +74,28 @@ describe("every surface sits in the window's frame", () => {
 
     const strip = await browser.execute(() => {
       const bar = document.querySelector(".shell__titlebar");
-      const shell = document.querySelector(".shell");
-      if (!bar || !shell) return null;
+      const unlocked = document.querySelector(".shell__main");
+      if (!bar || !unlocked) return null;
+      const style = getComputedStyle(bar);
       return {
-        background: getComputedStyle(bar).backgroundColor,
-        shellBackground: getComputedStyle(shell).backgroundImage,
+        background: style.backgroundColor,
+        border: style.borderBottomColor,
+        borderWidth: style.borderBottomWidth,
       };
     });
-    console.log("LOCKED STRIP →", JSON.stringify(strip));
 
     if (!strip) throw new Error("locked: the shell or its strip is absent");
-    if (!strip.background.includes("rgba(0, 0, 0, 0)")) {
+    if (strip.background.includes("rgba(0, 0, 0, 0)")) {
       throw new Error(
-        `locked: the strip draws an opaque bar (${strip.background}) across the shield rather than letting it through`,
+        `locked: the strip is transparent (${strip.background}) rather than carrying the same bar as every other surface`,
       );
     }
-    if (!strip.shellBackground.includes("gradient")) {
+    if (
+      strip.border.includes("rgba(0, 0, 0, 0)") ||
+      strip.borderWidth === "0px"
+    ) {
       throw new Error(
-        `locked: the shield's gradient does not reach behind the strip (${strip.shellBackground})`,
+        `locked: the strip draws no divider (${strip.border} at ${strip.borderWidth}) where every other surface has one`,
       );
     }
   });

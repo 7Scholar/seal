@@ -8,9 +8,9 @@
     "ui/styles.css": "37ed805072fcc406b92464aef3a3dd45f8a314a5"
   },
   "managed-view.md": {
-    "ui/App.test.tsx": "37ed805072fcc406b92464aef3a3dd45f8a314a5",
-    "ui/screens/RepoDetail.test.tsx": "37ed805072fcc406b92464aef3a3dd45f8a314a5",
-    "ui/screens/RepoDetail.tsx": "37ed805072fcc406b92464aef3a3dd45f8a314a5",
+    "ui/App.test.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
+    "ui/screens/RepoDetail.test.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
+    "ui/screens/RepoDetail.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
     "ui/styles.css": "37ed805072fcc406b92464aef3a3dd45f8a314a5"
   },
   "scan-shape.md": {
@@ -18,17 +18,17 @@
     "crates/seal-registry/tests/scan.rs": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e",
     "src-tauri/src/lifecycle.rs": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e",
     "src-tauri/tests/lifecycle.rs": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e",
-    "ui/ipc.ts": "d94b0fe6754a2d59df78858772e4dddf19c81cad"
+    "ui/ipc.ts": "d1d3a678c02530f74c4845022358fa06066f9d35"
   },
   "vocabulary.md": {
     "e2e/journeys/first-run.e2e.ts": "d14f1fa6c6e33529d0d098de586751ab686385f8",
     "e2e/journeys/return-and-use.e2e.ts": "70f8ce6ebe6a7977a47f1a6e8f98b2c42d00d7e8",
-    "src-tauri/src/commands.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
-    "src-tauri/src/lib.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
+    "src-tauri/src/commands.rs": "d1d3a678c02530f74c4845022358fa06066f9d35",
+    "src-tauri/src/lib.rs": "d1d3a678c02530f74c4845022358fa06066f9d35",
     "src-tauri/src/lifecycle.rs": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e",
     "src-tauri/tests/lifecycle.rs": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e",
-    "ui/App.tsx": "37ed805072fcc406b92464aef3a3dd45f8a314a5",
-    "ui/ipc.ts": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
+    "ui/App.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
+    "ui/ipc.ts": "d1d3a678c02530f74c4845022358fa06066f9d35",
     "ui/screens/ManageFlow.test.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
     "ui/screens/ManageFlow.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
     "ui/styles.css": "37ed805072fcc406b92464aef3a3dd45f8a314a5"

@@ -203,6 +203,62 @@ describe("managing readable files beside sealed ones", () => {
     expect(Math.abs(layout.iconMid - layout.labelMid)).toBeLessThan(4);
   });
 
+  it("unseals a sealed file back to readable, keeping it managed", async () => {
+    await openTheRepository();
+    const unseal = $(`button[aria-label="Unseal ${SEALED}"]`);
+    await unseal.waitForClickable({ timeout: 30000 });
+    await unseal.click();
+
+    const dialog = $('[role="dialog"]');
+    await dialog.waitForDisplayed({ timeout: 10000 });
+    expect(await dialog.getText()).toContain("readable on disk");
+    await $("button=Unseal it").click();
+
+    await browser.waitUntil(
+      async () => !readFileSync(join(repo(), SEALED), "utf8").startsWith(ARMOR),
+      { timeout: 30000, timeoutMsg: "the file never became readable" },
+    );
+    expect(readFileSync(join(repo(), SEALED), "utf8")).toContain("API_KEY=live-key");
+
+    const rows = await $$(".row__name").map((row) => row.getText());
+    expect(rows).toContain(SEALED);
+  });
+
+  it("does not alert on a file the user unsealed deliberately", async () => {
+    await openTheRepository();
+    await browser.pause(500);
+
+    const state = await browser.execute((name: string) => {
+      for (const row of document.querySelectorAll(".row")) {
+        if (row.querySelector(".row__name")?.textContent?.trim() === name) {
+          return {
+            alert: row.getAttribute("data-alert"),
+            state: row.querySelector(".row__state")?.textContent?.trim() ?? "",
+          };
+        }
+      }
+      return null;
+    }, SEALED);
+
+    expect(state).not.toBe(null);
+    expect(state!.alert).not.toBe("true");
+    expect(state!.state).not.toContain("should be sealed");
+  });
+
+  it("offers to seal it again, closing the round trip", async () => {
+    const seal = $(`button[aria-label="Seal ${SEALED}"]`);
+    await seal.waitForClickable({ timeout: 30000 });
+    await seal.click();
+
+    const anyway = $('[role="dialog"]').$("button=Seal it anyway");
+    if (await anyway.isDisplayed().catch(() => false)) await anyway.click();
+
+    await browser.waitUntil(
+      async () => readFileSync(join(repo(), SEALED), "utf8").startsWith(ARMOR),
+      { timeout: 30000, timeoutMsg: "the file never sealed again" },
+    );
+  });
+
   it("gives the breadcrumb's add entry a real height", async () => {
     await $('button[aria-label="Open a repository"]').click();
     const add = $(".switcher__add");

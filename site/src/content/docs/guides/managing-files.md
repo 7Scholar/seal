@@ -35,8 +35,18 @@ Revealing a value is not an edit and never marks the file as changed.
 
 Files that are **not** env files are stored and encrypted as they are, never edited. The application contains no general-purpose file editor: a managed `.tfvars` or JSON file opens as a plain statement of what it is, with no editing surface at all.
 
-## Unsealing is a memory operation
+## Looking at a file never decrypts it on disk
 
 A file opened for viewing or editing has its plaintext held in memory while the file itself stays sealed at its path. That plaintext is discarded when you lock, when you quit, and automatically after fifteen minutes.
 
-There is no way to leave a managed file decrypted on disk. The on-disk state moves from plaintext to sealed and never back — the only action that legitimately ends with plaintext at the path is removing the file from management, and the application says so when you do it.
+This is the distinction worth holding on to: **reading a secret and changing a file's state are different operations.** You never have to decrypt a file on disk to look at what is in it, so a file is never left readable as a side effect of checking a value.
+
+## Sealing and unsealing
+
+Both are deliberate, and both are reversible.
+
+**Seal** makes a managed file unreadable at rest. **Unseal** makes it readable again and Seal keeps managing it — the file stays in your repository list, and you can seal it again from the same row. Unsealing asks you to confirm first, and says plainly that the contents become readable on disk and stay that way until you seal them again.
+
+A file you have unsealed deliberately is not treated as a problem. The exposure alert is reserved for a different thing: a file Seal recorded as sealed that it finds readable on disk — something changed it behind your back. That is worth telling you about; your own deliberate choice is not.
+
+Removing a file from management also leaves it readable at its path, and the application says so when you do it.

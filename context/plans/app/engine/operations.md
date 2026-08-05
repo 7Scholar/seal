@@ -2,7 +2,7 @@ Part of [the engine plan](README.md).
 
 # Scope
 
-The engine's public API: the classify, seal, unseal-to-a-sink, verify and multi-file re-seal operations; the advisory lock that makes their guard conditions real; the guard conditions themselves; passphrase handling across the boundary; and the error enum consumers match on. There is deliberately no operation that writes plaintext to a managed file's path. Composes `format.md` and `replace.md` into the surface the CLI and the desktop app consume. Out of scope: resolving *which* passphrase applies (the caller supplies it, since the registry owns repo overrides) and anything about how a passphrase is collected from a human.
+The engine's public API: the classify, seal, unseal-to-a-sink, verify and multi-file re-seal operations; the advisory lock that makes their guard conditions real; the guard conditions themselves; passphrase handling across the boundary; and the error enum consumers match on. No *read* operation writes plaintext to a managed file's path; the one operation that does is named for that alone and is reached only by callers deliberately changing a file's state. Composes `format.md` and `replace.md` into the surface the CLI and the desktop app consume. Out of scope: resolving *which* passphrase applies (the caller supplies it, since the registry owns repo overrides) and anything about how a passphrase is collected from a human.
 
 # What exists
 

@@ -5,7 +5,7 @@ import { Acknowledge } from "./screens/Acknowledge";
 import { EnvEditor } from "./screens/EnvEditor";
 import { FileOpening, FileFailed } from "./screens/FileStates";
 import { ManageFlow } from "./screens/ManageFlow";
-import { RepoDetail, filePath } from "./screens/RepoDetail";
+import { RepoDetail, filePath, type Outcomes } from "./screens/RepoDetail";
 import { Repositories, type Load } from "./screens/Repositories";
 import { Unlock } from "./screens/Unlock";
 import { PasswordChange } from "./screens/PasswordChange";
@@ -54,7 +54,8 @@ export function App() {
     paths: string[];
     recent: { path: string; secondsAgo: number }[];
   }>(null);
-  const [outcomes, setOutcomes] = useState<ipc.SealOutcome[] | null>(null);
+  const [outcomes, setOutcomes] = useState<Outcomes | null>(null);
+  const [unsealing, setUnsealing] = useState<string[] | null>(null);
   const [rekey, setRekey] = useState<ipc.Manifest | null>(null);
   const [mode, setMode] = useState<theme.Mode>("system");
   const [expired, setExpired] = useState(false);
@@ -114,6 +115,7 @@ export function App() {
     setReleasingMany(null);
     setReleasingRepo(null);
     setAlreadyManaged(null);
+    setUnsealing(null);
     setSealing(null);
     setOutcomes(null);
   }
@@ -292,9 +294,25 @@ export function App() {
 
   async function sealManyNow(paths: string[]) {
     await withAcknowledgement(`seal ${paths.length} files`, async () => {
-      setOutcomes(await ipc.sealFiles(paths));
+      setOutcomes({ did: "seal", results: await ipc.sealFiles(paths) });
       await refreshAndReconcile();
     });
+  }
+
+  async function unsealNow(paths: string[]) {
+    if (paths.length === 0) return;
+    const only = paths.length === 1 ? paths[0] : null;
+    await attempt(
+      only ? `unseal ${fileName(only)}` : `unseal ${paths.length} files`,
+      async () => {
+        if (only) {
+          await ipc.unsealFile(only);
+        } else {
+          setOutcomes({ did: "unseal", results: await ipc.unsealFiles(paths) });
+        }
+        await refreshAndReconcile();
+      },
+    );
   }
 
   async function sealMany(paths: string[]) {
@@ -592,6 +610,8 @@ export function App() {
             onSealMany={sealMany}
             onRelease={setReleasing}
             onReleaseMany={setReleasingMany}
+            onUnseal={(path) => setUnsealing([path])}
+            onUnsealMany={setUnsealing}
             onReleaseRepo={() => setReleasingRepo(currentRepo)}
             onRescan={() => void startRescan(currentRepo.root)}
             outcomes={outcomes}
@@ -737,6 +757,40 @@ export function App() {
             Seal will forget this file and leave its readable contents at the
             same path. The file itself is not deleted.
           </p>
+        </Confirm>
+      ) : null}
+
+      {unsealing ? (
+        <Confirm
+          title={
+            unsealing.length === 1
+              ? `Unseal ${fileName(unsealing[0]!)}?`
+              : `Unseal ${unsealing.length} files?`
+          }
+          confirmLabel={unsealing.length === 1 ? "Unseal it" : "Unseal them"}
+          cancelLabel="Keep it sealed"
+          onCancel={() => setUnsealing(null)}
+          onConfirm={async () => {
+            const paths = unsealing;
+            setUnsealing(null);
+            await unsealNow(paths);
+          }}
+        >
+          <p>
+            {unsealing.length === 1
+              ? "This file's contents become readable on disk, and stay readable until you seal it again."
+              : `These ${unsealing.length} files' contents become readable on disk, and stay readable until you seal them again.`}{" "}
+            Seal keeps managing{" "}
+            {unsealing.length === 1 ? "it" : "them"}, so you can seal again from
+            here at any time.
+          </p>
+          {unsealing.length > 1 ? (
+            <ul className="confirm__list">
+              {unsealing.map((path) => (
+                <li key={path}>{fileName(path)}</li>
+              ))}
+            </ul>
+          ) : null}
         </Confirm>
       ) : null}
 

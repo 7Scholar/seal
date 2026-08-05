@@ -27,6 +27,9 @@ vi.mock("./ipc", async () => {
     scanFolder: vi.fn(),
     manageFiles: vi.fn(),
     reobserve: vi.fn(),
+    unsealFile: vi.fn(),
+    unsealFiles: vi.fn(),
+    release: vi.fn(),
   };
 });
 
@@ -268,7 +271,7 @@ describe("the application shell", () => {
   it("seals the selected files together and reports the result per file", async () => {
     const user = userEvent.setup();
     mocked.sealFiles.mockResolvedValue([
-      { path: "/code/app/.env", sealed: true, reason: null },
+      { path: "/code/app/.env", ok: true, reason: null },
     ]);
     await openApp();
     await openRepository(user, "app");
@@ -287,7 +290,7 @@ describe("the application shell", () => {
       modifiedSecondsAgo: 4,
     });
     mocked.sealFiles.mockResolvedValue([
-      { path: "/code/app/.env", sealed: true, reason: null },
+      { path: "/code/app/.env", ok: true, reason: null },
     ]);
     await openApp();
     await openRepository(user, "app");
@@ -690,6 +693,57 @@ describe("the theme control", () => {
     expect(region).toBeInTheDocument();
     expect(region!.contains(screen.getByText("VARIABLE_0"))).toBe(true);
     expect(region!.contains(save)).toBe(false);
+  });
+});
+
+describe("unsealing a managed file", () => {
+  it("confirms first, naming the consequence and that Seal keeps managing it", async () => {
+    const user = userEvent.setup();
+    await openApp();
+    await openRepository(user, "app");
+
+    await user.click(
+      screen.getByRole("button", { name: "Unseal .env.production" }),
+    );
+
+    const dialog = await screen.findByRole("dialog");
+    expect(dialog).toHaveTextContent("Unseal .env.production?");
+    expect(dialog).toHaveTextContent("readable on disk");
+    expect(dialog).toHaveTextContent("Seal keeps managing it");
+    expect(mocked.unsealFile).not.toHaveBeenCalled();
+  });
+
+  it("unseals on confirming, and leaves the file managed", async () => {
+    const user = userEvent.setup();
+    mocked.unsealFile.mockResolvedValue(undefined);
+    await openApp();
+    await openRepository(user, "app");
+
+    await user.click(
+      screen.getByRole("button", { name: "Unseal .env.production" }),
+    );
+    await user.click(await screen.findByRole("button", { name: "Unseal it" }));
+
+    await waitFor(() =>
+      expect(mocked.unsealFile).toHaveBeenCalledWith("/code/app/.env.production"),
+    );
+    expect(mocked.release).not.toHaveBeenCalled();
+  });
+
+  it("does nothing at all when the confirmation is declined", async () => {
+    const user = userEvent.setup();
+    await openApp();
+    await openRepository(user, "app");
+
+    await user.click(
+      screen.getByRole("button", { name: "Unseal .env.production" }),
+    );
+    await user.click(
+      await screen.findByRole("button", { name: "Keep it sealed" }),
+    );
+
+    expect(mocked.unsealFile).not.toHaveBeenCalled();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });
 

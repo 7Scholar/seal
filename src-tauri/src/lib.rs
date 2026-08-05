@@ -53,6 +53,8 @@ pub fn run() {
             commands::save,
             commands::seal_file,
             commands::seal_files,
+            commands::unseal_file,
+            commands::unseal_files,
             commands::release_repo,
             commands::close_file,
             commands::open_paths,

@@ -240,6 +240,26 @@ pub async fn seal_files(
 }
 
 #[tauri::command]
+pub async fn unseal_file(held: Managed<'_, Held>, path: PathBuf) -> Result<(), CommandError> {
+    let mut session = held.session()?;
+    let mut registry = held.registry()?;
+    app::unseal_file(&mut session, &path, &mut registry)?;
+    held.persist(&registry)
+}
+
+#[tauri::command]
+pub async fn unseal_files(
+    held: Managed<'_, Held>,
+    paths: Vec<PathBuf>,
+) -> Result<Vec<SealOutcome>, CommandError> {
+    let mut session = held.session()?;
+    let mut registry = held.registry()?;
+    let outcomes = app::unseal_files(&mut session, &paths, &mut registry);
+    held.persist(&registry)?;
+    Ok(outcomes)
+}
+
+#[tauri::command]
 pub async fn release_repo(
     held: Managed<'_, Held>,
     root: PathBuf,
@@ -275,13 +295,13 @@ pub async fn release_repo(
                 session.close(&path).ok();
                 SealOutcome {
                     path,
-                    sealed: true,
+                    ok: true,
                     reason: None,
                 }
             }
             Err(error) => SealOutcome {
                 path,
-                sealed: false,
+                ok: false,
                 reason: Some(error.kind),
             },
         };

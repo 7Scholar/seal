@@ -18,8 +18,15 @@ interface Props {
   onReleaseMany: (paths: string[]) => void;
   onReleaseRepo: () => void;
   onRescan: () => void;
-  outcomes: SealOutcome[] | null;
+  onUnseal: (path: string) => void;
+  onUnsealMany: (paths: string[]) => void;
+  outcomes: Outcomes | null;
   onDismissOutcomes: () => void;
+}
+
+export interface Outcomes {
+  did: "seal" | "unseal";
+  results: SealOutcome[];
 }
 
 export function StaleNotice({ onRetry }: { onRetry: () => void }) {
@@ -63,6 +70,8 @@ export function RepoDetail({
   onReleaseMany,
   onReleaseRepo,
   onRescan,
+  onUnseal,
+  onUnsealMany,
   outcomes,
   onDismissOutcomes,
 }: Props) {
@@ -87,6 +96,7 @@ export function RepoDetail({
   const readable = chosenFiles.filter((file) => file.state !== "sealed");
   const sealed = chosenFiles.filter((file) => file.state === "sealed");
   const readablePaths = readable.map((file) => filePath(repo, file.relativePath));
+  const sealedPaths = sealed.map((file) => filePath(repo, file.relativePath));
 
   const exposures = files
     .filter((file) => file.alert)
@@ -108,8 +118,8 @@ export function RepoDetail({
     });
   }
 
-  const failures = outcomes?.filter((outcome) => !outcome.sealed) ?? [];
-  const succeeded = outcomes?.filter((outcome) => outcome.sealed).length ?? 0;
+  const failures = outcomes?.results.filter((outcome) => !outcome.ok) ?? [];
+  const succeeded = outcomes?.results.filter((outcome) => outcome.ok).length ?? 0;
 
   const count =
     files.length === 0
@@ -151,13 +161,21 @@ export function RepoDetail({
       {outcomes ? (
         <div className="outcomes" role="status">
           <p>
-            {succeeded === 1
-              ? "1 file is now sealed."
-              : `${succeeded} files are now sealed.`}
+            {outcomes.did === "unseal"
+              ? succeeded === 1
+                ? "1 file is now readable."
+                : `${succeeded} files are now readable.`
+              : succeeded === 1
+                ? "1 file is now sealed."
+                : `${succeeded} files are now sealed.`}
             {failures.length > 0
-              ? ` ${failures.length} could not be sealed and ${
-                  failures.length === 1 ? "is" : "are"
-                } still readable:`
+              ? outcomes.did === "unseal"
+                ? ` ${failures.length} could not be unsealed and ${
+                    failures.length === 1 ? "is" : "are"
+                  } still sealed:`
+                : ` ${failures.length} could not be sealed and ${
+                    failures.length === 1 ? "is" : "are"
+                  } still readable:`
               : ""}
           </p>
           {failures.length > 0 ? (
@@ -187,6 +205,14 @@ export function RepoDetail({
               {readablePaths.length === 1
                 ? "Seal 1 file"
                 : `Seal ${readablePaths.length} files`}
+            </button>
+          ) : null}
+
+          {readable.length === 0 ? (
+            <button type="button" onClick={() => onUnsealMany(sealedPaths)}>
+              {sealedPaths.length === 1
+                ? "Unseal 1 file"
+                : `Unseal ${sealedPaths.length} files`}
             </button>
           ) : null}
 
@@ -256,6 +282,16 @@ export function RepoDetail({
                     onClick={() => onSeal(path)}
                   >
                     Seal
+                  </button>
+                ) : null}
+
+                {file.state === "sealed" ? (
+                  <button
+                    type="button"
+                    aria-label={`Unseal ${file.relativePath}`}
+                    onClick={() => onUnseal(path)}
+                  >
+                    Unseal
                   </button>
                 ) : null}
 

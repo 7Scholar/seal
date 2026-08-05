@@ -635,7 +635,7 @@ fn sealing_a_chosen_set_seals_exactly_those_files() {
 
     let outcomes = app::seal_files(&mut session, &chosen, &mut fixture.state);
 
-    assert!(outcomes.iter().all(|outcome| outcome.sealed));
+    assert!(outcomes.iter().all(|outcome| outcome.ok));
     assert!(matches!(
         seal_engine::operations::classify(&fixture.root.join(".env")).unwrap(),
         seal_engine::format::Classification::Sealed { .. }
@@ -664,9 +664,9 @@ fn one_failure_does_not_stop_the_rest_and_is_reported_per_path() {
     let outcomes = app::seal_files(&mut session, &chosen, &mut fixture.state);
 
     assert_eq!(outcomes[0].reason, Some(Kind::NotManaged));
-    assert!(!outcomes[0].sealed);
+    assert!(!outcomes[0].ok);
     assert!(
-        outcomes[1].sealed && outcomes[2].sealed,
+        outcomes[1].ok && outcomes[2].ok,
         "a failure on one file must not abort the files after it"
     );
 }
@@ -778,4 +778,128 @@ fn saving_a_readable_file_seals_it_and_keeps_the_edit() {
         String::from_utf8_lossy(&plaintext).contains("sk-live-99"),
         "the edit must survive the seal"
     );
+}
+
+#[test]
+fn unsealing_makes_the_file_readable_and_keeps_managing_it() {
+    let mut fixture = fixture();
+    let mut session = unlocked();
+
+    app::unseal_file(&mut session, &fixture.path, &mut fixture.state).unwrap();
+
+    assert_eq!(
+        std::fs::read_to_string(&fixture.path).unwrap(),
+        CONTENT,
+        "unsealing restores the original plaintext at the file's own path"
+    );
+    assert!(
+        fixture.state.repos.iter().any(|repo| repo
+            .files
+            .iter()
+            .any(|file| repo.root.join(&file.relative_path) == fixture.path)),
+        "unsealing must not remove the file from management — that is what releasing does"
+    );
+}
+
+#[test]
+fn an_unsealed_file_is_recorded_readable_so_it_raises_no_exposure_alert() {
+    let mut fixture = fixture();
+    let mut session = unlocked();
+
+    app::unseal_file(&mut session, &fixture.path, &mut fixture.state).unwrap();
+    let view = app::overview(&fixture.state);
+    let file = &view[0].files[0];
+
+    assert_eq!(file.state, SealedState::Plaintext);
+    assert!(
+        !file.alert,
+        "a deliberately unsealed file is not the recorded-sealed-found-readable regression, \
+         and alerting on it would make the alert meaningless"
+    );
+}
+
+#[test]
+fn a_file_unsealed_outside_seal_still_raises_the_alert() {
+    let mut fixture = fixture();
+    std::fs::write(&fixture.path, CONTENT).unwrap();
+
+    let view = app::overview(&fixture.state);
+    let file = &view[0].files[0];
+
+    assert!(
+        file.alert,
+        "the alert must still fire for a file Seal recorded as sealed and found readable"
+    );
+    let _ = &mut fixture.state;
+}
+
+#[test]
+fn unsealing_drops_any_plaintext_the_session_was_holding() {
+    let mut fixture = fixture();
+    let mut session = unlocked();
+
+    app::open_file(&mut session, &fixture.path, &fixture.state).unwrap();
+    app::unseal_file(&mut session, &fixture.path, &mut fixture.state).unwrap();
+
+    assert!(
+        !session.holds(&fixture.path),
+        "unsealing closes the file, so no held plaintext outlives the state change"
+    );
+}
+
+#[test]
+fn unsealing_an_unmanaged_path_is_refused() {
+    let mut fixture = fixture();
+    let mut session = unlocked();
+    let stranger = fixture.root.join("not-managed.env");
+    std::fs::write(&stranger, CONTENT).unwrap();
+
+    let error = app::unseal_file(&mut session, &stranger, &mut fixture.state).unwrap_err();
+
+    assert_eq!(error.kind, Kind::NotManaged);
+    assert_eq!(
+        std::fs::read_to_string(&stranger).unwrap(),
+        CONTENT,
+        "a refused unseal leaves the file exactly as it was"
+    );
+}
+
+#[test]
+fn unsealing_several_reports_each_one_by_path() {
+    let mut fixture = plaintext_fixture(&[".env", ".env.staging"]);
+    let mut session = unlocked();
+    let paths: Vec<PathBuf> = [".env", ".env.staging"]
+        .iter()
+        .map(|name| fixture.root.join(name))
+        .collect();
+
+    for path in &paths {
+        seal_engine::operations::seal(
+            path,
+            &SecretString::from(PASSPHRASE.to_owned()),
+            seal_engine::format::MINIMUM_WORK_FACTOR,
+        )
+        .unwrap();
+    }
+
+    let outcomes = app::unseal_files(&mut session, &paths, &mut fixture.state);
+
+    assert_eq!(outcomes.len(), 2);
+    assert!(outcomes.iter().all(|outcome| outcome.ok));
+    for path in &paths {
+        assert_eq!(std::fs::read_to_string(path).unwrap(), CONTENT);
+    }
+}
+
+#[test]
+fn an_unseal_outcome_never_carries_secret_material() {
+    let mut fixture = fixture();
+    let mut session = unlocked();
+    let paths = vec![fixture.path.clone()];
+
+    let outcomes = app::unseal_files(&mut session, &paths, &mut fixture.state);
+    let serialized = serde_json::to_string(&outcomes).unwrap();
+
+    assert!(!serialized.contains("sk-live-42"));
+    assert!(!serialized.contains(PASSPHRASE));
 }

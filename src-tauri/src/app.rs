@@ -69,6 +69,45 @@ pub fn seal_file(
     Ok(())
 }
 
+pub fn unseal_file(
+    session: &mut Session,
+    path: &Path,
+    state: &mut State,
+) -> Result<(), CommandError> {
+    require_managed(state, path)?;
+    let passphrase = session.passphrase_for(path)?;
+
+    if let Classification::Sealed { .. } = operations::classify(path)? {
+        operations::release_to_plaintext(path, std::slice::from_ref(&passphrase))?;
+    }
+
+    session.close(path)?;
+    record(state, path, SealedState::Plaintext);
+    Ok(())
+}
+
+pub fn unseal_files(
+    session: &mut Session,
+    paths: &[PathBuf],
+    state: &mut State,
+) -> Vec<view::SealOutcome> {
+    paths
+        .iter()
+        .map(|path| match unseal_file(session, path, state) {
+            Ok(()) => view::SealOutcome {
+                path: path.clone(),
+                ok: true,
+                reason: None,
+            },
+            Err(error) => view::SealOutcome {
+                path: path.clone(),
+                ok: false,
+                reason: Some(error.kind),
+            },
+        })
+        .collect()
+}
+
 pub fn seal_files(
     session: &mut Session,
     paths: &[PathBuf],
@@ -79,12 +118,12 @@ pub fn seal_files(
         .map(|path| match seal_file(session, path, state) {
             Ok(()) => view::SealOutcome {
                 path: path.clone(),
-                sealed: true,
+                ok: true,
                 reason: None,
             },
             Err(error) => view::SealOutcome {
                 path: path.clone(),
-                sealed: false,
+                ok: false,
                 reason: Some(error.kind),
             },
         })

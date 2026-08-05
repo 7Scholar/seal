@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { RepoDetail } from "./RepoDetail";
+import { RepoDetail, type Outcomes } from "./RepoDetail";
 import type { Load } from "./Repositories";
-import type { RepoView, SealOutcome } from "../ipc";
+import type { RepoView } from "../ipc";
 
 const app: RepoView = {
   root: "/repos/app",
@@ -16,7 +16,7 @@ const app: RepoView = {
 
 function setup(
   repo: RepoView = app,
-  outcomes: SealOutcome[] | null = null,
+  outcomes: Outcomes | null = null,
   load: Load = "ready",
 ) {
   const handlers = {
@@ -27,6 +27,8 @@ function setup(
     onReleaseMany: vi.fn(),
     onReleaseRepo: vi.fn(),
     onRescan: vi.fn(),
+    onUnseal: vi.fn(),
+    onUnsealMany: vi.fn(),
     onDismissOutcomes: vi.fn(),
     onRetry: vi.fn(),
   };
@@ -200,6 +202,56 @@ describe("RepoDetail and sealing several files at once", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("offers Unseal on a sealed row and nowhere else", async () => {
+    const user = userEvent.setup();
+    const { onUnseal } = setup(many);
+
+    expect(
+      screen.queryByRole("button", { name: "Unseal .env" }),
+    ).not.toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", { name: "Unseal .env.production" }),
+    );
+    expect(onUnseal).toHaveBeenCalledWith("/repos/app/.env.production");
+  });
+
+  it("offers Unseal in the bar only when every selected file is sealed", async () => {
+    const user = userEvent.setup();
+    const { onUnsealMany } = setup(many);
+
+    await user.click(
+      screen.getByRole("checkbox", { name: "Select .env.production" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Unseal 1 file" }));
+    expect(onUnsealMany).toHaveBeenCalledWith(["/repos/app/.env.production"]);
+  });
+
+  it("offers no Unseal action when the selection holds a readable file", async () => {
+    const user = userEvent.setup();
+    setup(many);
+
+    await user.click(
+      screen.getByRole("checkbox", { name: "Select .env.production" }),
+    );
+    await user.click(screen.getByRole("checkbox", { name: "Select .env" }));
+
+    expect(
+      screen.queryByRole("button", { name: /^Unseal \d+ file/ }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("reports an unseal as files becoming readable, never as sealing", () => {
+    setup(many, {
+      did: "unseal",
+      results: [{ path: "/repos/app/.env.production", ok: true, reason: null }],
+    });
+
+    const report = screen.getByRole("status");
+    expect(report).toHaveTextContent("1 file is now readable.");
+    expect(report).not.toHaveTextContent(/now sealed/);
+  });
+
   it("offers no Seal action when the selection holds a sealed file", async () => {
     const user = userEvent.setup();
     setup(many);
@@ -230,10 +282,13 @@ describe("RepoDetail and sealing several files at once", () => {
   });
 
   it("names every file that failed and why, rather than reporting a count", () => {
-    setup(many, [
-      { path: "/repos/app/.env", sealed: true, reason: null },
-      { path: "/repos/app/.env.staging", sealed: false, reason: "busy" },
-    ]);
+    setup(many, {
+      did: "seal",
+      results: [
+        { path: "/repos/app/.env", ok: true, reason: null },
+        { path: "/repos/app/.env.staging", ok: false, reason: "busy" },
+      ],
+    });
 
     const report = screen.getByRole("status");
     expect(report).toHaveTextContent(/1 file is now sealed/);
@@ -245,9 +300,10 @@ describe("RepoDetail and sealing several files at once", () => {
   });
 
   it("says plainly that a failed file is still readable", () => {
-    setup(many, [
-      { path: "/repos/app/.env", sealed: false, reason: "busy" },
-    ]);
+    setup(many, {
+      did: "seal",
+      results: [{ path: "/repos/app/.env", ok: false, reason: "busy" }],
+    });
     expect(screen.getByText(/still readable/)).toBeInTheDocument();
   });
 

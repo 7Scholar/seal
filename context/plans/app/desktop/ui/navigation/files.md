@@ -28,7 +28,7 @@ Name, path, **state tag** and the row's own operations.
 
 The state tag names sealed, not found and unknown. It says nothing for a readable file, because that row already carries a **Seal** control and a control offering to seal is a stronger statement that the file is not sealed than a word beside it — the rule is that the surface says a thing once, in the place a user acts on it. The exception is the case where the state is not merely a fact but an alert: an **exposed** file states *Readable — should be sealed* in the danger treatment, because [the disclosure contract](README.md) forbids collapsing an alert, and the repository's exposure alert above the list carries the inline fix, unchanged in behaviour from what [shell-layout.md](../shell-layout.md) specified.
 
-Operations on a row: the row itself navigates into the file, **whatever its state** — a managed file that is readable on disk opens and edits exactly as a sealed one does, because the product is meant to be the single place these files are managed, and a file it can only list is a file it does not manage. **Seal** appears on a file that can be sealed, and an ellipsis holds **Stop managing this file**. As on a tile, the controls inside a row stop their press from reaching the row, so acting on a file never also opens it.
+Operations on a row: the row itself navigates into the file, **whatever its state** — a managed file that is readable on disk opens and edits exactly as a sealed one does, because the product is meant to be the single place these files are managed, and a file it can only list is a file it does not manage. **Seal** appears on a file that can be sealed, **Unseal** on one that is sealed, and an ellipsis holds **Stop managing this file**. As on a tile, the controls inside a row stop their press from reaching the row, so acting on a file never also opens it.
 
 Row operations may de-emphasise until hover, and the rule bounding that is unchanged: anything revealed on hover is revealed identically on focus, and nothing is reachable only by hover.
 
@@ -42,14 +42,23 @@ What the bar offers is **derived from what is selected**, so a control never app
 
 - **Stop managing N files** is always offered, because it applies to any managed file whatever its state.
 - **Seal N files** is offered only when every selected file is readable. A selection holding a sealed file offers no seal, rather than offering one that would partly fail.
+- **Unseal N files** is offered only when every selected file is sealed, by the same rule read the other way.
 
 The batch seal's safety properties are intact: the set is explicit, the acknowledgement gate is unchanged, the recency warning still fires per file and names the files it applies to, and the outcome is reported **per file with its reason** rather than as a count. Releasing several is confirmed in one dialog that names each file and states plainly that a sealed file among them becomes readable on disk.
 
 The batch is not atomic and the interface does not imply it is.
 
-## There is no route from sealed back to readable
+## Unsealing, and why it is safe here
 
-The bar offers no unseal, and neither does any other control on this surface. A managed file's on-disk state moves from plaintext to sealed and never back ([the root intent](../../../README.md)); the only action that ends with plaintext at the path is stopping management, which is named for exactly that. This is a stated product decision rather than a gap in this surface — a request to add the operation is open in [QUESTIONS.md](QUESTIONS.md) and is the owner's to settle.
+**Unseal** is the true inverse of **Seal**: it makes the file readable on disk and Seal keeps managing it, so the file stays on this surface and can be sealed again from the same row. It sits beside Seal on a sealed row, and in the action bar as *Unseal N files* when **every** selected file is sealed — the exact mirror of the seal rule, so neither control ever appears against files it cannot act on.
+
+The safety argument is not that unsealing is harmless; it is that **reading is a different operation**. Opening a file holds its plaintext in memory and never touches the disk ([the root intent](../../../README.md)), so nobody needs to unseal a file to look inside one. That is what makes an indefinite state change the *only* thing unsealing is for, and it forecloses the accident the operation would otherwise invite — decrypt to peek, get interrupted, leave a production secret readable.
+
+It is confirmed before it happens, in a plain dialog naming the file and stating that the contents become readable and stay readable until sealed again. Not the typed acknowledgement gate: that is reserved for what cannot be undone, and this is undone by pressing Seal.
+
+**A deliberately unsealed file raises no exposure alert**, and that is load-bearing rather than incidental — the alert means *recorded sealed, found readable*, which is the file changing behind the user's back. Firing it on the user's own choice would make the alert worthless. `MEMORY.md` records the mechanism.
+
+The repository-level menu deliberately has no unseal ([repositories.md](repositories.md)): unsealing belongs to a file, and a one-press "make every secret in this repository readable" is the one shape of this operation that is genuinely dangerous.
 
 ## The repository's own operations
 
@@ -83,9 +92,11 @@ This is the files-list form of the rule the grid established: absent, loading an
 
 All of the Approach: the rows with their paths and states, the row and repository operations, the selection-derived action bar, the exposure alert above the list, the count, the missing-file explanation and the stale notice.
 
-Interface tests cover navigation from a row, the row's controls not navigating, the state vocabulary including the readable row's silence and the exposed row's insistence, the action bar's absence until a selection exists, the seal action appearing only for an all-readable selection, stop-managing being offered for any selection, the batch seal's explicit set and per-file reporting, the count in both singular and plural, the missing-file explanation and its association with the control, and the stale notice appearing only on a failed re-read.
+Interface tests cover navigation from a row, the row's controls not navigating, the state vocabulary including the readable row's silence and the exposed row's insistence, the action bar's absence until a selection exists, the seal action appearing only for an all-readable selection and the unseal action only for an all-sealed one, the unseal control appearing on sealed rows alone, the report naming the operation that produced it, stop-managing being offered for any selection, the batch seal's explicit set and per-file reporting, the count in both singular and plural, the missing-file explanation and its association with the control, and the stale notice appearing only on a failed re-read. Three more cover the confirmation: it names the consequence, it unseals only on confirming, and declining does nothing at all.
 
-Driven against the real application: the count agrees with the rows shown; a genuinely deleted file — removed from disk while the window sat open — reports `Not found` with its open control disabled and the visible reason tied to it by `aria-describedby`; a readable file opens into its editor rather than failing; the action bar is absent until a row is checked and then offers exactly the actions the selection supports; and the row checkbox measures at least 20px on both axes.
+Driven against the real application: the count agrees with the rows shown; a genuinely deleted file — removed from disk while the window sat open — reports `Not found` with its open control disabled and the visible reason tied to it by `aria-describedby`; a readable file opens into its editor rather than failing; the action bar is absent until a row is checked and then offers exactly the actions the selection supports; the row checkbox measures at least 20px on both axes; and the **full round trip** — a sealed file unsealed to readable bytes on disk while staying in the list, raising no alert, then sealed again — runs end to end against a release build.
+
+The alert's other half is driven by the freshness scenario, unchanged: a file made readable *outside* Seal still raises the exposure alert. Both directions matter, and only running both shows the distinction is real rather than asserted.
 
 Guards confirmed non-vacuous by reintroducing the defect each prevents:
 

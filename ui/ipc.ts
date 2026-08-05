@@ -78,7 +78,7 @@ export interface SealWarning {
 
 export interface SealOutcome {
   path: string;
-  sealed: boolean;
+  ok: boolean;
   reason: ErrorKind | null;
 }
 
@@ -146,6 +146,9 @@ export const save = (path: string, edits: [string, string][]) =>
 export const sealFile = (path: string) => invoke<void>("seal_file", { path });
 export const sealFiles = (paths: string[]) =>
   invoke<SealOutcome[]>("seal_files", { paths });
+export const unsealFile = (path: string) => invoke<void>("unseal_file", { path });
+export const unsealFiles = (paths: string[]) =>
+  invoke<SealOutcome[]>("unseal_files", { paths });
 export const releaseRepo = (root: string, how: Release) =>
   invoke<SealOutcome[]>("release_repo", { root, how });
 

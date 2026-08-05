@@ -57,7 +57,7 @@ pub enum OpenedFile {
 #[serde(rename_all = "camelCase")]
 pub struct SealOutcome {
     pub path: PathBuf,
-    pub sealed: bool,
+    pub ok: bool,
     pub reason: Option<crate::error::Kind>,
 }
 

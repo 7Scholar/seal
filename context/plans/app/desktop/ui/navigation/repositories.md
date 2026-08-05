@@ -38,7 +38,7 @@ The tile is a real button rather than a clickable box, so it is focusable, activ
 
 The repository's secondary operations, collapsed per the disclosure architecture: **Scan for more files**, and **Stop managing this repository** in the danger treatment. Both are the operations the withdrawn shell's overflow carried, with their behaviour and their confirmations unchanged — including that removing a repository never deletes a file and states its disk consequence rather than defaulting it.
 
-The owner's example named *unseal* as a candidate entry. It is deliberately **not** here: Seal offers no way to leave a managed file decrypted on disk ([the root intent](../../../README.md)), and the operation that legitimately ends with plaintext at the path is stopping management, which is already in this menu under a name that says exactly that. An entry labelled *unseal* would promise an operation the product does not have.
+*Unseal* is deliberately **not** in this menu, though the product now has the operation ([files.md](files.md) owns it). It belongs to a **file**, and this is a repository's menu — an unseal-everything entry here would be a single press that makes every secret in a repository readable, which is the one shape of this operation that is genuinely dangerous. Sealing a whole repository is safe in the direction that matters and unsealing one is not, so the asymmetry in what this menu offers is deliberate rather than an oversight.
 
 ## Every state the grid can occupy
 

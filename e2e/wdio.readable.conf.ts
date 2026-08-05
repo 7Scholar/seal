@@ -5,9 +5,9 @@ import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
 
-process.env.SEAL_E2E_HOME ??= mkdtempSync(join(tmpdir(), "seal-e2e-rd2-home-"));
+process.env.SEAL_E2E_HOME ??= mkdtempSync(join(tmpdir(), "seal-e2e-rd3-home-"));
 process.env.SEAL_E2E_PICK_FOLDER ??= mkdtempSync(
-  join(tmpdir(), "seal-e2e-rd2-repo-"),
+  join(tmpdir(), "seal-e2e-rd3-repo-"),
 );
 
 export const config = {

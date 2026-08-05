@@ -1,36 +1,36 @@
 :root {
-  --sl-color-accent-low: #17233d;
-  --sl-color-accent: #3b82f6;
-  --sl-color-accent-high: #a8c7fd;
+  --sl-color-accent-low: #16283f;
+  --sl-color-accent: #1f6feb;
+  --sl-color-accent-high: #a3ccff;
 
   --sl-color-white: #ffffff;
-  --sl-color-gray-1: #eceef2;
-  --sl-color-gray-2: #c4c6cf;
-  --sl-color-gray-3: #a0a3ad;
-  --sl-color-gray-4: #4e505c;
-  --sl-color-gray-5: #33333d;
-  --sl-color-gray-6: #17171b;
-  --sl-color-black: #0f0f12;
+  --sl-color-gray-1: #e6edf3;
+  --sl-color-gray-2: #c0cbd6;
+  --sl-color-gray-3: #9aa7b4;
+  --sl-color-gray-4: #4a545f;
+  --sl-color-gray-5: #2b333d;
+  --sl-color-gray-6: #161b22;
+  --sl-color-black: #0d1117;
 
-  --sl-color-bg: #0f0f12;
-  --sl-color-bg-nav: #17171b;
-  --sl-color-bg-sidebar: #0f0f12;
-  --sl-color-hairline: #33333d;
-  --sl-color-hairline-light: #33333d;
+  --sl-color-bg: #0d1117;
+  --sl-color-bg-nav: #161b22;
+  --sl-color-bg-sidebar: #0d1117;
+  --sl-color-hairline: #2b333d;
+  --sl-color-hairline-light: #2b333d;
 
   --seal-danger: #ff7b8a;
-  --seal-danger-surface: #311e23;
+  --seal-danger-surface: #3a1d24;
   --seal-radius: 1rem;
 }
 
 :root[data-theme="light"] {
-  --sl-color-accent-low: #dce8fd;
-  --sl-color-accent: #0d5bd1;
-  --sl-color-accent-high: #0a3f92;
+  --sl-color-accent-low: #d9e7f7;
+  --sl-color-accent: #0b5cad;
+  --sl-color-accent-high: #084179;
 
-  --sl-color-white: #17171b;
-  --sl-color-gray-1: #17171b;
-  --sl-color-gray-2: #3a3b45;
+  --sl-color-white: #11151a;
+  --sl-color-gray-1: #11151a;
+  --sl-color-gray-2: #383b42;
   --sl-color-gray-3: #5f6270;
   --sl-color-gray-4: #8a8a95;
   --sl-color-gray-5: #e4e4e9;

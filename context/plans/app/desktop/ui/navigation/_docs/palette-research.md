@@ -125,19 +125,19 @@ Two themes, authored independently, verified in both. All ratios below are compu
 
 | Token | Value | Job |
 | --- | --- | --- |
-| `--bg` | `#0f0f12` | The shade of black. Page background. |
-| `--raised` | `#17171b` | Raised surface: tiles, rows, alerts, toolbar. |
-| `--line` | `#33333d` | Decorative separators and dividers. |
-| `--line-strong` | `#66667a` | Boundaries that *identify* a control: input and field borders. |
-| `--text` | `#eceef2` | The shade of white. Body text. |
-| `--muted` | `#a0a3ad` | Secondary text, metadata, disabled. |
-| `--accent` | `#6ea8fe` | Interactive text, focus ring, tick, checked file. |
-| `--primary` | `#3b82f6` | The primary action's fill. |
-| `--on-primary` | `#0f0f12` | Ink on the primary fill. |
+| `--bg` | `#0d1117` | The shade of black. Page background. |
+| `--raised` | `#161b22` | Raised surface: tiles, rows, alerts, toolbar. |
+| `--line` | `#2b333d` | Decorative separators and dividers. |
+| `--line-strong` | `#606b78` | Boundaries that *identify* a control: input and field borders. |
+| `--text` | `#e6edf3` | The shade of white. Body text. |
+| `--muted` | `#9aa7b4` | Secondary text, metadata, disabled. |
+| `--accent` | `#58a6ff` | Interactive text, focus ring, tick, checked file. |
+| `--primary` | `#1f6feb` | The primary action's fill. |
+| `--on-primary` | `#ffffff` | Ink on the primary fill. |
 | `--danger` | `#ff7b8a` | Exposure, error, destructive. |
-| `--danger-surface` | `#311e23` | Danger tint behind text. |
+| `--danger-surface` | `#3a1d24` | Danger tint behind text. |
 | `--ok` | `#8fd06a` | Sealed, succeeded. |
-| `--selected` | `rgba(110, 168, 254, 0.16)` | Selected-row tint. |
+| `--selected` | `rgba(88, 166, 255, 0.16)` | Selected-row tint. |
 | `--hover` | `rgba(255, 255, 255, 0.05)` | Neutral hover overlay. |
 | `--shadow` | `0 12px 40px rgba(0, 0, 0, 0.5)` | Floating elevation only. |
 
@@ -149,19 +149,21 @@ Two themes, authored independently, verified in both. All ratios below are compu
 | `--raised` | `#ffffff` | Raised surface. |
 | `--line` | `#e4e4e9` | Decorative separators. |
 | `--line-strong` | `#8a8a95` | Control-identifying boundaries. |
-| `--text` | `#17171b` | The shade of black. Body text. |
+| `--text` | `#11151a` | The shade of black. Body text. |
 | `--muted` | `#5f6270` | Secondary text, metadata, disabled. |
-| `--accent` | `#0d5bd1` | Interactive text, focus ring, tick, checked file. |
-| `--primary` | `#0d5bd1` | The primary action's fill. |
+| `--accent` | `#0b5cad` | Interactive text, focus ring, tick, checked file. |
+| `--primary` | `#0b5cad` | The primary action's fill. |
 | `--on-primary` | `#ffffff` | Ink on the primary fill. |
 | `--danger` | `#c02434` | Exposure, error, destructive. |
 | `--danger-surface` | `#fdeef1` | Danger tint behind text. |
 | `--ok` | `#3d7a1d` | Sealed, succeeded. |
-| `--selected` | `rgba(13, 91, 209, 0.12)` | Selected-row tint. |
+| `--selected` | `rgba(11, 92, 173, 0.12)` | Selected-row tint. |
 | `--hover` | `rgba(0, 0, 0, 0.04)` | Neutral hover overlay. |
 | `--shadow` | `0 12px 32px rgba(20, 20, 40, 0.16)` | Floating elevation only. |
 
-**In light, `--accent` and `--primary` resolve to the same value, and that is deliberate rather than an oversight.** On a white page the blue that is dark enough to fill a button with white ink (6.11:1) is also the blue that reads correctly as interactive text (5.86:1 on `--bg`) — the two obligations converge. In dark they must diverge: `--accent` `#6ea8fe` is light enough to read as text on the page (7.92:1), while `--primary` `#3b82f6` is saturated enough to read as a *fill* with dark ink on it (5.20:1). The tokens stay separate in both themes because the **role rule** is what a surface consults, and the rule must not change per theme; that they coincide in one theme is a property of that theme's values, not a merge of the roles.
+**In light, `--accent` and `--primary` resolve to the same value, and that is deliberate rather than an oversight.** On a white page the blue that is dark enough to fill a button with white ink (6.67:1) is also the blue that reads correctly as interactive text (6.39:1 on `--bg`) — the two obligations converge. In dark they must diverge: `--accent` `#58a6ff` is light enough to read as text on the page (7.49:1), while `--primary` `#1f6feb` is deep enough to carry white ink as a *fill* (4.63:1). The tokens stay separate in both themes because the **role rule** is what a surface consults, and the rule must not change per theme; that they coincide in one theme is a property of that theme's values, not a merge of the roles.
+
+**`--on-primary` is white in both themes.** The primary fill is a mid-to-deep blue on either ground, so white is the ink that clears the ratio on both; the token stays declared per theme because the role rule reads it per theme, not because the two values differ.
 
 ### Computed contrast, both themes
 
@@ -169,35 +171,37 @@ Every text-bearing pair, verified against the actual surface it sits on:
 
 | Pair | Dark | Light | Floor | |
 | --- | --- | --- | --- | --- |
-| `--text` on `--bg` | 16.47:1 | 17.13:1 | 4.5 | pass |
-| `--text` on `--raised` | 15.39:1 | 17.88:1 | 4.5 | pass |
-| `--muted` on `--bg` | 7.60:1 | 5.80:1 | 4.5 | pass |
-| `--muted` on `--raised` | 7.10:1 | 6.06:1 | 4.5 | pass |
-| `--accent` as text on `--bg` | 7.92:1 | 5.86:1 | 4.5 | pass |
-| `--accent` as text on `--raised` | 7.40:1 | 6.11:1 | 4.5 | pass |
-| `--on-primary` on `--primary` | 5.20:1 | 6.11:1 | 4.5 | pass |
-| `--danger` on `--bg` | 7.70:1 | 5.68:1 | 4.5 | pass |
-| `--danger` on `--raised` | 7.19:1 | 5.93:1 | 4.5 | pass |
-| `--danger` on `--danger-surface` | 6.30:1 | 5.27:1 | 4.5 | pass |
-| `--text` on `--danger-surface` | 13.49:1 | 15.90:1 | 4.5 | pass |
-| `--ok` on `--bg` | 10.39:1 | 5.03:1 | 4.5 | pass |
-| `--text` on `--selected` | 12.89:1 | 13.50:1 | 4.5 | pass |
+| `--text` on `--bg` | 16.02:1 | 17.56:1 | 4.5 | pass |
+| `--text` on `--raised` | 14.64:1 | 18.32:1 | 4.5 | pass |
+| `--muted` on `--bg` | 7.71:1 | 5.80:1 | 4.5 | pass |
+| `--muted` on `--raised` | 7.05:1 | 6.06:1 | 4.5 | pass |
+| `--accent` as text on `--bg` | 7.49:1 | 6.39:1 | 4.5 | pass |
+| `--accent` as text on `--raised` | 6.85:1 | 6.67:1 | 4.5 | pass |
+| `--on-primary` on `--primary` | 4.63:1 | 6.67:1 | 4.5 | pass |
+| `--danger` on `--bg` | 7.62:1 | 5.68:1 | 4.5 | pass |
+| `--danger` on `--raised` | 6.96:1 | 5.93:1 | 4.5 | pass |
+| `--danger` on `--danger-surface` | 6.12:1 | 5.27:1 | 4.5 | pass |
+| `--text` on `--danger-surface` | 12.87:1 | 16.30:1 | 4.5 | pass |
+| `--ok` on `--bg` | 10.27:1 | 5.03:1 | 4.5 | pass |
+| `--text` on `--selected` | 12.48:1 | 14.64:1 | 4.5 | pass |
 
 Non-text pairs against the 3:1 floor of SC 1.4.11:
 
 | Pair | Dark | Light | Floor | |
 | --- | --- | --- | --- | --- |
-| `--accent` focus ring on `--bg` | 7.92:1 | 5.86:1 | 3.0 | pass |
-| `--line-strong` on `--bg` | 3.41:1 | 3.27:1 | 3.0 | pass |
+| `--accent` focus ring on `--bg` | 7.49:1 | 6.39:1 | 3.0 | pass |
+| `--line-strong` on `--bg` | 3.49:1 | 3.27:1 | 3.0 | pass |
 | `--line-strong` on `--raised` | 3.19:1 | 3.41:1 | 3.0 | pass |
 
 Every proposed value clears its floor in both themes. Two verifications are worth stating because they are the ones usually skipped: `--muted` is checked against `--raised` as well as `--bg`, since metadata mostly sits on tiles rather than on the page; and `--danger` is checked against `--danger-surface`, since danger text on a danger tint is the pairing an alert actually draws.
 
 ### The one genuine failure in the current palette, and how it is resolved
 
-The live `--line` is `#2e2e38` on dark, which is **1.34:1** against `--bg`, and `#dfdfe6` on light, which is **1.23:1**. Both fail 3:1 by a wide margin. Raising a single `--line` token to clear 3:1 would require roughly `#66667a` on dark and `#8a8a95` on light — values that turn every divider in the interface into a heavy grey rule and destroy exactly the calm the owner asked for.
+A single boundary token cannot serve both jobs. `--line` sits at **1.48:1** against `--bg` on dark and **1.21:1** on light — far under 3:1 — and lifting one shared token to clear that floor would require roughly `#606b78` on dark and `#8a8a95` on light, turning every divider in the interface into a heavy grey rule and destroying exactly the calm the owner asked for.
 
-The resolution is the Tier 2 finding, and it is what SC 1.4.11 actually requires rather than a relaxation of it: **split the token by obligation.** A boundary is only required to meet 3:1 when it is *the sole means of identifying a control*. A divider between two rows identifies nothing — the rows are identified by their own text — and is decorative, so `--line` stays subtle and is exempt. The border of a text input, where the border is the only thing saying "you may type here", must clear 3:1, and that is `--line-strong`. This is one net new token and it buys genuine conformance rather than a waiver. The proposed `--line` is lifted slightly in both themes (`#33333d` dark, `#e4e4e9` light) for legibility, but its job is separation, not identification.
+The resolution is the Tier 2 finding, and it is what SC 1.4.11 actually requires rather than a relaxation of it: **split the token by obligation.** A boundary is only required to meet 3:1 when it is *the sole means of identifying a control*. A divider between two rows identifies nothing — the rows are identified by their own text — and is decorative, so `--line` stays subtle and is exempt, at `#2b333d` dark and `#e4e4e9` light. The border of a text input, where the border is the only thing saying "you may type here", must clear 3:1, and that is `--line-strong`. This is one net new token and it buys genuine conformance rather than a waiver.
+
+`--line-strong` is checked against **both** `--bg` and `--raised`, since an input sits on either. The dark value is set by the tighter of the two: on `--raised` it must still clear 3:1, which is what fixes it at `#606b78` rather than anything lighter-looking that passes only against the page.
 
 ### Load-bearing versus rounding-out
 

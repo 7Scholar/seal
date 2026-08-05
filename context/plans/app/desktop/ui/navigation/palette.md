@@ -32,7 +32,7 @@ The owner named accent and primary as two things, and the distinction is real: M
 
 **`--primary` is the solid fill of the single most important action on a view. `--accent` is the interactive-and-selected signal everywhere else** — focus rings, selection tints, the switcher tick, the checked file's name, interactive text. Two tokens, one blue, not two colours.
 
-The argument is mechanical rather than stylistic, which is why it is not a matter of taste: a fill is a **background that ink sits on**, an accent is a **foreground that sits on the page**, and those are opposite contrast obligations. No single value satisfies both — a blue dark enough to carry white text is too dark to read as text on the same page. This is the defect the split repairs: one value carrying six roles means the primary action, hover, focus and selection are all the same colour, so nothing stands out because everything does.
+The argument is mechanical rather than stylistic, which is why it is not a matter of taste: a fill is a **background that ink sits on**, an accent is a **foreground that sits on the page**, and those are opposite contrast obligations. No single value satisfies both — the blue deep enough to carry white ink as a fill is too dark to read as text on the same page. This is the defect the split repairs: one value carrying six roles means the primary action, hover, focus and selection are all the same colour, so nothing stands out because everything does.
 
 A second *hue* is refused. It would give the product two identities, and in a security product a second saturated colour competes with the one signal that must never be missed.
 
@@ -87,6 +87,6 @@ Nothing on this plan.
 
 # Open threads
 
-- **Whether `--accent` and `--primary` should stay the same value in light.** Both roles land on `#0d5bd1` there because the two contrast obligations converge on a white page. The tokens are separate regardless, since the role rule must not change per theme — but whether the primary action reads as sufficiently distinct from interactive text on light wants looking at once more surfaces exist in it.
+- **Whether `--accent` and `--primary` should stay the same value in light.** Both roles land on `#0b5cad` there because the two contrast obligations converge on a white page. The tokens are separate regardless, since the role rule must not change per theme — but whether the primary action reads as sufficiently distinct from interactive text on light wants looking at once more surfaces exist in it.
 - **Whether the checked file's name in the tree should carry `--accent` at all.** An accent repeated fifty times stops signalling, which is the excessive state's argument; a check icon with neutral text may be the better treatment. Best judged against a real tree, so it belongs to [manage-surface.md](manage-surface.md)'s build rather than here.
 - The light `--ok` at 5.03:1 has the least headroom of any text pair in the palette and wants re-checking if the light background is ever darkened.

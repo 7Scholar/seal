@@ -1,1 +1,1 @@
-Placeholder icons: flat dark squares generated to satisfy the bundler, not artwork. Replacing them is part of the publishing plan.
+The seal mark on the application's tile, rendered from `site/public/favicon.svg` by `bun run brand:icons`. Regenerate rather than editing these by hand.

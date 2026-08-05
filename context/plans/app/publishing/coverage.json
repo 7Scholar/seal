@@ -25,10 +25,11 @@
     "site/astro.config.mjs": "0a71f9b78a458b960785bf4e9eba19112aaf6183",
     "site/bun.lock": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
     "site/package.json": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
-    "site/public/favicon.svg": "d220645b6a3aa6e0f4ca9b707477832e65ceb9a0",
+    "site/public/favicon.svg": "e3604e203d135b525cb5ccb54c7e983138b33172",
     "site/src/components/BrandMark.astro": "0a71f9b78a458b960785bf4e9eba19112aaf6183",
     "site/src/components/Header.astro": "0a71f9b78a458b960785bf4e9eba19112aaf6183",
-    "site/src/components/PageContextMenu.astro": "0a71f9b78a458b960785bf4e9eba19112aaf6183",
+    "site/src/components/LinkTile.astro": "e3604e203d135b525cb5ccb54c7e983138b33172",
+    "site/src/components/PageContextMenu.astro": "e3604e203d135b525cb5ccb54c7e983138b33172",
     "site/src/components/PageTitle.astro": "beb600ff85e1bec42dedba02469d4c64bca21b65",
     "site/src/components/Pagination.astro": "0a71f9b78a458b960785bf4e9eba19112aaf6183",
     "site/src/components/Repo.astro": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
@@ -41,7 +42,7 @@
     "site/src/content/docs/get-started/install.md": "0a71f9b78a458b960785bf4e9eba19112aaf6183",
     "site/src/content/docs/guides/managing-files.md": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
     "site/src/content/docs/guides/scripts.md": "0a71f9b78a458b960785bf4e9eba19112aaf6183",
-    "site/src/content/docs/index.mdx": "0a71f9b78a458b960785bf4e9eba19112aaf6183",
+    "site/src/content/docs/index.mdx": "e3604e203d135b525cb5ccb54c7e983138b33172",
     "site/src/content/docs/reference/cli.md": "0a71f9b78a458b960785bf4e9eba19112aaf6183",
     "site/src/content/docs/reference/contributing.mdx": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
     "site/src/content/docs/reference/security.mdx": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
@@ -49,11 +50,11 @@
     "site/src/content/docs/understand/limits.md": "0a71f9b78a458b960785bf4e9eba19112aaf6183",
     "site/src/pages/[...slug].md.ts": "beb600ff85e1bec42dedba02469d4c64bca21b65",
     "site/src/pages/llms.txt.ts": "beb600ff85e1bec42dedba02469d4c64bca21b65",
-    "site/src/styles/seal.css": "0a71f9b78a458b960785bf4e9eba19112aaf6183"
+    "site/src/styles/seal.css": "e3604e203d135b525cb5ccb54c7e983138b33172"
   },
   "tooling.md": {
     "package.json": "d220645b6a3aa6e0f4ca9b707477832e65ceb9a0",
-    "scripts/render-brand.sh": "d220645b6a3aa6e0f4ca9b707477832e65ceb9a0",
+    "scripts/render-brand.sh": "e3604e203d135b525cb5ccb54c7e983138b33172",
     "scripts/update-local.sh": "fc48741e20953ee3d195f734bdc5e6b65e1602ab"
   }
 }

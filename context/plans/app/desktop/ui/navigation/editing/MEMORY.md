@@ -1,1 +1,13 @@
 # Memory
+
+## 2026-08-05 — The commented-out-variable rule is strict on purpose, and fails towards prose
+
+A line becomes a *disabled variable* only when stripping its leading run of `#` and the whitespace after it leaves something that parses as a valid assignment on its own. A comment that merely contains an equals sign — `# Set DEBUG=true to enable verbose logging` — stays an ordinary ignored comment. **Why:** the two misreadings are not equally bad. Reading prose as a disabled variable puts a row on screen carrying an enable control, and enabling it writes a live variable into the user's file that was never meant to exist; reading a genuinely-disabled variable as prose merely fails to show it, and the line survives untouched. **Mistake it prevents:** loosening the rule to catch more "obviously intended" disabled variables — matching on the presence of `=` anywhere after a `#`, or on a key-like prefix — which trades a harmless invisibility for a change to what the file does.
+
+## 2026-08-05 — Line numbers are display, not identity
+
+Every parsed row carries a stable id allocated at open time; edits reference ids, and order is the sequence of ids sent back. Line numbers describe where a line currently sits and are used for display and for anchoring the malformed-row flow. **Why:** a line number is not stable across the operations this concern adds — deleting a row shifts every line beneath it — so a number identifying one row changes as a side effect of editing a different row, and an interface holding numbers from the last open will name the wrong row. **Mistake it prevents:** treating the line number as the row's key because it reads as simpler and more deterministic. It applies an edit to a variable the user did not choose, inside a sealed file, which is this product's unrecoverable case.
+
+## 2026-08-05 — Ceremony sits at the save, not at the delete
+
+Deleting a row raises no dialog and changes local state only. The save inspects the pending batch and raises one plain confirm-and-cancel — no typed phrase — when that batch removes anything. **Why:** until the save, a delete has not happened and Cancel undoes it, so a dialog there guards nothing while taxing every click of the cleanup pass this feature invites. The typed phrase stays reserved for the irreversible acts a user meets once, which a routine delete is not. **Mistake it prevents:** adding a per-delete confirmation for safety, or escalating the save confirmation to a typed phrase to match the acknowledgement gate — both move ceremony away from the moment the irreversible write actually occurs and make the surface heavier without making it safer.

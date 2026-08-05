@@ -2,6 +2,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use age::secrecy::SecretString;
+use seal_dotenv::{ApplyError, Op, RowId};
 use seal_engine::format::Classification;
 use seal_engine::operations;
 use seal_registry::reconcile;
@@ -161,22 +162,22 @@ pub fn open_file(
     Ok(opened)
 }
 
-pub fn reveal(session: &mut Session, path: &Path, key: &str) -> Result<Vec<u8>, CommandError> {
+pub fn reveal(session: &mut Session, path: &Path, row: RowId) -> Result<Vec<u8>, CommandError> {
     if !view::is_editable(path) {
         return Err(CommandError::at(Kind::NotAnEnvFile, path));
     }
     let plaintext = session.plaintext(path)?;
-    view::value_of(plaintext, key)
+    view::value_of(plaintext, row)
         .map(String::into_bytes)
-        .ok_or_else(|| CommandError::at(Kind::UnknownKey, path))
+        .ok_or_else(|| CommandError::at(Kind::UnknownRow, path))
 }
 
 pub fn save(
     session: &mut Session,
     path: &Path,
-    edits: &[(String, String)],
+    ops: &[Op],
     state: &mut State,
-) -> Result<(), CommandError> {
+) -> Result<view::EnvView, CommandError> {
     require_managed(state, path)?;
     crate::lifecycle::require_acknowledgement(state)?;
     if !view::is_editable(path) {
@@ -186,8 +187,20 @@ pub fn save(
 
     let updated = {
         let plaintext = session.plaintext(path)?;
-        view::apply_edits(plaintext, edits)
-            .ok_or_else(|| CommandError::at(Kind::UnknownKey, path))?
+        view::apply_ops(plaintext, ops).map_err(|failure| {
+            CommandError::at(
+                match failure {
+                    ApplyError::InvalidKey(_) => Kind::InvalidKey,
+                    ApplyError::StillMalformed(_) => Kind::StillMalformed,
+                    ApplyError::UnknownRow(_)
+                    | ApplyError::NotAnEntry(_)
+                    | ApplyError::NotMalformed(_)
+                    | ApplyError::IncompleteOrder => Kind::UnknownRow,
+                    _ => Kind::UnknownRow,
+                },
+                path,
+            )
+        })?
     };
 
     let sealed = matches!(operations::classify(path)?, Classification::Sealed { .. });
@@ -197,6 +210,7 @@ pub fn save(
         operations::write_plaintext(path, &updated)?;
     }
 
+    let refreshed = view::env_view(path, &updated);
     session.open(path, Plaintext::new(updated))?;
     record(
         state,
@@ -207,7 +221,7 @@ pub fn save(
             SealedState::Plaintext
         },
     );
-    Ok(())
+    Ok(refreshed)
 }
 
 fn require_managed(state: &mut State, path: &Path) -> Result<(), CommandError> {

@@ -25,6 +25,16 @@ pub enum Quote {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct RowId(u32);
 
+impl RowId {
+    pub fn new(raw: u32) -> Self {
+        Self(raw)
+    }
+
+    pub fn raw(self) -> u32 {
+        self.0
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Entry {
     raw: String,

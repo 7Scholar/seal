@@ -20,17 +20,40 @@ export interface Observation {
 }
 
 export interface VariableView {
+  id: number;
   key: string;
   masked: string;
   empty: boolean;
+  disabled: boolean;
+}
+
+export interface MalformedView {
+  id: number;
+  text: string;
 }
 
 export interface EnvView {
   path: string;
   variables: VariableView[];
+  malformed: MalformedView[];
   duplicateKeys: string[];
   unparseableLines: number;
 }
+
+export type EditOp =
+  | { kind: "setValue"; row: number; value: string }
+  | { kind: "setKey"; row: number; key: string }
+  | { kind: "setDisabled"; row: number; disabled: boolean }
+  | {
+      kind: "insert";
+      after: number | null;
+      key: string;
+      value: string;
+      disabled: boolean;
+    }
+  | { kind: "remove"; row: number }
+  | { kind: "replaceMalformed"; row: number; text: string }
+  | { kind: "reorder"; rows: number[] };
 
 export type OpenedFile =
   | ({ kind: "env" } & EnvView)
@@ -109,6 +132,9 @@ export type ErrorKind =
   | "damaged"
   | "symlinkTarget"
   | "unknownKey"
+  | "unknownRow"
+  | "invalidKey"
+  | "stillMalformed"
   | "notAnEnvFile"
   | "notAcknowledged"
   | "notEstablished"
@@ -141,8 +167,8 @@ export const openFile = (path: string) => invoke<OpenedFile>("open_file", { path
 export const closeFile = (path: string) => invoke<void>("close_file", { path });
 export const openPaths = () => invoke<string[]>("open_paths");
 
-export const save = (path: string, edits: [string, string][]) =>
-  invoke<void>("save", { path, edits });
+export const save = (path: string, ops: EditOp[]) =>
+  invoke<EnvView>("save", { path, ops });
 export const sealFile = (path: string) => invoke<void>("seal_file", { path });
 export const sealFiles = (paths: string[]) =>
   invoke<SealOutcome[]>("seal_files", { paths });
@@ -170,8 +196,8 @@ export const rekeyRun = (current: string, replacement: string) =>
   invoke<Manifest>("rekey_run", { current, replacement });
 export const rekeyAbandon = () => invoke<void>("rekey_abandon");
 
-export async function reveal(path: string, key: string): Promise<Uint8Array> {
-  const bytes = await invoke<ArrayBuffer>("reveal", { path, key });
+export async function reveal(path: string, row: number): Promise<Uint8Array> {
+  const bytes = await invoke<ArrayBuffer>("reveal", { path, row });
   return new Uint8Array(bytes);
 }
 

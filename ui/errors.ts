@@ -19,6 +19,12 @@ const CAUSES: Record<string, string> = {
     "The path is a symbolic link. Seal refuses to work through links so the real file cannot be missed.",
   unknownKey:
     "That variable is not in the file, so the edit was refused rather than silently adding a new one.",
+  unknownRow:
+    "The file changed since it was opened, so one of the rows you edited is no longer there. Nothing was written. Open it again to see it as it stands.",
+  invalidKey:
+    "A variable name cannot contain spaces or a # character, so the change was refused rather than written as a line nothing could read back.",
+  stillMalformed:
+    "That text is still not a variable assignment, so it was left exactly as it was. A variable reads NAME=value.",
   notAnEnvFile: "This is not an env file, so it has no editable variables.",
   notAcknowledged: "The two irreversible consequences have to be acknowledged first.",
   notEstablished: "No master password exists yet, so there is nothing to unlock.",

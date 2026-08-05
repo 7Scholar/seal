@@ -2,6 +2,7 @@ use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
+use seal_dotenv::RowId;
 use seal_registry::state::State;
 use seal_registry::store::Store;
 use seal_session::clock::SystemClock;
@@ -14,7 +15,7 @@ use crate::error::{CommandError, Kind};
 use crate::lifecycle::{self, ScanView};
 use crate::rekey;
 use crate::theme;
-use crate::view::{Observation, OpenedFile, RepoView, SealOutcome};
+use crate::view::{self, Observation, OpenedFile, RepoView, SealOutcome};
 
 pub const RETRY_ATTEMPTS: u8 = 5;
 
@@ -200,10 +201,10 @@ pub async fn open_file(held: Managed<'_, Held>, path: PathBuf) -> Result<OpenedF
 pub async fn reveal(
     held: Managed<'_, Held>,
     path: PathBuf,
-    key: String,
+    row: u32,
 ) -> Result<Response, CommandError> {
     let mut session = held.session()?;
-    let value = app::reveal(&mut session, &path, &key)?;
+    let value = app::reveal(&mut session, &path, RowId::new(row))?;
     Ok(Response::new(value))
 }
 
@@ -211,12 +212,14 @@ pub async fn reveal(
 pub async fn save(
     held: Managed<'_, Held>,
     path: PathBuf,
-    edits: Vec<(String, String)>,
-) -> Result<(), CommandError> {
+    ops: Vec<view::EditOp>,
+) -> Result<view::EnvView, CommandError> {
     let mut session = held.session()?;
     let mut registry = held.registry()?;
-    app::save(&mut session, &path, &edits, &mut registry)?;
-    held.persist(&registry)
+    let ops: Vec<_> = ops.into_iter().map(Into::into).collect();
+    let refreshed = app::save(&mut session, &path, &ops, &mut registry)?;
+    held.persist(&registry)?;
+    Ok(refreshed)
 }
 
 #[tauri::command]

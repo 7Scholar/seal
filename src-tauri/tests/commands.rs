@@ -6,6 +6,7 @@ use age::secrecy::SecretString;
 use seal_desktop::app;
 use seal_desktop::error::Kind;
 use seal_desktop::view::MASK;
+use seal_dotenv::{Op, RowId};
 use seal_registry::state::{ManagedFile, Repo, SealedState, State};
 use seal_session::Session;
 
@@ -24,6 +25,20 @@ struct Fixture {
     root: PathBuf,
     path: PathBuf,
     state: State,
+}
+
+fn row_of(session: &mut Session, path: &Path, state: &State, key: &str) -> RowId {
+    let opened = app::open_file(session, path, state).unwrap();
+    match opened {
+        seal_desktop::view::OpenedFile::Env(view) => RowId::new(
+            view.variables
+                .iter()
+                .find(|variable| variable.key == key)
+                .unwrap_or_else(|| panic!("{key} must be in the file"))
+                .id,
+        ),
+        _ => panic!("not an env file"),
+    }
 }
 
 fn fixture() -> Fixture {
@@ -124,10 +139,12 @@ fn revealing_one_value_returns_that_value_and_nothing_else() {
     let mut session = unlocked();
     app::open_file(&mut session, &fixture.path, &fixture.state).unwrap();
 
-    let revealed = app::reveal(&mut session, &fixture.path, "API_KEY").unwrap();
+    let row = row_of(&mut session, &fixture.path, &fixture.state, "API_KEY");
+    let revealed = app::reveal(&mut session, &fixture.path, row).unwrap();
     assert_eq!(String::from_utf8(revealed).unwrap(), "sk-live-42");
 
-    let other = app::reveal(&mut session, &fixture.path, "DATABASE_URL").unwrap();
+    let row = row_of(&mut session, &fixture.path, &fixture.state, "DATABASE_URL");
+    let other = app::reveal(&mut session, &fixture.path, row).unwrap();
     assert_eq!(
         String::from_utf8(other).unwrap(),
         "postgres://user:pw@host/db",
@@ -136,13 +153,14 @@ fn revealing_one_value_returns_that_value_and_nothing_else() {
 }
 
 #[test]
-fn revealing_an_unknown_key_is_refused() {
+fn revealing_a_row_the_file_does_not_hold_is_refused() {
     let fixture = fixture();
     let mut session = unlocked();
     app::open_file(&mut session, &fixture.path, &fixture.state).unwrap();
 
-    let error = app::reveal(&mut session, &fixture.path, "NOT_THERE").unwrap_err();
-    assert_eq!(error.kind, Kind::UnknownKey);
+    let absent = RowId::new(9_999);
+    let error = app::reveal(&mut session, &fixture.path, absent).unwrap_err();
+    assert_eq!(error.kind, Kind::UnknownRow);
 }
 
 #[test]
@@ -150,10 +168,11 @@ fn a_locked_session_reveals_nothing() {
     let fixture = fixture();
     let mut session = unlocked();
     app::open_file(&mut session, &fixture.path, &fixture.state).unwrap();
+    let row = row_of(&mut session, &fixture.path, &fixture.state, "API_KEY");
 
     session.wipe();
 
-    let error = app::reveal(&mut session, &fixture.path, "API_KEY").unwrap_err();
+    let error = app::reveal(&mut session, &fixture.path, row).unwrap_err();
     assert_eq!(
         error.kind,
         Kind::Locked,
@@ -185,10 +204,11 @@ fn saving_an_edit_changes_one_value_and_preserves_the_rest() {
     let mut session = unlocked();
     app::open_file(&mut session, &fixture.path, &fixture.state).unwrap();
 
+    let row = row_of(&mut session, &fixture.path, &fixture.state, "API_KEY");
     app::save(
         &mut session,
         &fixture.path,
-        &[("API_KEY".to_owned(), "sk-live-rotated".to_owned())],
+        &[Op::SetValue { row, value: "sk-live-rotated".to_owned() }],
         &mut fixture.state,
     )
     .unwrap();
@@ -222,10 +242,11 @@ fn saving_leaves_the_file_sealed() {
     let mut session = unlocked();
     app::open_file(&mut session, &fixture.path, &fixture.state).unwrap();
 
+    let row = row_of(&mut session, &fixture.path, &fixture.state, "API_KEY");
     app::save(
         &mut session,
         &fixture.path,
-        &[("API_KEY".to_owned(), "rotated".to_owned())],
+        &[Op::SetValue { row, value: "rotated".to_owned() }],
         &mut fixture.state,
     )
     .unwrap();
@@ -293,7 +314,7 @@ fn errors_crossing_the_boundary_carry_no_file_contents() {
     let fixture = fixture();
     let mut session = unlocked();
 
-    let error = app::reveal(&mut session, &fixture.path, "API_KEY").unwrap_err();
+    let error = app::reveal(&mut session, &fixture.path, RowId::new(1)).unwrap_err();
     let serialized = serde_json::to_string(&error).unwrap();
 
     for secret in ["sk-live-42", "postgres://user:pw@host/db"] {
@@ -381,11 +402,175 @@ fn duplicate_keys_are_surfaced_to_the_interface() {
 }
 
 #[test]
+fn each_duplicate_row_reveals_its_own_value() {
+    let source = b"A=first\nA=second\nB=ok\n";
+    let view = seal_desktop::view::env_view(Path::new(".env"), source);
+
+    let rows: Vec<_> = view
+        .variables
+        .iter()
+        .filter(|variable| variable.key == "A")
+        .collect();
+    assert_eq!(rows.len(), 2, "both duplicate rows are shown");
+
+    assert_eq!(
+        seal_desktop::view::value_of(source, RowId::new(rows[0].id)).as_deref(),
+        Some("first")
+    );
+    assert_eq!(
+        seal_desktop::view::value_of(source, RowId::new(rows[1].id)).as_deref(),
+        Some("second"),
+        "the second row must reveal its own value, not the first row's"
+    );
+}
+
+#[test]
+fn a_disabled_variable_reaches_the_interface_as_a_row() {
+    let source = b"LIVE=yes\n# PAUSED=no\n";
+    let view = seal_desktop::view::env_view(Path::new(".env"), source);
+
+    assert_eq!(view.variables.len(), 2);
+    assert!(!view.variables[0].disabled);
+    assert_eq!(view.variables[1].key, "PAUSED");
+    assert!(view.variables[1].disabled);
+    assert_eq!(
+        view.variables[1].masked, MASK,
+        "a disabled variable's value is still a secret and stays masked"
+    );
+}
+
+#[test]
+fn malformed_lines_reach_the_interface_as_rows_rather_than_a_count() {
+    let source = b"GOOD=1\nthis line makes no sense\n";
+    let view = seal_desktop::view::env_view(Path::new(".env"), source);
+
+    assert_eq!(view.malformed.len(), 1);
+    assert_eq!(view.malformed[0].text, "this line makes no sense");
+    assert_eq!(
+        view.unparseable_lines, 1,
+        "the count stays consistent with the rows it counts"
+    );
+}
+
+#[test]
+fn saving_returns_the_reparsed_view_so_new_rows_are_addressable() {
+    let mut fixture = fixture();
+    let mut session = unlocked();
+    app::open_file(&mut session, &fixture.path, &fixture.state).unwrap();
+
+    let refreshed = app::save(
+        &mut session,
+        &fixture.path,
+        &[Op::Insert {
+            after: None,
+            key: "ADDED".to_owned(),
+            value: "new".to_owned(),
+            disabled: false,
+        }],
+        &mut fixture.state,
+    )
+    .unwrap();
+
+    let added = refreshed
+        .variables
+        .iter()
+        .find(|variable| variable.key == "ADDED")
+        .expect("the created row is in the returned view");
+
+    let revealed = app::reveal(&mut session, &fixture.path, RowId::new(added.id)).unwrap();
+    assert_eq!(
+        String::from_utf8(revealed).unwrap(),
+        "new",
+        "the id the save returned addresses the row it created"
+    );
+}
+
+#[test]
+fn an_edit_naming_a_row_the_file_lost_is_refused_without_writing() {
+    let mut fixture = fixture();
+    let mut session = unlocked();
+    app::open_file(&mut session, &fixture.path, &fixture.state).unwrap();
+    let before = std::fs::read(&fixture.path).unwrap();
+
+    let error = app::save(
+        &mut session,
+        &fixture.path,
+        &[Op::SetValue {
+            row: RowId::new(9_999),
+            value: "nope".to_owned(),
+        }],
+        &mut fixture.state,
+    )
+    .unwrap_err();
+
+    assert_eq!(error.kind, Kind::UnknownRow);
+    assert_eq!(
+        std::fs::read(&fixture.path).unwrap(),
+        before,
+        "a refused edit list leaves the file untouched"
+    );
+}
+
+#[test]
+fn a_created_key_that_is_not_plausible_is_refused() {
+    let mut fixture = fixture();
+    let mut session = unlocked();
+    app::open_file(&mut session, &fixture.path, &fixture.state).unwrap();
+
+    let error = app::save(
+        &mut session,
+        &fixture.path,
+        &[Op::Insert {
+            after: None,
+            key: "not a key".to_owned(),
+            value: "x".to_owned(),
+            disabled: false,
+        }],
+        &mut fixture.state,
+    )
+    .unwrap_err();
+
+    assert_eq!(error.kind, Kind::InvalidKey);
+}
+
+#[test]
+fn correcting_a_malformed_row_with_text_that_still_fails_is_refused() {
+    let mut fixture = managed_non_env(".env", b"GOOD=1\nnonsense here\n");
+    let path = fixture.path.clone();
+    let mut session = unlocked();
+    let before = std::fs::read(&path).unwrap();
+
+    let opened = app::open_file(&mut session, &path, &fixture.state).unwrap();
+    let row = match opened {
+        seal_desktop::view::OpenedFile::Env(view) => RowId::new(view.malformed[0].id),
+        _ => panic!("env file"),
+    };
+
+    let error = app::save(
+        &mut session,
+        &path,
+        &[Op::ReplaceMalformed {
+            row,
+            text: "still nonsense".to_owned(),
+        }],
+        &mut fixture.state,
+    )
+    .unwrap_err();
+
+    assert_eq!(error.kind, Kind::StillMalformed);
+    assert_eq!(
+        std::fs::read(&path).unwrap(),
+        before,
+        "Correct refuses rather than guessing, and writes nothing"
+    );
+}
+
+#[test]
 fn revealing_without_opening_the_file_first_is_refused() {
     let fixture = fixture();
     let mut session = unlocked();
 
-    let error = app::reveal(&mut session, &fixture.path, "API_KEY").unwrap_err();
+    let error = app::reveal(&mut session, &fixture.path, RowId::new(1)).unwrap_err();
     assert_eq!(
         error.kind,
         Kind::NotOpen,
@@ -531,7 +716,10 @@ fn saving_a_non_env_file_is_refused_rather_than_rewritten() {
     let error = app::save(
         &mut session,
         &fixture.path,
-        &[("secret_key".to_owned(), "rotated".to_owned())],
+        &[Op::SetValue {
+            row: RowId::new(0),
+            value: "rotated".to_owned(),
+        }],
         &mut fixture.state,
     )
     .unwrap_err();
@@ -561,7 +749,7 @@ fn revealing_from_a_non_env_file_is_refused() {
     let mut session = unlocked();
     app::open_file(&mut session, &fixture.path, &fixture.state).unwrap();
 
-    let error = app::reveal(&mut session, &fixture.path, "apiKey").unwrap_err();
+    let error = app::reveal(&mut session, &fixture.path, RowId::new(0)).unwrap_err();
     assert_eq!(error.kind, Kind::NotAnEnvFile);
 }
 
@@ -751,10 +939,11 @@ fn saving_a_readable_file_leaves_it_readable() {
     let mut session = unlocked();
 
     app::open_file(&mut session, &fixture.path, &fixture.state).unwrap();
+    let row = row_of(&mut session, &fixture.path, &fixture.state, "API_KEY");
     app::save(
         &mut session,
         &fixture.path,
-        &[("API_KEY".to_owned(), "sk-live-99".to_owned())],
+        &[Op::SetValue { row, value: "sk-live-99".to_owned() }],
         &mut fixture.state,
     )
     .unwrap();
@@ -780,10 +969,11 @@ fn saving_a_sealed_file_leaves_it_sealed() {
     let mut session = unlocked();
 
     app::open_file(&mut session, &fixture.path, &fixture.state).unwrap();
+    let row = row_of(&mut session, &fixture.path, &fixture.state, "API_KEY");
     app::save(
         &mut session,
         &fixture.path,
-        &[("API_KEY".to_owned(), "sk-live-99".to_owned())],
+        &[Op::SetValue { row, value: "sk-live-99".to_owned() }],
         &mut fixture.state,
     )
     .unwrap();

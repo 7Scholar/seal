@@ -659,9 +659,9 @@ export function App() {
             relativePath={openedRelativePath}
             state={openedState}
             expired={expired}
-            onReveal={async (key) => {
+            onReveal={async (row, key) => {
               try {
-                return await ipc.reveal(opened.file.path, key);
+                return await ipc.reveal(opened.file.path, row);
               } catch (error) {
                 fail(`reveal ${key}`, error, {
                   root: route.root,
@@ -671,10 +671,11 @@ export function App() {
                 throw error;
               }
             }}
-            onSave={async (edits) => {
+            onSave={async (ops) => {
               try {
                 await withAcknowledgement("save the changes", async () => {
-                  await ipc.save(opened.file.path, edits);
+                  const refreshed = await ipc.save(opened.file.path, ops);
+                  setOpened({ kind: "env", file: refreshed });
                   await refreshAndReconcile();
                 });
               } catch (error) {

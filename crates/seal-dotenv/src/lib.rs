@@ -22,6 +22,9 @@ pub enum Quote {
     Double,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct RowId(u32);
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Entry {
     raw: String,
@@ -32,6 +35,7 @@ pub struct Entry {
     export_prefix: bool,
     leading: String,
     trailing_comment: Option<String>,
+    disabled: bool,
 }
 
 impl Entry {
@@ -39,10 +43,50 @@ impl Entry {
         self.quote
     }
 
+    pub fn disabled(&self) -> bool {
+        self.disabled
+    }
+
+    fn created(key: String, value: String, disabled: bool) -> Self {
+        Self {
+            raw: String::new(),
+            edited: true,
+            key,
+            value,
+            quote: Quote::None,
+            export_prefix: false,
+            leading: String::new(),
+            trailing_comment: None,
+            disabled,
+        }
+    }
+
+    fn recreated(self) -> Self {
+        Self {
+            edited: true,
+            ..self
+        }
+    }
+
     pub fn set_value(&mut self, value: impl Into<String>) {
         let value = value.into();
         if value != self.value {
             self.value = value;
+            self.edited = true;
+        }
+    }
+
+    fn set_key(&mut self, key: impl Into<String>) {
+        let key = key.into();
+        if key != self.key {
+            self.key = key;
+            self.edited = true;
+        }
+    }
+
+    fn set_disabled(&mut self, disabled: bool) {
+        if disabled != self.disabled {
+            self.disabled = disabled;
             self.edited = true;
         }
     }
@@ -61,6 +105,9 @@ impl Entry {
 
         let mut line = String::new();
         line.push_str(&self.leading);
+        if self.disabled {
+            line.push_str("# ");
+        }
         if self.export_prefix {
             line.push_str("export ");
         }
@@ -98,14 +145,50 @@ pub enum Line {
     Blank(String),
     Comment(String),
     Entry(Entry),
-    Unparseable(String),
+    Malformed(String),
+}
+
+impl Line {
+    fn is_managed(&self) -> bool {
+        matches!(self, Self::Entry(_) | Self::Malformed(_))
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Row {
+    pub id: RowId,
+    pub line: Line,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[non_exhaustive]
+pub enum Op {
+    SetValue { row: RowId, value: String },
+    SetKey { row: RowId, key: String },
+    SetDisabled { row: RowId, disabled: bool },
+    Insert { after: Option<RowId>, key: String, value: String, disabled: bool },
+    Remove { row: RowId },
+    ReplaceMalformed { row: RowId, text: String },
+    Reorder { rows: Vec<RowId> },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[non_exhaustive]
+pub enum ApplyError {
+    UnknownRow(RowId),
+    NotAnEntry(RowId),
+    NotMalformed(RowId),
+    InvalidKey(String),
+    StillMalformed(String),
+    IncompleteOrder,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct EnvFile {
-    lines: Vec<Line>,
+    rows: Vec<Row>,
     newline: Newline,
     trailing_newline: bool,
+    next_id: u32,
 }
 
 impl EnvFile {
@@ -120,7 +203,7 @@ impl EnvFile {
         let body = source.strip_suffix('\n').unwrap_or(source);
         let body = body.strip_suffix('\r').unwrap_or(body);
 
-        let lines = if source.is_empty() {
+        let lines: Vec<Line> = if source.is_empty() {
             Vec::new()
         } else {
             body.split('\n')
@@ -128,19 +211,30 @@ impl EnvFile {
                 .collect()
         };
 
+        let mut next_id = 0;
+        let rows = lines
+            .into_iter()
+            .map(|line| {
+                let id = RowId(next_id);
+                next_id += 1;
+                Row { id, line }
+            })
+            .collect();
+
         Self {
-            lines,
+            rows,
             newline,
             trailing_newline,
+            next_id,
         }
     }
 
     pub fn render(&self) -> String {
         let rendered: Vec<String> = self
-            .lines
+            .rows
             .iter()
-            .map(|line| match line {
-                Line::Blank(raw) | Line::Comment(raw) | Line::Unparseable(raw) => raw.clone(),
+            .map(|row| match &row.line {
+                Line::Blank(raw) | Line::Comment(raw) | Line::Malformed(raw) => raw.clone(),
                 Line::Entry(entry) => entry.render(self.newline),
             })
             .collect();
@@ -152,22 +246,171 @@ impl EnvFile {
         out
     }
 
-    pub fn lines(&self) -> &[Line] {
-        &self.lines
+    pub fn rows(&self) -> &[Row] {
+        &self.rows
+    }
+
+    pub fn lines(&self) -> impl Iterator<Item = &Line> {
+        self.rows.iter().map(|row| &row.line)
     }
 
     pub fn entries(&self) -> impl Iterator<Item = &Entry> {
-        self.lines.iter().filter_map(|line| match line {
+        self.rows.iter().filter_map(|row| match &row.line {
             Line::Entry(entry) => Some(entry),
             _ => None,
         })
     }
 
     pub fn entry_mut(&mut self, key: &str) -> Option<&mut Entry> {
-        self.lines.iter_mut().find_map(|line| match line {
+        self.rows.iter_mut().find_map(|row| match &mut row.line {
             Line::Entry(entry) if entry.key == key => Some(entry),
             _ => None,
         })
+    }
+
+    pub fn row_id(&self, key: &str) -> Option<RowId> {
+        self.rows.iter().find_map(|row| match &row.line {
+            Line::Entry(entry) if entry.key == key => Some(row.id),
+            _ => None,
+        })
+    }
+
+    fn index_of(&self, id: RowId) -> Result<usize, ApplyError> {
+        self.rows
+            .iter()
+            .position(|row| row.id == id)
+            .ok_or(ApplyError::UnknownRow(id))
+    }
+
+    pub fn apply(&mut self, ops: &[Op]) -> Result<Vec<RowId>, ApplyError> {
+        self.validate(ops)?;
+
+        let mut inserted = Vec::new();
+        for op in ops {
+            match op {
+                Op::SetValue { row, value } => {
+                    let index = self.index_of(*row)?;
+                    match &mut self.rows[index].line {
+                        Line::Entry(entry) => entry.set_value(value.clone()),
+                        _ => return Err(ApplyError::NotAnEntry(*row)),
+                    }
+                }
+                Op::SetKey { row, key } => {
+                    let index = self.index_of(*row)?;
+                    match &mut self.rows[index].line {
+                        Line::Entry(entry) => entry.set_key(key.clone()),
+                        _ => return Err(ApplyError::NotAnEntry(*row)),
+                    }
+                }
+                Op::SetDisabled { row, disabled } => {
+                    let index = self.index_of(*row)?;
+                    match &mut self.rows[index].line {
+                        Line::Entry(entry) => entry.set_disabled(*disabled),
+                        _ => return Err(ApplyError::NotAnEntry(*row)),
+                    }
+                }
+                Op::Insert {
+                    after,
+                    key,
+                    value,
+                    disabled,
+                } => {
+                    let index = match after {
+                        Some(id) => self.index_of(*id)? + 1,
+                        None => 0,
+                    };
+                    let id = RowId(self.next_id);
+                    self.next_id += 1;
+                    self.rows.insert(
+                        index,
+                        Row {
+                            id,
+                            line: Line::Entry(Entry::created(key.clone(), value.clone(), *disabled)),
+                        },
+                    );
+                    inserted.push(id);
+                }
+                Op::Remove { row } => {
+                    let index = self.index_of(*row)?;
+                    self.rows.remove(index);
+                }
+                Op::ReplaceMalformed { row, text } => {
+                    let index = self.index_of(*row)?;
+                    if !matches!(self.rows[index].line, Line::Malformed(_)) {
+                        return Err(ApplyError::NotMalformed(*row));
+                    }
+                    match parse_line(text) {
+                        Line::Entry(entry) => self.rows[index].line = Line::Entry(entry.recreated()),
+                        _ => return Err(ApplyError::StillMalformed(text.clone())),
+                    }
+                }
+                Op::Reorder { rows } => self.reorder(rows)?,
+            }
+        }
+
+        Ok(inserted)
+    }
+
+    fn validate(&self, ops: &[Op]) -> Result<(), ApplyError> {
+        for op in ops {
+            match op {
+                Op::SetValue { row, .. }
+                | Op::SetDisabled { row, .. }
+                | Op::Remove { row }
+                | Op::ReplaceMalformed { row, .. } => {
+                    self.index_of(*row)?;
+                }
+                Op::SetKey { row, key } => {
+                    self.index_of(*row)?;
+                    if key.is_empty() || !is_plausible_key(key) {
+                        return Err(ApplyError::InvalidKey(key.clone()));
+                    }
+                }
+                Op::Insert { after, key, .. } => {
+                    if let Some(id) = after {
+                        self.index_of(*id)?;
+                    }
+                    if key.is_empty() || !is_plausible_key(key) {
+                        return Err(ApplyError::InvalidKey(key.clone()));
+                    }
+                }
+                Op::Reorder { rows } => {
+                    for id in rows {
+                        self.index_of(*id)?;
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+
+    fn reorder(&mut self, order: &[RowId]) -> Result<(), ApplyError> {
+        let slots: Vec<usize> = self
+            .rows
+            .iter()
+            .enumerate()
+            .filter(|(_, row)| row.line.is_managed())
+            .map(|(index, _)| index)
+            .collect();
+
+        if order.len() != slots.len() {
+            return Err(ApplyError::IncompleteOrder);
+        }
+
+        let mut taken = Vec::with_capacity(order.len());
+        for id in order {
+            let index = self.index_of(*id)?;
+            if !self.rows[index].line.is_managed() || taken.contains(&index) {
+                return Err(ApplyError::IncompleteOrder);
+            }
+            taken.push(index);
+        }
+
+        let moved: Vec<Row> = taken.iter().map(|index| self.rows[*index].clone()).collect();
+        for (slot, row) in slots.iter().zip(moved) {
+            self.rows[*slot] = row;
+        }
+        Ok(())
     }
 
     pub fn duplicate_keys(&self) -> Vec<String> {
@@ -197,6 +440,15 @@ fn parse_line(raw: &str) -> Line {
         return Line::Blank(raw.to_owned());
     }
     if trimmed.starts_with('#') {
+        let stripped = trimmed.trim_start_matches('#').trim_start();
+        if let Line::Entry(entry) = parse_line(stripped) {
+            return Line::Entry(Entry {
+                raw: raw.to_owned(),
+                leading: raw.chars().take_while(|c| c.is_whitespace()).collect(),
+                disabled: true,
+                ..entry
+            });
+        }
         return Line::Comment(raw.to_owned());
     }
 
@@ -207,12 +459,12 @@ fn parse_line(raw: &str) -> Line {
     };
 
     let Some((key_part, value_part)) = rest.split_once('=') else {
-        return Line::Unparseable(raw.to_owned());
+        return Line::Malformed(raw.to_owned());
     };
 
     let key = key_part.trim_end().to_owned();
     if key.is_empty() || !is_plausible_key(&key) {
-        return Line::Unparseable(raw.to_owned());
+        return Line::Malformed(raw.to_owned());
     }
 
     let (value, quote, trailing_comment) = parse_value(value_part);
@@ -226,6 +478,7 @@ fn parse_line(raw: &str) -> Line {
         export_prefix,
         leading,
         trailing_comment,
+        disabled: false,
     })
 }
 

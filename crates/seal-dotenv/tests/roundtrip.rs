@@ -152,8 +152,7 @@ fn an_unparseable_line_is_preserved_rather_than_dropped() {
 
     let unparseable: Vec<&Line> = parsed
         .lines()
-        .iter()
-        .filter(|line| matches!(line, Line::Unparseable(_)))
+        .filter(|line| matches!(line, Line::Malformed(_)))
         .collect();
 
     assert_eq!(unparseable.len(), 1, "the nonsense line must be recognised");

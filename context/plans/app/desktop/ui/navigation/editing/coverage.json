@@ -9,7 +9,7 @@
   },
   "model.md": {
     "crates/seal-dotenv/src/lib.rs": "75494f05c58e8772206909b06c3b1878b0d69088",
-    "crates/seal-dotenv/tests/structural.rs": "75494f05c58e8772206909b06c3b1878b0d69088"
+    "crates/seal-dotenv/tests/structural.rs": "a9ab35ab9946f3bd2b5e0d2343103d2b8c407a54"
   },
   "reordering.md": {
     "ui/screens/EnvEditor.tsx": "75494f05c58e8772206909b06c3b1878b0d69088"

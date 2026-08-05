@@ -7,8 +7,39 @@ export interface SandShield {
   destroy(): void;
 }
 
-const COAL = ["#141316", "#1b191d", "#212024", "#292628"];
-const FLECK = "#4a4237";
+interface Palette {
+  bed: string;
+  grains: string[];
+  fleck: string;
+  fleckAlpha: number;
+  carve: number;
+  spark: [number, number, number];
+  glow: [number, number, number];
+  alarm: [number, number, number];
+}
+
+const DARK: Palette = {
+  bed: "#141318",
+  grains: ["#141316", "#1b191d", "#212024", "#292628"],
+  fleck: "#4a4237",
+  fleckAlpha: 0.25,
+  carve: 1,
+  spark: [255, 208, 138],
+  glow: [255, 186, 110],
+  alarm: [247, 118, 142],
+};
+
+const LIGHT: Palette = {
+  bed: "#e7e0d2",
+  grains: ["#d8cfbc", "#cfc4ad", "#c4b79c", "#b7a88b"],
+  fleck: "#8a7a5f",
+  fleckAlpha: 0.3,
+  carve: 0.62,
+  spark: [176, 116, 30],
+  glow: [198, 142, 52],
+  alarm: [176, 36, 60],
+};
+
 const REACH = 25;
 const TRAIL_LIFE = 260;
 const SPARK_LIFE = 650;
@@ -23,6 +54,11 @@ const inert: SandShield = {
   destroy() {},
 };
 
+function readPalette(): Palette {
+  if (typeof document === "undefined") return DARK;
+  return document.documentElement.dataset.theme === "light" ? LIGHT : DARK;
+}
+
 export function createSandShield(canvas: HTMLCanvasElement): SandShield {
   const ctx = canvas.getContext("2d");
   if (!ctx) return inert;
@@ -35,6 +71,7 @@ export function createSandShield(canvas: HTMLCanvasElement): SandShield {
   let height = 0;
   let dpr = 1;
   let pattern: CanvasPattern | null = null;
+  let palette = readPalette();
 
   let grainCount = 0;
   let grains = new Float32Array(0);
@@ -50,6 +87,16 @@ export function createSandShield(canvas: HTMLCanvasElement): SandShield {
   let last = performance.now();
   let lastActive = performance.now();
   let calm = false;
+
+  function repalette() {
+    const next = readPalette();
+    if (next === palette) return;
+    palette = next;
+    pattern = makePattern();
+    for (let i = 0; i < grainCount; i += 1) shades[i] = shades[i]! % palette.grains.length;
+    calm = false;
+    lastActive = performance.now();
+  }
 
   function measure() {
     const rect = canvas.getBoundingClientRect();
@@ -71,13 +118,13 @@ export function createSandShield(canvas: HTMLCanvasElement): SandShield {
     tile.height = side;
     const tctx = tile.getContext("2d");
     if (!tctx) return null;
-    tctx.fillStyle = "#141318";
+    tctx.fillStyle = palette.bed;
     tctx.fillRect(0, 0, side, side);
     const cell = Math.max(2, Math.round(1.1 * dpr));
     const cols = Math.ceil(side / cell);
-    for (let pass = 0; pass < COAL.length; pass += 1) {
-      tctx.fillStyle = COAL[pass]!;
-      for (let c = pass; c < cols * cols; c += COAL.length) {
+    for (let pass = 0; pass < palette.grains.length; pass += 1) {
+      tctx.fillStyle = palette.grains[pass]!;
+      for (let c = pass; c < cols * cols; c += palette.grains.length) {
         const cx = (c % cols) * cell + rand() * cell;
         const cy = Math.floor(c / cols) * cell + rand() * cell;
         const size = (0.8 + rand() * 0.9) * dpr;
@@ -85,9 +132,9 @@ export function createSandShield(canvas: HTMLCanvasElement): SandShield {
         tctx.fillRect(cx, cy, size, size);
       }
     }
-    tctx.fillStyle = FLECK;
+    tctx.fillStyle = palette.fleck;
     for (let f = 0; f < (cols * cols) / 240; f += 1) {
-      tctx.globalAlpha = 0.25 + rand() * 0.35;
+      tctx.globalAlpha = palette.fleckAlpha + rand() * 0.35;
       tctx.fillRect(rand() * side, rand() * side, dpr, dpr);
     }
     tctx.globalCompositeOperation = "destination-out";
@@ -110,7 +157,7 @@ export function createSandShield(canvas: HTMLCanvasElement): SandShield {
       grains[o + 1] = hy;
       grains[o + 2] = hx;
       grains[o + 3] = hy;
-      shades[i] = Math.floor(rand() * COAL.length);
+      shades[i] = Math.floor(rand() * palette.grains.length);
     }
   }
 
@@ -155,9 +202,10 @@ export function createSandShield(canvas: HTMLCanvasElement): SandShield {
 
   function punch(x: number, y: number, radius: number, strength: number) {
     if (radius <= 0) return;
+    const depth = strength * palette.carve;
     const hole = ctx!.createRadialGradient(x, y, 0, x, y, radius);
-    hole.addColorStop(0, `rgba(0,0,0,${strength})`);
-    hole.addColorStop(0.55, `rgba(0,0,0,${strength * 0.75})`);
+    hole.addColorStop(0, `rgba(0,0,0,${depth})`);
+    hole.addColorStop(0.55, `rgba(0,0,0,${depth * 0.75})`);
     hole.addColorStop(1, "rgba(0,0,0,0)");
     ctx!.fillStyle = hole;
     ctx!.beginPath();
@@ -213,8 +261,8 @@ export function createSandShield(canvas: HTMLCanvasElement): SandShield {
   }
 
   function drawGrains() {
-    for (let shade = 0; shade < COAL.length; shade += 1) {
-      ctx!.fillStyle = COAL[shade]!;
+    for (let shade = 0; shade < palette.grains.length; shade += 1) {
+      ctx!.fillStyle = palette.grains[shade]!;
       for (let i = 0; i < grainCount; i += 1) {
         if (shades[i] !== shade) continue;
         const o = i * 6;
@@ -225,7 +273,10 @@ export function createSandShield(canvas: HTMLCanvasElement): SandShield {
   }
 
   function drawLight(t: number) {
-    ctx!.globalCompositeOperation = "lighter";
+    const [sr, sg, sb] = palette.spark;
+    const [gr, gg, gb] = palette.glow;
+    const [ar, ag, ab] = palette.alarm;
+    ctx!.globalCompositeOperation = palette === LIGHT ? "multiply" : "lighter";
     for (let i = sparks.length - 1; i >= 0; i -= 1) {
       const s = sparks[i]!;
       const env = sparkEnvelope(t - s.at);
@@ -235,9 +286,9 @@ export function createSandShield(canvas: HTMLCanvasElement): SandShield {
       }
       const radius = 22 + 42 * env;
       const halo = ctx!.createRadialGradient(s.x, s.y, 0, s.x, s.y, radius);
-      halo.addColorStop(0, `rgba(255,208,138,${0.5 * env})`);
-      halo.addColorStop(0.4, `rgba(255,186,110,${0.22 * env})`);
-      halo.addColorStop(1, "rgba(255,186,110,0)");
+      halo.addColorStop(0, `rgba(${sr},${sg},${sb},${0.5 * env})`);
+      halo.addColorStop(0.4, `rgba(${gr},${gg},${gb},${0.22 * env})`);
+      halo.addColorStop(1, `rgba(${gr},${gg},${gb},0)`);
       ctx!.fillStyle = halo;
       ctx!.beginPath();
       ctx!.arc(s.x, s.y, radius, 0, Math.PI * 2);
@@ -255,8 +306,8 @@ export function createSandShield(canvas: HTMLCanvasElement): SandShield {
         height * 0.45,
         radius,
       );
-      wash.addColorStop(0, `rgba(247,118,142,${0.26 * fade})`);
-      wash.addColorStop(1, "rgba(247,118,142,0)");
+      wash.addColorStop(0, `rgba(${ar},${ag},${ab},${0.26 * fade})`);
+      wash.addColorStop(1, `rgba(${ar},${ag},${ab},0)`);
       ctx!.fillStyle = wash;
       ctx!.fillRect(0, 0, width, height);
     }
@@ -304,6 +355,12 @@ export function createSandShield(canvas: HTMLCanvasElement): SandShield {
 
   measure();
   window.addEventListener("resize", measure);
+  const watcher =
+    typeof MutationObserver === "function" ? new MutationObserver(repalette) : null;
+  watcher?.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-theme"],
+  });
   frame = requestAnimationFrame(render);
 
   return {
@@ -340,6 +397,7 @@ export function createSandShield(canvas: HTMLCanvasElement): SandShield {
     destroy() {
       cancelAnimationFrame(frame);
       window.removeEventListener("resize", measure);
+      watcher?.disconnect();
     },
   };
 }

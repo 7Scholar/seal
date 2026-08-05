@@ -1,6 +1,6 @@
 {
   "ci.md": {
-    ".github/workflows/ci.yml": "40cd3f67e2e44b529590db3ede8868c7fd0eaa6c",
+    ".github/workflows/ci.yml": "04ac8eaff0362979edb5b1571753286844debe36",
     "bun.lock": "40cd3f67e2e44b529590db3ede8868c7fd0eaa6c"
   },
   "docs.md": {

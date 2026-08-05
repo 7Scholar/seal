@@ -5,7 +5,7 @@
     "src-tauri/src/error.rs": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "src-tauri/src/lib.rs": "d1d3a678c02530f74c4845022358fa06066f9d35",
     "src-tauri/src/view.rs": "d1d3a678c02530f74c4845022358fa06066f9d35",
-    "src-tauri/tests/commands.rs": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
+    "src-tauri/tests/commands.rs": "04ac8eaff0362979edb5b1571753286844debe36",
     "src-tauri/tests/lifetime.rs": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e"
   },
   "dotenv.md": {

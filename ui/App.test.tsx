@@ -209,8 +209,9 @@ describe("the application shell", () => {
     mocked.openFile.mockResolvedValue({
       kind: "env",
       path: "/code/app/.env",
-      variables: [{ key: "API_KEY", masked: "••••••••", empty: false }],
+      variables: [{ id: 1, key: "API_KEY", masked: "••••••••", empty: false, disabled: false }],
       duplicateKeys: [],
+      malformed: [],
       unparseableLines: 0,
     });
     await openApp();
@@ -229,8 +230,9 @@ describe("the application shell", () => {
     mocked.openFile.mockResolvedValue({
       kind: "env",
       path: "/code/app/.env",
-      variables: [{ key: "API_KEY", masked: "••••••••", empty: false }],
+      variables: [{ id: 1, key: "API_KEY", masked: "••••••••", empty: false, disabled: false }],
       duplicateKeys: [],
+      malformed: [],
       unparseableLines: 0,
     });
     mocked.closeFile.mockResolvedValue(undefined);
@@ -316,12 +318,19 @@ describe("the application shell", () => {
     mocked.openFile.mockResolvedValue({
       kind: "env",
       path: "/code/app/.env",
-      variables: [{ key: "API_KEY", masked: "••••••••", empty: false }],
+      variables: [{ id: 1, key: "API_KEY", masked: "••••••••", empty: false, disabled: false }],
       duplicateKeys: [],
+      malformed: [],
       unparseableLines: 0,
     });
     mocked.closeFile.mockResolvedValue(undefined);
-    mocked.save.mockResolvedValue(undefined);
+    mocked.save.mockResolvedValue({
+      path: "/code/app/.env",
+      variables: [{ id: 1, key: "API_KEY", masked: "••••••••", empty: false, disabled: false }],
+      duplicateKeys: [],
+      malformed: [],
+      unparseableLines: 0,
+    });
     mocked.reveal.mockResolvedValue(new TextEncoder().encode("sk-live"));
     await openApp();
     await openRepository(user, "app");
@@ -576,8 +585,9 @@ describe("the theme control", () => {
     settle({
       kind: "env",
       path: "/code/app/.env",
-      variables: [{ key: "API_KEY", masked: "••••••••", empty: false }],
+      variables: [{ id: 1, key: "API_KEY", masked: "••••••••", empty: false, disabled: false }],
       duplicateKeys: [],
+      malformed: [],
       unparseableLines: 0,
     });
     await screen.findByText("API_KEY");
@@ -624,8 +634,9 @@ describe("the theme control", () => {
     mocked.openFile.mockResolvedValue({
       kind: "env",
       path: "/code/app/.env",
-      variables: [{ key: "API_KEY", masked: "••••••••", empty: false }],
+      variables: [{ id: 1, key: "API_KEY", masked: "••••••••", empty: false, disabled: false }],
       duplicateKeys: [],
+      malformed: [],
       unparseableLines: 0,
     });
     await user.click(screen.getByRole("button", { name: "Try again" }));
@@ -639,10 +650,11 @@ describe("the theme control", () => {
       kind: "env",
       path: "/code/app/.env",
       variables: [
-        { key: "API_KEY", masked: "••••••••", empty: false },
-        { key: "DATABASE_URL", masked: "••••••••", empty: false },
+        { id: 1, key: "API_KEY", masked: "••••••••", empty: false, disabled: false },
+        { id: 2, key: "DATABASE_URL", masked: "••••••••", empty: false, disabled: false },
       ],
       duplicateKeys: [],
+      malformed: [],
       unparseableLines: 0,
     });
     await openApp();
@@ -658,8 +670,9 @@ describe("the theme control", () => {
     mocked.openFile.mockResolvedValue({
       kind: "env",
       path: "/code/app/.env",
-      variables: [{ key: "API_KEY", masked: "••••••••", empty: false }],
+      variables: [{ id: 1, key: "API_KEY", masked: "••••••••", empty: false, disabled: false }],
       duplicateKeys: [],
+      malformed: [],
       unparseableLines: 0,
     });
     await user.click(screen.getByRole("button", { name: "Open .env" }));
@@ -676,11 +689,14 @@ describe("the theme control", () => {
       kind: "env",
       path: "/code/app/.env",
       variables: Array.from({ length: 400 }, (_, i) => ({
+        id: i + 1,
         key: `VARIABLE_${i}`,
         masked: "••••••••",
         empty: false,
+        disabled: false,
       })),
       duplicateKeys: [],
+      malformed: [],
       unparseableLines: 0,
     });
     await openApp();
@@ -707,8 +723,9 @@ describe("an expired file met mid-task", () => {
   const envFile: ipc.OpenedFile = {
     kind: "env",
     path: "/code/app/.env.production",
-    variables: [{ key: "API_KEY", masked: "••••••••", empty: false }],
+    variables: [{ id: 1, key: "API_KEY", masked: "••••••••", empty: false, disabled: false }],
     duplicateKeys: [],
+    malformed: [],
     unparseableLines: 0,
   };
 

@@ -176,6 +176,8 @@ jobs:
           AGE_VERSION: v1.3.1
         run: |
           set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y expect
           curl -fsSL "https://github.com/FiloSottile/age/releases/download/${AGE_VERSION}/age-${AGE_VERSION}-linux-amd64.tar.gz" -o age.tar.gz
           tar -xzf age.tar.gz
           sudo install -m 0755 age/age /usr/local/bin/age
@@ -192,6 +194,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: rustsec/audit-check@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # cargo-audit is installed here rather than left to the action, which runs a bare
+      # `cargo install`: that resolves its dependencies to versions requiring a newer
+      # compiler than this workspace pins, so the install fails before any audit runs.
+      - name: Install the auditor against the pinned toolchain
+        run: cargo install cargo-audit --locked
+
+      - name: Audit the dependency tree
+        run: cargo audit

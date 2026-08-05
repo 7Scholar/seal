@@ -17,6 +17,7 @@ pub fn open() -> Launch {
 enum Target {
     Bundle(PathBuf),
     Binary(PathBuf),
+    #[cfg(target_os = "macos")]
     Registered(&'static str),
 }
 
@@ -123,7 +124,6 @@ fn spawn(target: Target) -> Launch {
 fn spawn(target: Target) -> Launch {
     match target {
         Target::Binary(path) | Target::Bundle(path) => detach(Command::new(path)),
-        Target::Registered(name) => detach(Command::new(name)),
     }
 }
 
@@ -140,6 +140,7 @@ fn detach(mut command: Command) -> Launch {
     }
 }
 
+#[cfg(target_os = "macos")]
 const APPLICATION_NAME: &str = "Seal";
 
 #[cfg(windows)]

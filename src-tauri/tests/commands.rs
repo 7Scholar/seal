@@ -764,7 +764,10 @@ fn saving_a_readable_file_leaves_it_readable() {
         !on_disk.starts_with("-----BEGIN AGE"),
         "saving must honour the state the user chose, not seal a file they deliberately unsealed"
     );
-    assert!(on_disk.contains("sk-live-99"), "the edit must reach the file");
+    assert!(
+        on_disk.contains("sk-live-99"),
+        "the edit must reach the file"
+    );
     assert!(
         on_disk.contains("# Production configuration"),
         "the rest of the file is preserved exactly"
@@ -807,11 +810,14 @@ fn saving_a_sealed_file_leaves_it_sealed() {
 fn writing_plaintext_refuses_a_sealed_file() {
     let fixture = fixture();
 
-    let error = seal_engine::operations::write_plaintext(&fixture.path, b"OVERWRITTEN=yes\n")
-        .unwrap_err();
+    let error =
+        seal_engine::operations::write_plaintext(&fixture.path, b"OVERWRITTEN=yes\n").unwrap_err();
 
     assert!(
-        matches!(error, seal_engine::operations::OperationError::AlreadySealed { .. }),
+        matches!(
+            error,
+            seal_engine::operations::OperationError::AlreadySealed { .. }
+        ),
         "the plaintext writer must never overwrite a sealed file, whatever the caller believes"
     );
     let on_disk = std::fs::read_to_string(&fixture.path).unwrap();

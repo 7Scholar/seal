@@ -5,13 +5,13 @@
     "ui/components/FileTree.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
     "ui/screens/ManageFlow.test.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
     "ui/screens/ManageFlow.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
-    "ui/styles.css": "75494f05c58e8772206909b06c3b1878b0d69088"
+    "ui/styles.css": "ecb6be27f4e7db65a0bfe68a697d428307ed6162"
   },
   "managed-view.md": {
     "ui/App.test.tsx": "75494f05c58e8772206909b06c3b1878b0d69088",
     "ui/screens/RepoDetail.test.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
     "ui/screens/RepoDetail.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
-    "ui/styles.css": "75494f05c58e8772206909b06c3b1878b0d69088"
+    "ui/styles.css": "ecb6be27f4e7db65a0bfe68a697d428307ed6162"
   },
   "scan-shape.md": {
     "crates/seal-registry/src/scan.rs": "8b079b85339621deaa93c046211fdefb6ddd2ced",
@@ -31,6 +31,6 @@
     "ui/ipc.ts": "75494f05c58e8772206909b06c3b1878b0d69088",
     "ui/screens/ManageFlow.test.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
     "ui/screens/ManageFlow.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
-    "ui/styles.css": "75494f05c58e8772206909b06c3b1878b0d69088"
+    "ui/styles.css": "ecb6be27f4e7db65a0bfe68a697d428307ed6162"
   }
 }

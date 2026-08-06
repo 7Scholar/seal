@@ -5,17 +5,23 @@
     "ui/ipc.ts": "75494f05c58e8772206909b06c3b1878b0d69088"
   },
   "destructive-save.md": {
-    "ui/screens/EnvEditor.tsx": "75494f05c58e8772206909b06c3b1878b0d69088"
+    "ui/screens/EnvEditor.tsx": "ecb6be27f4e7db65a0bfe68a697d428307ed6162"
   },
   "model.md": {
     "crates/seal-dotenv/src/lib.rs": "9dea5f8555fc7b830feb6c02f72802b67200a496",
     "crates/seal-dotenv/tests/structural.rs": "9dea5f8555fc7b830feb6c02f72802b67200a496"
   },
   "reordering.md": {
-    "ui/screens/EnvEditor.tsx": "75494f05c58e8772206909b06c3b1878b0d69088"
+    "ui/screens/EnvEditor.tsx": "ecb6be27f4e7db65a0bfe68a697d428307ed6162"
+  },
+  "row-density.md": {
+    "ui/components/RowToolbar.tsx": "ecb6be27f4e7db65a0bfe68a697d428307ed6162",
+    "ui/screens/EnvEditor.test.tsx": "ecb6be27f4e7db65a0bfe68a697d428307ed6162",
+    "ui/screens/EnvEditor.tsx": "ecb6be27f4e7db65a0bfe68a697d428307ed6162",
+    "ui/styles.css": "ecb6be27f4e7db65a0bfe68a697d428307ed6162"
   },
   "surface.md": {
-    "ui/screens/EnvEditor.test.tsx": "75494f05c58e8772206909b06c3b1878b0d69088",
-    "ui/screens/EnvEditor.tsx": "75494f05c58e8772206909b06c3b1878b0d69088"
+    "ui/screens/EnvEditor.test.tsx": "ecb6be27f4e7db65a0bfe68a697d428307ed6162",
+    "ui/screens/EnvEditor.tsx": "ecb6be27f4e7db65a0bfe68a697d428307ed6162"
   }
 }

@@ -10,15 +10,15 @@
     "ui/components/useDisclosure.ts": "664ae562a15034f173ad013318a5c2221c24c63c"
   },
   "file.md": {
-    "ui/screens/EnvEditor.test.tsx": "75494f05c58e8772206909b06c3b1878b0d69088",
-    "ui/screens/EnvEditor.tsx": "75494f05c58e8772206909b06c3b1878b0d69088",
+    "ui/screens/EnvEditor.test.tsx": "ecb6be27f4e7db65a0bfe68a697d428307ed6162",
+    "ui/screens/EnvEditor.tsx": "ecb6be27f4e7db65a0bfe68a697d428307ed6162",
     "ui/screens/FileStates.tsx": "13c2312a097a3c3fce76e9676cf063134413dd0e"
   },
   "files.md": {
     "ui/App.tsx": "75494f05c58e8772206909b06c3b1878b0d69088",
     "ui/screens/RepoDetail.test.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
     "ui/screens/RepoDetail.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
-    "ui/styles.css": "75494f05c58e8772206909b06c3b1878b0d69088"
+    "ui/styles.css": "ecb6be27f4e7db65a0bfe68a697d428307ed6162"
   },
   "freshness.md": {
     "crates/seal-session/src/lib.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
@@ -34,18 +34,18 @@
     "ui/components/FileTree.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
     "ui/screens/ManageFlow.test.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
     "ui/screens/ManageFlow.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
-    "ui/styles.css": "75494f05c58e8772206909b06c3b1878b0d69088"
+    "ui/styles.css": "ecb6be27f4e7db65a0bfe68a697d428307ed6162"
   },
   "palette.md": {
-    "ui/styles.css": "75494f05c58e8772206909b06c3b1878b0d69088"
+    "ui/styles.css": "ecb6be27f4e7db65a0bfe68a697d428307ed6162"
   },
   "repositories.md": {
     "ui/screens/Repositories.test.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
     "ui/screens/Repositories.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
-    "ui/styles.css": "75494f05c58e8772206909b06c3b1878b0d69088"
+    "ui/styles.css": "ecb6be27f4e7db65a0bfe68a697d428307ed6162"
   },
   "shape.md": {
-    "ui/styles.css": "75494f05c58e8772206909b06c3b1878b0d69088"
+    "ui/styles.css": "ecb6be27f4e7db65a0bfe68a697d428307ed6162"
   },
   "theme.md": {
     "src-tauri/src/commands.rs": "75494f05c58e8772206909b06c3b1878b0d69088",

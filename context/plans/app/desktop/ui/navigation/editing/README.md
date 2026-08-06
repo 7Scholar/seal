@@ -86,15 +86,20 @@ The placement is the whole of the argument. Ceremony sits exactly where the dest
 - [x] surface.md -> the row and its verbs: create, rename, delete, duplicate, the enabled toggle, the malformed row's free-text field and Correct, and pending structural change drawn honestly
 - [x] reordering.md -> moving a row, the interaction that does it, and the keyboard-reachable equivalent
 - [x] destructive-save.md -> the batch inspection and the one confirmation standing in front of a save that removes variables
+- [x] row-density.md -> how the row presents its vocabulary: three controls and one overflow menu, one tab stop per row, and the geometry that keeps it to a single line
 - [ ] bulk-entry.md -> pasting a block of `KEY=value` lines, the path by which a user actually stops hand-writing these files
 
 # Cursor
 
-**Five of six children are complete, and the vocabulary is driven end to end against the real application.** What remains is `bulk-entry.md`, which is framed and unstarted.
+**Six of seven children are complete, and the vocabulary is both driven end to end and designed rather than merely present.** What remains is `bulk-entry.md`, framed and unstarted.
 
 A user can now create, read, edit, rename, delete, duplicate, reorder and enable-or-disable a variable, correct a malformed line, and carry all of it through one save. Nine driven checks in the real webview (`bun run e2e:editing`) confirm it where unit tests cannot see: a commented-out assignment appears as a disabled variable with its value still masked, prose containing an equals sign stays a comment, `Correct` refuses text that is still not a variable, and a session of five changes lands on disk with the file's comment heading and blank line exactly where they were.
 
 **Three findings from the work are worth carrying forward.** A latent defect was closed on the way past: `reveal` addressed values by key, so in a file defining a key twice — the case the interface already warns about — the second row handed back the first row's secret. Every created row shared one accessible name until a test could not tell two apart, which was the same defect a screen-reader user would have met. And a guard that read as load-bearing turned out **unreachable**, established by three attempts to break it; it is removed rather than left reading as a live check.
+
+**The row was then redesigned**, because the first pass put all eight verbs side by side in the row — working, driven, and not a design. [_docs/row-density-research.md](_docs/row-density-research.md) surveyed how Carbon, Atlassian, Primer, Linear and NN/g handle a dense row, and [row-density.md](row-density.md) applied it: three controls stay (reveal, Edit, the switch, the last because it is a *state* rather than a command), everything else collapses into the `Overflow` menu the repository tile and file row already use, and the row is one toolbar with one tab stop instead of seven.
+
+Two things about that pass are worth carrying. Its central claim is **measured, not argued** — a row was 192px, four lines, and is now 66px — and the cause was not density alone but a flex row that let the key take 355px at `flex: 1` and squeezed the controls into a column they stacked inside. And **three defects survived every measurement and were caught by looking at a screenshot**: the malformed row's controls wrapped, the value's CSS selector named a class the component does not render, and a narrow window wrapped a row to four lines. That is the [surface audit](../../../../../../docs/plans/SURFACE_AUDIT.md) pass working exactly as it is meant to.
 
 **What was deliberately not built** is `bulk-entry.md` — pasting a block of `KEY=value` lines. It is the largest remaining step towards the owner's stated end state, since setting up a new environment is the case where a per-row create is slowest, and it sits cleanly on top of the create verb rather than changing its design.
 

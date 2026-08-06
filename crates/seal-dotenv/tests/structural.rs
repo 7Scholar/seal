@@ -13,7 +13,11 @@ fn a_commented_out_assignment_is_a_disabled_variable() {
     let file = EnvFile::parse("# DATABASE_URL=postgres://localhost/dev\n");
 
     let entries: Vec<_> = file.entries().collect();
-    assert_eq!(entries.len(), 1, "the commented line must become a variable");
+    assert_eq!(
+        entries.len(),
+        1,
+        "the commented line must become a variable"
+    );
     assert_eq!(entries[0].key, "DATABASE_URL");
     assert_eq!(entries[0].value, "postgres://localhost/dev");
     assert!(entries[0].disabled(), "it must be marked disabled");
@@ -75,8 +79,11 @@ fn enabling_a_disabled_variable_drops_the_comment_prefix() {
     let mut file = EnvFile::parse("# FOO=bar\n");
     let row = file.row_id("FOO").expect("FOO must exist");
 
-    file.apply(&[Op::SetDisabled { row, disabled: false }])
-        .expect("enabling must succeed");
+    file.apply(&[Op::SetDisabled {
+        row,
+        disabled: false,
+    }])
+    .expect("enabling must succeed");
 
     assert_eq!(file.render(), "FOO=bar\n");
 }
@@ -86,8 +93,11 @@ fn disabling_a_variable_comments_it_out() {
     let mut file = EnvFile::parse("FOO=bar\n");
     let row = file.row_id("FOO").expect("FOO must exist");
 
-    file.apply(&[Op::SetDisabled { row, disabled: true }])
-        .expect("disabling must succeed");
+    file.apply(&[Op::SetDisabled {
+        row,
+        disabled: true,
+    }])
+    .expect("disabling must succeed");
 
     assert_eq!(file.render(), "# FOO=bar\n");
 }
@@ -97,10 +107,16 @@ fn a_toggled_round_trip_settles_at_the_canonical_prefix() {
     let mut file = EnvFile::parse("##  FOO=bar\n");
     let row = file.row_id("FOO").expect("FOO must exist");
 
-    file.apply(&[Op::SetDisabled { row, disabled: false }])
-        .expect("enable");
-    file.apply(&[Op::SetDisabled { row, disabled: true }])
-        .expect("disable");
+    file.apply(&[Op::SetDisabled {
+        row,
+        disabled: false,
+    }])
+    .expect("enable");
+    file.apply(&[Op::SetDisabled {
+        row,
+        disabled: true,
+    }])
+    .expect("disable");
 
     assert_eq!(
         file.render(),
@@ -174,7 +190,12 @@ fn inserting_places_a_variable_after_the_named_row() {
 
     assert_eq!(
         keys(&file),
-        ["STRIPE_SECRET", "STRIPE_ACCOUNT", "STRIPE_WEBHOOK", "DATABASE_URL"]
+        [
+            "STRIPE_SECRET",
+            "STRIPE_ACCOUNT",
+            "STRIPE_WEBHOOK",
+            "DATABASE_URL"
+        ]
     );
     assert!(file.render().contains("STRIPE_ACCOUNT=acct_1"));
 }

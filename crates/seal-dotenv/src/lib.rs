@@ -173,13 +173,34 @@ pub struct Row {
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Op {
-    SetValue { row: RowId, value: String },
-    SetKey { row: RowId, key: String },
-    SetDisabled { row: RowId, disabled: bool },
-    Insert { after: Option<RowId>, key: String, value: String, disabled: bool },
-    Remove { row: RowId },
-    ReplaceMalformed { row: RowId, text: String },
-    Reorder { rows: Vec<RowId> },
+    SetValue {
+        row: RowId,
+        value: String,
+    },
+    SetKey {
+        row: RowId,
+        key: String,
+    },
+    SetDisabled {
+        row: RowId,
+        disabled: bool,
+    },
+    Insert {
+        after: Option<RowId>,
+        key: String,
+        value: String,
+        disabled: bool,
+    },
+    Remove {
+        row: RowId,
+    },
+    ReplaceMalformed {
+        row: RowId,
+        text: String,
+    },
+    Reorder {
+        rows: Vec<RowId>,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -335,7 +356,11 @@ impl EnvFile {
                         index,
                         Row {
                             id,
-                            line: Line::Entry(Entry::created(key.clone(), value.clone(), *disabled)),
+                            line: Line::Entry(Entry::created(
+                                key.clone(),
+                                value.clone(),
+                                *disabled,
+                            )),
                         },
                     );
                     inserted.push(id);
@@ -350,7 +375,9 @@ impl EnvFile {
                         return Err(ApplyError::NotMalformed(*row));
                     }
                     match parse_line(text) {
-                        Line::Entry(entry) => self.rows[index].line = Line::Entry(entry.recreated()),
+                        Line::Entry(entry) => {
+                            self.rows[index].line = Line::Entry(entry.recreated())
+                        }
                         _ => return Err(ApplyError::StillMalformed(text.clone())),
                     }
                 }
@@ -416,7 +443,10 @@ impl EnvFile {
             taken.push(index);
         }
 
-        let moved: Vec<Row> = taken.iter().map(|index| self.rows[*index].clone()).collect();
+        let moved: Vec<Row> = taken
+            .iter()
+            .map(|index| self.rows[*index].clone())
+            .collect();
         for (slot, row) in slots.iter().zip(moved) {
             self.rows[*slot] = row;
         }

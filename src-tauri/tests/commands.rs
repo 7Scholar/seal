@@ -208,7 +208,10 @@ fn saving_an_edit_changes_one_value_and_preserves_the_rest() {
     app::save(
         &mut session,
         &fixture.path,
-        &[Op::SetValue { row, value: "sk-live-rotated".to_owned() }],
+        &[Op::SetValue {
+            row,
+            value: "sk-live-rotated".to_owned(),
+        }],
         &mut fixture.state,
     )
     .unwrap();
@@ -246,7 +249,10 @@ fn saving_leaves_the_file_sealed() {
     app::save(
         &mut session,
         &fixture.path,
-        &[Op::SetValue { row, value: "rotated".to_owned() }],
+        &[Op::SetValue {
+            row,
+            value: "rotated".to_owned(),
+        }],
         &mut fixture.state,
     )
     .unwrap();
@@ -943,7 +949,10 @@ fn saving_a_readable_file_leaves_it_readable() {
     app::save(
         &mut session,
         &fixture.path,
-        &[Op::SetValue { row, value: "sk-live-99".to_owned() }],
+        &[Op::SetValue {
+            row,
+            value: "sk-live-99".to_owned(),
+        }],
         &mut fixture.state,
     )
     .unwrap();
@@ -973,7 +982,10 @@ fn saving_a_sealed_file_leaves_it_sealed() {
     app::save(
         &mut session,
         &fixture.path,
-        &[Op::SetValue { row, value: "sk-live-99".to_owned() }],
+        &[Op::SetValue {
+            row,
+            value: "sk-live-99".to_owned(),
+        }],
         &mut fixture.state,
     )
     .unwrap();

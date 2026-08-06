@@ -26,13 +26,13 @@ The dirty count now counts **changes** rather than edited values: a created row,
 
 **Edit a value** — unchanged: press Edit, the masked value becomes an input holding the revealed plaintext.
 
-**Rename** — the key becomes editable in place, by the same gesture as the value. Renaming is not offered on a created row, whose key is already an input.
+**Rename** — the key becomes editable in place. Reached from the row's overflow menu rather than a control in the row, which [row-density.md](row-density.md) owns; not offered on a created row, whose key is already an input.
 
 **Toggle enabled/disabled** — a switch on the row, labelled by what the row *is* rather than by what pressing it does, with its state in `aria-checked`. A disabled row is drawn at reduced emphasis with its key struck through, so the file's shape is readable at a glance. **Its value stays masked and revealable** — a commented-out variable is still a secret.
 
-**Delete** — marks the row removed. It stays in the list, struck through and dimmed, with its verbs replaced by a single **Undo**. It is not hidden: a list that silently drops rows shows neither what will happen nor a way back, and the confirmation this product puts in front of destruction lives at the save ([destructive-save.md](destructive-save.md)), which is only honest if the user can see what they are about to destroy.
+**Delete** — reached from the overflow menu, below a separator and styled as destructive ([row-density.md](row-density.md)). Marks the row removed. It stays in the list, struck through and dimmed, with its verbs replaced by a single **Undo**. It is not hidden: a list that silently drops rows shows neither what will happen nor a way back, and the confirmation this product puts in front of destruction lives at the save ([destructive-save.md](destructive-save.md)), which is only honest if the user can see what they are about to destroy.
 
-**Duplicate** — inserts a new row directly after the source, carrying its value and disabled state, with a key derived by suffixing `_COPY` and, if that is taken, `_COPY_2` upward until it is free. A duplicate arrives with a **legal key** rather than an empty one, because arriving invalid would make the surface's first act after a duplicate be an error state.
+**Duplicate** — reached from the overflow menu. Inserts a new row directly after the source, carrying its value and disabled state, with a key derived by suffixing `_COPY` and, if that is taken, `_COPY_2` upward until it is free. A duplicate arrives with a **legal key** rather than an empty one, because arriving invalid would make the surface's first act after a duplicate be an error state.
 
 **Add** — a control at the end of the row list appends an empty row with its key input focused. A created row's key and value are both plain inputs; there is nothing to reveal because there is no stored secret behind it.
 
@@ -49,6 +49,10 @@ A malformed line is drawn as a row in its place in the list, showing its raw tex
 The row can also be **deleted** like any other, which is the only way to remove a line Seal cannot parse.
 
 The notice counting unparseable lines is **withdrawn**: it existed because the lines were invisible, and a count of things the user can now see and act on is noise.
+
+## How the verbs are presented
+
+This plan fixes what each verb *does*. Which of them hold a slot in the row and which collapse into an overflow menu is [row-density.md](row-density.md)'s, taken after the vocabulary was built and driven: the row keeps reveal, Edit and the switch, and everything else lives behind one menu.
 
 ## Every state the surface can occupy
 

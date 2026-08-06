@@ -8,13 +8,13 @@ Moving a row to a new position: the interaction that does it, its keyboard equiv
 
 ## Move controls, not a drag
 
-A row carries **Move up** and **Move down** buttons. There is no drag-and-drop.
+A row offers **Move up**, **Move down**, **Move to top** and **Move to bottom** as named outcomes in its overflow menu ([row-density.md](row-density.md) owns that placement; they were buttons in the row when this plan was first built). There is no drag-and-drop.
 
 The reason is reach rather than taste. A drag needs a keyboard equivalent to be usable at all, and the equivalent is always a pair of move commands — so building the drag means building this anyway, plus a pointer interaction whose auto-scroll and drop-target behaviour would have to work inside the three-band frame's single scrolling region, at four hundred rows, in a window a user can make 720px tall. The buttons are the whole feature for every input device; a drag would be a second path to the same result, and the one more likely to break at the sizes [file.md](../file.md) measured.
 
-Each control is labelled with the variable it moves — *Move API_KEY up* — because a column of identical *Move up* buttons is unusable by screen reader, which is the same defect the created rows had.
+The menu that carries them is labelled with the variable — *More actions for API_KEY* — so the items inside need not repeat it. A column of identical *Move up* buttons would be unusable by screen reader; a named menu solves that once for every item it holds.
 
-A control that cannot act is **absent rather than disabled**: the first row has no *Move up*. A disabled button in a row of enabled ones reads as a fault in that row.
+A move that cannot act is **absent rather than disabled**: the first row's menu has no *Move up* and no *Move to top*. A disabled item among enabled ones reads as a fault in that row.
 
 ## The order reaches the model as a permutation
 

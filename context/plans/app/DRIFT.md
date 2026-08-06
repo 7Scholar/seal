@@ -12,11 +12,13 @@
 ## desktop/ui/navigation/editing/destructive-save.md
 
 - changed ui/screens/EnvEditor.tsx
+  ee0f925 (5 files) "row-density: fix the layout defects the screenshots showed"
   c8c07b4 (10 files) "row-density: collapse eight controls to three and a menu"
 
 ## desktop/ui/navigation/editing/reordering.md
 
 - changed ui/screens/EnvEditor.tsx
+  ee0f925 (5 files) "row-density: fix the layout defects the screenshots showed"
   c8c07b4 (10 files) "row-density: collapse eight controls to three and a menu"
 
 ## desktop/ui/navigation/editing/surface.md
@@ -24,6 +26,7 @@
 - changed ui/screens/EnvEditor.test.tsx
   c8c07b4 (10 files) "row-density: collapse eight controls to three and a menu"
 - changed ui/screens/EnvEditor.tsx
+  ee0f925 (5 files) "row-density: fix the layout defects the screenshots showed"
   c8c07b4 (10 files) "row-density: collapse eight controls to three and a menu"
 
 ## desktop/ui/navigation/file.md
@@ -31,46 +34,55 @@
 - changed ui/screens/EnvEditor.test.tsx
   c8c07b4 (10 files) "row-density: collapse eight controls to three and a menu"
 - changed ui/screens/EnvEditor.tsx
+  ee0f925 (5 files) "row-density: fix the layout defects the screenshots showed"
   c8c07b4 (10 files) "row-density: collapse eight controls to three and a menu"
 
 ## desktop/ui/navigation/files.md
 
 - changed ui/styles.css
+  ee0f925 (5 files) "row-density: fix the layout defects the screenshots showed"
   c8c07b4 (10 files) "row-density: collapse eight controls to three and a menu"
 
 ## desktop/ui/navigation/manage-surface.md
 
 - changed ui/styles.css
+  ee0f925 (5 files) "row-density: fix the layout defects the screenshots showed"
   c8c07b4 (10 files) "row-density: collapse eight controls to three and a menu"
 
 ## desktop/ui/navigation/palette.md
 
 - changed ui/styles.css
+  ee0f925 (5 files) "row-density: fix the layout defects the screenshots showed"
   c8c07b4 (10 files) "row-density: collapse eight controls to three and a menu"
 
 ## desktop/ui/navigation/repositories.md
 
 - changed ui/styles.css
+  ee0f925 (5 files) "row-density: fix the layout defects the screenshots showed"
   c8c07b4 (10 files) "row-density: collapse eight controls to three and a menu"
 
 ## desktop/ui/navigation/shape.md
 
 - changed ui/styles.css
+  ee0f925 (5 files) "row-density: fix the layout defects the screenshots showed"
   c8c07b4 (10 files) "row-density: collapse eight controls to three and a menu"
 
 ## desktop/ui/repo-layer/adopting.md
 
 - changed ui/styles.css
+  ee0f925 (5 files) "row-density: fix the layout defects the screenshots showed"
   c8c07b4 (10 files) "row-density: collapse eight controls to three and a menu"
 
 ## desktop/ui/repo-layer/managed-view.md
 
 - changed ui/styles.css
+  ee0f925 (5 files) "row-density: fix the layout defects the screenshots showed"
   c8c07b4 (10 files) "row-density: collapse eight controls to three and a menu"
 
 ## desktop/ui/repo-layer/vocabulary.md
 
 - changed ui/styles.css
+  ee0f925 (5 files) "row-density: fix the layout defects the screenshots showed"
   c8c07b4 (10 files) "row-density: collapse eight controls to three and a menu"
 
 ## desktop/ui/screens.md
@@ -78,13 +90,16 @@
 - changed ui/screens/EnvEditor.test.tsx
   c8c07b4 (10 files) "row-density: collapse eight controls to three and a menu"
 - changed ui/screens/EnvEditor.tsx
+  ee0f925 (5 files) "row-density: fix the layout defects the screenshots showed"
   c8c07b4 (10 files) "row-density: collapse eight controls to three and a menu"
 - changed ui/styles.css
+  ee0f925 (5 files) "row-density: fix the layout defects the screenshots showed"
   c8c07b4 (10 files) "row-density: collapse eight controls to three and a menu"
 
 ## desktop/ui/shell-layout.md
 
 - changed ui/styles.css
+  ee0f925 (5 files) "row-density: fix the layout defects the screenshots showed"
   c8c07b4 (10 files) "row-density: collapse eight controls to three and a menu"
 
 ## desktop/ui/shell.md

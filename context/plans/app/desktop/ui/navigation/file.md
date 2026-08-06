@@ -69,6 +69,8 @@ The frame alone did not settle it, and the second cause is not this surface's at
 
 # What exists
 
+The row's own presentation — which verbs hold a slot and which collapse into an overflow menu — is [editing/row-density.md](editing/row-density.md)'s, and the three-band frame below is what makes its collapse worth having at four hundred variables.
+
 All of the Approach: the editor re-homed with its internals untouched, the header carrying path, state, count and the seal/unseal control, the two-control footer with its confirmation, the expiry re-lock and its resume, the opaque surface, and every state above — the skeleton, the surface-level failure with its retry and its way back, and the three-band frame.
 
 Interface tests cover that navigating up from a file closes it, that the editor's reveal and save contracts are unchanged in the new container, that a non-env file offers no editing surface, that the skeleton renders while an open is in flight, that a failed open states itself on the surface with both affordances, and the variable count in both singular and plural. The footer's own set: exactly two controls and no more, the label following the file's state in both directions, Cancel enabled while Save is not, an immediate leave with nothing pending, the confirmation appearing with changes pending and leaving only on confirming, and the edits surviving a declined discard. The resume's set: the row reopens with its value, nothing resumes when no row was being edited, and a resume naming a missing variable is dropped without failing.

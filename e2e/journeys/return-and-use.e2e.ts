@@ -143,7 +143,7 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
       $('[role="status"][aria-label="Unsaved changes"]'),
     ).toHaveText(expect.stringContaining("1 unsaved change"));
 
-    await $("button=Save").click();
+    await $("button=Save and seal").click();
     await expect(
       $('[role="status"][aria-label="Unsaved changes"]'),
     ).toHaveText(expect.stringContaining("No unsaved changes"));

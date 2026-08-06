@@ -463,16 +463,18 @@ export function EnvEditor({
                     spellCheck={false}
                     onChange={(event) => change(row.id, { text: event.target.value })}
                   />
-                  <button type="button" onClick={() => correct(row)}>
-                    Correct
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="Delete this line"
-                    onClick={() => remove(row)}
-                  >
-                    Delete
-                  </button>
+                  <span className="env-editor__buttons">
+                    <button type="button" onClick={() => correct(row)}>
+                      Correct
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Delete this line"
+                      onClick={() => remove(row)}
+                    >
+                      Delete
+                    </button>
+                  </span>
                   {correctFailed === row.id ? (
                     <p className="env-editor__problem" role="alert">
                       That is still not a variable. One reads NAME=value.
@@ -559,6 +561,7 @@ export function EnvEditor({
                   />
                 )}
 
+                  <span className="env-editor__buttons">
                   {row.value === null ? (
                     <button
                       type="button"
@@ -637,6 +640,7 @@ export function EnvEditor({
                       Delete
                     </button>
                   </Overflow>
+                  </span>
                 </RowToolbar>
 
                 {problem ? (

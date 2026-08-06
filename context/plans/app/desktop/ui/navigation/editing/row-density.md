@@ -51,6 +51,14 @@ Every interactive target is at least **24×24px** (WCAG 2.5.8), which the icon-o
 - **Marked for deletion** — struck through, its controls replaced by a single **Undo**. Unchanged; it stays in the list rather than vanishing.
 - **Malformed** — raw text, **Correct**, and delete. Below the collapse threshold, so it keeps its controls inline; it inherits these rules if it ever grows a third.
 
+## The row's own geometry
+
+The row is a **three-column grid** — the key at `minmax(6rem, 18rem)`, the value filling what remains, the controls sized to their content — rather than a flex row. Flex let the key win the negotiation at `flex: 1`, taking 355px and squeezing the controls into a column they stacked inside. The key now truncates with an ellipsis instead.
+
+**The value column looks empty and is not.** A masked value is eight dots in a column wide enough for a connection string, which reads as wasted space until a value is revealed into exactly that space and the row does not reflow. The width is reserved rather than spare.
+
+**Below 40rem the row stacks** — key on its own line, controls beneath — rather than wrapping. Wrapping is what a flex row does on its own and it produced a four-line row; stacking is two lines and deliberate. The threshold is where a sixty-character key plus a value plus three controls stops fitting, measured rather than chosen.
+
 # Steps
 
 - [x] The overflow menu as `Overflow`'s fourth caller, carrying rename, duplicate, the four moves and the destructive delete.
@@ -67,6 +75,12 @@ All of the Approach. The interface suite is **252 tests**, and a driven scenario
 The layout fix was not the collapse alone. The row was `display: flex` with the key at `flex: 1`, which let the key take 355px and squeezed the controls into a 208px column they then stacked inside. It is now a **two-column grid** — `minmax(6rem, 16rem)` for the key, the rest for the controls — so the key truncates with an ellipsis rather than winning the negotiation.
 
 **A measurement trap is worth recording**, because it made the first fix look wrong: the window is sized in CSS pixels but the display is 2×, so `setWindowSize(1280, 720)` yields a **640px viewport**. A test that believes it is measuring a wide window is measuring a narrow one, and the "900px" case was really 450px.
+
+**Three defects were found by looking at the running application, after every measurement passed.** This is the pass [SURFACE_AUDIT.md](../../../../../../docs/plans/SURFACE_AUDIT.md) exists for, and it caught what the numbers could not:
+
+- The **malformed row** put its text field in a narrow column, `Correct` across the full width, and `Delete` wrapped onto a line of its own. It is now a two-column grid like every other row.
+- The **value looked stranded** — a small dot cluster adrift in a wide gap. The CSS selector for it named `.secret` while the component renders `.secret-value`, so the rule had never matched anything. Confirmed correct only by revealing a value and seeing it fill the space.
+- The **narrow-window stack did not exist**, so a row wrapped to four lines at a 450px viewport.
 
 Four guards were confirmed non-vacuous:
 

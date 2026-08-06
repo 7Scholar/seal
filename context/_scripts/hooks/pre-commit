@@ -1,14 +1,88 @@
 #!/bin/sh
-# plan-system pre-commit — auto-format hook placeholder (installed per-clone by
-# install_hook; local git state, not committed).
+# plan-system pre-commit — auto-format hook (installed per-clone by install_hook; local
+# git state, not committed).
 #
-# Once the repo has formatters, this hook should format the staged files in place and
-# re-stage them before the commit captures their content, so committed content is always
-# formatted. That protects plan coverage from formatting churn: coverage is keyed on
-# committed file content, so a bulk format after the fact would make the post-commit
-# drift detector flag pure formatting as drift. See docs/plans/SYNC.md, "The two hooks",
-# for the full design.
+# Formats the staged files in place and re-stages them before the commit captures their
+# content, so committed content is always formatted. That protects plan coverage from
+# formatting churn: coverage is keyed on committed file content, so a bulk format after
+# the fact would make the post-commit drift detector flag pure formatting as drift. See
+# docs/plans/SYNC.md, "The two hooks", for the full design.
 #
-# Until formatters are wired in, this hook is a deliberate no-op.
+# Unlike the detector hook, this one blocks the commit when a formatter fails, so
+# unformatted or broken content never lands.
+#
+# A file staged while it also carries unstaged changes is left untouched: formatting it
+# would write the working-tree copy and re-stage the whole file, pulling in the very work
+# the user held back from this commit.
+
+set -u
+
+repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+cd "$repo_root" || exit 0
+
+staged_paths() {
+    git diff --cached --name-only --diff-filter=ACMR -- "$1"
+}
+
+unstaged_paths() {
+    git diff --name-only --diff-filter=ACMRD
+}
+
+format_group() {
+    formatter=$1
+    pathspec=$2
+
+    candidates=$(staged_paths "$pathspec")
+    [ -n "$candidates" ] || return 0
+
+    held_back=$(unstaged_paths)
+    formatted=""
+    skipped=""
+
+    for path in $candidates; do
+        if printf '%s\n' "$held_back" | grep -Fxq -- "$path"; then
+            skipped="$skipped  $path
+"
+            continue
+        fi
+        [ -f "$path" ] || continue
+
+        case $formatter in
+            rust)
+                rustfmt --edition 2021 -- "$path" || return 1
+                ;;
+            python)
+                ( cd context/_scripts && uv run ruff format -q -- "$repo_root/$path" ) || return 1
+                ;;
+        esac
+
+        formatted="$formatted$path
+"
+    done
+
+    if [ -n "$skipped" ]; then
+        printf 'pre-commit: left partially staged file(s) unformatted:\n%s' "$skipped" >&2
+    fi
+
+    for path in $formatted; do
+        git add -- "$path" || return 1
+    done
+
+    return 0
+}
+
+if command -v rustfmt >/dev/null 2>&1; then
+    if ! format_group rust '*.rs'; then
+        echo "pre-commit: rustfmt failed; commit aborted." >&2
+        exit 1
+    fi
+fi
+
+if command -v uv >/dev/null 2>&1 && [ -d context/_scripts ]; then
+    if ! format_group python 'context/_scripts/*.py'; then
+        echo "pre-commit: ruff format failed; commit aborted." >&2
+        exit 1
+    fi
+fi
 
 exit 0

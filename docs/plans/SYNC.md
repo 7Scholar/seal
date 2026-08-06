@@ -165,7 +165,16 @@ For each root it touches, it **writes `DRIFT.md` if there is drift and deletes a
 
 `install_hook` installs **two git hooks** into the current clone — a `pre-commit` format hook and a `post-commit` drift detector (run once per clone — hooks are local git state, not committed). It refuses to overwrite a hook a user placed there by hand, recognizing its own by a marker string.
 
-The **`pre-commit` hook** is the format slot. Its job, once the repo has formatters, is to format the staged files in place and re-stage them **before** the commit captures their content, dispatching each staged path to the repo's configured formatters, but only over the files in that commit. This exists for coverage's sake: coverage is keyed on committed file content, so a manual bulk format followed by a commit would change every reformatted file and make the detector flag pure formatting churn as drift. Formatting at commit time means the committed content is always already formatted, and the `post-commit` detector only ever sees formatted content — no formatting ever registers as drift. Unlike the detector hook, this one **blocks the commit** if a formatter fails, so unformatted or broken content never lands. **Until the repo's formatters exist, the shipped hook is a deliberate no-op placeholder** — wire them in when the first code area establishes its tooling.
+The **`pre-commit` hook** is the format slot. It formats the staged files in place and re-stages them **before** the commit captures their content, dispatching each staged path to the repo's configured formatters, but only over the files in that commit. This exists for coverage's sake: coverage is keyed on committed file content, so a manual bulk format followed by a commit would change every reformatted file and make the detector flag pure formatting churn as drift. Formatting at commit time means the committed content is always already formatted, and the `post-commit` detector only ever sees formatted content — no formatting ever registers as drift. Unlike the detector hook, this one **blocks the commit** if a formatter fails, so unformatted or broken content never lands.
+
+The formatters it dispatches to, each skipped when its tool is absent so a partial toolchain never blocks a commit:
+
+- **Rust** (`*.rs`) → `rustfmt`, which is what `cargo fmt --all --check` enforces in continuous integration.
+- **Python** (`context/_scripts/*.py`) → `ruff format`, run through `uv` against the tooling's own `pyproject.toml`.
+
+The interface has no formatter configured, so its files pass through untouched; add a case here when one is established.
+
+One file is deliberately left alone: a path staged while it **also** carries unstaged changes. Formatting it would write the working-tree copy and re-stage the whole file, pulling the held-back work into a commit the user meant to leave it out of. The hook names any file it skipped for this reason and lets the commit proceed.
 
 The **`post-commit` hook** runs the detector. Running it is then **not** left to the agent to remember: the hook runs `run_coverage --all` after every commit, so detection is taken off the agent entirely while writing boundary and coverage stays agent-driven.
 

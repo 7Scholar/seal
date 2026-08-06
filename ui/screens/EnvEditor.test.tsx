@@ -57,6 +57,11 @@ function setup(overrides: Partial<EnvView> = {}) {
   };
 }
 
+async function menu(user: ReturnType<typeof userEvent.setup>, key: string, item: string) {
+  await user.click(screen.getByRole("button", { name: `More actions for ${key}` }));
+  await user.click(screen.getByRole("button", { name: item }));
+}
+
 describe("EnvEditor", () => {
   it("shows every variable masked and no value on open", () => {
     setup();
@@ -247,7 +252,7 @@ describe("EnvEditor: deleting", () => {
     const user = userEvent.setup();
     const { onSave } = setup();
 
-    await user.click(screen.getByRole("button", { name: "Delete API_KEY" }));
+    await menu(user, "API_KEY", "Delete");
 
     expect(screen.getByText("API_KEY")).toBeInTheDocument();
     expect(screen.getByText(/will be deleted when you save/i)).toBeInTheDocument();
@@ -261,7 +266,7 @@ describe("EnvEditor: deleting", () => {
     const user = userEvent.setup();
     const { onSave } = setup();
 
-    await user.click(screen.getByRole("button", { name: "Delete API_KEY" }));
+    await menu(user, "API_KEY", "Delete");
     await user.click(screen.getByRole("button", { name: "Save and seal" }));
     await user.click(screen.getByRole("button", { name: "Delete and save" }));
 
@@ -277,7 +282,7 @@ describe("EnvEditor: deleting", () => {
       screen.getByRole("textbox", { name: /Name for the new variable/ }),
       "TEMPORARY",
     );
-    await user.click(screen.getByRole("button", { name: "Delete TEMPORARY" }));
+    await menu(user, "TEMPORARY", "Delete");
 
     expect(screen.queryByText(/will be deleted/i)).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Save and seal" })).toBeDisabled();
@@ -289,7 +294,7 @@ describe("EnvEditor: renaming and toggling", () => {
     const user = userEvent.setup();
     const { onSave } = setup();
 
-    await user.click(screen.getByRole("button", { name: "Rename API_KEY" }));
+    await menu(user, "API_KEY", "Rename");
     const field = screen.getByRole("textbox", { name: "Rename API_KEY" });
     await user.clear(field);
     await user.type(field, "STRIPE_KEY");
@@ -359,8 +364,8 @@ describe("EnvEditor: duplicating", () => {
     const user = userEvent.setup();
     const { onSave } = setup();
 
-    await user.click(screen.getByRole("button", { name: "Duplicate API_KEY" }));
-    await user.click(screen.getByRole("button", { name: "Duplicate API_KEY_COPY" }));
+    await menu(user, "API_KEY", "Duplicate");
+    await menu(user, "API_KEY_COPY", "Duplicate");
     await user.click(screen.getByRole("button", { name: "Save and seal" }));
 
     const ops = onSave.mock.calls[0]?.[0] as EditOp[];
@@ -377,7 +382,7 @@ describe("EnvEditor: duplicating", () => {
     const user = userEvent.setup();
     setup();
 
-    await user.click(screen.getByRole("button", { name: "Duplicate API_KEY" }));
+    await menu(user, "API_KEY", "Duplicate");
 
     expect(
       screen.getByRole("textbox", { name: /Name for the new variable/ }),
@@ -671,8 +676,8 @@ describe("EnvEditor: a save that destroys", () => {
     const user = userEvent.setup();
     const { onSave } = setup();
 
-    await user.click(screen.getByRole("button", { name: "Delete API_KEY" }));
-    await user.click(screen.getByRole("button", { name: "Delete DATABASE_URL" }));
+    await menu(user, "API_KEY", "Delete");
+    await menu(user, "DATABASE_URL", "Delete");
     await user.click(screen.getByRole("button", { name: "Save and seal" }));
 
     expect(onSave).not.toHaveBeenCalled();
@@ -690,7 +695,7 @@ describe("EnvEditor: a save that destroys", () => {
     const user = userEvent.setup();
     setup();
 
-    await user.click(screen.getByRole("button", { name: "Delete API_KEY" }));
+    await menu(user, "API_KEY", "Delete");
     await user.click(screen.getByRole("button", { name: "Save and seal" }));
 
     await screen.findByRole("dialog");
@@ -721,7 +726,7 @@ describe("EnvEditor: a save that destroys", () => {
       screen.getByRole("textbox", { name: /Name for the new variable/ }),
       "TEMPORARY",
     );
-    await user.click(screen.getByRole("button", { name: "Delete TEMPORARY" }));
+    await menu(user, "TEMPORARY", "Delete");
     await user.click(screen.getByRole("switch", { name: /API_KEY is enabled/ }));
     await user.click(screen.getByRole("button", { name: "Save and seal" }));
 
@@ -733,7 +738,7 @@ describe("EnvEditor: a save that destroys", () => {
     const user = userEvent.setup();
     const { onSave } = setup();
 
-    await user.click(screen.getByRole("button", { name: "Delete API_KEY" }));
+    await menu(user, "API_KEY", "Delete");
     await user.click(screen.getByRole("button", { name: "Save and seal" }));
     await user.click(screen.getByRole("button", { name: "Keep editing" }));
 
@@ -748,19 +753,23 @@ describe("EnvEditor: reordering", () => {
     const user = userEvent.setup();
     const { onSave } = setup();
 
-    await user.click(screen.getByRole("button", { name: "Move API_KEY up" }));
+    await menu(user, "API_KEY", "Move up");
     await user.click(screen.getByRole("button", { name: "Save and seal" }));
 
     expect(onSave).toHaveBeenCalledWith([{ kind: "reorder", rows: [2, 1] }]);
   });
 
-  it("labels each move control with the variable it moves", () => {
+  it("names the row on the menu that carries its moves", async () => {
+    const user = userEvent.setup();
     setup();
 
     expect(
-      screen.getByRole("button", { name: "Move DATABASE_URL down" }),
+      screen.getByRole("button", { name: "More actions for DATABASE_URL" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Move API_KEY up" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "More actions for API_KEY" }));
+    expect(screen.getByRole("button", { name: "Move up" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Move down" })).not.toBeInTheDocument();
   });
 
   it("omits a move that cannot happen rather than disabling it", () => {
@@ -778,8 +787,8 @@ describe("EnvEditor: reordering", () => {
     const user = userEvent.setup();
     setup();
 
-    await user.click(screen.getByRole("button", { name: "Move API_KEY up" }));
-    await user.click(screen.getByRole("button", { name: "Move API_KEY down" }));
+    await menu(user, "API_KEY", "Move up");
+    await menu(user, "API_KEY", "Move down");
 
     expect(screen.getByRole("button", { name: "Save and seal" })).toBeDisabled();
   });
@@ -796,7 +805,7 @@ describe("EnvEditor: reordering", () => {
       unparseableLines: 1,
     });
 
-    await user.click(screen.getByRole("button", { name: "Move THREE up" }));
+    await menu(user, "THREE", "Move up");
     await user.click(screen.getByRole("button", { name: "Save and seal" }));
 
     const ops = onSave.mock.calls[0]?.[0] as EditOp[];
@@ -818,8 +827,8 @@ describe("EnvEditor: reordering", () => {
       ],
     });
 
-    await user.click(screen.getByRole("button", { name: "Move THREE up" }));
-    await user.click(screen.getByRole("button", { name: "Delete ONE" }));
+    await menu(user, "THREE", "Move up");
+    await menu(user, "ONE", "Delete");
     await user.click(screen.getByRole("button", { name: "Save and seal" }));
     await user.click(screen.getByRole("button", { name: "Delete and save" }));
 
@@ -829,5 +838,123 @@ describe("EnvEditor: reordering", () => {
     expect(reorderAt).toBeGreaterThanOrEqual(0);
     expect(removeAt).toBeGreaterThanOrEqual(0);
     expect(reorderAt).toBeLessThan(removeAt);
+  });
+});
+
+describe("EnvEditor: the row's density", () => {
+  it("keeps at most three controls in the row itself", () => {
+    setup();
+
+    const row = screen.getByText("API_KEY").closest("li") as HTMLElement;
+    const inRow = [...row.querySelectorAll("button")].filter(
+      (button) => !button.closest(".overflow__menu"),
+    );
+
+    expect(inRow.length).toBeLessThanOrEqual(4);
+    const names = inRow.map((b) => b.getAttribute("aria-label") ?? b.textContent);
+    expect(names.some((n) => n?.includes("Reveal"))).toBe(true);
+    expect(names.some((n) => n?.startsWith("Edit"))).toBe(true);
+    expect(names.some((n) => n?.includes("is enabled"))).toBe(true);
+    expect(names.some((n) => n?.includes("More actions"))).toBe(true);
+  });
+
+  it("keeps the destructive verb out of the row, behind the menu", async () => {
+    const user = userEvent.setup();
+    setup();
+
+    const row = screen.getByText("API_KEY").closest("li") as HTMLElement;
+    const inRow = [...row.querySelectorAll("button")].filter(
+      (button) => !button.closest(".overflow__menu"),
+    );
+    for (const button of inRow) {
+      const name = button.getAttribute("aria-label") ?? button.textContent ?? "";
+      expect(name).not.toMatch(/delete/i);
+    }
+
+    await user.click(screen.getByRole("button", { name: "More actions for API_KEY" }));
+    const remove = screen.getByRole("button", { name: "Delete" });
+    expect(remove).toHaveClass("overflow__danger");
+    expect(remove.closest(".overflow__menu")).not.toBeNull();
+  });
+
+  it("is one tab stop per row, whatever the row can do", () => {
+    setup();
+
+    const row = screen.getByText("API_KEY").closest("li") as HTMLElement;
+    const reachable = [...row.querySelectorAll("button, input")].filter(
+      (element) => (element as HTMLElement).tabIndex === 0,
+    );
+
+    expect(reachable).toHaveLength(1);
+  });
+
+  it("moves between a row's controls with the arrow keys", async () => {
+    const user = userEvent.setup();
+    setup();
+
+    const row = screen.getByText("API_KEY").closest("li") as HTMLElement;
+    const toolbar = row.querySelector('[role="toolbar"]') as HTMLElement;
+    const first = toolbar.querySelector("button") as HTMLElement;
+
+    first.focus();
+    expect(document.activeElement).toBe(first);
+
+    await user.keyboard("{ArrowRight}");
+    expect(document.activeElement).not.toBe(first);
+    expect(toolbar.contains(document.activeElement)).toBe(true);
+
+    await user.keyboard("{ArrowLeft}");
+    expect(document.activeElement).toBe(first);
+  });
+
+  it("offers the absolute moves as named outcomes", async () => {
+    const user = userEvent.setup();
+    const { onSave } = setup({
+      variables: [
+        { id: 1, key: "ONE", masked: MASK, empty: false, disabled: false },
+        { id: 2, key: "TWO", masked: MASK, empty: false, disabled: false },
+        { id: 3, key: "THREE", masked: MASK, empty: false, disabled: false },
+      ],
+    });
+
+    await menu(user, "THREE", "Move to top");
+    await user.click(screen.getByRole("button", { name: "Save and seal" }));
+
+    expect(onSave).toHaveBeenCalledWith([{ kind: "reorder", rows: [3, 1, 2] }]);
+  });
+
+  it("does not offer a move that cannot happen", async () => {
+    const user = userEvent.setup();
+    setup();
+
+    await user.click(screen.getByRole("button", { name: "More actions for DATABASE_URL" }));
+    expect(screen.queryByRole("button", { name: "Move up" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Move to top" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Move down" })).toBeInTheDocument();
+  });
+
+  it("marks the row itself as being edited, not just its value", async () => {
+    const user = userEvent.setup();
+    setup();
+
+    const row = screen.getByText("API_KEY").closest("li") as HTMLElement;
+    expect(row.className).not.toContain("editing");
+
+    await user.click(screen.getByRole("button", { name: "Edit API_KEY" }));
+    await screen.findByRole("textbox", { name: "Value for API_KEY" });
+
+    const editing = screen.getByLabelText("Value for API_KEY").closest("li") as HTMLElement;
+    expect(editing.className).toContain("editing");
+  });
+
+  it("hides no control behind a hover gesture", () => {
+    setup();
+
+    const row = screen.getByText("API_KEY").closest("li") as HTMLElement;
+    for (const button of row.querySelectorAll("button")) {
+      const style = window.getComputedStyle(button);
+      expect(style.display).not.toBe("none");
+      expect(style.visibility).not.toBe("hidden");
+    }
   });
 });

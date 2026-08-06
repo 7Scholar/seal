@@ -40,6 +40,17 @@ async function waitForEditor() {
   );
 }
 
+async function menu(key: string, item: string) {
+  const trigger = $(`button[aria-label="More actions for ${key}"]`);
+  await trigger.waitForClickable({ timeout: 10000 });
+  await trigger.click();
+  const menu = $(".overflow__menu");
+  await menu.waitForDisplayed({ timeout: 6000 });
+  const choice = menu.$(`button=${item}`);
+  await choice.waitForClickable({ timeout: 6000 });
+  await choice.click();
+}
+
 describe("managing environment variables in Seal", () => {
   before(async () => {
     mkdirSync(repo(), { recursive: true });
@@ -141,7 +152,7 @@ describe("managing environment variables in Seal", () => {
     await raw.setValue("RECOVERED=yes");
     await $("button=Correct").click();
 
-    await $('button[aria-label="Rename STRIPE_SECRET"]').click();
+    await menu("STRIPE_SECRET", "Rename");
     const rename = $('input[aria-label="Rename STRIPE_SECRET"]');
     await rename.clearValue();
     await rename.setValue("STRIPE_KEY");
@@ -154,7 +165,7 @@ describe("managing environment variables in Seal", () => {
     const value = $('input[aria-label="Value for REDIS_URL"]');
     await value.setValue("redis://localhost");
 
-    await $('button[aria-label="Delete STRIPE_HOOK"]').click();
+    await menu("STRIPE_HOOK", "Delete");
 
     const save = $("button=Save");
     await save.waitForEnabled({ timeout: 8000 });

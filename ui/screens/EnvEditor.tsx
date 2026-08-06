@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Confirm } from "../components/Confirm";
+import { Overflow } from "../components/Overflow";
+import { RowToolbar } from "../components/RowToolbar";
 import { SecretValue } from "../components/SecretValue";
 import { decodeSecret } from "../format";
 import type { EditOp, EnvView, SealedState } from "../ipc";
@@ -90,6 +92,15 @@ export function canMove(draft: Draft[], id: number, delta: -1 | 1): boolean {
   const index = draft.findIndex((row) => row.id === id);
   const target = index + delta;
   return index >= 0 && target >= 0 && target < draft.length;
+}
+
+export function movedTo(draft: Draft[], id: number, edge: "top" | "bottom"): Draft[] {
+  const index = draft.findIndex((row) => row.id === id);
+  if (index < 0) return draft;
+  const carried = draft[index];
+  if (!carried) return draft;
+  const rest = draft.filter((row) => row.id !== id);
+  return edge === "top" ? [carried, ...rest] : [...rest, carried];
 }
 
 export function moved(draft: Draft[], id: number, delta: -1 | 1): Draft[] {
@@ -493,7 +504,11 @@ export function EnvEditor({
             return (
               <li
                 key={row.id}
-                className="env-editor__row"
+                className={
+                  row.value !== null || naming
+                    ? "env-editor__row env-editor__row--editing"
+                    : "env-editor__row"
+                }
                 data-disabled={row.disabled ? "true" : undefined}
               >
                 {naming ? (
@@ -518,6 +533,10 @@ export function EnvEditor({
                   <span className="env-editor__key">{row.key}</span>
                 )}
 
+                <RowToolbar
+                  label={`Actions for ${row.key || "the new variable"}`}
+                  className="env-editor__controls"
+                >
                 {row.value !== null ? (
                   <input
                     aria-label={
@@ -540,71 +559,85 @@ export function EnvEditor({
                   />
                 )}
 
-                {row.value === null ? (
+                  {row.value === null ? (
+                    <button
+                      type="button"
+                      aria-label={`Edit ${row.key}`}
+                      onClick={() => void beginEdit(row)}
+                    >
+                      Edit
+                    </button>
+                  ) : null}
+
                   <button
                     type="button"
-                    aria-label={`Edit ${row.key}`}
-                    onClick={() => void beginEdit(row)}
+                    role="switch"
+                    className="env-editor__switch"
+                    aria-checked={!row.disabled}
+                    aria-label={`${row.key} is ${row.disabled ? "disabled" : "enabled"}`}
+                    onClick={() => change(row.id, { disabled: !row.disabled })}
                   >
-                    Edit
+                    {row.disabled ? "Disabled" : "Enabled"}
                   </button>
-                ) : null}
 
-                {!row.created && !naming ? (
-                  <button
-                    type="button"
-                    aria-label={`Rename ${row.key}`}
-                    onClick={() => setEditingKey(row.id)}
-                  >
-                    Rename
-                  </button>
-                ) : null}
+                  <Overflow label={`More actions for ${row.key || "the new variable"}`}>
+                    {!row.created ? (
+                      <button type="button" onClick={() => setEditingKey(row.id)}>
+                        Rename
+                      </button>
+                    ) : null}
 
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={!row.disabled}
-                  aria-label={`${row.key} is ${row.disabled ? "disabled" : "enabled"}`}
-                  onClick={() => change(row.id, { disabled: !row.disabled })}
-                >
-                  {row.disabled ? "Disabled" : "Enabled"}
-                </button>
+                    <button type="button" onClick={() => duplicate(row)}>
+                      Duplicate
+                    </button>
 
-                <button
-                  type="button"
-                  aria-label={`Duplicate ${row.key}`}
-                  onClick={() => duplicate(row)}
-                >
-                  Duplicate
-                </button>
+                    {canMove(draft, row.id, -1) ? (
+                      <button
+                        type="button"
+                        onClick={() => setDraft((current) => moved(current, row.id, -1))}
+                      >
+                        Move up
+                      </button>
+                    ) : null}
 
-                {canMove(draft, row.id, -1) ? (
-                  <button
-                    type="button"
-                    aria-label={`Move ${row.key} up`}
-                    onClick={() => setDraft((current) => moved(current, row.id, -1))}
-                  >
-                    Move up
-                  </button>
-                ) : null}
+                    {canMove(draft, row.id, 1) ? (
+                      <button
+                        type="button"
+                        onClick={() => setDraft((current) => moved(current, row.id, 1))}
+                      >
+                        Move down
+                      </button>
+                    ) : null}
 
-                {canMove(draft, row.id, 1) ? (
-                  <button
-                    type="button"
-                    aria-label={`Move ${row.key} down`}
-                    onClick={() => setDraft((current) => moved(current, row.id, 1))}
-                  >
-                    Move down
-                  </button>
-                ) : null}
+                    {canMove(draft, row.id, -1) ? (
+                      <button
+                        type="button"
+                        onClick={() => setDraft((current) => movedTo(current, row.id, "top"))}
+                      >
+                        Move to top
+                      </button>
+                    ) : null}
 
-                <button
-                  type="button"
-                  aria-label={`Delete ${row.key}`}
-                  onClick={() => remove(row)}
-                >
-                  Delete
-                </button>
+                    {canMove(draft, row.id, 1) ? (
+                      <button
+                        type="button"
+                        onClick={() => setDraft((current) => movedTo(current, row.id, "bottom"))}
+                      >
+                        Move to bottom
+                      </button>
+                    ) : null}
+
+                    <span className="overflow__separator" role="separator" />
+
+                    <button
+                      type="button"
+                      className="overflow__danger"
+                      onClick={() => remove(row)}
+                    >
+                      Delete
+                    </button>
+                  </Overflow>
+                </RowToolbar>
 
                 {problem ? (
                   <p className="env-editor__problem" role="alert">

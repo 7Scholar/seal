@@ -199,7 +199,13 @@ The owner's other decisions shaped the surface as much as the model: `# FOO=bar`
 
 All of it is **approved** — the owner settled it before the brief was written — so these are decided work rather than open questions. They are framed anyway because two of them delete confirmations from a security tool, and one of those reverses a fix the journeys axis made after driving the hazard it covers. A tree that carried that only as a diff would leave the next agent reading the removal as a regression.
 
-**The framing found an ordering the design does not state, and it gates the repository altitude.** That surface becomes a tree with no checkbox on any row, so its multi-file sealing moves into *Seal every file* — [seal-all.md](seal-all.md). Building the tree first would take the capability away before its replacement exists, and seal-all itself cannot be solutioned until [ceremony.md](ceremony.md) settles whether the recency warning survives. **ceremony.md, then seal-all.md, then the tree.** The two surfaces already carried through the redesign — the foundations and the repositories list — had no such dependency, which is why they are done.
+**The framing found an ordering the design does not state, and it gates the repository altitude.** That surface becomes a tree with no checkbox on any row, so its multi-file sealing moves into *Seal every file* — [seal-all.md](seal-all.md). Building the tree first would take the capability away before its replacement exists, and seal-all itself cannot be solutioned until [ceremony.md](ceremony.md) settles whether the recency warning survives. **ceremony.md, then seal-all.md, then the tree.**
+
+**Three pieces of the redesign are built, driven and stamped**, each having no such dependency: the **foundations** ([palette.md](palette.md), [shape.md](shape.md), [icons.md](icons.md)) — the whole palette replaced with copper reserved to the sealed condition alone, the radii collapsed, both typefaces vendored, four icons added; the **repositories list** ([repositories.md](repositories.md)), where a tick per managed file replaced every count in the application; and the **locked screen** ([../screens.md](../screens.md), [../../first-open.md](../../first-open.md)), which gained the seal mark and a dot pressed into the sand per keystroke.
+
+**What is left, beyond the blocked tree:** the file altitude's variable line, the add-files surface, the password change's tick progress, the dialogs, and the breadcrumb's two-level menu. The first four are cosmetic and unblocked; the fifth is [file-jump.md](file-jump.md).
+
+Three contrast pairs in the specified palette miss their WCAG floor. They are measured, recorded under [palette.md](palette.md)'s **What is missing**, and with the owner — the palette's earlier guarantee that every value clears its floor does **not** currently hold, and no plan should be read as saying it does.
 
 # Open threads
 

@@ -50,6 +50,8 @@ Sealing and unsealing are the **disk** operations, and they are deliberate state
 
 That symmetry is safe **because** reading is not one of these operations. The accident this design forecloses is the one where a user decrypts a file to check a value, is interrupted, and leaves production credentials sitting in a repository — and it is foreclosed not by refusing to decrypt but by making decryption unnecessary for looking. A file is never plaintext on disk as a *side effect* of anything; it is plaintext only because someone said so. Removing a file from management also ends with plaintext at the path, and remains explicit about being exactly that.
 
+**Small, and each thing whole.** The product owner's standing instruction for every fork this tree raises: the feature set stays small, and the decision is almost always *whether to build this at all* rather than how much of it to build. A capability that is taken on is finished — every state designed, every failure stated, every guard driven — and a capability that is not taken on is refused outright rather than shipped thin. A half-built thing is the one outcome this rules out, because in a product whose whole claim is that a secret is protected, a feature that works in the ordinary case and is undefined in the others is worse than its absence. This is what settles a fork here: not scope-trimming a design down to a stub, but deciding what is in, and then building that completely.
+
 The work decomposes into the children below: the sealing engine is the seam everything else consumes, the registry holds the cross-repo state, the CLI and the desktop application are the two consumers, and publishing covers everything around the code.
 
 # Plans

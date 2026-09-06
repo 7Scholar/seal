@@ -24,7 +24,7 @@ Why it matters beyond appearance: this is the same judgement that produced [the 
 
 The values are the product owner's, designed outside this repository and specified exactly; [_docs/palette-research.md](_docs/palette-research.md) — a survey of Radix Colors, Material 3, GitHub Primer, Vercel Geist, Shopify Polaris, Linear and Apple's HIG, reading WCAG 2.1 normatively — is what this Approach reasons with rather than what supplies them.
 
-Two constraints bound it and are settled: **minimal is the specification**, so every token must argue for itself; and **both themes are authored**, never one derived from the other. Contrast is measured against every pair rather than assumed, and where the specified palette misses a floor the miss is stated under **What is missing** rather than quietly corrected.
+Two constraints bound it and are settled: **minimal is the specification**, so every token must argue for itself; and **both themes are authored**, never one derived from the other. Contrast is measured against every pair rather than assumed. Where a specified value misses a floor it is put to the product owner rather than quietly corrected — three did, and the owner's answer was to darken them.
 
 ## Copper means sealed, and the primary is ink
 
@@ -36,7 +36,11 @@ The reasoning is the reservation rather than the hue. A security product has exa
 
 **Red is reserved in the same way.** `--danger` appears on the broken-seal condition — the bar, the wash `--danger-surface`, and the fix action beside it — and on verbs that destroy. It is never the ordinary unsealed state: a file the developer chose to leave readable is a resting state, and painting it red makes a normal condition look like an emergency.
 
-**A third neutral, `--faint`, carries absence.** Ghosted things: a file gone from disk, a disabled control, and the tick of a file that is simply not sealed. It is the visual opposite of copper rather than a warning.
+**A third neutral, `--faint`, carries absence.** Ghosted things: a disabled control, and the tick of a file that is simply not sealed. It is the visual opposite of copper rather than a warning.
+
+`--faint` is **not the faintest value in the palette**, which its name invites a reader to assume and to "correct". It sits between `--muted` and `--line-strong`, because the thing it most often draws is a state tick on a repository row — and that row may be washed copper or matted red, which are the two lightest grounds the interface has. A tick a user cannot see is a tick that fails to answer the one question this product exists to answer, so the token is set by the *worst* ground it meets rather than by how ghosted it looks on the quietest one. Absence is carried by the tick's shorter height and, on a filename, by a strikethrough — not by being nearly invisible.
+
+**Text is never set in `--faint`.** A file gone from disk has its filename struck through in `--muted`: the strikethrough says gone, and the colour keeps it readable, which matters because that filename is how a user knows *which* file vanished.
 
 ## The role rule
 
@@ -78,13 +82,7 @@ Seen in the real application in both themes, on every surface, against a scratch
 
 # What is missing
 
-**Three contrast pairs no longer clear their floor, and the plan states them rather than implying the palette passes.** Computed against WCAG 2.1 relative luminance:
-
-- **`--muted` on `--bg` in light is 4.44:1**, against the 4.5:1 SC 1.4.3 requires. `--muted` carries repository paths and machine-owned labels at 11.5px, so the large-text exemption does not apply. On the two washes it is worse — 4.16:1 on `--accent-surface` and 3.75:1 on `--danger-surface`.
-- **`--line-strong` is 1.78:1 on light and 2.13:1 on dark**, against the 3:1 SC 1.4.11 requires of a boundary that identifies a control. A field's fill is 1.08:1 against the page, so the border is the sole identifier and cannot be exempt.
-- **`--faint` is 1.50:1 on light**. Where it marks a disabled control that is exempt, and where it marks a not-sealed tick the bar's height carries the distinction — but it also draws the **filename of a file gone from disk**, which is text a user has to read.
-
-These are the design as specified, not a misapplication of it, so they are recorded here and put to the product owner rather than nudged. Until they are answered the palette's earlier guarantee — that every value clears its floor — does not hold, and no plan should be read as saying it does.
+Nothing on this plan.
 
 # Steps
 
@@ -95,4 +93,4 @@ These are the design as specified, not a misapplication of it, so they are recor
 
 # Open threads
 
-- The three failing pairs above are with the product owner. Nothing else in the interface depends on their answer, so the rest of the redesign proceeds around them.
+- The palette is checked against the four grounds the interface has today. A fifth ground — any new wash — reopens every non-text pair, since the washes are what set `--faint` and they are the lightest surfaces in the product.

@@ -8,13 +8,13 @@ The documents a stranger needs in order to trust the project, use it, and change
 
 Four documents, each answering a question a newcomer actually has.
 
-**The README** answers *what is this and can I trust it*. It states what Seal does, how a sealed file is a standard age file so the recovery story does not depend on Seal existing, how to install both the application and the command-line tool, and — without softening — what Seal does not protect against. The two absolute limits are stated as limits rather than as caveats: a forgotten password is unrecoverable, and sealing cannot reach backwards over an already-exposed secret.
+**The README** answers *what is this, can I trust it, and how do I build it*. It is the repository's document rather than the product's: what the site owns — how a sealed file is a standard age file, the task guides, the quarantine explanation in full — is a link rather than a copy, and what stays is what a reader on the git host is there for. The documentation site is the first thing after the header, as an indexed table of its pages rather than a URL buried in a paragraph, because a reader who wants to *use* Seal should reach the site before reading anything else. Then the status, the install commands, the two absolute limits stated as limits rather than as caveats — a forgotten password is unrecoverable, and sealing cannot reach backwards over an already-exposed secret — the repository's layout crate by crate, how it builds and tests, and where the plans and the operating procedures are.
 
-**What the README no longer carries** are the two task guides, which [site.md](site.md) moved rather than copied: resolving a secret in a script, and managing files in the application. Each contracted to a sentence and a link, as the README already does for the operating procedures beside it. That move is what keeps the site from being a second README, and it leaves the README as the document a reader meets on the git host rather than the document carrying every task.
+**The task guides live on the site alone** — resolving a secret in a script, managing files in the application — each a row in the README's documentation table rather than a section of it. That division is what keeps the site from being a second README, and it is why the README can be read end to end by someone deciding whether to build the project.
 
 The install commands and the two absolute limits are the deliberate exceptions, appearing on both surfaces because a README without install commands is broken and a site that only links to the limits has softened them by relegation. [site.md](site.md) owns the check that holds those two duplications identical across all four surfaces.
 
-Its installation section is the first thing after the status, because it is what a stranger came for. It gives the two one-command routes for the command-line tool, the source build for the application, and — as a named section rather than a footnote — what being unsigned actually means for the reader: that the install routes work because `curl`, `tar` and Homebrew do not set quarantine while a browser download does, and that Seal deliberately does not teach the `xattr` override. Every command in it is verified against a real run.
+Its installation section gives the two one-command routes for the command-line tool and the source build for the application, and states in the same breath what being unsigned actually means: that the routes work because `curl`, `tar` and Homebrew do not set quarantine while a browser download does, and that Seal deliberately does not teach the `xattr` override. Stated rather than relegated to the link, because a reader who never follows the link must still meet it. Every command in it is verified against a real run.
 
 **Every command in the README is verified rather than believed.** The build and test instructions were run against a clean clone of the repository, which is what catches instructions that rot silently — and did catch one, since a gitignored lockfile would have left `bun install` unable to run at all.
 
@@ -41,6 +41,7 @@ Nothing on this plan.
 - [x] The contributing guide, naming the conventions and their reasons.
 - [x] Both licence texts, matching what the manifests declare.
 - [x] The installation section, and the releasing procedure beside it.
+- [x] The README structured around the documentation table, with the repository's layout, build and conventions as its body.
 
 # Open threads
 

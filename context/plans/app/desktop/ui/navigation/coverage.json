@@ -18,7 +18,7 @@
     "ui/App.tsx": "75494f05c58e8772206909b06c3b1878b0d69088",
     "ui/screens/RepoDetail.test.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
     "ui/screens/RepoDetail.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
-    "ui/styles.css": "ecb6be27f4e7db65a0bfe68a697d428307ed6162"
+    "ui/styles.css": "c614e2bdbca3bfc742b65689ad5659a506a605c8"
   },
   "freshness.md": {
     "crates/seal-session/src/lib.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
@@ -28,24 +28,29 @@
     "ui/ipc.ts": "75494f05c58e8772206909b06c3b1878b0d69088"
   },
   "icons.md": {
-    "ui/components/Icon.tsx": "130d9ebbc85cbd98744706b1fa601c4fed470b49"
+    "ui/components/Icon.tsx": "c614e2bdbca3bfc742b65689ad5659a506a605c8"
   },
   "manage-surface.md": {
     "ui/components/FileTree.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
     "ui/screens/ManageFlow.test.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
     "ui/screens/ManageFlow.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
-    "ui/styles.css": "ecb6be27f4e7db65a0bfe68a697d428307ed6162"
+    "ui/styles.css": "c614e2bdbca3bfc742b65689ad5659a506a605c8"
   },
   "palette.md": {
-    "ui/styles.css": "ecb6be27f4e7db65a0bfe68a697d428307ed6162"
+    "ui/styles.css": "c614e2bdbca3bfc742b65689ad5659a506a605c8"
   },
   "repositories.md": {
     "ui/screens/Repositories.test.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
     "ui/screens/Repositories.tsx": "fbfc7af93edeacb43c419aea37ffb4f89160c6db",
-    "ui/styles.css": "ecb6be27f4e7db65a0bfe68a697d428307ed6162"
+    "ui/styles.css": "c614e2bdbca3bfc742b65689ad5659a506a605c8"
   },
   "shape.md": {
-    "ui/styles.css": "ecb6be27f4e7db65a0bfe68a697d428307ed6162"
+    "ui/fonts/OFL.txt": "c614e2bdbca3bfc742b65689ad5659a506a605c8",
+    "ui/fonts/geist-latin-ext.woff2": "c614e2bdbca3bfc742b65689ad5659a506a605c8",
+    "ui/fonts/geist-latin.woff2": "c614e2bdbca3bfc742b65689ad5659a506a605c8",
+    "ui/fonts/geist-mono-latin-ext.woff2": "c614e2bdbca3bfc742b65689ad5659a506a605c8",
+    "ui/fonts/geist-mono-latin.woff2": "c614e2bdbca3bfc742b65689ad5659a506a605c8",
+    "ui/styles.css": "c614e2bdbca3bfc742b65689ad5659a506a605c8"
   },
   "theme.md": {
     "src-tauri/src/commands.rs": "75494f05c58e8772206909b06c3b1878b0d69088",

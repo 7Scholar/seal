@@ -36,7 +36,7 @@
     "e2e/journeys/manage-density.e2e.ts": "e99a7fbf6cdab4293dd0b99987e286104451408d",
     "e2e/journeys/manage-filter.e2e.ts": "63f6a1ee6a83e2c1e52259bf9b56b773dc2a189b",
     "e2e/journeys/manage-readable.e2e.ts": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
-    "e2e/journeys/plaintext-expiry.e2e.ts": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
+    "e2e/journeys/plaintext-expiry.e2e.ts": "c614e2bdbca3bfc742b65689ad5659a506a605c8",
     "e2e/journeys/resume-after-expiry.e2e.ts": "51c10c75c7ca3ea00d851b3a1661789dd6c6a309",
     "e2e/journeys/return-and-use.e2e.ts": "9dea5f8555fc7b830feb6c02f72802b67200a496",
     "e2e/journeys/row-density.e2e.ts": "ecb6be27f4e7db65a0bfe68a697d428307ed6162",

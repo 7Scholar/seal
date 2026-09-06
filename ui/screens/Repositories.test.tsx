@@ -151,6 +151,63 @@ describe("the repositories list's states", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("sorts a repository whose seal broke to the top, whatever its place in the registry", () => {
+    show("ready", [
+      { root: "/code/a", name: "a", files: [{ relativePath: ".env", state: "sealed", alert: false }] },
+      { root: "/code/b", name: "b", files: [{ relativePath: ".env", state: "sealed", alert: false }] },
+      repos[0]!,
+    ]);
+
+    const order = [...document.querySelectorAll(".repo-row__open")].map(
+      (row) => row.textContent,
+    );
+    expect(order[0]).toBe("site");
+  });
+
+  it("says it cannot vouch for a repository it could not re-read, rather than showing stale ticks", async () => {
+    const user = userEvent.setup();
+    const props = show("ready", [
+      {
+        root: "/code/dot",
+        name: "dotfiles",
+        files: [
+          { relativePath: ".env", state: "unknown", alert: false },
+          { relativePath: ".npmrc", state: "unknown", alert: false },
+        ],
+      },
+    ]);
+
+    expect(document.querySelector(".ticks__dash")).toBeInTheDocument();
+    expect(document.querySelectorAll(".ticks__tick")).toHaveLength(0);
+    expect(
+      screen.getByLabelText(
+        "Seal could not re-read dotfiles, so it cannot say what is sealed",
+      ),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Try again" }));
+    expect(props.onRetry).toHaveBeenCalled();
+  });
+
+  it("keeps drawing ticks where only some files are unreadable", () => {
+    show("ready", [
+      {
+        root: "/code/dot",
+        name: "dotfiles",
+        files: [
+          { relativePath: ".env", state: "sealed", alert: false },
+          { relativePath: ".npmrc", state: "unknown", alert: false },
+        ],
+      },
+    ]);
+
+    expect(document.querySelector(".ticks__dash")).toBeNull();
+    expect(document.querySelectorAll(".ticks__tick")).toHaveLength(2);
+    expect(
+      screen.getByLabelText("2 managed files: 1 sealed, 1 unknown"),
+    ).toBeInTheDocument();
+  });
+
   it("states what matched nothing, and clears it", async () => {
     const user = userEvent.setup();
     show("ready");

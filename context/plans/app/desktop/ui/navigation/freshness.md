@@ -86,7 +86,7 @@ The expiry semantics, the sweep, the reconciliation algorithm, and the exposure 
 - [x] Re-read the registry rather than the in-memory mirror, so an added repository is noticed.
 - [x] Re-mask a revealed value when its plaintext expires, and say why.
 - [x] Drive all of it against the real application, including the case that motivated the concern: a file exposed while the window sits open.
-- [ ] A repository whose re-read failed shows an **unknown** state rather than the states it last saw. The surface currently keeps the rows it was given and says above them that they are what Seal last observed; the product owner has decided that is not enough, because the row itself still reads `Sealed`. Asserting that a file is sealed when Seal cannot currently verify it is the one error this product must never make, and the fix is to say nothing per row instead. What has to be settled is what a row shows in place of a state, and whether the actions a row offers survive a state nobody can vouch for.
+- [x] A repository whose re-read failed shows an **unknown** state rather than the states it last saw.
 
 # What exists
 
@@ -95,6 +95,16 @@ All of the Approach. `reobserve` is one command that re-reads the registry from 
 **Driven, five checks green** (`bun run e2e:freshness`), against the case that motivated the concern: a sealed file overwritten in the clear while the window sits open is noticed with **no user action**, the exposure alert rises from the same observation, a file deleted underneath the window becomes `Not found` with its open control dead, nothing anywhere draws a positive assurance, and sealing from the alert clears it again. Confirmed non-vacuous by neutering the timer callback: the four checks that depend on re-observation fail, and the one that does not — that no assurance is drawn — still passes.
 
 Nine unit tests cover the rest: four on `Session::holds` and three on the editor's re-masking, including that it says nothing when nothing was revealed.
+
+## Never assert a state Seal cannot currently verify
+
+Reconciliation records a file it cannot classify — a permissions failure, an I/O error, something at the path that is neither sealed nor plaintext — as **unknown**. That is a real observation and it reaches the interface, so it must be drawn rather than folded into the nearest state.
+
+**A repository whose managed files are *all* unknown could not be re-read**, and the row says exactly that: the ticks are replaced by a single dash, its name and path recede, and the row offers **Try again**. It draws no ticks at all, because a tick is a claim about a file and Seal has none to make. Asserting *sealed* on a file it cannot currently verify is the one error this product must never make; the row's whole job is to stop short of that.
+
+Where **only some** files are unknown the ticks stay, and the unknown ones are drawn distinctly from the not-sealed ones — Seal knows the difference between *you have not sealed this* and *I cannot tell*, and flattening them would throw away the more alarming of the two. Both are named in words in the row's accessible label.
+
+The trigger is *all files unknown* rather than *the overview call failed*, because the overview either returns or it does not: a failure of the whole call replaces the list ([repositories.md](repositories.md)), while a repository Seal cannot read is a fact about that repository which the model already carries per file.
 
 # Open threads
 

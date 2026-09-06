@@ -88,7 +88,7 @@ Three children, one per altitude, each owning its surface's layout and operation
 - [x] title-bar.md -> the title bar as a real window control surface: drag, double-click zoom, and the interactive-child exclusion
 - [x] theme.md -> light, dark and system themes, the switcher, and the persistence the memory-only webview cannot provide
 - [x] breadcrumbs.md -> the trail, the switcher popover, and the route. Every segment carries a switcher, including the root, whose empty form is what a fresh install meets.
-- [~] repositories.md -> the repositories list: rows, the tick per managed file, filter, per-row ellipsis, add. Every state is designed, built and seen running. **One step open: an exposed repository sorting to the top of the list.**
+- [x] repositories.md -> the repositories list: rows, the tick per managed file, filter, per-row ellipsis, add. Every state is designed, built and seen running, and a repository whose seal broke sorts to the top.
 - [x] files.md -> one repository's managed files as a tree over its own directories, with the state bar in a lane of its own at every depth. Every state it can occupy is built and driven; the empty repository and loading are settled as not reachable.
 - [x] file.md -> the file altitude, and the env editor re-homed into it. Every state it can occupy is built and driven, including the frame that makes a file of any size editable.
 - [x] shape.md -> the shared visual language: the radius, the surfaces, and the tokens the themes resolve
@@ -98,7 +98,7 @@ Three children, one per altitude, each owning its surface's layout and operation
 - [x] disclosure-primitive.md -> one implementation of the disclosure contract, as a hook the four collapsed controls call. The switcher's divergence is closed.
 - [x] manage-surface.md -> the manage surface carried to the grid's depth. **Every audit finding is built, and the last one — the relock that discards a live selection — was pursued to a reproduction and found not to be a defect.**
 - [x] palette.md -> the chosen palette — a white, a black, an accent and a primary — and the role rule governing where each appears
-- [~] freshness.md -> when the product re-observes disk, and how it answers "is everything protected?" at a glance. Built and driven; the owner's answer to the positive statement was *nothing*, so none is drawn. **Reopened for one step: a repository whose re-read failed must show an unknown state rather than the states it last saw.**
+- [x] freshness.md -> when the product re-observes disk, and how it answers "is everything protected?" at a glance. Built and driven; the owner's answer to the positive statement was *nothing*, so none is drawn, and a repository Seal cannot currently read says so rather than showing the states it last saw.
 - [~] editing/ -> the full editing vocabulary for an env file: create, rename, delete, duplicate, reorder, and commented-out variables as a disabled state. **Six of eight children are complete, driven, and density-designed; `bulk-entry.md` and `value-as-button.md` are framed and unstarted.**
 - [x] ceremony.md -> which acts the interface stops to confirm, and which it simply performs. Six confirmations are four, and the rule that decides membership is stated so the set cannot drift back.
 - [ ] file-jump.md -> the breadcrumb menu as a two-level surface, so a file in any repository is reachable without landing on its repository first

@@ -18,6 +18,16 @@ export function conditionOf(file: FileView): Condition {
   return "open";
 }
 
+export function unreadable(files: FileView[]): boolean {
+  return files.length > 0 && files.every((file) => file.state === "unknown");
+}
+
+export function brokenFirst<T extends { files: FileView[] }>(repos: T[]): T[] {
+  const broken = repos.filter((repo) => repo.files.some((file) => file.alert));
+  const rest = repos.filter((repo) => !repo.files.some((file) => file.alert));
+  return [...broken, ...rest];
+}
+
 export function sealable(files: FileView[]): string[] {
   return files
     .filter((file) => file.state !== "sealed" && file.state !== "missing")

@@ -22,6 +22,8 @@ One row above the list: a **filter field** at the leading edge, and **Add reposi
 
 Search filters the list live on a case-insensitive substring of the repository's name or path. It filters rather than reorders, so a row never moves under the pointer. With no match the surface states that nothing matched, echoes what was typed, and offers to clear the field.
 
+**A repository whose seal broke sorts to the top**, and that is the one thing allowed to reorder the list. The no-reorder rule exists so a row does not move while a user is typing, which happens constantly; a broken seal happens rarely and is the single event this whole surface exists to surface. The sort is unconditional and derived on render rather than timed against the pointer — a rule about *when* it is allowed to move would be a rule with a case in which the alarm is withheld, and there is no such case.
+
 **Adding a folder Seal already manages is refused in a dialog, before any scan runs.** The dialog names the repository, states how many files are already managed and that nothing was added or changed, and points at *Scan for more files* as the way to bring in a file Seal missed. It offers opening that repository as its affirmative action, so the refusal ends somewhere useful rather than at a dead end. The refusal is on the **add** entry only: a rescan reaches the same surface deliberately and must keep working, which is [the protect-a-repo journey](../../../../../journeys/protect-a-repo.md)'s seventh step. Routing an add of a known folder into the manage surface is what this rules out — the surface would open in its rescan form, with every already-managed row inert, which answers a question the user did not ask and buries the fact that the folder was already there.
 
 ## The row
@@ -76,6 +78,7 @@ The surface carries a `data-surface="repositories"` attribute, which is what the
 
 Guards confirmed non-vacuous by reintroducing the defect each prevents:
 
+- sorting a broken repository anywhere but first fails 1
 - letting the ellipsis press fall through to the row — so opening the menu also navigates — fails 1
 - washing a repository with nothing broken fails 1
 - reordering rather than filtering on search fails 1
@@ -90,7 +93,7 @@ Guards confirmed non-vacuous by reintroducing the defect each prevents:
 - [x] Every state: nothing yet, loading, error, excessive, no-match.
 - [x] The tick per managed file, replacing every count the surface stated.
 - [x] Tests, with each load-bearing rule confirmed non-vacuous.
-- [ ] A repository whose seal broke sorts to the top of the list. The product owner has approved it, and it is a deliberate exception to the rule above that this surface filters rather than reorders — that rule exists so a row never moves under the pointer, and an exposure is the one event worth moving a row for. What has to be settled is when the reorder is allowed to happen relative to the pointer being over the list.
+- [x] A repository whose seal broke sorts to the top of the list.
 
 # Open threads
 

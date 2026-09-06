@@ -337,6 +337,9 @@ input:focus { border-color: var(--text); }
 }
 .repo-row:hover { background: var(--raised); }
 .repo-row[data-broken="true"] { background: var(--danger-surface); }
+.repo-row[data-unknown] .repo-row__open { color: var(--muted); }
+.repo-row[data-unknown] .repo-row__path { color: var(--faint); }
+.repo-row[data-unknown] .repo-row__actions button { border-color: var(--line-strong); }
 
 .repo-row__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .repo-row__open {
@@ -381,6 +384,7 @@ input:focus { border-color: var(--text); }
 .ticks__tick[data-condition="broken"] { height: 22px; background: var(--danger); }
 .ticks__tick[data-condition="gone"] { height: 18px; background: transparent; }
 .ticks__tick[data-condition="unknown"] { height: 10px; background: var(--line-strong); }
+.ticks__dash { width: 26px; height: 1.5px; background: var(--faint); flex: none; align-self: center; }
 .ticks__more {
   padding-left: 6px; align-self: flex-end;
   font-family: var(--font-mono); font-size: 11px; line-height: 14px; color: var(--muted);

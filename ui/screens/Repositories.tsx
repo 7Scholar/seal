@@ -3,7 +3,7 @@ import { Overflow } from "../components/Overflow";
 import { Icon } from "../components/Icon";
 import { Ticks } from "../components/Ticks";
 import { BrokenSeal } from "../components/BrokenSeal";
-import { sealable } from "../state";
+import { brokenFirst, sealable, unreadable } from "../state";
 import type { RepoView } from "../ipc";
 
 export type Load = "loading" | "ready" | "failed";
@@ -56,10 +56,12 @@ export function Repositories({
   const [filter, setFilter] = useState("");
 
   const needle = filter.trim().toLowerCase();
-  const matches = repos.filter(
-    (repo) =>
-      repo.name.toLowerCase().includes(needle) ||
-      repo.root.toLowerCase().includes(needle),
+  const matches = brokenFirst(
+    repos.filter(
+      (repo) =>
+        repo.name.toLowerCase().includes(needle) ||
+        repo.root.toLowerCase().includes(needle),
+    ),
   );
 
   if (load === "failed") {
@@ -135,11 +137,13 @@ export function Repositories({
         <ul className="repos">
           {matches.map((repo) => {
             const broken = repo.files.filter((file) => file.alert);
+            const unknown = unreadable(repo.files);
             return (
               <li
                 key={repo.root}
                 className="repo-row"
                 data-broken={broken.length > 0}
+                data-unknown={unknown || undefined}
               >
                 <span className="repo-row__text">
                   <button
@@ -154,9 +158,24 @@ export function Repositories({
                   </span>
                 </span>
 
-                <Ticks files={repo.files} />
+                {unknown ? (
+                  <span
+                    className="ticks"
+                    role="img"
+                    aria-label={`Seal could not re-read ${repo.name}, so it cannot say what is sealed`}
+                  >
+                    <span className="ticks__dash" />
+                  </span>
+                ) : (
+                  <Ticks files={repo.files} />
+                )}
 
                 <span className="repo-row__actions">
+                  {unknown ? (
+                    <button type="button" onClick={onRetry}>
+                      Try again
+                    </button>
+                  ) : null}
                   {broken.length > 0 ? (
                     <>
                       <BrokenSeal

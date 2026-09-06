@@ -6,11 +6,16 @@
       stored = localStorage.getItem("starlight-theme");
     } catch {}
     const select = stored === "light" || stored === "dark" ? stored : "auto";
+    // The device decides, and light is what a device with no opinion gets —
+    // which is the application's own default. Asking the inverse question and
+    // falling back to dark is dark-first wearing an "auto" label: a machine
+    // reporting no preference, which is the common case, would be given the
+    // theme it never asked for.
     const resolved =
       select === "auto"
-        ? window.matchMedia("(prefers-color-scheme: light)").matches
-          ? "light"
-          : "dark"
+        ? window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light"
         : select;
     document.documentElement.dataset.theme = resolved;
     document.documentElement.dataset.themeSelect = select;

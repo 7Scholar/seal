@@ -108,9 +108,9 @@ const ICONS = [
       const apply = (theme) => {
         const resolved =
           theme === "auto"
-            ? matchMedia("(prefers-color-scheme: light)").matches
-              ? "light"
-              : "dark"
+            ? matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light"
             : theme;
         document.documentElement.dataset.theme = resolved;
         document.documentElement.dataset.themeSelect = theme;
@@ -129,7 +129,8 @@ const ICONS = [
         status.textContent = `Theme: ${names[next]}`;
       });
 
-      matchMedia("(prefers-color-scheme: light)").addEventListener("change", () => {
+      // Watch the query the resolution is made on, so the two cannot disagree.
+      matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
         if (current() === "auto") apply("auto");
       });
     }

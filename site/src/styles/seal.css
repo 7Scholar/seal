@@ -69,6 +69,7 @@
   --seal-danger: #e0687a;
   --seal-danger-surface: #35181c;
   --seal-hover: rgb(232 233 230 / 6%);
+  color-scheme: dark;
 }
 
 :root[data-theme="light"] {
@@ -102,6 +103,7 @@
   --seal-danger: #9b1024;
   --seal-danger-surface: #ebdcda;
   --seal-hover: rgb(34 38 43 / 4%);
+  color-scheme: light;
 }
 
 /* One scale, named by role. A literal radius anywhere below is a defect. */

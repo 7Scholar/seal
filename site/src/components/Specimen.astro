@@ -1,0 +1,122 @@
+---
+/* The landing page's one piece of evidence: the same file, before and after.
+   It wears the application's own state language — the faint bar on a file that
+   is watched but not sealed, the copper bar and wash on one that is — so a
+   reader who later opens the application meets a vocabulary they have already
+   seen. */
+---
+
+<div class="specimen">
+  <div class="specimen__panel">
+    <div class="specimen__head">
+      <span class="specimen__bar" data-condition="open"></span>
+      <span class="specimen__name">.env</span>
+      <span class="specimen__state">Readable</span>
+    </div>
+    <pre class="specimen__body">STRIPE_KEY=sk_live_51Mx8Qp
+DATABASE_URL=postgres://…
+SESSION_SECRET=hunter2</pre>
+  </div>
+
+  <div class="specimen__panel" data-condition="sealed">
+    <div class="specimen__head">
+      <span class="specimen__bar" data-condition="sealed"></span>
+      <span class="specimen__name">.env</span>
+      <span class="specimen__state" data-condition="sealed">Sealed</span>
+    </div>
+    <pre class="specimen__body">-----BEGIN AGE ENCRYPTED FILE-----
+YWdlLWVuY3J5cHRpb24ub3JnL3Yx
+Ri0yNTUxOSBQZmRQTGcgZDBLc2sx</pre>
+  </div>
+</div>
+
+<p class="specimen__note">
+  Same path. Same filename. The file your tooling opens is the file Seal encrypted.
+</p>
+
+<style>
+  .specimen {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+    align-items: stretch;
+    gap: 1.625rem;
+    margin-block-start: 2.5rem;
+  }
+
+  /* Starlight adds a top margin to adjacent flow content inside the prose
+     column, which reaches these panels and drops the second one below the
+     first. Grid items own their own placement. */
+  .specimen__panel {
+    margin: 0 !important;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: var(--seal-radius);
+    background: var(--seal-raised);
+    overflow: hidden;
+  }
+
+  .specimen__panel[data-condition="sealed"] {
+    background: var(--seal-accent-surface);
+  }
+
+  .specimen__head {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    height: 2.375rem;
+    padding-inline-end: 0.875rem;
+    border-block-end: 1px solid var(--sl-color-hairline);
+  }
+
+  .specimen__bar {
+    flex: none;
+    width: var(--seal-bar);
+    height: 0.9375rem;
+    background: var(--seal-faint);
+  }
+
+  .specimen__bar[data-condition="sealed"] {
+    background: var(--sl-color-accent);
+  }
+
+  .specimen__name {
+    flex: 1;
+    font-family: var(--sl-font-mono);
+    font-size: 0.78125rem;
+    color: var(--sl-color-white);
+  }
+
+  .specimen__state {
+    font-family: var(--sl-font-mono);
+    font-size: var(--sl-text-xs);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--sl-color-gray-3);
+  }
+
+  .specimen__state[data-condition="sealed"] {
+    color: var(--sl-color-accent);
+  }
+
+  .specimen__body {
+    margin: 0 !important;
+    border: 0 !important;
+    padding: 1rem 0.875rem;
+    background: none;
+    border: 0;
+    overflow-x: auto;
+    font-family: var(--sl-font-mono);
+    font-size: 0.78125rem;
+    line-height: 1.4;
+    color: var(--sl-color-white);
+  }
+
+  .specimen__panel[data-condition="sealed"] .specimen__body {
+    color: var(--sl-color-gray-3);
+  }
+
+  .specimen__note {
+    margin-block: 1rem 0;
+    font-size: var(--sl-text-body-sm);
+    color: var(--sl-color-gray-3);
+  }
+</style>

@@ -1,4 +1,4 @@
-Supporting doc for [the editing plan](../README.md). Research input for the row's redesign, produced by the procedure in [docs/UX_RESEARCH.md](../../../../../../../docs/UX_RESEARCH.md).
+Supporting doc for [the editing plan](../README.md). Research input for the row's redesign, produced by the procedure in [docs/UX_RESEARCH.md](../../../../../../../../docs/UX_RESEARCH.md).
 
 # Concern
 

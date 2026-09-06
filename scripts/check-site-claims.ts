@@ -15,6 +15,8 @@ const landing = read("site/src/content/docs/index.mdx");
 const limits = read("site/src/content/docs/understand/limits.md");
 const install = read("site/src/content/docs/get-started/install.md");
 const installScript = read("scripts/install.sh");
+const appStyles = read("ui/styles.css");
+const siteStyles = read("site/src/styles/seal.css");
 
 const INSTALL_COMMANDS = [
   "brew install 7scholar/tap/seal",
@@ -110,6 +112,58 @@ for (const page of sitePages) {
   }
 }
 
+/* The site claims to resolve the application's own palette, and that claim went
+   silently false once already: the application's redesign replaced every value
+   and the site kept serving the old ones, because a colour cannot be
+   type-checked and no page said anything untrue. The palette is read out of the
+   application's own stylesheet rather than listed here, so this check cannot
+   drift from the source it is checking against. */
+function paletteOf(styles: string, selector: string): Map<string, string> {
+  const block = styles.slice(styles.indexOf(selector));
+  const body = block.slice(block.indexOf("{") + 1, block.indexOf("}"));
+  const found = new Map<string, string>();
+  for (const line of body.split("\n")) {
+    const match = /^\s*--([a-z-]+):\s*(#[0-9a-fA-F]{6})\s*;/.exec(line);
+    if (match) found.set(match[1]!, match[2]!.toLowerCase());
+  }
+  return found;
+}
+
+const CARRIED = [
+  "bg",
+  "raised",
+  "line",
+  "line-strong",
+  "text",
+  "muted",
+  "faint",
+  "accent",
+  "accent-surface",
+  "danger",
+  "danger-surface",
+];
+
+for (const [theme, selector] of [
+  ["light", ":root {"],
+  ["dark", ':root[data-theme="dark"] {'],
+] as const) {
+  const app = paletteOf(appStyles, selector);
+  for (const role of CARRIED) {
+    const value = app.get(role);
+    check(
+      `the site carries the application's ${theme} --${role} (${value ?? "?"})`,
+      value !== undefined && siteStyles.toLowerCase().includes(value),
+      "The site resolves the application's palette. A value the application no longer has is a second identity, which is what this site exists not to be.",
+    );
+  }
+}
+
+check(
+  "the site vendors the application's typefaces rather than a system stack",
+  siteStyles.includes('"Geist"') && siteStyles.includes('"Geist Mono"'),
+  "The two surfaces are one product; a fallback stack here is a different one.",
+);
+
 check(
   "the site links the threat model from the landing page",
   landing.includes("/seal/understand/limits/"),
@@ -122,4 +176,6 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log(`Site claim checks passed (${INSTALL_COMMANDS.length} install commands, both absolute limits across four surfaces).`);
+console.log(
+  `Site claim checks passed (${INSTALL_COMMANDS.length} install commands, both absolute limits across four surfaces, ${CARRIED.length * 2} palette values carried from the application).`,
+);

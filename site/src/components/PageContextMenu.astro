@@ -105,20 +105,20 @@ const { markdownUrl } = Astro.props;
   /* The anchor is what a reader without JavaScript gets, so it stands alone. */
   .page-menu__fallback {
     padding-inline: 0.75rem;
-    border-radius: var(--seal-radius-control);
+    border-radius: var(--seal-radius);
     text-decoration: none;
     white-space: nowrap;
   }
 
   .page-menu__copy {
     padding-inline: 0.75rem;
-    border-radius: var(--seal-radius-control) 0 0 var(--seal-radius-control);
+    border-radius: var(--seal-radius) 0 0 var(--seal-radius);
     border-inline-end: 0;
   }
 
   .page-menu__more {
     padding-inline: 0.5rem;
-    border-radius: 0 var(--seal-radius-control) var(--seal-radius-control) 0;
+    border-radius: 0 var(--seal-radius) var(--seal-radius) 0;
     color: var(--sl-color-gray-3);
   }
 
@@ -161,7 +161,7 @@ const { markdownUrl } = Astro.props;
     gap: 0.1rem;
     background: var(--sl-color-bg-nav);
     border: 1px solid var(--sl-color-hairline);
-    border-radius: var(--seal-radius-container);
+    border-radius: var(--seal-radius);
     box-shadow: 0 12px 32px rgb(0 0 0 / 0.28);
   }
 
@@ -171,7 +171,7 @@ const { markdownUrl } = Astro.props;
     gap: 0.6rem;
     padding: 0.5rem 0.6rem;
     border: 0;
-    border-radius: var(--seal-radius-control);
+    border-radius: var(--seal-radius);
     background: none;
     color: var(--sl-color-gray-2);
     font: inherit;
@@ -195,7 +195,7 @@ const { markdownUrl } = Astro.props;
     block-size: 2rem;
     margin-block-start: 0.1rem;
     border: 1px solid var(--sl-color-hairline);
-    border-radius: var(--seal-radius-control);
+    border-radius: var(--seal-radius);
     color: var(--sl-color-gray-2);
   }
 

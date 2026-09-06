@@ -76,7 +76,7 @@ The layout fix was not the collapse alone. The row was `display: flex` with the 
 
 **A measurement trap is worth recording**, because it made the first fix look wrong: the window is sized in CSS pixels but the display is 2×, so `setWindowSize(1280, 720)` yields a **640px viewport**. A test that believes it is measuring a wide window is measuring a narrow one, and the "900px" case was really 450px.
 
-**Three defects were found by looking at the running application, after every measurement passed.** This is the pass [SURFACE_AUDIT.md](../../../../../../docs/plans/SURFACE_AUDIT.md) exists for, and it caught what the numbers could not:
+**Three defects were found by looking at the running application, after every measurement passed.** This is the pass [SURFACE_AUDIT.md](../../../../../../../docs/plans/SURFACE_AUDIT.md) exists for, and it caught what the numbers could not:
 
 - The **malformed row** put its text field in a narrow column, `Correct` across the full width, and `Delete` wrapped onto a line of its own. It is now a two-column grid like every other row.
 - The **value looked stranded** — a small dot cluster adrift in a wide gap. The CSS selector for it named `.secret` while the component renders `.secret-value`, so the rule had never matched anything. Confirmed correct only by revealing a value and seeing it fill the space.

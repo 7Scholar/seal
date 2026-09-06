@@ -28,6 +28,18 @@ Starlight's default output already carries the references' vocabulary — sideba
 
 The site publishes from a workflow on push to `main`. It is static, small, and costs nothing; a custom domain attaches later without changing anything.
 
+## The identity is the application's, and that is a guarantee rather than a resemblance
+
+The site draws no palette of its own. It resolves **the application's own values** — the limestone ground, the ink, the oxidized copper reserved to the sealed condition, the oxide red — mapped onto Starlight's tokens, and it vendors the application's two typefaces rather than falling back to a system stack. Both themes are authored from the application's own light and dark sets rather than one derived from the other.
+
+That is a standing obligation, not a one-time match. When the application's v2 redesign replaced its palette wholesale, this claim **silently became false**: the site went on serving a blue-on-near-black identity the product no longer had, and nothing failed, because a colour cannot be type-checked. The realignment is recorded here rather than in a diff so the next reader knows the direction of the dependency — the application is the source and the site follows, never the reverse.
+
+Three site-only decisions follow from having no palette of its own:
+
+- **The accent is spent only where the product spends it.** Copper means *sealed*. So the one filled control on a page is ink, not accent: a call to action wearing the accent would make the site say "protected" in the colour the product reserves for a fact about a file.
+- **Code is the likeliest place a second palette enters**, because every syntax theme ships one. The two themes here colour only what changes meaning — a comment, a string — and leave the rest as ink, and the terminal frame's macOS window dots are dropped, being another product's chrome.
+- **The state bar carries into the chrome.** The application marks a file's condition with a 3px bar in a lane of its own; the site reuses that lane for *where you are* — the current page in the sidebar, the current heading in the contents — and for the limits, which wear the broken-seal treatment because that is the one condition a reader must act on. **The threat-model page keeps its red bar whether or not it is current**, since a mark that appears only on arrival cannot stop a reader passing the page by, and one that disappears on arrival is the same failure from the other side.
+
 ## The page shell, and the Markdown route under it
 
 The shell is Bun's, studied from the live site and recorded in [_docs/bun-docs-anatomy.md](_docs/bun-docs-anatomy.md): a fixed header carrying the mark on the left, the search control in the middle and the theme control on the right; a fixed left sidebar of two-level groups whose active state is held on the list item; a title row whose page-actions control floats to its right; and the on-page contents to the right of the prose. Bun's own navigation top bar is excluded — with eleven pages there is nothing to partition, which is the same reason [_docs/site-research.md](_docs/site-research.md) excluded Anthropic's tabs.
@@ -69,13 +81,15 @@ The boundary against [docs.md](docs.md), which is this plan's first decision and
 
 ## How it stays true
 
-Four checks in continuous integration, of the kind [ci.md](ci.md) already runs: the install commands diffed across all three surfaces, the limits text asserted identical across all four, links checked over the built site and the repository's Markdown, and the site built on every change with deployment only from `main`. `ci.md`'s standing rule carries over — any check that can be skipped has an environment variable turning the skip into a failure.
+Four checks in continuous integration, of the kind [ci.md](ci.md) already runs: the install commands diffed across all three surfaces, the limits text asserted identical across all four, links checked over the built site and the repository's Markdown, and the site built on every change with deployment only from `main`.
+
+**The claim check also holds the palette**, because the identity guarantee above went silently false once and would have gone false again. It reads the roles out of the application's own stylesheet — both themes — and requires every one of those values to appear in the site's, so the check cannot drift from the source it checks against and adding a role to the application is what puts it under the check. The typefaces are asserted the same way. This is the only kind of guarantee that survives a redesign nobody remembered to propagate. `ci.md`'s standing rule carries over — any check that can be skipped has an environment variable turning the skip into a failure.
 
 # What exists
 
 All of the Approach. The site lives under `site/`, builds to eleven pages with a static search index, and deploys from a workflow on push to `main`.
 
-Its visual identity resolves the **same palette the application uses**, mapped onto Starlight's own tokens, so the two surfaces read as one product rather than as a tool and a separate marketing site.
+Its visual identity resolves the **same palette the application uses**, mapped onto Starlight's own tokens, so the two surfaces read as one product rather than as a tool and a separate marketing site. It was **realigned to the application's v2 language** after that redesign landed: the palette, both typefaces, the radius scale, the state bar and the code themes all now resolve to the application's values, and the landing page carries a specimen of the same file before and after sealing, wearing the same bars and washes the application's file rows wear.
 
 The shell is the one the Approach describes, built from three component overrides and a Markdown route. Each behaviour was confirmed by driving the built site rather than by reading the markup: the split button opens its menu and sets `aria-expanded`; *Copy page* fetches the page's Markdown and writes 4,987 characters of it to the clipboard, flipping the label and the icon; *Open in Claude* produces the `claude.ai/new?q=` URL with the `.md` address encoded into it; and the `.md` route answers `200` with `text/markdown`.
 
@@ -87,10 +101,11 @@ Two of those runs are worth keeping, because both look like defects and are not.
 
 The link check earned its place again during this work: the header's mark was written with a base path that collapsed to `/sealfavicon.svg`, and every page carried it. The build treats a missing asset as no error, so nothing else on the site could have caught it.
 
-Two guarantees are enforced by machine rather than by discipline, and each was confirmed non-vacuous by breaking it and watching the check fail:
+Three guarantees are enforced by machine rather than by discipline, and each was confirmed non-vacuous by breaking it and watching the check fail:
 
 - **The rendered pages cannot drift.** The security policy and the contributing guide are read from `SECURITY.md` and `CONTRIBUTING.md` at build time. Removing a source file **fails the build** with a message naming the rule, rather than publishing a page that silently vanished or went stale.
 - **The limits cannot be softened.** A check asserts both absolute limits are present on the landing page, in the README, in the security policy and on the threat-model page, and that no page claims a protection Seal does not have. Replacing the landing page's forgotten-password statement with a reassuring sentence fails it by name.
+- **The identity cannot drift from the application's.** The check reads eleven roles out of `ui/styles.css`, in both themes, and requires each value to appear in the site's stylesheet. Putting the site's old blue back where the accent belongs fails it by name and by value. This is the guarantee that did not exist when the v2 redesign landed, which is exactly why the site went on wearing a palette the product no longer had.
 
 The two guides were **moved** out of the README rather than copied, so the README contracted to a sentence and a link for each — which is what stops the site being a second README.
 
@@ -115,6 +130,7 @@ The check fails rather than skips when `site/dist` is absent, exiting non-zero w
 - [x] Settle the content boundary against [docs.md](docs.md) — what the site holds, what it links to, and where each fact lives once.
 - [x] Build the site: the landing page, the nine pages, and the visual identity drawn from the application's palette.
 - [x] The checks that hold the boundary: the build failing on a missing rendered source, and the claim check across all four surfaces.
+- [x] Realign the identity to the application's v2 language, and put the palette under the claim check so the next divergence fails rather than ships.
 - [x] The link check over the built site and the repository's Markdown.
 - [x] The page shell matched to Bun's, and the Markdown route the page actions are built on.
 - [ ] Screenshots, now that the interface work they waited on has landed.

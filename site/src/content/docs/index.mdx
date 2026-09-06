@@ -3,6 +3,7 @@ title: Seal
 description: Seal encrypts the secret files in your repositories in place, opened only by a password that exists nowhere on the machine.
 template: splash
 hero:
+  title: Your secrets stay where your code expects them. Sealed.
   tagline: Your secret files stay exactly where they are, with their names plainly visible and their contents unreadable. The only thing that opens them is a password that exists nowhere on the machine.
   actions:
     - text: Install
@@ -16,6 +17,9 @@ hero:
 
 import { CardGrid } from '@astrojs/starlight/components';
 import LinkTile from '../../components/LinkTile.astro';
+import Specimen from '../../components/Specimen.astro';
+
+<Specimen />
 
 <CardGrid>
   <LinkTile title="Install" icon="rocket" href="/seal/get-started/install/" cta="Get started with installing">

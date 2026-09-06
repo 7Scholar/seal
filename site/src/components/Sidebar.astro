@@ -43,15 +43,16 @@ const isLink = (entry) => entry.type === "link";
   .sidebar {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.625rem;
   }
 
   .sidebar__heading {
-    margin: 0 0 0.4rem;
-    padding-inline: 0.6rem;
+    margin: 0 0 0.55rem;
+    padding-inline: var(--seal-lane);
+    font-family: var(--sl-font-mono);
     font-size: var(--sl-text-xs);
-    font-weight: 600;
-    letter-spacing: 0.06em;
+    font-weight: 400;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--sl-color-gray-3);
   }
@@ -62,23 +63,37 @@ const isLink = (entry) => entry.type === "link";
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.1rem;
+    gap: 0.125rem;
   }
 
+  /* The bar sits in a lane of its own at the far left, so a name never shifts
+     when its page becomes the current one — the same reason the application's
+     file rows reserve the lane on every row rather than only the marked ones. */
   .sidebar__list a {
-    display: block;
-    padding: 0.35rem 0.6rem;
-    border-radius: var(--seal-radius-control);
-    color: var(--sl-color-gray-2);
-    font-size: var(--sl-text-sm);
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-height: 1.9375rem;
+    padding: 0.25rem 0.625rem 0.25rem 0;
+    border-radius: var(--seal-radius-sm);
+    color: var(--sl-color-gray-3);
+    font-size: var(--sl-text-base);
     line-height: 1.4;
     text-decoration: none;
     overflow-wrap: anywhere;
   }
 
+  .sidebar__list a::before {
+    content: "";
+    flex: none;
+    width: var(--seal-bar);
+    height: 1rem;
+    background: transparent;
+  }
+
   .sidebar__list a:hover {
     color: var(--sl-color-white);
-    background: var(--sl-color-gray-6);
+    background: var(--seal-hover);
   }
 
   .sidebar__list a:focus-visible {
@@ -89,8 +104,22 @@ const isLink = (entry) => entry.type === "link";
   /* The active state is held on the item and styled through the link. */
   .sidebar__list li[data-active] > a,
   .sidebar__list li[data-active] > a:hover {
-    color: var(--sl-color-text-accent);
-    background: var(--sl-color-accent-low);
-    font-weight: 600;
+    color: var(--sl-color-white);
+    background: var(--seal-accent-surface);
+    font-weight: 500;
+  }
+
+  .sidebar__list li[data-active] > a::before {
+    background: var(--sl-color-accent);
+  }
+
+  /* The threat-model page wears the danger bar whether or not it is current —
+     which is why this rule sits after the active one and outweighs it. It is
+     the one page whose relegation the site plan forbids: a mark that appears
+     only on arrival cannot stop a reader passing it by, and one that
+     disappears on arrival is the same failure from the other side. */
+  .sidebar__list li a[href$="/understand/limits/"]::before,
+  .sidebar__list li a[href$="/understand/limits"]::before {
+    background: var(--seal-danger);
   }
 </style>

@@ -1,77 +1,189 @@
+/* The site resolves the application's own palette. The two surfaces are one
+   product, so a value that differs here is a defect rather than a variation. */
+
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/seal/fonts/geist-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/seal/fonts/geist-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Geist Mono";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/seal/fonts/geist-mono-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Geist Mono";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/seal/fonts/geist-mono-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* Starlight is dark-first: bare `:root` is dark and `[data-theme="light"]`
+   overrides it. The application is light-first. Fighting that inversion means
+   rewriting the generator's own cascade, so the structure stays Starlight's and
+   only the values are the application's. */
+
 :root {
-  --sl-color-accent-low: #16283f;
-  --sl-color-accent: #1f6feb;
-  --sl-color-accent-high: #a3ccff;
+  --sl-color-accent-low: #1c2a28;
+  --sl-color-accent: #4e9b8b;
+  --sl-color-accent-high: #7fbfb1;
 
-  --sl-color-white: #ffffff;
-  --sl-color-gray-1: #e6edf3;
-  --sl-color-gray-2: #c0cbd6;
-  --sl-color-gray-3: #9aa7b4;
-  --sl-color-gray-4: #4a545f;
-  --sl-color-gray-5: #2b333d;
-  --sl-color-gray-6: #161b22;
-  --sl-color-black: #0d1117;
+  --sl-color-white: #e8e9e6;
+  --sl-color-gray-1: #e8e9e6;
+  --sl-color-gray-2: #c8ccc9;
+  --sl-color-gray-3: #9ba1a8;
+  --sl-color-gray-4: #656b74;
+  --sl-color-gray-5: #2c3035;
+  --sl-color-gray-6: #1e2125;
+  --sl-color-black: #17191c;
 
-  --sl-color-bg: #0d1117;
-  --sl-color-bg-nav: #161b22;
-  --sl-color-bg-sidebar: #0d1117;
-  --sl-color-hairline: #2b333d;
-  --sl-color-hairline-light: #2b333d;
+  --sl-color-bg: #17191c;
+  --sl-color-bg-nav: #17191c;
+  --sl-color-bg-sidebar: #17191c;
+  --sl-color-bg-inline-code: #1e2125;
+  --sl-color-hairline: #2c3035;
+  --sl-color-hairline-light: #2c3035;
+  --sl-color-hairline-shade: #2c3035;
 
-  --seal-danger: #ff7b8a;
-  --seal-danger-surface: #3a1d24;
+  --seal-raised: #1e2125;
+  --seal-code: #1e2125;
+  --seal-faint: #6a7179;
+  --seal-line-strong: #656b74;
+  --seal-accent-surface: #1c2a28;
+  --seal-danger: #e0687a;
+  --seal-danger-surface: #35181c;
+  --seal-hover: rgb(232 233 230 / 6%);
+}
 
-  --seal-radius-pill: 999px;
-  --seal-radius-control: 0.625rem;
-  --seal-radius-container: 1rem;
-  --seal-radius: var(--seal-radius-container);
+:root[data-theme="light"] {
+  --sl-color-accent-low: #e6ece9;
+  --sl-color-accent: #2f6f63;
+  --sl-color-accent-high: #235349;
+
+  --sl-color-white: #22262b;
+  --sl-color-gray-1: #22262b;
+  --sl-color-gray-2: #3b4046;
+  --sl-color-gray-3: #5f636b;
+  --sl-color-gray-4: #868c93;
+  --sl-color-gray-5: #e0e0da;
+  --sl-color-gray-6: #f7f7f4;
+  --sl-color-gray-7: #fbfbf9;
+  --sl-color-black: #f2f2ef;
+
+  --sl-color-bg: #f2f2ef;
+  --sl-color-bg-nav: #f2f2ef;
+  --sl-color-bg-sidebar: #f2f2ef;
+  --sl-color-bg-inline-code: #f7f7f4;
+  --sl-color-hairline: #e0e0da;
+  --sl-color-hairline-light: #e0e0da;
+  --sl-color-hairline-shade: #e0e0da;
+
+  --seal-raised: #fbfbf9;
+  --seal-code: #f7f7f4;
+  --seal-faint: #778089;
+  --seal-line-strong: #868c93;
+  --seal-accent-surface: #e6ece9;
+  --seal-danger: #9b1024;
+  --seal-danger-surface: #ebdcda;
+  --seal-hover: rgb(34 38 43 / 4%);
+}
+
+/* One scale, named by role. A literal radius anywhere below is a defect. */
+:root {
+  --seal-radius-sm: 2px;
+  --seal-radius: 3px;
+  --seal-radius-lg: 6px;
+
+  --seal-bar: 3px;
+  --seal-lane: 13px;
 
   --seal-focus-width: 2px;
   --seal-focus-offset: 2px;
   --seal-focus-color: var(--sl-color-accent);
 
-  --pagefind-ui-border-radius: var(--seal-radius-container);
+  --pagefind-ui-border-radius: var(--seal-radius);
 }
 
-:root[data-theme="light"] {
-  --sl-color-accent-low: #d9e7f7;
-  --sl-color-accent: #0b5cad;
-  --sl-color-accent-high: #084179;
+/* ---------- type ---------- */
 
-  --sl-color-white: #11151a;
-  --sl-color-gray-1: #11151a;
-  --sl-color-gray-2: #383b42;
-  --sl-color-gray-3: #5f6270;
-  --sl-color-gray-4: #8a8a95;
-  --sl-color-gray-5: #e4e4e9;
-  --sl-color-gray-6: #f2f2f5;
-  --sl-color-gray-7: #fafafa;
-  --sl-color-black: #ffffff;
+:root {
+  --sl-font: "Geist", ui-sans-serif, -apple-system, system-ui, sans-serif;
+  --sl-font-mono: "Geist Mono", ui-monospace, SFMono-Regular, monospace;
 
-  --sl-color-bg: #fafafa;
-  --sl-color-bg-nav: #ffffff;
-  --sl-color-bg-sidebar: #fafafa;
-  --sl-color-hairline: #e4e4e9;
-  --sl-color-hairline-light: #e4e4e9;
+  --sl-text-xs: 0.656rem;
+  --sl-text-sm: 0.719rem;
+  --sl-text-body-sm: 0.813rem;
+  --sl-text-body: 1rem;
+  --sl-text-base: 0.875rem;
+  --sl-text-code: 0.813rem;
+  --sl-text-h1: 2.25rem;
+  --sl-text-h2: 1.375rem;
+  --sl-text-h3: 1.0625rem;
+  --sl-text-h4: 0.9375rem;
+  --sl-line-height: 1.6875;
+}
 
-  --seal-danger: #c02434;
-  --seal-danger-surface: #fdeef1;
+.sl-markdown-content {
+  font-size: var(--sl-text-body);
+}
+
+.sl-markdown-content h1,
+.sl-markdown-content h2,
+.sl-markdown-content h3,
+.sl-markdown-content h4,
+h1.site-title,
+.content-panel h1 {
+  font-weight: 500;
+}
+
+.sl-markdown-content h1,
+.content-panel h1 {
+  letter-spacing: -0.035em;
+}
+
+.sl-markdown-content h2,
+.sl-markdown-content h3,
+.sl-markdown-content h4 {
+  letter-spacing: -0.025em;
 }
 
 .site-title {
-  font-weight: 650;
-  letter-spacing: -0.01em;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* A small-caps label is mono at the application's label tracking. The locked
+   screen's 0.42em belongs to its wordmark alone and is not this. */
+.seal-label {
+  font-family: var(--sl-font-mono);
+  font-size: var(--sl-text-xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--sl-color-gray-3);
 }
 
 /* ---------- shell ---------- */
 
 :root {
   --sl-nav-height: 3.5rem;
-  --sl-sidebar-width: 17rem;
-  --sl-content-width: 47rem;
-  --sl-text-h1: 2.25rem;
-  --sl-text-h2: 1.5rem;
-  --sl-text-h3: 1.175rem;
+  --sl-sidebar-width: 15.25rem;
+  --sl-content-width: 45rem;
 }
 
 /* Starlight pads `header.header` on the block axis, so an inner box sized to
@@ -79,48 +191,69 @@
    The padding is dropped and the inner grid takes the full height instead. */
 .header {
   padding-block: 0;
-  padding-inline: 0.5rem;
+  padding-inline: 0.75rem;
+  border-bottom: 1px solid var(--sl-color-hairline);
+  background: var(--sl-color-bg);
+}
+
+.sidebar-pane {
+  border-inline-end: 1px solid var(--sl-color-hairline);
+  background: var(--sl-color-bg-sidebar);
 }
 
 /* The prose column holds its measure regardless of viewport width. The measure
    is a reading constraint on the documentation body, so the landing page — which
-   Starlight marks with `data-has-hero` and lays out in a container twice as wide
-   — is exempt: clamping it there strands the whole page against the left edge of
-   a container that is itself centred. */
+   Starlight marks with `data-has-hero` and lays out in a container half again as
+   wide — is exempt: clamping it there strands the whole page against the left
+   edge of a container that is itself centred. */
 :root:not([data-has-hero]) .sl-markdown-content {
-  max-width: 68ch;
+  max-width: 40rem;
 }
 
-/* A command must scroll inside its own block rather than be clipped by it, and
-   a command wider than the column must show that it continues — otherwise the
-   clipped edge reads as the end of the command. */
-.sl-markdown-content .expressive-code pre {
+/* ---------- code ---------- */
+
+.sl-markdown-content .expressive-code pre,
+.sl-markdown-content pre:not(.specimen__body) {
   overflow-x: auto;
   scrollbar-width: thin;
-  scrollbar-color: var(--sl-color-gray-4) transparent;
+  scrollbar-color: var(--seal-line-strong) transparent;
+  border-radius: var(--seal-radius);
+  border: 1px solid var(--sl-color-hairline);
+  background: var(--seal-code) !important;
+  font-size: var(--sl-text-code);
 }
 
-.sl-markdown-content h2,
-.sl-markdown-content h3 {
-  letter-spacing: -0.01em;
+.sl-markdown-content .expressive-code .frame {
+  border-radius: var(--seal-radius);
+  box-shadow: none;
 }
 
-/* The search button is the header's centrepiece rather than a trailing control. */
+.sl-markdown-content :not(pre) > code {
+  border-radius: var(--seal-radius-sm);
+  border: 1px solid var(--sl-color-hairline);
+  background: var(--sl-color-bg-inline-code);
+  padding: 0.075em 0.3em;
+  font-size: 0.9em;
+}
+
+/* ---------- the header's search ---------- */
+
+/* The search control is the header's centrepiece rather than a trailing one. */
 site-search button[data-open-modal] {
   width: 100%;
   justify-content: space-between;
   gap: 0.5rem;
-  height: 2.25rem;
-  padding-inline: 0.85rem;
-  border: 1px solid transparent;
-  border-radius: var(--seal-radius-pill);
-  background: var(--sl-color-gray-6);
+  height: 2rem;
+  padding-inline: 0.7rem;
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: var(--seal-radius);
+  background: var(--seal-raised);
   color: var(--sl-color-gray-3);
+  font-size: var(--sl-text-body-sm);
 }
 
 site-search button[data-open-modal]:hover {
-  background: var(--sl-color-gray-5);
-  border-color: var(--sl-color-hairline);
+  border-color: var(--seal-line-strong);
   color: var(--sl-color-white);
 }
 
@@ -132,38 +265,45 @@ site-search button[data-open-modal]:focus-visible {
 
 site-search button[data-open-modal] > kbd {
   background: none;
-  opacity: 0.85;
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: var(--seal-radius-sm);
+  padding: 0.1rem 0.3rem;
+  font-family: var(--sl-font-mono);
+  font-size: var(--sl-text-xs);
+  opacity: 1;
 }
 
 /* ---------- search modal ---------- */
 
 site-search dialog {
-  border-radius: var(--seal-radius-container);
-  border: 1px solid var(--sl-color-hairline);
+  border-radius: var(--seal-radius);
+  border: 1px solid var(--sl-color-white);
+  background: var(--seal-raised);
 }
 
 site-search #starlight__search {
-  --pagefind-ui-border-radius: var(--seal-radius-control);
+  --pagefind-ui-border-radius: var(--seal-radius);
 }
 
 site-search .pagefind-ui__search-input {
-  border-radius: var(--seal-radius-control);
+  border-radius: var(--seal-radius);
+  font-family: var(--sl-font);
 }
 
 site-search .pagefind-ui__result {
-  border-radius: var(--seal-radius-control);
+  border-radius: var(--seal-radius-sm);
   padding-inline: 0.6rem;
 }
 
 site-search .pagefind-ui__result:hover,
 site-search .pagefind-ui__result:focus-within {
-  background: var(--sl-color-gray-6);
+  background: var(--seal-hover);
 }
 
 site-search .pagefind-ui__result-link:focus-visible {
   outline: var(--seal-focus-width) solid var(--seal-focus-color);
   outline-offset: var(--seal-focus-offset);
-  border-radius: var(--seal-radius-control);
+  border-radius: var(--seal-radius-sm);
 }
 
 /* The zero-results state is designed rather than left as a bare line of bold
@@ -176,7 +316,7 @@ site-search .pagefind-ui__results-area:has(.pagefind-ui__results:empty) .pagefin
   padding: 1.5rem 1rem 1.75rem;
   color: var(--sl-color-white);
   font-size: var(--sl-text-base);
-  font-weight: 600;
+  font-weight: 500;
   text-align: center;
 }
 
@@ -188,7 +328,7 @@ site-search
   max-width: 26rem;
   margin: 0.5rem auto 0;
   color: var(--sl-color-gray-3);
-  font-size: var(--sl-text-sm);
+  font-size: var(--sl-text-body-sm);
   font-weight: 400;
   line-height: 1.5;
 }
@@ -197,29 +337,38 @@ site-search .search-fallback {
   display: block;
   padding: 1.25rem 1rem;
   color: var(--sl-color-gray-3);
-  font-size: var(--sl-text-sm);
+  font-size: var(--sl-text-body-sm);
   text-align: center;
 }
 
-/* ---------- on-page contents ---------- */
+/* ---------- the state bar ---------- */
+
+/* The application carries a file's condition on a 3px bar in a lane of its own
+   at the far left of the row. The site reuses that lane for "where you are":
+   the current page in the sidebar and the current heading in the contents. It
+   is the same mark meaning the same thing — this one — so the two surfaces do
+   not need a second vocabulary for it. */
 
 .right-sidebar-panel a {
-  border-inline-start: 1px solid var(--sl-color-hairline);
+  border-inline-start: var(--seal-bar) solid transparent;
   border-radius: 0;
-  padding-inline-start: 0.85rem;
+  padding-inline-start: 0.7rem;
 }
 
 .right-sidebar-panel a[aria-current="true"] {
-  border-inline-start-color: var(--sl-color-text-accent);
-  color: var(--sl-color-text-accent);
+  border-inline-start-color: var(--sl-color-accent);
+  color: var(--sl-color-white);
   background: none;
-  font-weight: 600;
+  font-weight: 500;
 }
 
-.card,
-starlight-tabs,
-.sl-markdown-content pre {
-  border-radius: var(--seal-radius-container);
+.right-sidebar-panel h2 {
+  font-family: var(--sl-font-mono);
+  font-size: var(--sl-text-xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 400;
+  color: var(--sl-color-gray-3);
 }
 
 /* ---------- landing page ---------- */
@@ -228,87 +377,187 @@ starlight-tabs,
    grid for one anyway — so the copy is confined to the left 63% of a container
    that is itself centred, which reads as the whole page being pushed left. With
    the image column dropped the hero spans its container like every other block
-   on the page, and the copy centres within it. */
+   on the page. */
 .hero {
   grid-template-columns: 1fr;
-  padding-block: 3.5rem 2.5rem;
+  padding-block: 4.5rem 1rem;
 }
 
 .hero .stack {
-  text-align: center;
+  text-align: start;
 }
 
 .hero .copy {
-  align-items: center;
+  align-items: flex-start;
+  gap: 1.25rem;
 }
 
 .hero .actions {
-  justify-content: center;
+  justify-content: flex-start;
+  padding-top: 0.75rem;
+}
+
+.hero h1 {
+  font-size: 3.25rem;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  font-weight: 500;
+  max-width: 16ch;
 }
 
 .hero .tagline {
-  max-width: 52ch;
+  max-width: 46ch;
+  font-size: 1.1875rem;
+  line-height: 1.6;
+  color: var(--sl-color-gray-3);
 }
 
 /* The landing column is narrower than the container Starlight gives a hero page,
-   because 67.5rem of cards and prose is wider than anything on the page wants to
-   be. Centring it is what puts the page in the middle rather than at the edge. */
+   because 67.5rem of prose is wider than anything on the page wants to be. */
 :root[data-has-hero] .sl-container {
-  max-width: 60rem;
+  max-width: 57.5rem;
   margin-inline: auto;
 }
 
-/* ---------- landing cards ---------- */
+:root[data-has-hero] .content-panel {
+  border-top: 0;
+}
 
-.card {
-  border-color: var(--sl-color-hairline);
-  background: var(--sl-color-bg-nav);
+/* ---------- actions ---------- */
+
+/* One filled control per view. The primary is ink, not accent: the accent is
+   reserved to the sealed condition and spending it on a button would make the
+   site say "protected" in the colour the product spends on a fact. */
+a.sl-link-button.primary,
+.hero .action.primary {
+  background: var(--sl-color-white);
+  border: 1px solid var(--sl-color-white);
+  color: var(--sl-color-bg);
+  border-radius: var(--seal-radius);
+  font-size: var(--sl-text-base);
+  font-weight: 500;
+  padding: 0.6rem 1.15rem;
+}
+
+a.sl-link-button.secondary,
+a.sl-link-button.minimal,
+.hero .action.secondary,
+.hero .action.minimal {
+  border: 1px solid var(--sl-color-hairline);
+  background: var(--seal-raised);
+  color: var(--sl-color-white);
+  border-radius: var(--seal-radius);
+  font-size: var(--sl-text-base);
+  font-weight: 400;
+  padding: 0.6rem 1.15rem;
+}
+
+/* ---------- tiles ---------- */
+
+/* Information sits on the page rather than inside a box. A tile is separated
+   from its neighbours by space and by the rule above the group, not by a border
+   drawn around each one. */
+.card,
+.tile {
+  border: 0;
+  background: none;
+  padding: 0;
+  border-radius: 0;
+}
+
+.card-grid {
+  gap: 2.5rem 2.75rem;
+}
+
+.card .title,
+.tile__title {
+  color: var(--sl-color-white);
+  font-size: var(--sl-text-h3);
+  font-weight: 500;
+  letter-spacing: -0.02em;
 }
 
 /* Starlight tints each card icon from its own hue palette by position, which
-   puts amber, green and red on a page whose colours are the application's.
-   Both tokens resolve to the palette so every card icon reads the same. */
+   puts amber, green and red on a page whose colours are the application's. The
+   frame is what makes the glyph read as deliberate rather than as a loose mark
+   beside text — the same treatment the page-actions menu gives its icons. */
 .card-grid .card .icon,
 .card .icon,
 .tile__icon {
   border: 1px solid var(--sl-color-hairline);
-  background-color: var(--sl-color-gray-6);
-  border-radius: var(--seal-radius-control);
-  color: var(--sl-color-text-accent);
-  padding: 0.3rem;
+  background: none;
+  border-radius: var(--seal-radius-lg);
+  color: var(--sl-color-white);
+  width: 1.875rem;
+  height: 1.875rem;
+  padding: 0.375rem;
 }
 
-/* The grid's own children are laid out by Starlight; a tile is an anchor rather
-   than an article, so it needs the same stretch to keep a row's tiles equal. */
 .card-grid > .tile {
   height: 100%;
 }
 
-.card .title {
-  color: var(--sl-color-white);
-}
+/* ---------- the limits ---------- */
 
-.sl-markdown-content :not(pre) > code {
-  border-radius: var(--seal-radius-control);
-}
-
+/* The two absolute limits wear the application's broken-seal treatment: a red
+   bar flush to the surface edge on the danger wash. It is the same mark the
+   product uses for the one condition a user must act on, which is what this
+   block is. Relegating it to a bordered note would be the softening the site
+   plan's fourth rule forbids. */
 .seal-limits {
-  border: 1px solid var(--seal-danger);
+  border: 0;
+  border-inline-start: var(--seal-bar) solid var(--seal-danger);
   background: var(--seal-danger-surface);
   border-radius: var(--seal-radius);
-  padding: 1.25rem 1.5rem;
-  margin-block: 2.5rem;
+  padding: 1.5rem 1.75rem;
+  margin-block: 3rem;
 }
 
 .seal-limits h2 {
   margin-top: 0;
-  font-size: 1.05rem;
+  font-family: var(--sl-font-mono);
+  font-size: var(--sl-text-xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 400;
   color: var(--seal-danger);
+  border: 0;
 }
 
 .seal-limits p:last-child {
   margin-bottom: 0;
 }
+
+/* ---------- asides ---------- */
+
+/* Starlight's asides get the same flush bar, so a caution on a page and the
+   limits block on the landing page are one treatment rather than two. */
+.sl-markdown-content .starlight-aside {
+  border-inline-start-width: var(--seal-bar);
+  border-radius: var(--seal-radius);
+  padding: 1rem 1.25rem;
+}
+
+.sl-markdown-content .starlight-aside__title {
+  font-family: var(--sl-font-mono);
+  font-size: var(--sl-text-xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+.sl-markdown-content .starlight-aside--danger,
+.sl-markdown-content .starlight-aside--caution {
+  border-inline-start-color: var(--seal-danger);
+  background: var(--seal-danger-surface);
+}
+
+.sl-markdown-content .starlight-aside--danger .starlight-aside__title,
+.sl-markdown-content .starlight-aside--caution .starlight-aside__title {
+  color: var(--seal-danger);
+}
+
+/* ---------- the numbered path ---------- */
 
 .seal-steps {
   counter-reset: seal-step;
@@ -324,6 +573,19 @@ starlight-tabs,
   margin-block: 0.85rem;
 }
 
+/* The numeral is mono and accent, drawn as a figure rather than boxed in a
+   circle: a step in a sequence is a label, not a control. */
+.seal-steps li::before {
+  content: "0" counter(seal-step);
+  position: absolute;
+  left: 0;
+  top: 0.28rem;
+  font-family: var(--sl-font-mono);
+  font-size: var(--sl-text-body-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--sl-color-accent);
+}
+
 /* ---------- motion ---------- */
 
 @media (prefers-reduced-motion: reduce) {
@@ -337,18 +599,22 @@ starlight-tabs,
   }
 }
 
-.seal-steps li::before {
-  content: counter(seal-step);
-  position: absolute;
-  left: 0;
-  top: 0.05rem;
-  width: 1.75rem;
-  height: 1.75rem;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  border: 1px solid var(--sl-color-hairline);
-  color: var(--sl-color-gray-3);
-  font-size: 0.82rem;
-  font-variant-numeric: tabular-nums;
+/* Expressive Code draws a terminal frame with macOS window dots on every shell
+   block. The dots are a different product's chrome and the title bar they sit
+   in is empty, so a block with nothing to name loses the bar entirely; one
+   given a `title` keeps it and the title is what fills it. */
+.expressive-code .frame.is-terminal:not(:has(.title:not(:empty))) .header {
+  display: none;
+}
+
+.expressive-code .frame.is-terminal .header {
+  background: var(--seal-code);
+  font-family: var(--sl-font-mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.expressive-code .frame.is-terminal .header::before,
+.expressive-code .frame.is-terminal .header::after {
+  display: none;
 }

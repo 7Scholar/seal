@@ -71,8 +71,6 @@ describe("managing readable files beside sealed ones", () => {
     await seal.waitForClickable({ timeout: 30000 });
     await seal.click();
 
-    const anyway = $('[role="dialog"]').$("button=Seal it anyway");
-    if (await anyway.isDisplayed().catch(() => false)) await anyway.click();
 
     const proceed = $("button=I understand — start sealing");
     if (await proceed.isDisplayed().catch(() => false)) {
@@ -217,22 +215,27 @@ describe("managing readable files beside sealed ones", () => {
     await info.click();
   });
 
-  it("refuses a repository it already manages, in a dialog", async () => {
+  it("opens a repository it already manages, rather than saying so in a dialog", async () => {
     await $("button=Repositories").click();
     const add = $(".toolbar button");
     await add.waitForClickable({ timeout: 30000 });
     await add.click();
 
-    const dialog = $('[role="dialog"]');
-    await dialog.waitForDisplayed({ timeout: 30000 });
-    expect(await dialog.getText()).toContain("already managed");
+    await $('nav[aria-label="Breadcrumb"] [aria-current="page"]').waitForDisplayed({
+      timeout: 30000,
+    });
+    const where = await $(
+      'nav[aria-label="Breadcrumb"] [aria-current="page"]',
+    ).getText();
+    if (where !== repoName()) {
+      throw new Error(
+        `adding a folder Seal already manages landed on ${where} rather than opening that repository`,
+      );
+    }
+    if (await $('[role="dialog"]').isDisplayed().catch(() => false)) {
+      throw new Error("adding a known folder raised a dialog with nothing to choose");
+    }
     expect(await $(".manage__region").isDisplayed().catch(() => false)).toBe(false);
-
-    await $("button=Open it").click();
-    await browser.waitUntil(
-      async () => !(await dialog.isDisplayed().catch(() => false)),
-      { timeout: 10000 },
-    );
   });
 
   it("puts the add action's label and its plus on one row", async () => {
@@ -266,10 +269,11 @@ describe("managing readable files beside sealed ones", () => {
     await unseal.waitForClickable({ timeout: 30000 });
     await unseal.click();
 
-    const dialog = $('[role="dialog"]');
-    await dialog.waitForDisplayed({ timeout: 10000 });
-    expect(await dialog.getText()).toContain("readable on disk");
-    await $("button=Unseal it").click();
+    if (await $('[role="dialog"]').isDisplayed().catch(() => false)) {
+      throw new Error(
+        "unsealing asked for a confirmation — it is the act the user pressed, and the row shows the result at once",
+      );
+    }
 
     await browser.waitUntil(
       async () => !readFileSync(join(repo(), SEALED), "utf8").startsWith(ARMOR),
@@ -307,8 +311,6 @@ describe("managing readable files beside sealed ones", () => {
     await seal.waitForClickable({ timeout: 30000 });
     await seal.click();
 
-    const anyway = $('[role="dialog"]').$("button=Seal it anyway");
-    if (await anyway.isDisplayed().catch(() => false)) await anyway.click();
 
     await browser.waitUntil(
       async () => readFileSync(join(repo(), SEALED), "utf8").startsWith(ARMOR),

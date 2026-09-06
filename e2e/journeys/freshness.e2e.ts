@@ -74,10 +74,6 @@ describe("noticing the world change underneath an open window", () => {
       const seal = $(`button[aria-label="Seal .env.${name}"]`);
       await seal.waitForClickable({ timeout: 30000 });
       await seal.click();
-      const anyway = $("button=Seal it anyway");
-      if (await anyway.waitForClickable({ timeout: 4000 }).catch(() => false)) {
-        await anyway.click();
-      }
       const gate = $('[role="dialog"] input');
       if (await gate.waitForDisplayed({ timeout: 6000 }).catch(() => false)) {
         await gate.setValue("I UNDERSTAND");
@@ -160,14 +156,6 @@ describe("noticing the world change underneath an open window", () => {
 
   it("recovers silently when the file is sealed again underneath it", async () => {
     await $(".exposure-alert").$("button=Seal now").click();
-
-    const dialog = $('[role="dialog"]');
-    if (await dialog.isDisplayed().catch(() => false)) {
-      const anyway = dialog.$("button=Seal it anyway");
-      if (await anyway.isDisplayed().catch(() => false)) {
-        await anyway.click();
-      }
-    }
 
     await browser.waitUntil(
       async () =>

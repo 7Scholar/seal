@@ -98,10 +98,6 @@ describe("stepping away: held plaintext expires on its own", () => {
     const seal = $('button[aria-label="Seal .env.production"]');
     await seal.waitForClickable({ timeout: 30000 });
     await seal.click();
-    const anyway = $("button=Seal it anyway");
-    if (await anyway.waitForClickable({ timeout: 4000 }).catch(() => false)) {
-      await anyway.click();
-    }
     const gate = $('[role="dialog"] input');
     if (await gate.waitForDisplayed({ timeout: 6000 }).catch(() => false)) {
       await gate.setValue("I UNDERSTAND");

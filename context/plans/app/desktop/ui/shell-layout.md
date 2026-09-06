@@ -78,7 +78,7 @@ Two consequences that are easy to get wrong. A file that stops being managed whi
 
 Sealing several files at once is offered, and it is **explicit selection followed by one action** rather than a seal-everything button. The repository surface allows selecting any subset of its readable files; the seal action then applies to exactly that set, named in full before it runs.
 
-The safety properties the per-file path already has are not weakened by the batch. The set is stated explicitly, so no file is ever sealed that the user did not pick. The irreversibility acknowledgement gate is unchanged — it is per-registry and fires once, before the first seal of any kind. The recency warning is per-file and still fires per file: if any file in the set was modified moments ago, the confirmation names those files specifically rather than warning generically about the batch.
+The safety properties the per-file path already has are not weakened by the batch. The set is stated explicitly, so no file is ever sealed that the user did not pick. The irreversibility acknowledgement gate is unchanged — it is per-registry and fires once, before the first seal of any kind. Neither route consults recency any more, so the two cannot diverge on it; [navigation/ceremony.md](navigation/ceremony.md) owns that removal and the report standing where the warning stood.
 
 **A batch seal is not atomic, and the interface must not imply it is.** Each file seals independently; a failure on one does not roll back the others and does not stop the rest. The outcome reports what sealed and what did not, per file with its reason — answering which files are now protected and which still need attention, never a bare count. This mirrors the password change's rule about partial runs, for the same reason: a half-done security operation reported as a number is how a user ends up believing something is protected when it is not.
 
@@ -94,7 +94,7 @@ It is destructive and irreversible in the sense that matters to a user, so it na
 
 The principle governing the whole interface — only what matters now is shown, everything else expandable but collapsed — resolves into three rules, and one boundary.
 
-**Explanation always collapses.** Every "why is this like this" is a toggletip: what watched versus protected means, why a scan candidate was classified as it was, why a duplicate key is preserved, what the recency warning can and cannot see.
+**Explanation always collapses.** Every "why is this like this" is a toggletip: what watched versus protected means, why a scan candidate was classified as it was, why a duplicate key is preserved, what a broken seal means and what to do about it.
 
 **Secondary and destructive actions collapse into an overflow control.** Rescan, remove the repository, change the master password. Collapsing these puts distance between a reflex and a consequence.
 

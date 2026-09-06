@@ -88,10 +88,6 @@ describe("settling in: a file with no editor, and coming back to add more", () =
       const seal = $(`button[aria-label="Seal ${name}"]`);
       await seal.waitForClickable({ timeout: 30000 });
       await seal.click();
-      const anyway = $("button=Seal it anyway");
-      if (await anyway.waitForClickable({ timeout: 4000 }).catch(() => false)) {
-        await anyway.click();
-      }
       const gate = $('[role="dialog"] input');
       if (await gate.waitForDisplayed({ timeout: 6000 }).catch(() => false)) {
         await gate.setValue("I UNDERSTAND");

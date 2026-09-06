@@ -56,13 +56,7 @@ export function App() {
   const [releasing, setReleasing] = useState<string | null>(null);
   const [releasingMany, setReleasingMany] = useState<string[] | null>(null);
   const [releasingRepo, setReleasingRepo] = useState<ipc.RepoView | null>(null);
-  const [alreadyManaged, setAlreadyManaged] = useState<ipc.RepoView | null>(null);
-  const [sealing, setSealing] = useState<null | {
-    paths: string[];
-    recent: { path: string; secondsAgo: number }[];
-  }>(null);
   const [outcomes, setOutcomes] = useState<Outcomes | null>(null);
-  const [unsealing, setUnsealing] = useState<string[] | null>(null);
   const [rekey, setRekey] = useState<ipc.Manifest | null>(null);
   const [mode, setMode] = useState<theme.Mode>("system");
   const [expired, setExpired] = useState(false);
@@ -126,9 +120,6 @@ export function App() {
     setReleasing(null);
     setReleasingMany(null);
     setReleasingRepo(null);
-    setAlreadyManaged(null);
-    setUnsealing(null);
-    setSealing(null);
     setOutcomes(null);
   }
 
@@ -295,17 +286,7 @@ export function App() {
   }
 
   async function seal(path: string) {
-    await attempt(`seal ${fileName(path)}`, async () => {
-      const warning = await ipc.sealWarning(path);
-      if (warning) {
-        setSealing({
-          paths: [path],
-          recent: [{ path, secondsAgo: warning.modifiedSecondsAgo }],
-        });
-        return;
-      }
-      await sealNow(path);
-    });
+    await attempt(`seal ${fileName(path)}`, () => sealNow(path));
   }
 
   async function sealManyNow(paths: string[]) {
@@ -315,7 +296,7 @@ export function App() {
     });
   }
 
-  async function unsealNow(paths: string[]) {
+  async function unseal(paths: string[]) {
     if (paths.length === 0) return;
     const only = paths.length === 1 ? paths[0] : null;
     await attempt(
@@ -333,22 +314,7 @@ export function App() {
 
   async function sealMany(paths: string[]) {
     if (paths.length === 0) return;
-    await attempt(`seal ${paths.length} files`, async () => {
-      const warnings = (
-        await Promise.all(
-          paths.map(async (path) => {
-            const warning = await ipc.sealWarning(path);
-            return warning ? { path, secondsAgo: warning.modifiedSecondsAgo } : null;
-          }),
-        )
-      ).filter((entry) => entry !== null);
-
-      if (warnings.length > 0) {
-        setSealing({ paths, recent: warnings });
-        return;
-      }
-      await sealManyNow(paths);
-    });
+    await attempt(`seal ${paths.length} files`, () => sealManyNow(paths));
   }
 
   async function scanInto(root: string) {
@@ -377,7 +343,7 @@ export function App() {
       if (!root) return;
       const known = repos.find((repo) => repo.root === root);
       if (known) {
-        setAlreadyManaged(known);
+        await goToRepository(known.root);
         return;
       }
       await scanInto(root);
@@ -532,9 +498,6 @@ export function App() {
     });
   }
 
-  const onlyRecent =
-    sealing && sealing.recent.length === 1 ? sealing.recent[0] : null;
-
   const openedRelativePath =
     route.at === "file" && currentRepo
       ? route.path.slice(currentRepo.root.length + 1)
@@ -640,8 +603,8 @@ export function App() {
             onSealMany={sealMany}
             onRelease={setReleasing}
             onReleaseMany={setReleasingMany}
-            onUnseal={(path) => setUnsealing([path])}
-            onUnsealMany={setUnsealing}
+            onUnseal={(path) => void unseal([path])}
+            onUnsealMany={(paths) => void unseal(paths)}
             onReleaseRepo={() => setReleasingRepo(currentRepo)}
             onRescan={() => void startRescan(currentRepo.root)}
             outcomes={outcomes}
@@ -698,7 +661,7 @@ export function App() {
             resumeEditing={resuming}
             onResumed={() => setResuming(null)}
             onSeal={() => seal(opened.file.path)}
-            onUnseal={() => setUnsealing([opened.file.path])}
+            onUnseal={() => void unseal([opened.file.path])}
             onLeave={() => void goToRepository(route.root)}
           />
         ) : null}
@@ -728,58 +691,6 @@ export function App() {
         />
       ) : null}
 
-      {sealing ? (
-        <Confirm
-          title={
-            onlyRecent
-              ? `Seal ${fileName(onlyRecent.path)} while something may be editing it?`
-              : `Seal ${sealing.paths.length} files while something may be editing ${sealing.recent.length} of them?`
-          }
-          confirmLabel={
-            sealing.paths.length === 1 ? "Seal it anyway" : "Seal them anyway"
-          }
-          cancelLabel="Not yet"
-          onCancel={() => setSealing(null)}
-          onConfirm={async () => {
-            const { paths } = sealing;
-            const only = paths.length === 1 ? paths[0] : null;
-            setSealing(null);
-            if (only) {
-              await attempt(`seal ${fileName(only)}`, () => sealNow(only));
-              return;
-            }
-            await attempt(`seal ${paths.length} files`, () => sealManyNow(paths));
-          }}
-        >
-          {onlyRecent ? (
-            <p>
-              This file changed {onlyRecent.secondsAgo} seconds ago, so a program
-              may be working in it right now. Seal cannot see an editor's unsaved
-              buffer: if one is open, its next save will overwrite the sealed
-              file with readable text. Close the file in your editor first, then
-              seal.
-            </p>
-          ) : (
-            <>
-              <p>
-                These files changed moments ago, so a program may be working in
-                them right now. Seal cannot see an editor's unsaved buffer: if
-                one is open, its next save will overwrite the sealed file with
-                readable text. Close them in your editor first, then seal.
-              </p>
-              <ul className="confirm__list">
-                {sealing.recent.map((entry) => (
-                  <li key={entry.path}>
-                    {fileName(entry.path)} — changed {entry.secondsAgo} seconds
-                    ago
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
-        </Confirm>
-      ) : null}
-
       {releasing ? (
         <Confirm
           title={`Stop managing ${fileName(releasing)}?`}
@@ -798,65 +709,6 @@ export function App() {
           <p>
             Seal will forget this file and leave its readable contents at the
             same path. The file itself is not deleted.
-          </p>
-        </Confirm>
-      ) : null}
-
-      {unsealing ? (
-        <Confirm
-          title={
-            unsealing.length === 1
-              ? `Unseal ${fileName(unsealing[0]!)}?`
-              : `Unseal ${unsealing.length} files?`
-          }
-          confirmLabel={unsealing.length === 1 ? "Unseal it" : "Unseal them"}
-          cancelLabel="Keep it sealed"
-          onCancel={() => setUnsealing(null)}
-          onConfirm={async () => {
-            const paths = unsealing;
-            setUnsealing(null);
-            await unsealNow(paths);
-          }}
-        >
-          <p>
-            {unsealing.length === 1
-              ? "This file's contents become readable on disk, and stay readable until you seal it again."
-              : `These ${unsealing.length} files' contents become readable on disk, and stay readable until you seal them again.`}{" "}
-            Seal keeps managing{" "}
-            {unsealing.length === 1 ? "it" : "them"}, so you can seal again from
-            here at any time.
-          </p>
-          {unsealing.length > 1 ? (
-            <ul className="confirm__list">
-              {unsealing.map((path) => (
-                <li key={path}>{fileName(path)}</li>
-              ))}
-            </ul>
-          ) : null}
-        </Confirm>
-      ) : null}
-
-      {alreadyManaged ? (
-        <Confirm
-          title={`${alreadyManaged.name} is already managed`}
-          tone="ordinary"
-          confirmLabel="Open it"
-          cancelLabel="Cancel"
-          onCancel={() => setAlreadyManaged(null)}
-          onConfirm={() => {
-            const root = alreadyManaged.root;
-            setAlreadyManaged(null);
-            void goToRepository(root);
-          }}
-        >
-          <p>
-            Seal already manages this repository — {alreadyManaged.files.length}{" "}
-            {alreadyManaged.files.length === 1 ? "file" : "files"} in{" "}
-            {alreadyManaged.root}. Nothing was added or changed.
-          </p>
-          <p>
-            To bring in a file Seal missed, open the repository and choose{" "}
-            <strong>Scan for more files</strong>.
           </p>
         </Confirm>
       ) : null}

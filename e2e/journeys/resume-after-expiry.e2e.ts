@@ -58,8 +58,6 @@ describe("coming back to a file whose plaintext expired while you were away", ()
     await rows.waitForDisplayed({ timeout: 30000 });
 
     await $('button[aria-label="Seal .env.production"]').click();
-    const anyway = $('[role="dialog"]').$("button=Seal it anyway");
-    if (await anyway.isDisplayed().catch(() => false)) await anyway.click();
     const proceed = $("button=I understand — start sealing");
     if (await proceed.isDisplayed().catch(() => false)) {
       await $('[role="dialog"]').$("input").setValue("I UNDERSTAND");

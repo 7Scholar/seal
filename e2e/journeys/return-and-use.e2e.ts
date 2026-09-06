@@ -62,11 +62,6 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
       await $('button[aria-label="Seal .env"]').waitForClickable();
       await $('button[aria-label="Seal .env"]').click();
       step("seal clicked");
-      const anyway = $("button=Seal it anyway");
-      if (await anyway.waitForClickable({ timeout: 4000 }).catch(() => false)) {
-        step("recency warning shown");
-        await anyway.click();
-      }
       const gate = $('[role="dialog"] input');
       if (await gate.waitForDisplayed({ timeout: 6000 }).catch(() => false)) {
         step("acknowledgement shown");
@@ -177,11 +172,11 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
   it("warns before sealing a file that changed moments ago, then seals from the alert", async () => {
     await $(".exposure-alert").$("button=Seal now").click();
 
-    const dialog = $('[role="dialog"]');
-    await expect(dialog).toBeDisplayed();
-    await expect($("h2*=while something may be editing it")).toBeDisplayed();
-    await expect($("p*=Close the file in your editor first")).toBeDisplayed();
-    await dialog.$("button=Seal it anyway").click();
+    if (await $('[role="dialog"]').isDisplayed().catch(() => false)) {
+      throw new Error(
+        "sealing from the exposure alert asked for a confirmation — sealing is reversible and the overwrite is reported when it happens",
+      );
+    }
 
     await expect($("span=Sealed")).toBeDisplayed();
     const contents = readFileSync(join(repo(), ".env"), "utf8");

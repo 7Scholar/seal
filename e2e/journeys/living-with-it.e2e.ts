@@ -119,10 +119,6 @@ describe("living with it: the glance, the errors, and the bad day", () => {
       const seal = $(`button[aria-label="Seal .env.${name}"]`);
       await seal.waitForClickable({ timeout: 30000 });
       await seal.click();
-      const anyway = $("button=Seal it anyway");
-      if (await anyway.waitForClickable({ timeout: 4000 }).catch(() => false)) {
-        await anyway.click();
-      }
       const gate = $('[role="dialog"] input');
       if (await gate.waitForDisplayed({ timeout: 6000 }).catch(() => false)) {
         await gate.setValue("I UNDERSTAND");
@@ -151,14 +147,6 @@ describe("living with it: the glance, the errors, and the bad day", () => {
 
   it("clears the exposure once it is sealed again, from beside the problem", async () => {
     await $(".exposure-alert").$("button=Seal now").click();
-
-    const dialog = $('[role="dialog"]');
-    if (await dialog.isDisplayed().catch(() => false)) {
-      const anyway = dialog.$("button=Seal it anyway");
-      if (await anyway.isDisplayed().catch(() => false)) {
-        await anyway.click();
-      }
-    }
 
     await browser.waitUntil(
       async () =>

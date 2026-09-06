@@ -79,10 +79,6 @@ describe("the bad day: ceremony where it belongs, and nowhere else", () => {
     await seal.waitForClickable({ timeout: 30000 });
     await seal.click();
 
-    const anyway = $("button=Seal it anyway");
-    if (await anyway.waitForClickable({ timeout: 4000 }).catch(() => false)) {
-      await anyway.click();
-    }
 
     const gate = $('[role="dialog"] input');
     const appeared = await gate
@@ -118,10 +114,6 @@ describe("the bad day: ceremony where it belongs, and nowhere else", () => {
     await seal.waitForClickable({ timeout: 30000 });
     await seal.click();
 
-    const anyway = $("button=Seal it anyway");
-    if (await anyway.waitForClickable({ timeout: 4000 }).catch(() => false)) {
-      await anyway.click();
-    }
 
     await browser.waitUntil(
       async () =>
@@ -227,7 +219,7 @@ describe("the bad day: ceremony where it belongs, and nowhere else", () => {
     }
   });
 
-  it("warns about a just-modified file whichever control seals it", async () => {
+  it("seals a just-modified file with no ceremony, whichever control does it", async () => {
     await openTheRepository();
 
     const target = `.env.${BATCH_FILE}`;
@@ -241,20 +233,57 @@ describe("the bad day: ceremony where it belongs, and nowhere else", () => {
     await batch.waitForClickable({ timeout: 15000 });
     await batch.click();
 
-    const warned = await $("button=Seal it anyway")
-      .waitForDisplayed({ timeout: 8000 })
-      .catch(() => false);
-
-    if (!warned) {
-      const onDisk = readFileSync(join(repo(), target), "utf8");
+    if (await dialog()) {
       throw new Error(
-        `sealing a just-modified file from the batch control carried no recency warning, and it is now ${
-          onDisk.startsWith(ARMOR) ? "already sealed" : "still readable"
-        } — the same file sealed from its own row is warned about, so the protection depends on which control the user reached for`,
+        "sealing a just-modified file asked for a confirmation — the warning was traded for the report, so neither route may ask",
       );
     }
 
-    await $("button=Not yet").click();
+    await browser.waitUntil(
+      async () => readFileSync(join(repo(), target), "utf8").startsWith(ARMOR),
+      { timeout: 30000, timeoutMsg: `${target} never sealed` },
+    );
+  });
+
+  it("reports the overwrite the removed warning only guessed at, with no user action", async () => {
+    const target = `.env.${BATCH_FILE}`;
+    const path = join(repo(), target);
+
+    writeFileSync(path, `SECRET_${BATCH_FILE}=an editor wrote over the seal\n`);
+    if (readFileSync(path, "utf8").startsWith(ARMOR)) {
+      throw new Error("the overwrite did not land, so this proves nothing");
+    }
+
+    const row = await browser.waitUntil(
+      async () =>
+        browser.execute((name: string) => {
+          const target = [...document.querySelectorAll(".row")].find((candidate) =>
+            (candidate.querySelector(".row__name")?.textContent ?? "").includes(name),
+          );
+          if (!target) return null;
+          if (target.getAttribute("data-alert") !== "true") return null;
+          return {
+            seal: [...target.querySelectorAll("button")].some((button) =>
+              (button.getAttribute("aria-label") ?? "").startsWith("Seal "),
+            ),
+            why: target.querySelector(".toggletip") !== null,
+          };
+        }, target),
+      {
+        timeout: 30000,
+        timeoutMsg:
+          "the row never reported the overwrite — the report is the only thing standing where the recency warning stood",
+      },
+    );
+
+    if (!row.seal) {
+      throw new Error("the broken row offers no way to seal it again");
+    }
+    if (!row.why) {
+      throw new Error(
+        "the broken row explains nothing, and nobody has learned this vocabulary yet",
+      );
+    }
   });
 
   it("leaves every routine action reachable without hunting", async () => {

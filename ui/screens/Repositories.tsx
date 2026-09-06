@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Overflow } from "../components/Overflow";
 import { Icon } from "../components/Icon";
 import { Ticks } from "../components/Ticks";
-import { Toggletip } from "../components/Toggletip";
+import { BrokenSeal } from "../components/BrokenSeal";
 import type { RepoView } from "../ipc";
 
 export type Load = "loading" | "ready" | "failed";
@@ -156,23 +156,10 @@ export function Repositories({
                 <span className="repo-row__actions">
                   {broken.length > 0 ? (
                     <>
-                      <Toggletip
+                      <BrokenSeal
                         label={`Why ${repo.name} is marked`}
-                        place="left"
-                      >
-                        <strong>The seal broke</strong>
-                        <p>
-                          Seal encrypted{" "}
-                          {broken.length === 1
-                            ? "a file here"
-                            : `${broken.length} files here`}
-                          , and something later wrote plaintext over{" "}
-                          {broken.length === 1 ? "it" : "them"} — usually an
-                          editor that still had the file open. Sealing again
-                          closes it. The secret has been readable on disk, so
-                          rotate it.
-                        </p>
-                      </Toggletip>
+                        count={broken.length}
+                      />
                       <button type="button" onClick={() => onSealRepo(repo)}>
                         <Icon name="lock" />
                         Seal

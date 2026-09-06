@@ -44,7 +44,7 @@ What the bar offers is **derived from what is selected**, so a control never app
 - **Seal N files** is offered only when every selected file is readable. A selection holding a sealed file offers no seal, rather than offering one that would partly fail.
 - **Unseal N files** is offered only when every selected file is sealed, by the same rule read the other way.
 
-The batch seal's safety properties are intact: the set is explicit, the acknowledgement gate is unchanged, the recency warning still fires per file and names the files it applies to, and the outcome is reported **per file with its reason** rather than as a count. Releasing several is confirmed in one dialog that names each file and states plainly that a sealed file among them becomes readable on disk.
+The batch seal's safety properties are intact: the set is explicit, the acknowledgement gate is unchanged, and the outcome is reported **per file with its reason** rather than as a count. Neither sealing route consults recency any more ([ceremony.md](ceremony.md)). Releasing several is confirmed in one dialog that names each file and states plainly that a sealed file among them becomes readable on disk.
 
 The batch is not atomic and the interface does not imply it is.
 

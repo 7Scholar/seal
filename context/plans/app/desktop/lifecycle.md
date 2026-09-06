@@ -16,13 +16,11 @@ The dangerous sequence was then reproduced end to end: an editor reads the file 
 
 The check is therefore **not** a descriptor scan, and Seal does not claim to know whether a file is open somewhere. What it does instead:
 
-**Warn on recency, which is a real signal.** A file modified very recently is one somebody is plausibly working in right now. Seal compares the file's modification time against the moment of sealing and, when the gap is small, warns before sealing rather than refusing. This is honest — it says "this file changed moments ago, something may be editing it" — and it does not pretend to certainty it cannot have.
+**Answer on recency, which is a real signal.** A file modified very recently is one somebody is plausibly working in right now. `seal_warning` compares the file's modification time against the moment of asking and reports the gap when it is small. It never refuses, and it does not pretend to certainty it cannot have.
 
-**The warning is a property of sealing, not of one control.** Every route that seals checks recency: sealing one file from its row, and sealing a selection from the batch control. A selection checks every path in it and warns naming each recently-modified file, so the user can back out before any of them is touched. This is stated because the two routes reach different commands and it is easy to build the check into only the one where it was first needed — the hazard the warning exists to catch is a property of the *file*, so which control the user happened to reach for cannot decide whether they are told.
+**Rely on detection after the fact as the real safety net.** Reconciliation detects a sealed file that became plaintext, and the interface surfaces it as an insistent alert. That is the **primary** defence — this inversion, detection primary and prevention advisory, is forced by the measurement rather than chosen for convenience.
 
-**State the limit in the warning itself.** The warning names what Seal cannot know: that an editor holding an unsaved buffer will overwrite the sealed file when the user next saves, and that no check can see that buffer. The instruction that follows is the one that actually works — close the file in your editor first.
-
-**Rely on detection after the fact as the real safety net.** Reconciliation already detects a sealed file that became plaintext, and the interface surfaces it as an insistent alert. That mechanism is not weakened by the warning above; it is the primary defence, and the warning is a cheap way to reduce how often it fires. This inversion — detection is primary, prevention advisory — is forced by the measurement, not chosen for convenience.
+**The interface no longer asks the question.** The recency answer is advisory by this plan's own reasoning, and the product owner has taken it out of the user's path: sealing proceeds without stopping, and the overwrite is reported when it actually happens rather than warned about when it is merely possible. [ui/navigation/ceremony.md](ui/navigation/ceremony.md) owns that decision and what it rests on. `seal_warning` stays on the command surface, correct and uncalled, because the fact is real even where the dialog was not earning its place.
 
 ## Acknowledgements before a first seal
 

@@ -65,7 +65,7 @@ The rule that follows and governs every placement below: **an operation lives at
 | Copy a revealed value | — | **Collapsed** — appears only once revealed | Gated on the value actually being revealed. |
 | Edit / add / delete a variable | `save` | **Always visible in the editor** | The editor's primary purpose. |
 | Understand a duplicate key or unparseable line | — | **Collapsed** — toggletip | Explanation of a preserved oddity, not an error. Prime toggletip material. |
-| Understand the seal recency warning | `seal_warning` | **Interposed when it fires** | States what Seal cannot see — an editor's unsaved buffer — and the instruction that works. |
+| Understand a broken seal | — | **`ⓘ` on the row** | States that something wrote plaintext over a sealed file, that sealing again closes it, and that the secret wants rotating. |
 
 **Flow — use a secret:** select repository → open file → editor in the detail surface → reveal one row → edit → save (re-sealed from the plaintext held in Rust) → close. **Reveal is never an edit** and must never mark the file dirty.
 

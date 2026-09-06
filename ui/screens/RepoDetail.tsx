@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ExposureAlert } from "../components/ExposureAlert";
 import { Toggletip } from "../components/Toggletip";
 import { Overflow } from "../components/Overflow";
+import { BrokenSeal } from "../components/BrokenSeal";
 import type { RepoView, SealedState, SealOutcome } from "../ipc";
 import type { Load } from "./Repositories";
 import { reason } from "../errors";
@@ -272,6 +273,10 @@ export function RepoDetail({
                 <span className="row__state" data-state={file.state}>
                   {file.alert ? "Readable — should be sealed" : LABELS[file.state]}
                 </span>
+              ) : null}
+
+              {file.alert ? (
+                <BrokenSeal label={`Why ${file.relativePath} is marked`} />
               ) : null}
 
               <span className="row__actions">

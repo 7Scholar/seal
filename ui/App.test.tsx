@@ -297,7 +297,7 @@ describe("the application shell", () => {
     expect(await screen.findByText(/1 file is now sealed/)).toBeInTheDocument();
   });
 
-  it("warns before sealing a selection holding a recently modified file", async () => {
+  it("seals a just-modified file without asking, because the overwrite is reported when it happens", async () => {
     const user = userEvent.setup();
     mocked.sealWarning.mockResolvedValue({
       path: "/code/app/.env",
@@ -312,16 +312,11 @@ describe("the application shell", () => {
     await user.click(screen.getByRole("checkbox", { name: "Select .env" }));
     await user.click(screen.getByRole("button", { name: "Seal 1 file" }));
 
-    expect(mocked.sealFiles).not.toHaveBeenCalled();
-    expect(mocked.sealFile).not.toHaveBeenCalled();
-    expect(await screen.findByText(/may be editing it/i)).toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: "Seal it anyway" }));
     await waitFor(() =>
-      expect(
-        mocked.sealFile.mock.calls.length + mocked.sealFiles.mock.calls.length,
-      ).toBe(1),
+      expect(mocked.sealFiles).toHaveBeenCalledWith(["/code/app/.env"]),
     );
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(mocked.sealWarning).not.toHaveBeenCalled();
   });
 
   it("falls back to the repository when the open file stops being managed", async () => {
@@ -791,23 +786,7 @@ describe("an expired file met mid-task", () => {
 });
 
 describe("unsealing a managed file", () => {
-  it("confirms first, naming the consequence and that Seal keeps managing it", async () => {
-    const user = userEvent.setup();
-    await openApp();
-    await openRepository(user, "app");
-
-    await user.click(
-      screen.getByRole("button", { name: "Unseal .env.production" }),
-    );
-
-    const dialog = await screen.findByRole("dialog");
-    expect(dialog).toHaveTextContent("Unseal .env.production?");
-    expect(dialog).toHaveTextContent("readable on disk");
-    expect(dialog).toHaveTextContent("Seal keeps managing it");
-    expect(mocked.unsealFile).not.toHaveBeenCalled();
-  });
-
-  it("unseals on confirming, and leaves the file managed", async () => {
+  it("unseals on the press, with no confirmation, and leaves the file managed", async () => {
     const user = userEvent.setup();
     mocked.unsealFile.mockResolvedValue(undefined);
     await openApp();
@@ -816,57 +795,28 @@ describe("unsealing a managed file", () => {
     await user.click(
       screen.getByRole("button", { name: "Unseal .env.production" }),
     );
-    await user.click(await screen.findByRole("button", { name: "Unseal it" }));
 
     await waitFor(() =>
       expect(mocked.unsealFile).toHaveBeenCalledWith("/code/app/.env.production"),
     );
-    expect(mocked.release).not.toHaveBeenCalled();
-  });
-
-  it("does nothing at all when the confirmation is declined", async () => {
-    const user = userEvent.setup();
-    await openApp();
-    await openRepository(user, "app");
-
-    await user.click(
-      screen.getByRole("button", { name: "Unseal .env.production" }),
-    );
-    await user.click(
-      await screen.findByRole("button", { name: "Keep it sealed" }),
-    );
-
-    expect(mocked.unsealFile).not.toHaveBeenCalled();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(mocked.release).not.toHaveBeenCalled();
   });
 });
 
 describe("adding a repository Seal already manages", () => {
-  it("refuses in a dialog rather than opening the manage surface", async () => {
+  it("opens it instead of scanning it, and says nothing about it", async () => {
     const user = userEvent.setup();
     mocked.pickFolder.mockResolvedValue("/code/app");
     await openApp();
 
     await user.click(screen.getAllByRole("button", { name: /Add repository/ })[0]!);
-
-    const dialog = await screen.findByRole("dialog");
-    expect(dialog).toHaveTextContent("app is already managed");
-    expect(dialog).toHaveTextContent("Scan for more files");
-    expect(mocked.scanFolder).not.toHaveBeenCalled();
-  });
-
-  it("offers the repository it already manages as the way onward", async () => {
-    const user = userEvent.setup();
-    mocked.pickFolder.mockResolvedValue("/code/app");
-    await openApp();
-
-    await user.click(screen.getAllByRole("button", { name: /Add repository/ })[0]!);
-    await user.click(await screen.findByRole("button", { name: "Open it" }));
 
     await waitFor(() => {
       expect(screen.getByText("/code/app")).toBeInTheDocument();
     });
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(mocked.scanFolder).not.toHaveBeenCalled();
   });
 
   it("still scans a known repository when the user asks to rescan it", async () => {

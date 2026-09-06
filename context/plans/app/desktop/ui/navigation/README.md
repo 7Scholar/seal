@@ -100,7 +100,7 @@ Three children, one per altitude, each owning its surface's layout and operation
 - [x] palette.md -> the chosen palette — a white, a black, an accent and a primary — and the role rule governing where each appears
 - [~] freshness.md -> when the product re-observes disk, and how it answers "is everything protected?" at a glance. Built and driven; the owner's answer to the positive statement was *nothing*, so none is drawn. **Reopened for one step: a repository whose re-read failed must show an unknown state rather than the states it last saw.**
 - [~] editing/ -> the full editing vocabulary for an env file: create, rename, delete, duplicate, reorder, and commented-out variables as a disabled state. **Six of eight children are complete, driven, and density-designed; `bulk-entry.md` and `value-as-button.md` are framed and unstarted.**
-- [ ] ceremony.md -> which acts the interface stops to confirm, and which it simply performs. The owner has removed the seal-while-editing and unseal confirmations and the already-managed dialog; what this owes is the rule that keeps the set from drifting back.
+- [x] ceremony.md -> which acts the interface stops to confirm, and which it simply performs. Six confirmations are four, and the rule that decides membership is stated so the set cannot drift back.
 - [ ] file-jump.md -> the breadcrumb menu as a two-level surface, so a file in any repository is reachable without landing on its repository first
 - [ ] seal-all.md -> sealing every unsealed file in a repository in one action, without selecting them first
 

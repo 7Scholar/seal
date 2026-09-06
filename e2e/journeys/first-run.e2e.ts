@@ -97,13 +97,6 @@ describe("first run: install, choose a password, protect a first file", () => {
     await $('button[aria-label="Seal .env"]').click();
 
     await expect($('[role="dialog"]')).toBeDisplayed();
-
-    const anyway = $('[role="dialog"]').$("button=Seal it anyway");
-    if (await anyway.isDisplayed().catch(() => false)) {
-      await expect($("h2*=while something may be editing it")).toBeDisplayed();
-      await anyway.click();
-    }
-
     await expect($("h2=Before Seal encrypts anything")).toBeDisplayed();
     await expect($("p*=your sealed files are gone")).toBeDisplayed();
     await expect($("p*=It cannot reach backwards")).toBeDisplayed();

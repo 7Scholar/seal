@@ -139,10 +139,6 @@ describe("an interrupted password change resumes and reports where every file st
 
     await $(`button[aria-label="Seal .env.${FILES[0]}"]`).waitForClickable();
     await $(`button[aria-label="Seal .env.${FILES[0]}"]`).click();
-    const anyway = $("button=Seal it anyway");
-    if (await anyway.waitForClickable({ timeout: 4000 }).catch(() => false)) {
-      await anyway.click();
-    }
     const gate = $('[role="dialog"] input');
     if (await gate.waitForDisplayed({ timeout: 6000 }).catch(() => false)) {
       await gate.setValue("I UNDERSTAND");
@@ -154,10 +150,6 @@ describe("an interrupted password change resumes and reports where every file st
       const seal = $(`button[aria-label="Seal .env.${name}"]`);
       await seal.waitForClickable({ timeout: 30000 });
       await seal.click();
-      const warn = $("button=Seal it anyway");
-      if (await warn.waitForClickable({ timeout: 4000 }).catch(() => false)) {
-        await warn.click();
-      }
       await browser.waitUntil(
         async () =>
           readFileSync(join(repo(), `.env.${name}`), "utf8").startsWith(ARMOR),

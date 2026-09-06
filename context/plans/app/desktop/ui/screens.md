@@ -47,7 +47,7 @@ The same gate carries the establishing mode ([first-open.md](../first-open.md)):
 
 ## The application-level flows around the screens
 
-The application shell that hosts the screens carries three flows of its own. The add entry asks the folder-pick command for a path and only then scans, so cancelling the native dialog is a quiet no-op. Sealing first asks for the recency warning and, when one comes back, interposes a confirmation stating the modification gap, what Seal cannot see — an editor's unsaved buffer — and the instruction that actually works, closing the file in the editor first; only confirming proceeds to the acknowledgement gate and the seal. And every failure a screen does not handle inline surfaces through the problem banner per [errors.md](errors.md), with a locked-session failure re-locking to the shield instead. The shield accepts an outside notice for exactly that arrival, shown until typing starts.
+The application shell that hosts the screens carries three flows of its own. The add entry asks the folder-pick command for a path and only then scans, so cancelling the native dialog is a quiet no-op — and a path Seal already manages opens that repository rather than raising a dialog about it. Sealing goes straight to the acknowledgement gate and the seal, stopping for nothing else; [navigation/ceremony.md](navigation/ceremony.md) owns which acts stop and why this one does not. And every failure a screen does not handle inline surfaces through the problem banner per [errors.md](errors.md), with a locked-session failure re-locking to the shield instead. The shield accepts an outside notice for exactly that arrival, shown until typing starts.
 
 ## The interface holds nothing
 

@@ -84,7 +84,7 @@ An audit against the root intent found that the per-file surface was built while
 
 The same audit caught two defects that are now fixed: a managed non-env file was parsed and re-rendered as an env file — measured corrupting a Terraform `.tfvars` on save — and a per-repo password override never reached any file inside the repo.
 
-`lifecycle.md` is now complete, and with it the gap the audit found: a folder's files can be brought under management, a file can be released from it, and sealing is gated on acknowledging the two consequences that cannot be undone. Its research changed the design — the "notice a file is open in an editor" requirement cannot be met by checking descriptors, because editors hold none on files open in tabs, so it became a recency warning that states its own limit with reconciliation as the real safety net.
+`lifecycle.md` is now complete, and with it the gap the audit found: a folder's files can be brought under management, a file can be released from it, and sealing is gated on acknowledging the two consequences that cannot be undone. Its research changed the design — the "notice a file is open in an editor" requirement cannot be met by checking descriptors, because editors hold none on files open in tabs, so reconciliation after the fact became the real safety net, with recency only ever advisory.
 
 `ui/` is complete: the frontend, every screen, and the supervised password change, designed from a survey of the products this interface will be judged against rather than invented. Seventy-six interface tests alongside the Rust suite, with each load-bearing rule confirmed by reintroducing the exact defect it prevents — including two that comparable products actually shipped.
 

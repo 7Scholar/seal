@@ -148,10 +148,16 @@ describe("editing a file with hundreds of variables", () => {
     }
   });
 
-  it("states the variable count on the surface", async () => {
-    const count = await $(".env-editor .surface__count").getText();
-    if (count.trim() !== `${VARIABLES} variables`) {
-      throw new Error(`the surface states "${count}" rather than the true count`);
+  it("draws a line for every variable, and states no count", async () => {
+    const shape = await browser.execute(() => ({
+      rows: document.querySelectorAll(".env-editor__row").length,
+      count: document.querySelector(".env-editor .surface__count") !== null,
+    }));
+    if (shape.rows !== VARIABLES) {
+      throw new Error(`${shape.rows} rows drawn for ${VARIABLES} variables`);
+    }
+    if (shape.count) {
+      throw new Error("the surface states a variable count, which the rows already are");
     }
   });
 });

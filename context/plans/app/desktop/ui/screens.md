@@ -12,7 +12,9 @@ The behaviour is fixed by [the interface Approach](README.md) and the [research]
 
 Three shared components exist because their rules are easy to violate independently in every screen that needs them.
 
-**The secret value control** holds the reveal contract: the masked text, a toggle whose state lives in `aria-pressed` rather than in its label or its glyph, an accessible name that names its variable so rows are distinguishable, a live announcement of the state, and copy offered only once a value is actually revealed. Every one of those is a separate assertion, because a surveyed product shipped this control with state conveyed by icon alone — twice.
+**The secret value control** holds the reveal contract: the masked text, a toggle whose state lives in `aria-pressed` rather than in its label or its glyph, an accessible name that names its variable so rows are distinguishable, and a live announcement of the state. Every one of those is a separate assertion, because a surveyed product shipped this control with state conveyed by icon alone — twice.
+
+**The value itself is now that control** ([navigation/editing/value-as-button.md](navigation/editing/value-as-button.md)): one press reveals, a second edits, and **Escape** puts a revealed value back. There is no copy control — the design removed it, and this tree had already recorded that its clipboard had no timer, which is a hole rather than a feature. A revealed value is selectable text instead, so the operating system's own copy still reaches it and no untimed clipboard write is ours.
 
 **The broken-seal statement** is one component used wherever the condition can appear, so the two surfaces that draw it cannot say different things. It appears only for a genuine divergence, it has no dismiss control of any kind, the row carrying it offers the seal beside it, and it says to rotate — because sealing cannot undo an exposure that already happened. It replaced a banner above the list, which stated the same thing a second time and further from the file it was about.
 

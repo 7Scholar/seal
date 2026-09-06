@@ -118,7 +118,8 @@ describe("stepping away: held plaintext expires on its own", () => {
     });
     await $('button[aria-label="Reveal value for API_KEY"]').click();
     await expect($(".secret-value__text")).toHaveText(SECRET);
-    await $('button[aria-label="Reveal value for API_KEY"]').click();
+    await browser.keys("Escape");
+    await expect($('button[aria-label="Reveal value for API_KEY"]')).toBeDisplayed();
   });
 
   it("lets the held plaintext expire while the user is away", async () => {
@@ -139,7 +140,7 @@ describe("stepping away: held plaintext expires on its own", () => {
     const toggle = $('button[aria-label="Reveal value for API_KEY"]');
     await toggle.waitForClickable({ timeout: 30000 });
     await toggle.click();
-    await expect($(".secret-value__text[data-revealed='true']")).toBeDisplayed();
+    await expect($('.secret-value__button[data-revealed="true"]')).toBeDisplayed();
 
     await browser.pause((LIFETIME_SECONDS + 2) * 1000);
 
@@ -175,10 +176,7 @@ describe("stepping away: held plaintext expires on its own", () => {
 
   it("locks rather than leaving the user at a dead end, and says why", async () => {
     const toggle = $('button[aria-label="Reveal value for API_KEY"]');
-    if ((await toggle.getAttribute("aria-pressed")) === "true") {
-      await toggle.click();
-    }
-    await expect(toggle).toHaveAttribute("aria-pressed", "false");
+    await toggle.waitForClickable({ timeout: 30000 });
     await toggle.click();
 
     await $('[data-surface="unlock"][data-mode="verify"]').waitForDisplayed({ timeout: 15000 });

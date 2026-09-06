@@ -142,7 +142,7 @@ describe("settling in: a file with no editor, and coming back to add more", () =
         `the surface does not say the file is stored as-is: "${explanation}"`,
       );
     }
-    await expect($(".opaque .file-head__state")).toHaveText("Sealed");
+    expect(await $(".opaque .file-head__bar").getAttribute("data-state")).toBe("sealed");
   });
 
   it("leaves the non-env file byte-for-byte intact through the round trip", async () => {

@@ -62,6 +62,23 @@ async function menu(user: ReturnType<typeof userEvent.setup>, key: string, item:
   await user.click(screen.getByRole("button", { name: item }));
 }
 
+async function openValue(
+  user: ReturnType<typeof userEvent.setup>,
+  key: string,
+) {
+  await user.click(screen.getByRole("button", { name: `Reveal value for ${key}` }));
+  await user.click(await screen.findByRole("button", { name: `Edit ${key}` }));
+  return screen.findByRole("textbox", { name: `Value for ${key}` });
+}
+
+async function commentOut(
+  user: ReturnType<typeof userEvent.setup>,
+  key: string,
+) {
+  await user.click(screen.getByRole("button", { name: `More actions for ${key}` }));
+  await user.click(screen.getByRole("switch", { name: new RegExp(`^${key} is `) }));
+}
+
 describe("EnvEditor", () => {
   it("shows every variable masked and no value on open", () => {
     setup();
@@ -77,7 +94,7 @@ describe("EnvEditor", () => {
     await user.click(screen.getByRole("button", { name: "Reveal value for API_KEY" }));
 
     expect(onReveal).toHaveBeenCalledOnce();
-    expect(onReveal).toHaveBeenCalledWith(2, "API_KEY");
+    expect(onReveal).toHaveBeenCalledWith(2, "API_KEY", "reveal");
     expect(await screen.findByText("sk-live-42")).toBeInTheDocument();
     expect(screen.queryByText("postgres://real")).not.toBeInTheDocument();
   });
@@ -99,8 +116,7 @@ describe("EnvEditor", () => {
     const user = userEvent.setup();
     setup();
 
-    await user.click(screen.getByRole("button", { name: "Edit API_KEY" }));
-    const field = await screen.findByRole("textbox", { name: "Value for API_KEY" });
+        const field = await openValue(user, "API_KEY");
     await user.clear(field);
     await user.type(field, "rotated");
 
@@ -111,8 +127,7 @@ describe("EnvEditor", () => {
     const user = userEvent.setup();
     const { onSave } = setup();
 
-    await user.click(screen.getByRole("button", { name: "Edit API_KEY" }));
-    const field = await screen.findByRole("textbox", { name: "Value for API_KEY" });
+        const field = await openValue(user, "API_KEY");
     await user.clear(field);
     await user.type(field, "rotated");
     await user.click(screen.getByRole("button", { name: "Save and seal" }));
@@ -126,8 +141,7 @@ describe("EnvEditor", () => {
     const user = userEvent.setup();
     const { rerender, saved } = setup();
 
-    await user.click(screen.getByRole("button", { name: "Edit API_KEY" }));
-    const field = await screen.findByRole("textbox", { name: "Value for API_KEY" });
+        const field = await openValue(user, "API_KEY");
     await user.clear(field);
     await user.type(field, "rotated");
     await user.click(screen.getByRole("button", { name: "Save and seal" }));
@@ -168,8 +182,7 @@ describe("EnvEditor", () => {
     const user = userEvent.setup();
     setup();
 
-    await user.click(screen.getByRole("button", { name: "Edit API_KEY" }));
-    const field = await screen.findByRole("textbox", { name: "Value for API_KEY" });
+        const field = await openValue(user, "API_KEY");
 
     expect(field).toHaveAttribute("spellcheck", "false");
     expect(field).toHaveAttribute("autocomplete", "off");
@@ -313,13 +326,13 @@ describe("EnvEditor: renaming and toggling", () => {
       ],
     });
 
-    expect(screen.getByRole("switch", { name: /LIVE is enabled/ })).toHaveAttribute(
-      "aria-checked",
+    expect(screen.queryByRole("switch")).not.toBeInTheDocument();
+    expect(screen.getByText("PAUSED").closest("li")).toHaveAttribute(
+      "data-disabled",
       "true",
     );
-    expect(screen.getByRole("switch", { name: /PAUSED is disabled/ })).toHaveAttribute(
-      "aria-checked",
-      "false",
+    expect(screen.getByText("LIVE").closest("li")).not.toHaveAttribute(
+      "data-disabled",
     );
   });
 
@@ -332,7 +345,7 @@ describe("EnvEditor: renaming and toggling", () => {
     expect(screen.getByText(MASK)).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Reveal value for API_KEY" }));
 
-    expect(onReveal).toHaveBeenCalledWith(2, "API_KEY");
+    expect(onReveal).toHaveBeenCalledWith(2, "API_KEY", "reveal");
     expect(await screen.findByText("sk-live-42")).toBeInTheDocument();
   });
 
@@ -340,7 +353,7 @@ describe("EnvEditor: renaming and toggling", () => {
     const user = userEvent.setup();
     const { onSave } = setup();
 
-    await user.click(screen.getByRole("switch", { name: /API_KEY is enabled/ }));
+    await commentOut(user, "API_KEY");
     await user.click(screen.getByRole("button", { name: "Save and seal" }));
 
     expect(onSave).toHaveBeenCalledWith([
@@ -352,8 +365,8 @@ describe("EnvEditor: renaming and toggling", () => {
     const user = userEvent.setup();
     setup();
 
-    await user.click(screen.getByRole("switch", { name: /API_KEY is enabled/ }));
-    await user.click(screen.getByRole("switch", { name: /API_KEY is disabled/ }));
+    await commentOut(user, "API_KEY");
+    await commentOut(user, "API_KEY");
 
     expect(screen.getByRole("button", { name: "Save and seal" })).toBeDisabled();
   });
@@ -454,7 +467,7 @@ describe("EnvEditor, when saving fails", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Edit API_KEY" }));
+    await openValue(user, "API_KEY");
     await user.clear(screen.getByLabelText("Value for API_KEY"));
     await user.type(screen.getByLabelText("Value for API_KEY"), "rotated");
     await user.click(screen.getByRole("button", { name: "Save and seal" }));
@@ -535,11 +548,11 @@ describe("EnvEditor, when saving fails", () => {
 });
 
 describe("EnvEditor's footer", () => {
-  it("offers exactly Cancel and Save, and nothing else", () => {
+  it("offers only Save while nothing has changed, because leaving is the trail's job", () => {
     setup();
     const footer = document.querySelector(".env-editor__actions")!;
     const labels = [...footer.querySelectorAll("button")].map((b) => b.textContent);
-    expect(labels).toEqual(["Cancel", "Save and seal"]);
+    expect(labels).toEqual(["Save and seal"]);
   });
 
   it("says Save and seal on a sealed file, and Save on a readable one", () => {
@@ -562,28 +575,33 @@ describe("EnvEditor's footer", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("keeps Cancel enabled even with nothing to discard", () => {
+  it("offers nothing to discard when nothing has changed, and no way to save", () => {
     setup();
-    expect(screen.getByRole("button", { name: "Cancel" })).toBeEnabled();
+    expect(screen.queryByRole("button", { name: "Discard" })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Save and seal" })).toBeDisabled();
   });
 
-  it("leaves immediately on Cancel when nothing has changed", async () => {
+  it("says how many changes are pending, and nothing when there are none", async () => {
     const user = userEvent.setup();
-    const { onLeave } = setup();
+    setup();
 
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    const status = screen.getByRole("status", { name: "Unsaved changes" });
+    expect(status).toHaveTextContent("No unsaved changes");
+    expect(status).toHaveAttribute("data-dirty", "false");
 
-    expect(onLeave).toHaveBeenCalledOnce();
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    const field = await openValue(user, "API_KEY");
+    await user.type(field, "x");
+    expect(status).toHaveTextContent("1 unsaved change");
+    expect(status).toHaveAttribute("data-dirty", "true");
   });
 
   it("asks before discarding pending changes, and leaves only on confirming", async () => {
     const user = userEvent.setup();
     const { onLeave } = setup();
 
-    await user.click(screen.getByRole("button", { name: "Edit API_KEY" }));
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    const field = await openValue(user, "API_KEY");
+    await user.type(field, "x");
+    await user.click(screen.getByRole("button", { name: "Discard" }));
 
     expect(onLeave).not.toHaveBeenCalled();
     const dialog = screen.getByRole("dialog");
@@ -597,8 +615,9 @@ describe("EnvEditor's footer", () => {
     const user = userEvent.setup();
     const { onLeave } = setup();
 
-    await user.click(screen.getByRole("button", { name: "Edit API_KEY" }));
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    const field = await openValue(user, "API_KEY");
+    await user.type(field, "x");
+    await user.click(screen.getByRole("button", { name: "Discard" }));
     await user.click(screen.getByRole("button", { name: "Keep editing" }));
 
     expect(onLeave).not.toHaveBeenCalled();
@@ -607,6 +626,30 @@ describe("EnvEditor's footer", () => {
 });
 
 describe("EnvEditor resuming after a re-lock", () => {
+  it("comes back revealed, not editing, when that is what the user was doing", async () => {
+    const onReveal = vi.fn(async () => encode("sk-live-42"));
+    render(
+      <EnvEditor
+        file={file}
+        relativePath=".env.production"
+        state="sealed"
+        resumeEditing="API_KEY"
+        resumeIntent="reveal"
+        onReveal={onReveal}
+        onSave={vi.fn(async () => {})}
+        onSeal={vi.fn()}
+        onUnseal={vi.fn()}
+        onLeave={vi.fn()}
+      />,
+    );
+
+    expect(await screen.findByText("sk-live-42")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("textbox", { name: "Value for API_KEY" }),
+    ).not.toBeInTheDocument();
+    expect(onReveal).toHaveBeenCalledWith(2, "API_KEY", "reveal");
+  });
+
   it("reopens the row the user had been editing", async () => {
     const onReveal = vi.fn(async () => encode("sk-live-42"));
     render(
@@ -626,7 +669,7 @@ describe("EnvEditor resuming after a re-lock", () => {
     expect(
       await screen.findByRole("textbox", { name: "Value for API_KEY" }),
     ).toHaveValue("sk-live-42");
-    expect(onReveal).toHaveBeenCalledWith(2, "API_KEY");
+    expect(onReveal).toHaveBeenCalledWith(2, "API_KEY", "edit");
   });
 
   it("resumes nothing when no row was being edited", () => {
@@ -707,8 +750,7 @@ describe("EnvEditor: a save that destroys", () => {
     const user = userEvent.setup();
     const { onSave } = setup();
 
-    await user.click(screen.getByRole("button", { name: "Edit API_KEY" }));
-    const field = await screen.findByRole("textbox", { name: "Value for API_KEY" });
+        const field = await openValue(user, "API_KEY");
     await user.clear(field);
     await user.type(field, "rotated");
     await user.click(screen.getByRole("button", { name: "Save and seal" }));
@@ -727,7 +769,7 @@ describe("EnvEditor: a save that destroys", () => {
       "TEMPORARY",
     );
     await menu(user, "TEMPORARY", "Delete");
-    await user.click(screen.getByRole("switch", { name: /API_KEY is enabled/ }));
+    await commentOut(user, "API_KEY");
     await user.click(screen.getByRole("button", { name: "Save and seal" }));
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -842,7 +884,7 @@ describe("EnvEditor: reordering", () => {
 });
 
 describe("EnvEditor: the row's density", () => {
-  it("keeps at most three controls in the row itself", () => {
+  it("keeps exactly two controls in the row itself: the value, and the menu", () => {
     setup();
 
     const row = screen.getByText("API_KEY").closest("li") as HTMLElement;
@@ -850,12 +892,11 @@ describe("EnvEditor: the row's density", () => {
       (button) => !button.closest(".overflow__menu"),
     );
 
-    expect(inRow.length).toBeLessThanOrEqual(4);
     const names = inRow.map((b) => b.getAttribute("aria-label") ?? b.textContent);
-    expect(names.some((n) => n?.includes("Reveal"))).toBe(true);
-    expect(names.some((n) => n?.startsWith("Edit"))).toBe(true);
-    expect(names.some((n) => n?.includes("is enabled"))).toBe(true);
-    expect(names.some((n) => n?.includes("More actions"))).toBe(true);
+    expect(names).toEqual([
+      "Reveal value for API_KEY",
+      "More actions for API_KEY",
+    ]);
   });
 
   it("keeps the destructive verb out of the row, behind the menu", async () => {
@@ -940,8 +981,7 @@ describe("EnvEditor: the row's density", () => {
     const row = screen.getByText("API_KEY").closest("li") as HTMLElement;
     expect(row.className).not.toContain("editing");
 
-    await user.click(screen.getByRole("button", { name: "Edit API_KEY" }));
-    await screen.findByRole("textbox", { name: "Value for API_KEY" });
+    await openValue(user, "API_KEY");
 
     const editing = screen.getByLabelText("Value for API_KEY").closest("li") as HTMLElement;
     expect(editing.className).toContain("editing");

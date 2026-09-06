@@ -6,10 +6,8 @@ export function FileOpening({ relativePath }: OpeningProps) {
   return (
     <section className="env-editor env-editor--bare" aria-busy="true">
       <header className="file-head">
-        <div className="file-head__text">
-          <p className="file-head__path">{relativePath}</p>
-        </div>
-        <span className="file-head__state">Opening…</span>
+        <span className="file-head__bar" />
+        <p className="file-head__path">{relativePath}</p>
       </header>
 
       <div className="env-editor__region">
@@ -37,9 +35,8 @@ export function FileFailed({ relativePath, why, onRetry, onBack }: FailedProps) 
   return (
     <section className="env-editor env-editor--bare">
       <header className="file-head">
-        <div className="file-head__text">
-          <p className="file-head__path">{relativePath}</p>
-        </div>
+        <span className="file-head__bar" />
+        <p className="file-head__path">{relativePath}</p>
       </header>
 
       <div className="env-editor__region">

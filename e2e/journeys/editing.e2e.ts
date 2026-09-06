@@ -85,13 +85,30 @@ describe("managing environment variables in Seal", () => {
   });
 
   it("draws a commented-out assignment as a disabled variable, not a comment", async () => {
-    const toggle = $('button[aria-label*="PAUSED_FLAG is disabled"]');
-    if (!(await toggle.isDisplayed().catch(() => false))) {
+    const marked = await browser.execute(() => {
+      const row = [...document.querySelectorAll(".env-editor__row")].find((candidate) =>
+        candidate.textContent?.includes("PAUSED_FLAG"),
+      );
+      return row ? row.getAttribute("data-disabled") : null;
+    });
+    if (marked === null) {
       throw new Error("the commented-out variable did not become a row");
     }
-    if ((await toggle.getAttribute("aria-checked")) !== "false") {
-      throw new Error("a disabled variable must report itself unchecked");
+    if (marked !== "true") {
+      throw new Error("a commented-out variable must draw itself as one");
     }
+
+    const trigger = $('button[aria-label="More actions for PAUSED_FLAG"]');
+    await trigger.waitForClickable({ timeout: 10000 });
+    await trigger.click();
+    const toggle = $('button[aria-label*="PAUSED_FLAG is commented out"]');
+    if (!(await toggle.isDisplayed().catch(() => false))) {
+      throw new Error("the row menu offers no way to bring it back");
+    }
+    if ((await toggle.getAttribute("aria-checked")) !== "true") {
+      throw new Error("a commented-out variable must report itself as such");
+    }
+    await browser.keys("Escape");
   });
 
   it("keeps a disabled variable's value masked like any other secret", async () => {
@@ -157,7 +174,7 @@ describe("managing environment variables in Seal", () => {
     await rename.clearValue();
     await rename.setValue("STRIPE_KEY");
 
-    await $('button[aria-label*="PAUSED_FLAG is disabled"]').click();
+    await menu("PAUSED_FLAG", "Uncomment");
 
     await $("button=Add variable").click();
     const naming = $('input[aria-label*="Name for the new variable"]');

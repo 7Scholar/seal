@@ -349,7 +349,12 @@ describe("the application shell", () => {
       repos[1]!,
     ]);
 
-    await user.click(screen.getByRole("button", { name: "Edit API_KEY" }));
+    await user.click(screen.getByRole("button", { name: "Reveal value for API_KEY" }));
+    await user.click(await screen.findByRole("button", { name: "Edit API_KEY" }));
+    await user.type(
+      await screen.findByRole("textbox", { name: "Value for API_KEY" }),
+      "-rotated",
+    );
     await user.click(screen.getByRole("button", { name: /^Save/ }));
 
     await waitFor(() => {
@@ -644,7 +649,7 @@ describe("the theme control", () => {
     await screen.findByText("API_KEY");
   });
 
-  it("states the file's variable count, in the singular and the plural", async () => {
+  it("states no variable count on the file surface, because the rows are the count", async () => {
     const user = userEvent.setup();
     mocked.openFile.mockResolvedValue({
       kind: "env",
@@ -662,25 +667,8 @@ describe("the theme control", () => {
     await user.click(screen.getByRole("button", { name: "Open .env" }));
 
     await screen.findByText("API_KEY");
-    expect(document.querySelector(".env-editor .surface__count")).toHaveTextContent(
-      "2 variables",
-    );
-
-    await user.click(screen.getByRole("button", { name: "app" }));
-    mocked.openFile.mockResolvedValue({
-      kind: "env",
-      path: "/code/app/.env",
-      variables: [{ id: 1, key: "API_KEY", masked: "••••••••", empty: false, disabled: false }],
-      duplicateKeys: [],
-      malformed: [],
-      unparseableLines: 0,
-    });
-    await user.click(screen.getByRole("button", { name: "Open .env" }));
-
-    await screen.findByText("API_KEY");
-    expect(document.querySelector(".env-editor .surface__count")).toHaveTextContent(
-      "1 variable",
-    );
+    expect(document.querySelector(".env-editor .surface__count")).toBeNull();
+    expect(screen.queryByText(/^\d+ variables?$/)).toBeNull();
   });
 
   it("keeps the save control out of the scrolling region, whatever the file holds", async () => {
@@ -742,7 +730,7 @@ describe("an expired file met mid-task", () => {
     await openTheFile(user);
 
     mocked.reveal.mockRejectedValue({ kind: "notOpen", path: null });
-    await user.click(screen.getByRole("button", { name: "Edit API_KEY" }));
+    await user.click(screen.getByRole("button", { name: "Reveal value for API_KEY" }));
 
     expect(await screen.findByText("Type your master password, then press Enter.")).toBeInTheDocument();
     expect(screen.getByText(/pick up where you left off/)).toBeInTheDocument();
@@ -753,16 +741,14 @@ describe("an expired file met mid-task", () => {
     await openTheFile(user);
 
     mocked.reveal.mockRejectedValueOnce({ kind: "notOpen", path: null });
-    await user.click(screen.getByRole("button", { name: "Edit API_KEY" }));
+    await user.click(screen.getByRole("button", { name: "Reveal value for API_KEY" }));
     await screen.findByText("Type your master password, then press Enter.");
 
     mocked.unlock.mockResolvedValue(undefined);
     mocked.reveal.mockResolvedValue(new TextEncoder().encode("sk-live"));
     await enterUnlockPassword(user);
 
-    expect(
-      await screen.findByRole("textbox", { name: "Value for API_KEY" }),
-    ).toHaveValue("sk-live");
+    expect(await screen.findByText("sk-live")).toBeInTheDocument();
   });
 
   it("does not resume anything when the lock was the user's own doing", async () => {

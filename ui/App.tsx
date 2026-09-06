@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import * as ipc from "./ipc";
 import { explain, reason } from "./errors";
 import { Acknowledge } from "./screens/Acknowledge";
-import { EnvEditor } from "./screens/EnvEditor";
+import { EnvEditor, type Intent } from "./screens/EnvEditor";
 import { FileOpening, FileFailed } from "./screens/FileStates";
 import { ManageFlow } from "./screens/ManageFlow";
 import { RepoDetail, filePath, type Outcomes } from "./screens/RepoDetail";
@@ -35,6 +35,7 @@ interface Resume {
   root: string;
   path: string;
   editing?: string;
+  intent?: Intent;
 }
 
 type Opened =
@@ -62,6 +63,7 @@ export function App() {
   const [expired, setExpired] = useState(false);
   const [resume, setResume] = useState<Resume | null>(null);
   const [resuming, setResuming] = useState<string | null>(null);
+  const [resumingIntent, setResumingIntent] = useState<Intent>("edit");
 
   const refresh = useCallback(async () => {
     try {
@@ -380,6 +382,7 @@ export function App() {
               const target = resume;
               setResume(null);
               setResuming(target.editing ?? null);
+              setResumingIntent(target.intent ?? "edit");
               void goToFile(target.root, target.path);
             }
           }}
@@ -635,7 +638,7 @@ export function App() {
             relativePath={openedRelativePath}
             state={openedState}
             expired={expired}
-            onReveal={async (row, key) => {
+            onReveal={async (row, key, intent) => {
               try {
                 return await ipc.reveal(opened.file.path, row);
               } catch (error) {
@@ -643,6 +646,7 @@ export function App() {
                   root: route.root,
                   path: route.path,
                   editing: key,
+                  intent,
                 });
                 throw error;
               }
@@ -663,6 +667,7 @@ export function App() {
               }
             }}
             resumeEditing={resuming}
+            resumeIntent={resumingIntent}
             onResumed={() => setResuming(null)}
             onSeal={() => seal(opened.file.path)}
             onUnseal={() => void unseal([opened.file.path])}
@@ -673,12 +678,22 @@ export function App() {
         {route.at === "file" && opened?.kind === "opaque" ? (
           <section className="opaque">
             <header className="file-head">
-              <div className="file-head__text">
-                <p className="file-head__path">{openedRelativePath}</p>
-              </div>
-              <span className="file-head__state" data-state={openedState}>
-                {openedState === "sealed" ? "Sealed" : "Readable"}
-              </span>
+              <span className="file-head__bar" data-state={openedState} />
+              <p className="file-head__path">{openedRelativePath}</p>
+              {openedState === "sealed" ? (
+                <button
+                  type="button"
+                  onClick={() => void unseal([opened.path])}
+                >
+                  <Icon name="unlock" />
+                  Unseal
+                </button>
+              ) : (
+                <button type="button" onClick={() => void seal(opened.path)}>
+                  <Icon name="lock" />
+                  Seal
+                </button>
+              )}
             </header>
             <p>
               Seal manages this file and encrypts it as it is. It is not an env

@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { browser, $, expect } from "@wdio/globals";
-import { sealFromRow } from "./rows";
+import { editVariable, sealFromRow } from "./rows";
 import { enterPassphrase, typeInto } from "./typing";
 
 const PASSWORD = "correct horse battery staple";
@@ -123,16 +123,15 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
     }
   });
 
-  it("reveals a value only on request", async () => {
+  it("reveals a value only on request, and puts it back on Escape", async () => {
     await $('button[aria-label="Reveal value for API_KEY"]').click();
     await expect($("span=sk-live-1234567890abcdef")).toBeDisplayed();
-    await $('button[aria-label="Reveal value for API_KEY"]').click();
+    await browser.keys("Escape");
     await expect($("span=••••••••")).toBeDisplayed();
   });
 
   it("edits a value; saving re-seals in place and clears the dirty count", async () => {
-    await $('button[aria-label="Edit API_KEY"]').click();
-    const field = $('input[aria-label="Value for API_KEY"]');
+    const field = await editVariable("API_KEY");
     await field.setValue("sk-live-rotated-value");
     await expect(
       $('[role="status"][aria-label="Unsaved changes"]'),

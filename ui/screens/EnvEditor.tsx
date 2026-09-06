@@ -3,8 +3,11 @@ import { Confirm } from "../components/Confirm";
 import { Overflow } from "../components/Overflow";
 import { RowToolbar } from "../components/RowToolbar";
 import { SecretValue } from "../components/SecretValue";
+import { Icon } from "../components/Icon";
 import { decodeSecret } from "../format";
 import type { EditOp, EnvView, SealedState } from "../ipc";
+
+export type Intent = "reveal" | "edit";
 
 interface Props {
   file: EnvView;
@@ -12,7 +15,8 @@ interface Props {
   state: SealedState;
   expired?: boolean;
   resumeEditing?: string | null;
-  onReveal: (row: number, key: string) => Promise<Uint8Array>;
+  resumeIntent?: Intent;
+  onReveal: (row: number, key: string, intent: Intent) => Promise<Uint8Array>;
   onSave: (ops: EditOp[]) => Promise<void>;
   onSeal: () => void | Promise<void>;
   onUnseal: () => void | Promise<void>;
@@ -20,12 +24,10 @@ interface Props {
   onResumed?: () => void;
 }
 
-const STATE_LABELS: Record<SealedState, string> = {
-  sealed: "Sealed",
-  plaintext: "Readable",
-  missing: "Not found",
-  unknown: "Unknown",
-};
+function directoryOf(relativePath: string) {
+  const cut = relativePath.lastIndexOf("/");
+  return cut === -1 ? "" : `${relativePath.slice(0, cut)}/`;
+}
 
 interface Draft {
   id: number;
@@ -203,6 +205,7 @@ export function EnvEditor({
   state,
   expired = false,
   resumeEditing = null,
+  resumeIntent = "edit",
   onReveal,
   onSave,
   onSeal,
@@ -260,12 +263,14 @@ export function EnvEditor({
     let cancelled = false;
     void (async () => {
       try {
-        const bytes = await onReveal(target.id, target.key);
+        const bytes = await onReveal(target.id, target.key, resumeIntent);
         if (cancelled) return;
         const value = decodeSecret(bytes);
-        setDraft((current) =>
-          current.map((row) => (row.id === target.id ? { ...row, value } : row)),
-        );
+        if (resumeIntent === "edit") {
+          setDraft((current) =>
+            current.map((row) => (row.id === target.id ? { ...row, value } : row)),
+          );
+        }
         setRevealed((current) => ({ ...current, [target.id]: value }));
       } catch {
         return;
@@ -276,11 +281,11 @@ export function EnvEditor({
     return () => {
       cancelled = true;
     };
-  }, [resumeEditing, file.path]);
+  }, [resumeEditing, resumeIntent, file.path]);
 
   async function reveal(row: Draft) {
     try {
-      const bytes = await onReveal(row.id, row.key);
+      const bytes = await onReveal(row.id, row.key, "reveal");
       setHidNote(false);
       setRevealed((current) => ({ ...current, [row.id]: decodeSecret(bytes) }));
     } catch {
@@ -305,7 +310,8 @@ export function EnvEditor({
   async function beginEdit(row: Draft) {
     if (row.value !== null) return;
     try {
-      const current = revealed[row.id] ?? decodeSecret(await onReveal(row.id, row.key));
+      const current =
+        revealed[row.id] ?? decodeSecret(await onReveal(row.id, row.key, "edit"));
       change(row.id, { value: current });
       setRevealed((existing) => ({ ...existing, [row.id]: current }));
     } catch {
@@ -403,30 +409,20 @@ export function EnvEditor({
     }
   }
 
-  const visible = draft.filter((row) => !row.removed);
-  const count =
-    visible.length === 0
-      ? null
-      : visible.length === 1
-        ? "1 variable"
-        : `${visible.length} variables`;
 
   return (
     <section className="env-editor">
       <header className="file-head">
-        <div className="file-head__text">
-          <p className="file-head__path">{relativePath}</p>
-        </div>
-        {count ? <span className="surface__count">{count}</span> : null}
-        <span className="file-head__state" data-state={state}>
-          {STATE_LABELS[state]}
-        </span>
+        <span className="file-head__bar" data-state={state} />
+        <p className="file-head__path">{directoryOf(relativePath)}</p>
         {state === "sealed" ? (
           <button type="button" onClick={() => onUnseal()}>
+            <Icon name="unlock" />
             Unseal
           </button>
         ) : (
           <button type="button" onClick={() => onSeal()}>
+            <Icon name="lock" />
             Seal
           </button>
         )}
@@ -558,31 +554,11 @@ export function EnvEditor({
                     revealed={revealed[row.id] ?? null}
                     onReveal={() => reveal(row)}
                     onConceal={() => conceal(row.id)}
+                    onEdit={() => beginEdit(row)}
                   />
                 )}
 
                   <span className="env-editor__buttons">
-                  {row.value === null ? (
-                    <button
-                      type="button"
-                      aria-label={`Edit ${row.key}`}
-                      onClick={() => void beginEdit(row)}
-                    >
-                      Edit
-                    </button>
-                  ) : null}
-
-                  <button
-                    type="button"
-                    role="switch"
-                    className="env-editor__switch"
-                    aria-checked={!row.disabled}
-                    aria-label={`${row.key} is ${row.disabled ? "disabled" : "enabled"}`}
-                    onClick={() => change(row.id, { disabled: !row.disabled })}
-                  >
-                    {row.disabled ? "Disabled" : "Enabled"}
-                  </button>
-
                   <Overflow label={`More actions for ${row.key || "the new variable"}`}>
                     {!row.created ? (
                       <button type="button" onClick={() => setEditingKey(row.id)}>
@@ -592,6 +568,16 @@ export function EnvEditor({
 
                     <button type="button" onClick={() => duplicate(row)}>
                       Duplicate
+                    </button>
+
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={row.disabled}
+                      aria-label={`${row.key} is ${row.disabled ? "commented out" : "live"}`}
+                      onClick={() => change(row.id, { disabled: !row.disabled })}
+                    >
+                      {row.disabled ? "Uncomment" : "Comment out"}
                     </button>
 
                     {canMove(draft, row.id, -1) ? (
@@ -654,6 +640,7 @@ export function EnvEditor({
 
           <li className="env-editor__add">
             <button type="button" onClick={addRow}>
+              <Icon name="plus" />
               Add variable
             </button>
           </li>
@@ -661,20 +648,28 @@ export function EnvEditor({
       </div>
 
       <footer className="env-editor__actions">
-        <span role="status" aria-label="Unsaved changes" className="env-editor__dirty">
+        <span
+          role="status"
+          aria-label="Unsaved changes"
+          className="env-editor__dirty"
+          data-dirty={isDirty}
+        >
           {isDirty
             ? `${ops.length} unsaved ${ops.length === 1 ? "change" : "changes"}`
             : "No unsaved changes"}
         </span>
-        <button type="button" onClick={() => (isDirty ? setDiscarding(true) : onLeave())}>
-          Cancel
-        </button>
+        {isDirty ? (
+          <button type="button" onClick={() => setDiscarding(true)}>
+            Discard
+          </button>
+        ) : null}
         <button
           type="button"
           className="button--primary"
           disabled={!isDirty || saving || invalid}
           onClick={requestSave}
         >
+          {state === "sealed" ? <Icon name="lock" /> : null}
           {state === "sealed" ? "Save and seal" : "Save"}
         </button>
       </footer>

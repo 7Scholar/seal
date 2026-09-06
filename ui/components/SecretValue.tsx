@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { MASK } from "../format";
+import { Icon } from "./Icon";
 
 interface Props {
   variableName: string;
   revealed: string | null;
   onReveal: () => void | Promise<void>;
   onConceal: () => void;
-  onCopy?: (value: string) => void | Promise<void>;
+  onEdit: () => void | Promise<void>;
 }
 
 export function SecretValue({
@@ -14,14 +15,15 @@ export function SecretValue({
   revealed,
   onReveal,
   onConceal,
-  onCopy,
+  onEdit,
 }: Props) {
   const [busy, setBusy] = useState(false);
   const isRevealed = revealed !== null;
 
-  async function toggle() {
+  async function press() {
+    if (busy) return;
     if (isRevealed) {
-      onConceal();
+      await onEdit();
       return;
     }
     setBusy(true);
@@ -33,38 +35,33 @@ export function SecretValue({
   }
 
   return (
-    <div className="secret-value">
-      <span className="secret-value__text" data-revealed={isRevealed}>
-        {isRevealed ? revealed : MASK}
-      </span>
-
+    <span className="secret-value">
       <button
         type="button"
-        className="secret-value__toggle"
+        className="secret-value__button"
+        data-revealed={isRevealed}
         aria-pressed={isRevealed}
-        aria-label={`Reveal value for ${variableName}`}
-        disabled={busy}
-        onClick={toggle}
+        aria-label={
+          isRevealed ? `Edit ${variableName}` : `Reveal value for ${variableName}`
+        }
+        aria-busy={busy || undefined}
+        onClick={press}
+        onKeyDown={(event) => {
+          if (event.key === "Escape" && isRevealed) {
+            event.stopPropagation();
+            onConceal();
+          }
+        }}
       >
-        {isRevealed ? "Hide" : "Reveal"}
+        <span className="secret-value__text">{isRevealed ? revealed : MASK}</span>
+        {isRevealed ? null : <Icon name="eye" className="secret-value__eye" />}
       </button>
-
-      {isRevealed && onCopy ? (
-        <button
-          type="button"
-          className="secret-value__copy"
-          aria-label={`Copy value for ${variableName}`}
-          onClick={() => onCopy(revealed)}
-        >
-          Copy
-        </button>
-      ) : null}
 
       <span className="visually-hidden" role="status">
         {isRevealed
           ? `Value for ${variableName} is shown`
           : `Value for ${variableName} is hidden`}
       </span>
-    </div>
+    </span>
   );
 }

@@ -105,13 +105,19 @@ describe("managing readable files beside sealed ones", () => {
         (button) => button.textContent,
       ),
     );
-    expect(labels).toEqual(["Cancel", "Save"]);
+    expect(labels).toEqual(["Save"]);
   });
 
-  it("enables Save only once something has changed", async () => {
+  it("enables Save only once something has changed, and revealing is not a change", async () => {
     const save = $("button=Save");
     expect(await save.isEnabled()).toBe(false);
-    expect(await $("button=Cancel").isEnabled()).toBe(true);
+    expect(await $("button=Discard").isExisting()).toBe(false);
+
+    await $('button[aria-label="Reveal value for API_KEY"]').click();
+    await $('button[aria-label="Edit API_KEY"]').waitForClickable({ timeout: 15000 });
+    if (await save.isEnabled()) {
+      throw new Error("revealing a value marked the file dirty");
+    }
 
     await $('button[aria-label="Edit API_KEY"]').click();
     await $('input[aria-label="Value for API_KEY"]').waitForDisplayed({
@@ -122,8 +128,8 @@ describe("managing readable files beside sealed ones", () => {
     await save.waitForEnabled({ timeout: 10000 });
   });
 
-  it("asks before throwing away pending changes on Cancel", async () => {
-    await $("button=Cancel").click();
+  it("asks before throwing away pending changes on Discard", async () => {
+    await $("button=Discard").click();
 
     const dialog = $('[role="dialog"]');
     await dialog.waitForDisplayed({ timeout: 10000 });
@@ -138,7 +144,7 @@ describe("managing readable files beside sealed ones", () => {
   });
 
   it("leaves the file when the discard is confirmed", async () => {
-    await $("button=Cancel").click();
+    await $("button=Discard").click();
     await $('[role="dialog"]').waitForDisplayed({ timeout: 10000 });
     await $("button=Discard them").click();
 
@@ -152,7 +158,7 @@ describe("managing readable files beside sealed ones", () => {
     const header = $(".file-head");
     expect(await header.$("button=Seal").isDisplayed()).toBe(true);
 
-    await $("button=Cancel").click();
+    await $(`button*=${repoName()}`).click();
     await $(".lines").waitForDisplayed({ timeout: 30000 });
   });
 

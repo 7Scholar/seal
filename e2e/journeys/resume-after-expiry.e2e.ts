@@ -74,7 +74,7 @@ describe("coming back to a file whose plaintext expired while you were away", ()
 
     await browser.pause((LIFETIME_SECONDS + 2) * 1000);
 
-    await $('button[aria-label="Edit API_KEY"]').click();
+    await $('button[aria-label="Reveal value for API_KEY"]').click();
 
     await $('[data-surface="unlock"][data-mode="verify"]').waitForDisplayed({ timeout: 30000 });
     const status = $('[aria-label="Unlock status"]');
@@ -82,19 +82,22 @@ describe("coming back to a file whose plaintext expired while you were away", ()
     expect(await status.getText()).toContain("pick up where you left off");
   });
 
-  it("comes back to the same file and the same row on unlocking", async () => {
+  it("comes back to the same file and the same row on unlocking, revealed rather than editing", async () => {
     await enterPassphrase(PASSWORD);
 
-    const field = $('input[aria-label="Value for API_KEY"]');
-    await field.waitForDisplayed({ timeout: 30000 });
-    expect(await field.getValue()).toBe(SECRET);
+    const value = $('.secret-value__button[data-revealed="true"]');
+    await value.waitForDisplayed({ timeout: 30000 });
+    expect(await value.getText()).toBe(SECRET);
+    expect(await $('input[aria-label="Value for API_KEY"]').isExisting()).toBe(false);
 
     const crumb = $('nav[aria-label="Breadcrumb"] [aria-current="page"]');
     expect(await crumb.getText()).toBe(".env.production");
   });
 
-  it("can then save the edit it resumed, and the file stays sealed", async () => {
+  it("can then edit what it resumed, and the file stays sealed", async () => {
+    await $('button[aria-label="Edit API_KEY"]').click();
     const field = $('input[aria-label="Value for API_KEY"]');
+    await field.waitForDisplayed({ timeout: 15000 });
     await field.click();
     await browser.keys([
       ...Array(SECRET.length).fill("Backspace"),
@@ -110,6 +113,6 @@ describe("coming back to a file whose plaintext expired while you were away", ()
       async () => (await dirty.getText()) === "No unsaved changes",
       { timeout: 30000, timeoutMsg: "the save never settled" },
     );
-    expect(await $(".file-head__state").getText()).toBe("Sealed");
+    expect(await $(".file-head__bar").getAttribute("data-state")).toBe("sealed");
   });
 });

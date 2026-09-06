@@ -108,10 +108,14 @@ describe("the row's density in the real window", () => {
     const narrow = await browser.execute(() => {
       const rows = [...document.querySelectorAll(".env-editor__row")] as HTMLElement[];
       const row = rows[0] as HTMLElement;
-      const columns = window.getComputedStyle(row).gridTemplateColumns.split(" ").length;
+      const key = row.querySelector(".env-editor__key") as HTMLElement | null;
+      const value = row.querySelector(".secret-value") as HTMLElement | null;
       return {
         viewport: window.innerWidth,
-        columns,
+        stacked:
+          key !== null &&
+          value !== null &&
+          value.getBoundingClientRect().top >= key.getBoundingClientRect().bottom,
         heights: rows.slice(0, 3).map((r) => Math.round(r.getBoundingClientRect().height)),
         sideways: rows.some((r) => r.scrollWidth > r.clientWidth + 1),
       };
@@ -120,9 +124,9 @@ describe("the row's density in the real window", () => {
     if (narrow.sideways) {
       throw new Error(`a row scrolls sideways at ${narrow.viewport}px — content is unreachable`);
     }
-    if (narrow.columns !== 1) {
+    if (!narrow.stacked) {
       throw new Error(
-        `at ${narrow.viewport}px the row still has ${narrow.columns} columns rather than stacking`,
+        `at ${narrow.viewport}px the value still sits beside the key rather than stacking under it`,
       );
     }
     const uneven = narrow.heights.filter((h) => h > 110);
@@ -131,7 +135,7 @@ describe("the row's density in the real window", () => {
     }
   });
 
-  it("still shows the row's three controls, none hidden", async () => {
+  it("still shows the row's two controls, none hidden", async () => {
     const shape = await browser.execute(() => {
       const row = document.querySelector(".env-editor__row") as HTMLElement;
       const visible = [...row.querySelectorAll("button")].filter((button) => {
@@ -141,13 +145,13 @@ describe("the row's density in the real window", () => {
       return visible.map((b) => b.getAttribute("aria-label") ?? b.textContent);
     });
 
-    const wanted = ["Reveal", "Edit", "is enabled", "More actions"];
+    const wanted = ["Reveal", "More actions"];
     for (const needle of wanted) {
       if (!shape.some((name) => name?.includes(needle))) {
         throw new Error(`${needle} is not visible in the row; saw ${JSON.stringify(shape)}`);
       }
     }
-    if (shape.length > 4) {
+    if (shape.length > 2) {
       throw new Error(`the row still holds ${shape.length} controls: ${JSON.stringify(shape)}`);
     }
   });

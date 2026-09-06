@@ -143,24 +143,28 @@ describe("the bad day: ceremony where it belongs, and nowhere else", () => {
   });
 
   it("reveals and conceals a value with no confirmation, because it is reversible", async () => {
-    const reveal = $(".env-editor button[aria-label^='Reveal']");
-    await reveal.waitForClickable({ timeout: 30000 });
-    await reveal.click();
+    const value = $(".env-editor .secret-value__button");
+    await value.waitForClickable({ timeout: 30000 });
+    const masked = await value.getText();
+    await value.click();
 
     if (await dialog()) {
       throw new Error("revealing one value asked for a confirmation");
     }
 
     await browser.waitUntil(
-      async () => (await reveal.getText()) === "Hide",
+      async () => (await value.getText()) !== masked,
       { timeout: 15000, timeoutMsg: "the value never revealed" },
     );
 
-    await reveal.click();
+    await browser.keys("Escape");
     if (await dialog()) {
-      throw new Error("hiding a value again asked for a confirmation");
+      throw new Error("putting a value back asked for a confirmation");
     }
-    await expect(reveal).toHaveText("Reveal");
+    await browser.waitUntil(
+      async () => (await value.getText()) === masked,
+      { timeout: 15000, timeoutMsg: "Escape did not put the value back" },
+    );
   });
 
   it("navigates between altitudes with no confirmation, even with nothing unsaved", async () => {

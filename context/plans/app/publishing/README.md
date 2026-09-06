@@ -26,7 +26,7 @@ Everything the documentation claims is verified rather than believed: the README
 
 # Cursor
 
-Freshly framed, with `ci.md` already complete because the gap it closed was real and immediate: seventy-six interface tests and a typecheck existed that **no automated run executed at all**.
+Freshly framed, with `ci.md` already complete because the gap it closed was real and immediate: seventy-six interface tests and a typecheck existed that **no automated run executed at all**. Its Rust job then went red the moment the bundle gained a sidecar, and stayed red on every push, because `tauri-build` refuses to build a checkout in which the declared sidecar is absent — so the job now builds it before linting, and installs on Linux the `expect` the terminal-driven test needs but only macOS ships.
 
 `docs.md` is complete: the README now covers the application as well as the command-line tool, and every command it gives was verified against a clean clone — which caught a gitignored lockfile that would have made `bun install` impossible. The security policy, contributing guide and both licence texts are in place.
 

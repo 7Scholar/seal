@@ -24,7 +24,9 @@ jobs:
       - name: Install the pinned toolchain
         run: rustup show
 
-      - name: Install the desktop system libraries
+      # macOS carries `expect` already; on Linux the terminal-driven test would skip
+      # without it, and SEAL_REQUIRE_TERMINAL below turns that skip into a failure.
+      - name: Install the system packages the checks need
         if: runner.os == 'Linux'
         run: |
           set -euo pipefail
@@ -34,12 +36,19 @@ jobs:
             libgtk-3-dev \
             libayatana-appindicator3-dev \
             librsvg2-dev \
-            patchelf
+            patchelf \
+            expect
 
       - uses: Swatinem/rust-cache@v2
 
       - name: Formatting
         run: cargo fmt --all --check
+
+      # The desktop crate declares the command-line tool as a bundled sidecar, and
+      # tauri-build refuses to build at all when that file is absent — so a checkout
+      # cannot be linted or tested until the sidecar exists, bundle or no bundle.
+      - name: Build the command-line tool into the bundle
+        run: ./scripts/build-sidecar.sh
 
       - name: Lints
         run: cargo clippy --all-targets --all-features -- -D warnings

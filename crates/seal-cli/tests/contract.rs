@@ -266,7 +266,19 @@ printf '%s|%s' "$DATABASE_URL" "$API_KEY"
 
 #[test]
 fn the_prompt_reaches_the_terminal_while_stdout_carries_only_the_secret() {
-    if Command::new("expect").arg("-v").output().is_err() {
+    let expect_available = Command::new("expect")
+        .arg("-v")
+        .output()
+        .map(|out| out.status.success())
+        .unwrap_or(false);
+
+    if !expect_available {
+        if std::env::var_os("SEAL_REQUIRE_TERMINAL").is_some() {
+            panic!(
+                "`expect` is missing while SEAL_REQUIRE_TERMINAL is set. This test drives the \
+                 password prompt through a real terminal and proves nothing without it."
+            );
+        }
         eprintln!("skipped: expect is needed to drive a real terminal");
         return;
     }

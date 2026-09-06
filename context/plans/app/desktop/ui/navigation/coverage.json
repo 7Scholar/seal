@@ -4,7 +4,7 @@
     "ui/App.tsx": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
     "ui/components/Breadcrumbs.tsx": "d14f1fa6c6e33529d0d098de586751ab686385f8",
     "ui/components/Switcher.tsx": "664ae562a15034f173ad013318a5c2221c24c63c",
-    "ui/styles.css": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e"
+    "ui/styles.css": "7a1a2f69b2a4043df273df93269c5eac34bf66f2"
   },
   "ceremony.md": {
     "e2e/journeys/bad-day.e2e.ts": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
@@ -12,7 +12,7 @@
     "ui/App.tsx": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
     "ui/components/BrokenSeal.tsx": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
     "ui/screens/RepoDetail.tsx": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
-    "ui/screens/Repositories.tsx": "ff39992efab340ffd46d610df457493da25f18ee"
+    "ui/screens/Repositories.tsx": "7a1a2f69b2a4043df273df93269c5eac34bf66f2"
   },
   "disclosure-primitive.md": {
     "ui/components/useDisclosure.test.tsx": "130d9ebbc85cbd98744706b1fa601c4fed470b49",
@@ -31,7 +31,7 @@
     "ui/managedTree.ts": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
     "ui/screens/RepoDetail.test.tsx": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
     "ui/screens/RepoDetail.tsx": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
-    "ui/styles.css": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e"
+    "ui/styles.css": "7a1a2f69b2a4043df273df93269c5eac34bf66f2"
   },
   "freshness.md": {
     "crates/seal-session/src/lib.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
@@ -40,7 +40,10 @@
     "ui/App.test.tsx": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
     "ui/App.tsx": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
     "ui/ipc.ts": "75494f05c58e8772206909b06c3b1878b0d69088",
-    "ui/styles.css": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e"
+    "ui/screens/Repositories.test.tsx": "7a1a2f69b2a4043df273df93269c5eac34bf66f2",
+    "ui/screens/Repositories.tsx": "7a1a2f69b2a4043df273df93269c5eac34bf66f2",
+    "ui/state.ts": "7a1a2f69b2a4043df273df93269c5eac34bf66f2",
+    "ui/styles.css": "7a1a2f69b2a4043df273df93269c5eac34bf66f2"
   },
   "icons.md": {
     "ui/components/Icon.tsx": "c614e2bdbca3bfc742b65689ad5659a506a605c8"
@@ -51,21 +54,21 @@
     "ui/components/FileTree.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
     "ui/screens/ManageFlow.test.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
     "ui/screens/ManageFlow.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
-    "ui/styles.css": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e"
+    "ui/styles.css": "7a1a2f69b2a4043df273df93269c5eac34bf66f2"
   },
   "palette.md": {
     "ui/App.test.tsx": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
     "ui/App.tsx": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
-    "ui/styles.css": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e"
+    "ui/styles.css": "7a1a2f69b2a4043df273df93269c5eac34bf66f2"
   },
   "repositories.md": {
     "ui/App.test.tsx": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
     "ui/App.tsx": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
     "ui/components/Ticks.tsx": "17f23dd14a95cca2600108c10f9f8cf85a573109",
-    "ui/screens/Repositories.test.tsx": "ff39992efab340ffd46d610df457493da25f18ee",
-    "ui/screens/Repositories.tsx": "ff39992efab340ffd46d610df457493da25f18ee",
-    "ui/state.ts": "ff39992efab340ffd46d610df457493da25f18ee",
-    "ui/styles.css": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e"
+    "ui/screens/Repositories.test.tsx": "7a1a2f69b2a4043df273df93269c5eac34bf66f2",
+    "ui/screens/Repositories.tsx": "7a1a2f69b2a4043df273df93269c5eac34bf66f2",
+    "ui/state.ts": "7a1a2f69b2a4043df273df93269c5eac34bf66f2",
+    "ui/styles.css": "7a1a2f69b2a4043df273df93269c5eac34bf66f2"
   },
   "seal-all.md": {
     "e2e/journeys/interrupted-rekey.e2e.ts": "ff39992efab340ffd46d610df457493da25f18ee",
@@ -73,9 +76,9 @@
     "ui/App.tsx": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
     "ui/screens/RepoDetail.test.tsx": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
     "ui/screens/RepoDetail.tsx": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
-    "ui/screens/Repositories.test.tsx": "ff39992efab340ffd46d610df457493da25f18ee",
-    "ui/screens/Repositories.tsx": "ff39992efab340ffd46d610df457493da25f18ee",
-    "ui/state.ts": "ff39992efab340ffd46d610df457493da25f18ee"
+    "ui/screens/Repositories.test.tsx": "7a1a2f69b2a4043df273df93269c5eac34bf66f2",
+    "ui/screens/Repositories.tsx": "7a1a2f69b2a4043df273df93269c5eac34bf66f2",
+    "ui/state.ts": "7a1a2f69b2a4043df273df93269c5eac34bf66f2"
   },
   "shape.md": {
     "ui/App.test.tsx": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
@@ -85,7 +88,7 @@
     "ui/fonts/geist-latin.woff2": "c614e2bdbca3bfc742b65689ad5659a506a605c8",
     "ui/fonts/geist-mono-latin-ext.woff2": "c614e2bdbca3bfc742b65689ad5659a506a605c8",
     "ui/fonts/geist-mono-latin.woff2": "c614e2bdbca3bfc742b65689ad5659a506a605c8",
-    "ui/styles.css": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e"
+    "ui/styles.css": "7a1a2f69b2a4043df273df93269c5eac34bf66f2"
   },
   "theme.md": {
     "src-tauri/src/commands.rs": "75494f05c58e8772206909b06c3b1878b0d69088",
@@ -101,6 +104,6 @@
     "src-tauri/src/titlebar.rs": "17f23dd14a95cca2600108c10f9f8cf85a573109",
     "ui/App.test.tsx": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
     "ui/App.tsx": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
-    "ui/styles.css": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e"
+    "ui/styles.css": "7a1a2f69b2a4043df273df93269c5eac34bf66f2"
   }
 }

@@ -23,7 +23,7 @@
     "ui/ipc.ts": "75494f05c58e8772206909b06c3b1878b0d69088",
     "ui/screens/Unlock.test.tsx": "4ff8769cbfce1de9afd8f1ac4c58f90011784b89",
     "ui/screens/Unlock.tsx": "4ff8769cbfce1de9afd8f1ac4c58f90011784b89",
-    "ui/styles.css": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e"
+    "ui/styles.css": "7a1a2f69b2a4043df273df93269c5eac34bf66f2"
   },
   "journey-harness.md": {
     ".github/workflows/journeys.yml": "8bc270e38be09fb7e8bfa77d8ce9858025ffae5e",

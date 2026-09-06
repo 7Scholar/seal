@@ -282,7 +282,7 @@ describe("the application shell", () => {
     ).toBeInTheDocument();
   });
 
-  it("seals the selected files together and reports the result per file", async () => {
+  it("seals a whole repository in one press and reports the result per file", async () => {
     const user = userEvent.setup();
     mocked.sealFiles.mockResolvedValue([
       { path: "/code/app/.env", ok: true, reason: null },
@@ -290,8 +290,8 @@ describe("the application shell", () => {
     await openApp();
     await openRepository(user, "app");
 
-    await user.click(screen.getByRole("checkbox", { name: "Select .env" }));
-    await user.click(screen.getByRole("button", { name: "Seal 1 file" }));
+    await user.click(screen.getByRole("button", { name: "More actions for app" }));
+    await user.click(screen.getByRole("button", { name: "Seal every file" }));
 
     expect(mocked.sealFiles).toHaveBeenCalledWith(["/code/app/.env"]);
     expect(await screen.findByText(/1 file is now sealed/)).toBeInTheDocument();
@@ -303,17 +303,14 @@ describe("the application shell", () => {
       path: "/code/app/.env",
       modifiedSecondsAgo: 4,
     });
-    mocked.sealFiles.mockResolvedValue([
-      { path: "/code/app/.env", ok: true, reason: null },
-    ]);
+    mocked.sealFile.mockResolvedValue(undefined);
     await openApp();
     await openRepository(user, "app");
 
-    await user.click(screen.getByRole("checkbox", { name: "Select .env" }));
-    await user.click(screen.getByRole("button", { name: "Seal 1 file" }));
+    await user.click(screen.getByRole("button", { name: "Seal .env" }));
 
     await waitFor(() =>
-      expect(mocked.sealFiles).toHaveBeenCalledWith(["/code/app/.env"]),
+      expect(mocked.sealFile).toHaveBeenCalledWith("/code/app/.env"),
     );
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(mocked.sealWarning).not.toHaveBeenCalled();
@@ -368,8 +365,8 @@ describe("the application shell", () => {
     await openRepository(user, "app");
 
     mocked.overview.mockResolvedValue([repos[1]!]);
-    await user.click(screen.getByRole("checkbox", { name: "Select .env" }));
-    await user.click(screen.getByRole("button", { name: "Seal 1 file" }));
+    mocked.sealFile.mockResolvedValue(undefined);
+    await user.click(screen.getByRole("button", { name: "Seal .env" }));
 
     expect(
       await screen.findByLabelText("Search repositories"),
@@ -476,17 +473,16 @@ describe("the theme control", () => {
     expect(document.querySelector(".stale")).toHaveTextContent(
       "still sealed",
     );
-    expect(document.querySelectorAll(".row").length).toBeGreaterThan(0);
+    expect(document.querySelectorAll(".line").length).toBeGreaterThan(0);
   });
 
-  it("states the managed-file count on the files list", async () => {
+  it("states no managed-file count on the files list, because the rows are the count", async () => {
     const user = userEvent.setup();
     await openApp();
     await openRepository(user, "app");
 
-    expect(document.querySelector(".surface__count")).toHaveTextContent(
-      "2 managed files",
-    );
+    expect(document.querySelector(".surface__count")).toBeNull();
+    expect(document.querySelectorAll(".line")).toHaveLength(2);
   });
 
   it("says why a missing file cannot be opened, rather than disabling it silently", async () => {
@@ -792,6 +788,9 @@ describe("unsealing a managed file", () => {
     await openApp();
     await openRepository(user, "app");
 
+    await user.click(
+      screen.getByRole("button", { name: "More actions for .env.production" }),
+    );
     await user.click(
       screen.getByRole("button", { name: "Unseal .env.production" }),
     );

@@ -1,6 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { browser, $, $$, expect } from "@wdio/globals";
+import { sealFromRow } from "./rows";
 import { enterPassphrase } from "./typing";
 
 const PASSWORD = "correct horse battery staple";
@@ -67,9 +68,7 @@ describe("managing readable files beside sealed ones", () => {
     await confirmManage();
     await openTheRepository();
 
-    const seal = $(`button[aria-label="Seal ${SEALED}"]`);
-    await seal.waitForClickable({ timeout: 30000 });
-    await seal.click();
+    await sealFromRow(`${SEALED}`);
 
 
     const proceed = $("button=I understand — start sealing");
@@ -143,7 +142,7 @@ describe("managing readable files beside sealed ones", () => {
     await $('[role="dialog"]').waitForDisplayed({ timeout: 10000 });
     await $("button=Discard them").click();
 
-    await $(".rows").waitForDisplayed({ timeout: 30000 });
+    await $(".lines").waitForDisplayed({ timeout: 30000 });
   });
 
   it("offers sealing from the header of a readable file", async () => {
@@ -154,52 +153,54 @@ describe("managing readable files beside sealed ones", () => {
     expect(await header.$("button=Seal").isDisplayed()).toBe(true);
 
     await $("button=Cancel").click();
-    await $(".rows").waitForDisplayed({ timeout: 30000 });
+    await $(".lines").waitForDisplayed({ timeout: 30000 });
   });
 
-  it("draws no actions bar until a file is selected", async () => {
+  it("offers Seal on a readable file and none on a sealed one", async () => {
     await openTheRepository();
-    await $(".rows").waitForDisplayed({ timeout: 30000 });
-    expect(await $(".batch").isDisplayed().catch(() => false)).toBe(false);
+    await $(".lines").waitForDisplayed({ timeout: 30000 });
+
+    await expect($(`button[aria-label="Seal ${READABLE}"]`)).toBeDisplayed();
+    expect(
+      await $(`button[aria-label="Seal ${SEALED}"]`).isExisting(),
+    ).toBe(false);
   });
 
-  it("gives a sealed file a checkbox too, and offers no Seal for it", async () => {
-    const box = $(`input[aria-label="Select ${SEALED}"]`);
-    await box.waitForDisplayed({ timeout: 30000 });
-    await box.click();
-
-    await $(".batch").waitForDisplayed({ timeout: 10000 });
-    expect(await $("button*=Stop managing 1 file").isDisplayed()).toBe(true);
-
-    const sealAction = await $$("button").filter(async (button) =>
-      /^Seal \d+ file/.test(await button.getText()),
-    );
-    expect(sealAction.length).toBe(0);
+  it("selects nothing, because choosing is the manage surface's task", async () => {
+    expect(await $(".line input[type=checkbox]").isExisting()).toBe(false);
+    expect(await $(".batch").isExisting()).toBe(false);
   });
 
-  it("offers Seal when only readable files are selected", async () => {
-    await $(`input[aria-label="Select ${SEALED}"]`).click();
-    await $(`input[aria-label="Select ${READABLE}"]`).click();
+  it("gives every control on a row a genuinely clickable target", async () => {
+    const sizes = await browser.execute((readable: string) => {
+      const line = [...document.querySelectorAll(".line")].find((candidate) =>
+        (candidate.querySelector(".line__open")?.textContent ?? "").includes(
+          readable,
+        ),
+      );
+      if (!line) return null;
+      return [...line.querySelectorAll("button")].map((button) => {
+        const rect = button.getBoundingClientRect();
+        return {
+          label: button.getAttribute("aria-label") ?? button.textContent ?? "",
+          width: rect.width,
+          height: rect.height,
+        };
+      });
+    }, READABLE);
 
-    await $(".batch").waitForDisplayed({ timeout: 10000 });
-    expect(await $("button=Seal 1 file").isDisplayed()).toBe(true);
-    expect(await $("button*=Stop managing 1 file").isDisplayed()).toBe(true);
-  });
-
-  it("gives the row checkbox a genuinely clickable target", async () => {
-    const size = await browser.execute(() => {
-      const box = document.querySelector(".row__check") as HTMLElement | null;
-      if (!box) return null;
-      const rect = box.getBoundingClientRect();
-      return { width: rect.width, height: rect.height };
-    });
-    expect(size).not.toBe(null);
-    expect(size!.width).toBeGreaterThanOrEqual(20);
-    expect(size!.height).toBeGreaterThanOrEqual(20);
+    expect(sizes).not.toBe(null);
+    expect(sizes!.length).toBeGreaterThan(0);
+    for (const control of sizes!) {
+      if (control.height < 20 || control.width < 20) {
+        throw new Error(
+          `the ${control.label.trim()} control is ${Math.round(control.width)}x${Math.round(control.height)}, too small to hit`,
+        );
+      }
+    }
   });
 
   it("keeps the info toggletip inside the window rather than overflowing right", async () => {
-    await $(`input[aria-label="Select ${READABLE}"]`).click();
     const info = $('button[aria-label="What Seal does with these files"]');
     await info.waitForClickable({ timeout: 10000 });
     await info.click();
@@ -265,8 +266,11 @@ describe("managing readable files beside sealed ones", () => {
 
   it("unseals a sealed file back to readable, keeping it managed", async () => {
     await openTheRepository();
+    const menu = $(`button[aria-label="More actions for ${SEALED}"]`);
+    await menu.waitForClickable({ timeout: 30000 });
+    await menu.click();
     const unseal = $(`button[aria-label="Unseal ${SEALED}"]`);
-    await unseal.waitForClickable({ timeout: 30000 });
+    await unseal.waitForClickable({ timeout: 15000 });
     await unseal.click();
 
     if (await $('[role="dialog"]').isDisplayed().catch(() => false)) {
@@ -281,7 +285,7 @@ describe("managing readable files beside sealed ones", () => {
     );
     expect(readFileSync(join(repo(), SEALED), "utf8")).toContain("API_KEY=live-key");
 
-    const rows = await $$(".row__name").map((row) => row.getText());
+    const rows = await $$(".line__open").map((row) => row.getText());
     expect(rows).toContain(SEALED);
   });
 
@@ -290,26 +294,20 @@ describe("managing readable files beside sealed ones", () => {
     await browser.pause(500);
 
     const state = await browser.execute((name: string) => {
-      for (const row of document.querySelectorAll(".row")) {
-        if (row.querySelector(".row__name")?.textContent?.trim() === name) {
-          return {
-            alert: row.getAttribute("data-alert"),
-            state: row.querySelector(".row__state")?.textContent?.trim() ?? "",
-          };
+      for (const row of document.querySelectorAll(".line")) {
+        if (row.querySelector(".line__open")?.textContent?.trim() === name) {
+          return { state: row.getAttribute("data-condition") ?? "" };
         }
       }
       return null;
     }, SEALED);
 
     expect(state).not.toBe(null);
-    expect(state!.alert).not.toBe("true");
-    expect(state!.state).not.toContain("should be sealed");
+    expect(state!.state).toBe("open");
   });
 
   it("offers to seal it again, closing the round trip", async () => {
-    const seal = $(`button[aria-label="Seal ${SEALED}"]`);
-    await seal.waitForClickable({ timeout: 30000 });
-    await seal.click();
+    await sealFromRow(`${SEALED}`);
 
 
     await browser.waitUntil(

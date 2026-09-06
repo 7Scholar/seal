@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { browser, $, expect } from "@wdio/globals";
+import { sealFromRow } from "./rows";
 import { enterPassphrase } from "./typing";
 
 const PASSWORD = "correct horse battery staple";
@@ -49,7 +50,7 @@ describe("coming back to a file whose plaintext expired while you were away", ()
     await $(".manage__region").waitForDisplayed({ timeout: 60000 });
     await $(".manage__actions button.button--primary").click();
 
-    const rows = $(".rows");
+    const rows = $(".lines");
     if (!(await rows.isDisplayed().catch(() => false))) {
       const tile = $(`button*=${repoName}`);
       await tile.waitForClickable({ timeout: 30000 });
@@ -57,14 +58,14 @@ describe("coming back to a file whose plaintext expired while you were away", ()
     }
     await rows.waitForDisplayed({ timeout: 30000 });
 
-    await $('button[aria-label="Seal .env.production"]').click();
+    await sealFromRow(".env.production");
     const proceed = $("button=I understand — start sealing");
     if (await proceed.isDisplayed().catch(() => false)) {
       await $('[role="dialog"]').$("input").setValue("I UNDERSTAND");
       await proceed.waitForEnabled({ timeout: 10000 });
       await proceed.click();
     }
-    await $("span=Sealed").waitForDisplayed({ timeout: 30000 });
+    await $('.line[data-condition="sealed"]').waitForDisplayed({ timeout: 30000 });
   });
 
   it("locks itself rather than stranding the user, when the plaintext has gone", async () => {

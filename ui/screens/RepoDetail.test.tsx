@@ -22,29 +22,259 @@ function setup(
   const handlers = {
     onOpen: vi.fn(),
     onSeal: vi.fn(),
-    onSealMany: vi.fn(),
     onRelease: vi.fn(),
-    onReleaseMany: vi.fn(),
     onReleaseRepo: vi.fn(),
     onRescan: vi.fn(),
     onSealAll: vi.fn(),
     onUnseal: vi.fn(),
-    onUnsealMany: vi.fn(),
     onDismissOutcomes: vi.fn(),
     onRetry: vi.fn(),
   };
-  render(<RepoDetail repo={repo} load={load} outcomes={outcomes} {...handlers} />);
-  return handlers;
+  const view = render(
+    <RepoDetail repo={repo} load={load} outcomes={outcomes} {...handlers} />,
+  );
+  return { ...handlers, view };
 }
 
-describe("RepoDetail", () => {
-  it("offers Seal every file, and hides it once every file is sealed", async () => {
+const lines = () => [...document.querySelectorAll(".line")];
+const conditionOf = (name: string) =>
+  lines()
+    .find((line) => (line.textContent ?? "").includes(name))
+    ?.getAttribute("data-condition");
+
+describe("RepoDetail, the tree", () => {
+  it("draws a folder for every level of a nested path, and the file under it", () => {
+    setup({
+      ...app,
+      files: [
+        { relativePath: "apps/app/.env", state: "sealed", alert: false },
+        { relativePath: "apps/api/.env", state: "plaintext", alert: false },
+        { relativePath: ".npmrc", state: "sealed", alert: false },
+      ],
+    });
+
+    expect(screen.getByText("apps")).toBeInTheDocument();
+    expect(screen.getByText("app")).toBeInTheDocument();
+    expect(screen.getByText("api")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Open apps/app/.env" }),
+    ).toHaveTextContent(".env");
+  });
+
+  it("keeps the state bar in its own lane, so nesting never moves it", () => {
+    setup({
+      ...app,
+      files: [
+        { relativePath: "a/b/c/.env", state: "sealed", alert: false },
+        { relativePath: ".env", state: "sealed", alert: false },
+      ],
+    });
+
+    const offsets = [...document.querySelectorAll(".line__bar")].map(
+      (bar) => (bar as HTMLElement).previousElementSibling,
+    );
+    expect(offsets.every((before) => before === null)).toBe(true);
+  });
+
+  it("indents deeper files further, without indenting the bar", () => {
+    setup({
+      ...app,
+      files: [
+        { relativePath: "a/b/.env", state: "sealed", alert: false },
+        { relativePath: ".env", state: "sealed", alert: false },
+      ],
+    });
+
+    const widths = [...document.querySelectorAll(".line__indent")].map(
+      (span) => (span as HTMLElement).style.width,
+    );
+    expect(widths).toContain("14px");
+    expect(widths).toContain("54px");
+  });
+
+  it("gives a folder no state bar and no menu", () => {
+    setup({
+      ...app,
+      files: [{ relativePath: "apps/.env", state: "sealed", alert: false }],
+    });
+
+    const folder = lines().find((line) => line.classList.contains("line--folder"));
+    expect(folder).toBeDefined();
+    expect(folder!.querySelector(".line__menu")).toBeNull();
+    expect(folder!.getAttribute("data-condition")).toBeNull();
+  });
+
+  it("collapses a folder and shows it again", async () => {
     const user = userEvent.setup();
-    const handlers = setup();
+    setup({
+      ...app,
+      files: [{ relativePath: "apps/.env", state: "sealed", alert: false }],
+    });
+
+    expect(screen.getByRole("button", { name: "Open apps/.env" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Collapse apps" }));
+    expect(screen.queryByRole("button", { name: "Open apps/.env" })).toBeNull();
+
+    await user.click(screen.getByRole("button", { name: "Expand apps" }));
+    expect(screen.getByRole("button", { name: "Open apps/.env" })).toBeInTheDocument();
+  });
+
+  it("reveals a match inside a collapsed folder while filtering, and re-collapses after", async () => {
+    const user = userEvent.setup();
+    setup({
+      ...app,
+      files: [{ relativePath: "apps/.env.staging", state: "sealed", alert: false }],
+    });
+
+    await user.click(screen.getByRole("button", { name: "Collapse apps" }));
+    expect(screen.queryByRole("button", { name: "Open apps/.env.staging" })).toBeNull();
+
+    await user.type(screen.getByLabelText("Search files"), "staging");
+    expect(
+      screen.getByRole("button", { name: "Open apps/.env.staging" }),
+    ).toBeInTheDocument();
+
+    await user.clear(screen.getByLabelText("Search files"));
+    expect(screen.queryByRole("button", { name: "Open apps/.env.staging" })).toBeNull();
+  });
+
+  it("states what matched nothing, and clears it", async () => {
+    const user = userEvent.setup();
+    setup();
+
+    await user.type(screen.getByLabelText("Search files"), "nothing");
+    expect(screen.getByText("No file matches")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Clear" }));
+    expect(document.querySelectorAll(".line")).toHaveLength(2);
+  });
+});
+
+describe("RepoDetail, the four conditions", () => {
+  it("marks a sealed file sealed and a readable one open, saying neither in words", () => {
+    setup();
+    expect(conditionOf(".env.production")).toBe("sealed");
+    expect(conditionOf(".env")).toBe("open");
+    expect(screen.queryByText("Sealed")).toBeNull();
+    expect(screen.queryByText("Readable")).toBeNull();
+  });
+
+  it("marks a file recorded sealed but found readable as broken, and explains it", () => {
+    setup({
+      ...app,
+      files: [{ relativePath: ".env", state: "plaintext", alert: true }],
+    });
+
+    expect(conditionOf(".env")).toBe("broken");
+    expect(
+      screen.getByRole("button", { name: "Why .env is marked" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Seal .env" })).toBeInTheDocument();
+  });
+
+  it("never treats a missing file as broken, and strikes its name instead", () => {
+    setup({
+      ...app,
+      files: [{ relativePath: ".env", state: "missing", alert: false }],
+    });
+
+    expect(conditionOf(".env")).toBe("gone");
+    expect(screen.getByRole("button", { name: "Open .env" })).toBeDisabled();
+    expect(
+      screen.getByText("Seal cannot open it — it is no longer at this path."),
+    ).toBeInTheDocument();
+  });
+
+  it("offers Seal only where a file is not already sealed", () => {
+    setup();
+    expect(screen.getByRole("button", { name: "Seal .env" })).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Seal .env.production" }),
+    ).toBeNull();
+  });
+
+  it("offers no action at all on a file that is gone", () => {
+    setup({
+      ...app,
+      files: [{ relativePath: ".env", state: "missing", alert: false }],
+    });
+    const line = lines()[0]!;
+    expect(within(line as HTMLElement).queryByText("Seal")).toBeNull();
+  });
+});
+
+describe("RepoDetail, the row's operations", () => {
+  it("opens a file by its full path", async () => {
+    const user = userEvent.setup();
+    const { onOpen } = setup();
+    await user.click(screen.getByRole("button", { name: "Open .env" }));
+    expect(onOpen).toHaveBeenCalledWith("/repos/app/.env");
+  });
+
+  it("seals a file by its full path", async () => {
+    const user = userEvent.setup();
+    const { onSeal } = setup();
+    await user.click(screen.getByRole("button", { name: "Seal .env" }));
+    expect(onSeal).toHaveBeenCalledWith("/repos/app/.env");
+  });
+
+  it("keeps Unseal in the row menu, and offers it only on a sealed file", async () => {
+    const user = userEvent.setup();
+    const { onUnseal } = setup();
+
+    expect(screen.queryByRole("button", { name: "Unseal .env.production" })).toBeNull();
+
+    await user.click(
+      screen.getByRole("button", { name: "More actions for .env.production" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Unseal .env.production" }));
+    expect(onUnseal).toHaveBeenCalledWith("/repos/app/.env.production");
+
+    await user.click(screen.getByRole("button", { name: "More actions for .env" }));
+    expect(screen.queryByRole("button", { name: "Unseal .env" })).toBeNull();
+  });
+
+  it("keeps stopping management of a file behind the overflow, not on the surface", async () => {
+    const user = userEvent.setup();
+    const { onRelease } = setup();
+
+    expect(screen.queryByText("Stop managing this file")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "More actions for .env" }));
+    await user.click(screen.getByText("Stop managing this file"));
+    expect(onRelease).toHaveBeenCalledWith("/repos/app/.env");
+  });
+
+  it("offers stopping management of the whole repository as one operation", async () => {
+    const user = userEvent.setup();
+    const { onReleaseRepo } = setup();
+
+    await user.click(screen.getByRole("button", { name: "More actions for app" }));
+    await user.click(screen.getByText("Stop managing this repository"));
+    expect(onReleaseRepo).toHaveBeenCalled();
+  });
+
+  it("explains watched versus protected behind a disclosure rather than on the surface", async () => {
+    const user = userEvent.setup();
+    setup();
+
+    expect(screen.queryByText(/Watching only means/)).not.toBeInTheDocument();
+    await user.click(
+      screen.getByRole("button", { name: "What Seal does with these files" }),
+    );
+    expect(screen.getByText(/Watching only means/)).toBeInTheDocument();
+  });
+});
+
+describe("RepoDetail, seal every file", () => {
+  it("offers it, and hides it once every file is sealed", async () => {
+    const user = userEvent.setup();
+    const { onSealAll } = setup();
 
     await user.click(screen.getByRole("button", { name: "More actions for app" }));
     await user.click(screen.getByRole("button", { name: "Seal every file" }));
-    expect(handlers.onSealAll).toHaveBeenCalled();
+    expect(onSealAll).toHaveBeenCalled();
 
     const sealed: RepoView = {
       ...app,
@@ -54,368 +284,47 @@ describe("RepoDetail", () => {
     await user.click(
       screen.getAllByRole("button", { name: "More actions for app" })[1]!,
     );
-    expect(
-      screen.queryByRole("button", { name: "Seal every file" }),
-    ).not.toBeInTheDocument();
-  });
-
-  it("labels a sealed file, and says nothing where the Seal control is the answer", () => {
-    setup();
-    expect(screen.getByText("Sealed")).toBeInTheDocument();
-    expect(screen.queryByText("Readable")).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Seal .env" })).toBeInTheDocument();
-  });
-
-  it("still names an exposed file's state, because an alert never collapses", () => {
-    setup({
-      root: "/repos/app",
-      name: "app",
-      files: [{ relativePath: ".env", state: "plaintext", alert: true }],
-    });
-    expect(screen.getByText("Readable — should be sealed")).toBeInTheDocument();
-  });
-
-  it("offers sealing only for a file that is not already sealed", () => {
-    setup();
-    expect(screen.getByRole("button", { name: "Seal .env" })).toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: "Seal .env.production" }),
-    ).not.toBeInTheDocument();
-  });
-
-  it("opens a file by its full path", async () => {
-    const user = userEvent.setup();
-    const { onOpen } = setup();
-    await user.click(screen.getByRole("button", { name: "Open .env" }));
-    expect(onOpen).toHaveBeenCalledWith("/repos/app/.env");
-  });
-
-  it("cannot open a file that is not on disk", () => {
-    setup({
-      root: "/repos/app",
-      name: "app",
-      files: [{ relativePath: ".env", state: "missing", alert: false }],
-    });
-    expect(screen.getByRole("button", { name: "Open .env" })).toBeDisabled();
-  });
-
-  it("shows no alert when nothing is exposed", () => {
-    setup();
-    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-  });
-
-  it("raises the alert only for a file recorded sealed but found readable", () => {
-    setup({
-      root: "/repos/app",
-      name: "app",
-      files: [
-        { relativePath: ".env.production", state: "plaintext", alert: true },
-        { relativePath: ".env", state: "plaintext", alert: false },
-        { relativePath: ".env.gone", state: "missing", alert: false },
-      ],
-    });
-
-    const alert = screen.getByRole("alert");
-    expect(alert).toHaveTextContent(".env.production");
-    expect(alert).not.toHaveTextContent(".env.gone");
-  });
-
-  it("never treats a missing file as an exposure", () => {
-    setup({
-      root: "/repos/app",
-      name: "app",
-      files: [{ relativePath: ".env", state: "missing", alert: false }],
-    });
-    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-  });
-
-  it("explains watched versus protected behind a disclosure rather than on the surface", async () => {
-    const user = userEvent.setup();
-    setup();
-
-    expect(screen.queryByText(/still readable by anything/i)).not.toBeInTheDocument();
-    await user.click(
-      screen.getByRole("button", { name: "What Seal does with these files" }),
-    );
-    expect(screen.getByText(/still readable by anything/i)).toBeInTheDocument();
-  });
-
-  it("keeps stopping management of a file behind the overflow, not on the surface", async () => {
-    const user = userEvent.setup();
-    const { onRelease } = setup();
-
-    expect(
-      screen.queryByRole("button", { name: "Stop managing this file" }),
-    ).not.toBeInTheDocument();
-
-    await user.click(
-      screen.getByRole("button", { name: "More actions for .env" }),
-    );
-    await user.click(
-      screen.getByRole("button", { name: "Stop managing this file" }),
-    );
-    expect(onRelease).toHaveBeenCalledWith("/repos/app/.env");
-  });
-
-  it("offers stopping management of the whole repository as one operation", async () => {
-    const user = userEvent.setup();
-    const { onReleaseRepo } = setup();
-
-    await user.click(screen.getByRole("button", { name: "More actions for app" }));
-    await user.click(
-      screen.getByRole("button", { name: "Stop managing this repository" }),
-    );
-    expect(onReleaseRepo).toHaveBeenCalledOnce();
+    expect(screen.queryByRole("button", { name: "Seal every file" })).toBeNull();
   });
 });
 
-describe("RepoDetail and sealing several files at once", () => {
-  const many: RepoView = {
-    root: "/repos/app",
-    name: "app",
-    files: [
-      { relativePath: ".env", state: "plaintext", alert: false },
-      { relativePath: ".env.staging", state: "plaintext", alert: false },
-      { relativePath: ".env.production", state: "sealed", alert: false },
-      { relativePath: ".env.gone", state: "missing", alert: false },
-    ],
-  };
-
-  it("shows no actions bar at all until something is selected", () => {
-    setup(many);
-    expect(
-      screen.queryByRole("group", { name: "Actions for the selected files" }),
-    ).not.toBeInTheDocument();
-    expect(screen.queryByText(/selected/)).not.toBeInTheDocument();
-  });
-
-  it("seals exactly the files the user selected, never all of them", async () => {
-    const user = userEvent.setup();
-    const { onSealMany } = setup(many);
-
-    await user.click(screen.getByRole("checkbox", { name: "Select .env" }));
-    await user.click(screen.getByRole("button", { name: "Seal 1 file" }));
-
-    expect(onSealMany).toHaveBeenCalledWith(["/repos/app/.env"]);
-  });
-
-  it("counts the selection so the user knows what is about to happen", async () => {
-    const user = userEvent.setup();
-    setup(many);
-
-    await user.click(screen.getByRole("checkbox", { name: "Select .env" }));
-    await user.click(
-      screen.getByRole("checkbox", { name: "Select .env.staging" }),
-    );
-
-    expect(screen.getByText("2 selected")).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Seal 2 files" }),
-    ).toBeInTheDocument();
-  });
-
-  it("offers a checkbox for a sealed file too, and none for one that is gone", () => {
-    setup(many);
-    expect(
-      screen.getByRole("checkbox", { name: "Select .env.production" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole("checkbox", { name: "Select .env.gone" }),
-    ).not.toBeInTheDocument();
-  });
-
-  it("offers Unseal on a sealed row and nowhere else", async () => {
-    const user = userEvent.setup();
-    const { onUnseal } = setup(many);
-
-    expect(
-      screen.queryByRole("button", { name: "Unseal .env" }),
-    ).not.toBeInTheDocument();
-
-    await user.click(
-      screen.getByRole("button", { name: "Unseal .env.production" }),
-    );
-    expect(onUnseal).toHaveBeenCalledWith("/repos/app/.env.production");
-  });
-
-  it("offers Unseal in the bar only when every selected file is sealed", async () => {
-    const user = userEvent.setup();
-    const { onUnsealMany } = setup(many);
-
-    await user.click(
-      screen.getByRole("checkbox", { name: "Select .env.production" }),
-    );
-    await user.click(screen.getByRole("button", { name: "Unseal 1 file" }));
-    expect(onUnsealMany).toHaveBeenCalledWith(["/repos/app/.env.production"]);
-  });
-
-  it("offers no Unseal action when the selection holds a readable file", async () => {
-    const user = userEvent.setup();
-    setup(many);
-
-    await user.click(
-      screen.getByRole("checkbox", { name: "Select .env.production" }),
-    );
-    await user.click(screen.getByRole("checkbox", { name: "Select .env" }));
-
-    expect(
-      screen.queryByRole("button", { name: /^Unseal \d+ file/ }),
-    ).not.toBeInTheDocument();
-  });
-
-  it("reports an unseal as files becoming readable, never as sealing", () => {
-    setup(many, {
-      did: "unseal",
-      results: [{ path: "/repos/app/.env.production", ok: true, reason: null }],
-    });
-
-    const report = screen.getByRole("status");
-    expect(report).toHaveTextContent("1 file is now readable.");
-    expect(report).not.toHaveTextContent(/now sealed/);
-  });
-
-  it("offers no Seal action when the selection holds a sealed file", async () => {
-    const user = userEvent.setup();
-    setup(many);
-
-    await user.click(screen.getByRole("checkbox", { name: "Select .env" }));
-    await user.click(
-      screen.getByRole("checkbox", { name: "Select .env.production" }),
-    );
-
-    expect(screen.queryByRole("button", { name: /^Seal \d+ file/ })).not.toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Stop managing 2 files" }),
-    ).toBeInTheDocument();
-  });
-
-  it("always offers stop-managing, whatever the selection holds", async () => {
-    const user = userEvent.setup();
-    const { onReleaseMany } = setup(many);
-
-    await user.click(
-      screen.getByRole("checkbox", { name: "Select .env.production" }),
-    );
-    await user.click(
-      screen.getByRole("button", { name: "Stop managing 1 file" }),
-    );
-
-    expect(onReleaseMany).toHaveBeenCalledWith(["/repos/app/.env.production"]);
-  });
-
+describe("RepoDetail, what it reports", () => {
   it("names every file that failed and why, rather than reporting a count", () => {
-    setup(many, {
+    setup(app, {
       did: "seal",
       results: [
         { path: "/repos/app/.env", ok: true, reason: null },
-        { path: "/repos/app/.env.staging", ok: false, reason: "busy" },
+        { path: "/repos/app/.env.production", ok: false, reason: "alreadySealed" },
       ],
     });
 
-    const report = screen.getByRole("status");
-    expect(report).toHaveTextContent(/1 file is now sealed/);
-    expect(report).toHaveTextContent(".env.staging");
-    expect(report).toHaveTextContent(/Another program is working/);
-    expect(
-      within(report).getAllByRole("listitem").map((item) => item.textContent),
-    ).toHaveLength(1);
+    expect(screen.getByText("1 of 2 files are now sealed.")).toBeInTheDocument();
+    const failures = document.querySelector(".outcomes__failures")!;
+    expect(failures).toHaveTextContent(".env.production");
+    expect(failures).toHaveTextContent("already sealed");
   });
 
-  it("says plainly that a failed file is still readable", () => {
-    setup(many, {
-      did: "seal",
-      results: [{ path: "/repos/app/.env", ok: false, reason: "busy" }],
+  it("reports an unseal as files becoming readable, never as sealing", () => {
+    setup(app, {
+      did: "unseal",
+      results: [{ path: "/repos/app/.env", ok: true, reason: null }],
     });
-    expect(screen.getByText(/still readable/)).toBeInTheDocument();
+    expect(screen.getByText("1 of 1 file is now readable.")).toBeInTheDocument();
   });
 
-  it("shows a nested file's real location in the repository, not just its name", () => {
-    setup({
-      ...app,
-      files: [
-        { relativePath: "services/api/.env", state: "plaintext", alert: false },
-      ],
-    });
-
-    expect(screen.getByText(".env")).toBeInTheDocument();
-    expect(screen.getByText("services/api/")).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Open services/api/.env" }),
-    ).toBeInTheDocument();
-  });
-
-  it("orders rows by path so a refresh never reshuffles them", () => {
-    setup({
-      ...app,
-      files: [
-        { relativePath: "z/.env", state: "plaintext", alert: false },
-        { relativePath: ".env", state: "plaintext", alert: false },
-        { relativePath: "a/.env", state: "plaintext", alert: false },
-      ],
-    });
-
-    const names = screen
-      .getAllByRole("button", { name: /^Open / })
-      .map((button) => button.getAttribute("aria-label"));
-    expect(names).toEqual(["Open .env", "Open a/.env", "Open z/.env"]);
-  });
-
-  it("states how many files it manages", () => {
-    setup();
-    expect(document.querySelector(".surface__count")).toHaveTextContent(
-      "2 managed files",
-    );
-  });
-
-  it("states the count in the singular for one file", () => {
-    setup({
-      ...app,
-      files: [{ relativePath: ".env", state: "plaintext", alert: false }],
-    });
-    expect(document.querySelector(".surface__count")).toHaveTextContent(
-      "1 managed file",
-    );
-  });
-
-  it("says why a missing file cannot be opened rather than disabling it silently", () => {
-    setup({
-      ...app,
-      files: [{ relativePath: "gone/.env", state: "missing", alert: false }],
-    });
-
-    const open = screen.getByRole("button", { name: "Open gone/.env" });
-    expect(open).toBeDisabled();
-
-    const why = open.getAttribute("aria-describedby");
-    expect(why).toBeTruthy();
-    expect(document.getElementById(why!)).toHaveTextContent(
-      "Seal cannot open it — it is no longer at this path.",
-    );
-  });
-
-  it("says nothing about why on a file that opens normally", () => {
-    setup();
-    const open = screen.getByRole("button", { name: "Open .env" });
-    expect(open).not.toBeDisabled();
-    expect(open.getAttribute("aria-describedby")).toBeNull();
-    expect(document.querySelector(".row__why")).not.toBeInTheDocument();
-  });
-
-  it("marks the list stale when the last re-read failed, without hiding the rows", async () => {
-    const user = userEvent.setup();
-    const handlers = setup(app, null, "failed");
-
-    expect(document.querySelector(".stale")).toHaveTextContent(
-      "Seal could not re-read this repository",
-    );
-    expect(screen.getAllByRole("button", { name: /^Open / })).toHaveLength(2);
-
-    await user.click(screen.getByRole("button", { name: "Try again" }));
-    expect(handlers.onRetry).toHaveBeenCalled();
+  it("marks the list stale when the last re-read failed, without hiding the rows", () => {
+    setup(app, null, "failed");
+    expect(screen.getByRole("alert")).toHaveTextContent("what is below is what it last");
+    expect(document.querySelectorAll(".line").length).toBeGreaterThan(0);
   });
 
   it("says nothing about staleness when the read succeeded", () => {
     setup();
-    expect(document.querySelector(".stale")).not.toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("states no managed-file count, because the rows are the count", () => {
+    setup();
+    expect(screen.queryByText(/^\d+ managed files?$/)).toBeNull();
   });
 });

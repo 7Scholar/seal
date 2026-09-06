@@ -55,7 +55,6 @@ export function App() {
   const [overlay, setOverlay] = useState<Overlay>({ name: "none" });
   const [acknowledging, setAcknowledging] = useState<null | (() => void)>(null);
   const [releasing, setReleasing] = useState<string | null>(null);
-  const [releasingMany, setReleasingMany] = useState<string[] | null>(null);
   const [releasingRepo, setReleasingRepo] = useState<ipc.RepoView | null>(null);
   const [outcomes, setOutcomes] = useState<Outcomes | null>(null);
   const [rekey, setRekey] = useState<ipc.Manifest | null>(null);
@@ -119,7 +118,6 @@ export function App() {
     setOverlay({ name: "none" });
     setAcknowledging(null);
     setReleasing(null);
-    setReleasingMany(null);
     setReleasingRepo(null);
     setOutcomes(null);
   }
@@ -608,11 +606,8 @@ export function App() {
             }}
             onOpen={(path) => void goToFile(currentRepo.root, path)}
             onSeal={seal}
-            onSealMany={sealMany}
             onRelease={setReleasing}
-            onReleaseMany={setReleasingMany}
             onUnseal={(path) => void unseal([path])}
-            onUnsealMany={(paths) => void unseal(paths)}
             onReleaseRepo={() => setReleasingRepo(currentRepo)}
             onRescan={() => void startRescan(currentRepo.root)}
             onSealAll={() => sealAll(currentRepo)}
@@ -719,46 +714,6 @@ export function App() {
             Seal will forget this file and leave its readable contents at the
             same path. The file itself is not deleted.
           </p>
-        </Confirm>
-      ) : null}
-
-      {releasingMany ? (
-        <Confirm
-          title={
-            releasingMany.length === 1
-              ? `Stop managing ${fileName(releasingMany[0]!)}?`
-              : `Stop managing ${releasingMany.length} files?`
-          }
-          confirmLabel={
-            releasingMany.length === 1 ? "Stop managing it" : "Stop managing them"
-          }
-          cancelLabel="Keep managing them"
-          onCancel={() => setReleasingMany(null)}
-          onConfirm={async () => {
-            const paths = releasingMany;
-            setReleasingMany(null);
-            await attempt(`stop managing ${paths.length} files`, async () => {
-              for (const path of paths) {
-                await ipc.release(path, "restorePlaintext");
-              }
-              await refreshAndReconcile();
-            });
-          }}
-        >
-          <p>
-            Seal will forget{" "}
-            {releasingMany.length === 1
-              ? "this file"
-              : `these ${releasingMany.length} files`}{" "}
-            and leave the readable contents at their own paths. Any that are
-            sealed are unsealed in place, so a secret that was protected becomes
-            readable on disk again. No file is deleted.
-          </p>
-          <ul className="confirm__list">
-            {releasingMany.map((path) => (
-              <li key={path}>{fileName(path)}</li>
-            ))}
-          </ul>
         </Confirm>
       ) : null}
 

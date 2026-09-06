@@ -1,6 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { browser, $, expect } from "@wdio/globals";
+import { sealFromRow } from "./rows";
 import { enterPassphrase } from "./typing";
 
 const PASSWORD = "correct horse battery staple";
@@ -75,9 +76,7 @@ describe("the bad day: ceremony where it belongs, and nowhere else", () => {
   });
 
   it("asks for the irreversible facts once, with a typed gate, before the first seal", async () => {
-    const seal = $(`button[aria-label="Seal .env.${FILES[0]}"]`);
-    await seal.waitForClickable({ timeout: 30000 });
-    await seal.click();
+    await sealFromRow(`.env.${FILES[0]}`);
 
 
     const gate = $('[role="dialog"] input');
@@ -110,9 +109,7 @@ describe("the bad day: ceremony where it belongs, and nowhere else", () => {
   it("does not ask again once the facts are acknowledged", async () => {
     await openTheRepository();
 
-    const seal = $(`button[aria-label="Seal .env.${FILES[1]}"]`);
-    await seal.waitForClickable({ timeout: 30000 });
-    await seal.click();
+    await sealFromRow(`.env.${FILES[1]}`);
 
 
     await browser.waitUntil(
@@ -225,13 +222,12 @@ describe("the bad day: ceremony where it belongs, and nowhere else", () => {
     const target = `.env.${BATCH_FILE}`;
     writeFileSync(join(repo(), target), `SECRET_${BATCH_FILE}=touched-again\n`);
 
-    const box = $(`input[aria-label="Select ${target}"]`);
-    await box.waitForDisplayed({ timeout: 30000 });
-    await box.click();
-
-    const batch = $(".batch button");
-    await batch.waitForClickable({ timeout: 15000 });
-    await batch.click();
+    const menu = $(`button[aria-label="More actions for ${repoName()}"]`);
+    await menu.waitForClickable({ timeout: 30000 });
+    await menu.click();
+    const all = $("button=Seal every file");
+    await all.waitForClickable({ timeout: 15000 });
+    await all.click();
 
     if (await dialog()) {
       throw new Error(
@@ -257,11 +253,11 @@ describe("the bad day: ceremony where it belongs, and nowhere else", () => {
     const row = await browser.waitUntil(
       async () =>
         browser.execute((name: string) => {
-          const target = [...document.querySelectorAll(".row")].find((candidate) =>
-            (candidate.querySelector(".row__name")?.textContent ?? "").includes(name),
+          const target = [...document.querySelectorAll(".line")].find((candidate) =>
+            (candidate.querySelector(".line__open")?.textContent ?? "").includes(name),
           );
           if (!target) return null;
-          if (target.getAttribute("data-alert") !== "true") return null;
+          if (target.getAttribute("data-condition") !== "broken") return null;
           return {
             seal: [...target.querySelectorAll("button")].some((button) =>
               (button.getAttribute("aria-label") ?? "").startsWith("Seal "),

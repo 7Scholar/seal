@@ -89,7 +89,7 @@ Three children, one per altitude, each owning its surface's layout and operation
 - [x] theme.md -> light, dark and system themes, the switcher, and the persistence the memory-only webview cannot provide
 - [x] breadcrumbs.md -> the trail, the switcher popover, and the route. Every segment carries a switcher, including the root, whose empty form is what a fresh install meets.
 - [~] repositories.md -> the repositories list: rows, the tick per managed file, filter, per-row ellipsis, add. Every state is designed, built and seen running. **One step open: an exposed repository sorting to the top of the list.**
-- [x] files.md -> one repository's files as large rows, with the repository's operations. Every state it can occupy is built and driven; the empty repository and loading are settled as not reachable.
+- [x] files.md -> one repository's managed files as a tree over its own directories, with the state bar in a lane of its own at every depth. Every state it can occupy is built and driven; the empty repository and loading are settled as not reachable.
 - [x] file.md -> the file altitude, and the env editor re-homed into it. Every state it can occupy is built and driven, including the frame that makes a file of any size editable.
 - [x] shape.md -> the shared visual language: the radius, the surfaces, and the tokens the themes resolve
 - [x] _docs/surface-audit.md -> the audit of the four built surfaces (a supporting doc, not a child)

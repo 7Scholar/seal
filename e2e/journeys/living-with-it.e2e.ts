@@ -3,6 +3,7 @@ import { mkdirSync, readFileSync, rmSync, unlinkSync, writeFileSync } from "node
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { browser, $, expect } from "@wdio/globals";
+import { sealFromRow } from "./rows";
 import { enterPassphrase } from "./typing";
 
 const PASSWORD = "correct horse battery staple";
@@ -116,9 +117,7 @@ describe("living with it: the glance, the errors, and the bad day", () => {
     await openTheRepository();
 
     for (const name of FILES) {
-      const seal = $(`button[aria-label="Seal .env.${name}"]`);
-      await seal.waitForClickable({ timeout: 30000 });
-      await seal.click();
+      await sealFromRow(`.env.${name}`);
       const gate = $('[role="dialog"] input');
       if (await gate.waitForDisplayed({ timeout: 6000 }).catch(() => false)) {
         await gate.setValue("I UNDERSTAND");
@@ -140,21 +139,21 @@ describe("living with it: the glance, the errors, and the bad day", () => {
     await enterPassphrase(PASSWORD);
     await openTheRepository();
 
-    const alert = $(".exposure-alert");
-    await expect(alert).toBeDisplayed();
-    await expect(alert.$(`span*=.env.${FILES[0]}`)).toBeDisplayed();
+    const broken = $('.line[data-condition="broken"]');
+    await expect(broken).toBeDisplayed();
+    await expect(broken).toHaveText(expect.stringContaining(`.env.${FILES[0]}`));
   });
 
   it("clears the exposure once it is sealed again, from beside the problem", async () => {
-    await $(".exposure-alert").$("button=Seal now").click();
+    await sealFromRow(`.env.${FILES[0]}`);
 
     await browser.waitUntil(
       async () =>
         readFileSync(join(repo(), `.env.${FILES[0]}`), "utf8").startsWith(ARMOR),
-      { timeout: 30000, timeoutMsg: "sealing from the alert never took" },
+      { timeout: 30000, timeoutMsg: "sealing from the row never took" },
     );
 
-    await expect($(".exposure-alert")).not.toBeDisplayed();
+    await expect($('.line[data-condition="broken"]')).not.toBeDisplayed();
   });
 
   it("reports a managed file deleted outside Seal as not found, not as still sealed", async () => {
@@ -165,22 +164,21 @@ describe("living with it: the glance, the errors, and the bad day", () => {
     await enterPassphrase(PASSWORD);
     await openTheRepository();
 
-    const row = $(`span=.env.${FILES[1]}`);
-    await expect(row).toBeDisplayed();
+    await expect($(`button[aria-label="Open .env.${FILES[1]}"]`)).toBeDisplayed();
 
     const state = await browser.execute((name: string) => {
-      const rows = [...document.querySelectorAll(".row")];
+      const rows = [...document.querySelectorAll(".line")];
       const match = rows.find((r) =>
-        (r.querySelector(".row__name")?.textContent ?? "").includes(name),
+        (r.querySelector(".line__open")?.textContent ?? "").includes(name),
       );
-      const open = match?.querySelector(".row__open") as HTMLButtonElement | null;
+      const open = match?.querySelector(".line__open") as HTMLButtonElement | null;
       return {
-        state: match?.querySelector(".row__state")?.textContent ?? null,
+        state: match?.getAttribute("data-condition") ?? null,
         openDisabled: open ? open.disabled : null,
       };
     }, `.env.${FILES[1]}`);
 
-    if (state.state !== "Not found") {
+    if (state.state !== "gone") {
       throw new Error(
         `a file deleted on disk still reads "${state.state}" — the interface is serving a recorded state rather than what is there`,
       );

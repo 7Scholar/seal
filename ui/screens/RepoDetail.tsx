@@ -1,13 +1,14 @@
-import { useEffect, useState } from "react";
-import { ExposureAlert } from "../components/ExposureAlert";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Toggletip } from "../components/Toggletip";
 import { Overflow } from "../components/Overflow";
 import { BrokenSeal } from "../components/BrokenSeal";
-import type { RepoView, SealedState, SealOutcome } from "../ipc";
+import { Icon } from "../components/Icon";
+import type { RepoView, SealOutcome } from "../ipc";
 import type { Load } from "./Repositories";
 import { reason } from "../errors";
 import { fileName } from "../format";
-import { sealable } from "../state";
+import { conditionOf, sealable } from "../state";
+import { buildTree, filterTree, folderPaths, type TreeNode } from "../managedTree";
 
 interface Props {
   repo: RepoView;
@@ -15,14 +16,11 @@ interface Props {
   onRetry: () => void;
   onOpen: (path: string) => void;
   onSeal: (path: string) => void | Promise<void>;
-  onSealMany: (paths: string[]) => void | Promise<void>;
   onRelease: (path: string) => void;
-  onReleaseMany: (paths: string[]) => void;
   onReleaseRepo: () => void;
   onRescan: () => void;
   onSealAll: () => void;
   onUnseal: (path: string) => void;
-  onUnsealMany: (paths: string[]) => void;
   outcomes: Outcomes | null;
   onDismissOutcomes: () => void;
 }
@@ -46,21 +44,12 @@ export function StaleNotice({ onRetry }: { onRetry: () => void }) {
   );
 }
 
-const LABELS: Record<SealedState, string | null> = {
-  sealed: "Sealed",
-  plaintext: null,
-  missing: "Not found",
-  unknown: "Unknown",
-};
-
 export function filePath(repo: RepoView, relativePath: string) {
   return `${repo.root}/${relativePath}`;
 }
 
-function directoryOf(relativePath: string) {
-  const cut = relativePath.lastIndexOf("/");
-  return cut === -1 ? "" : relativePath.slice(0, cut);
-}
+const INDENT_BASE = 14;
+const INDENT_STEP = 20;
 
 export function RepoDetail({
   repo,
@@ -68,50 +57,33 @@ export function RepoDetail({
   onRetry,
   onOpen,
   onSeal,
-  onSealMany,
   onRelease,
-  onReleaseMany,
   onReleaseRepo,
   onRescan,
   onSealAll,
   onUnseal,
-  onUnsealMany,
   outcomes,
   onDismissOutcomes,
 }: Props) {
-  const [picked, setPicked] = useState<ReadonlySet<string>>(new Set());
+  const [filter, setFilter] = useState("");
+  const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set());
 
   useEffect(() => {
-    setPicked(new Set());
+    setFilter("");
+    setCollapsed(new Set());
   }, [repo.root]);
 
-  const files = [...repo.files].sort((a, b) =>
-    a.relativePath.localeCompare(b.relativePath),
+  const tree = useMemo(() => buildTree(repo.files), [repo.files]);
+  const shown = useMemo(() => filterTree(tree, filter), [tree, filter]);
+  const revealed = useMemo(
+    () => new Set(filter.trim() === "" ? [] : folderPaths(shown)),
+    [shown, filter],
   );
 
-  const selectable = files.filter((file) => file.state !== "missing");
-  const chosen = selectable
-    .map((file) => filePath(repo, file.relativePath))
-    .filter((path) => picked.has(path));
+  const isOpen = (path: string) => revealed.has(path) || !collapsed.has(path);
 
-  const chosenFiles = selectable.filter((file) =>
-    picked.has(filePath(repo, file.relativePath)),
-  );
-  const readable = chosenFiles.filter((file) => file.state !== "sealed");
-  const sealed = chosenFiles.filter((file) => file.state === "sealed");
-  const readablePaths = readable.map((file) => filePath(repo, file.relativePath));
-  const sealedPaths = sealed.map((file) => filePath(repo, file.relativePath));
-
-  const exposures = files
-    .filter((file) => file.alert)
-    .map((file) => ({
-      path: filePath(repo, file.relativePath),
-      relativePath: file.relativePath,
-      repoName: repo.name,
-    }));
-
-  function toggle(path: string) {
-    setPicked((was) => {
+  function toggleFolder(path: string) {
+    setCollapsed((was) => {
       const next = new Set(was);
       if (next.has(path)) {
         next.delete(path);
@@ -122,24 +94,136 @@ export function RepoDetail({
     });
   }
 
-  const failures = outcomes?.results.filter((outcome) => !outcome.ok) ?? [];
-  const succeeded = outcomes?.results.filter((outcome) => outcome.ok).length ?? 0;
+  function rows(nodes: TreeNode[], depth: number): ReactNode[] {
+    return nodes.flatMap((node) => {
+      const indent = INDENT_BASE + INDENT_STEP * (depth - 1);
 
-  const count =
-    files.length === 0
-      ? null
-      : files.length === 1
-        ? "1 managed file"
-        : `${files.length} managed files`;
+      if (node.kind === "folder") {
+        const open = isOpen(node.path);
+        return [
+          <li key={`d:${node.path}`} className="line line--folder">
+            <span className="line__bar" />
+            <span className="line__indent" style={{ width: indent }} />
+            <button
+              type="button"
+              className="line__twisty"
+              aria-expanded={open}
+              aria-label={`${open ? "Collapse" : "Expand"} ${node.path}`}
+              onClick={() => toggleFolder(node.path)}
+            >
+              <Icon name={open ? "chevron-down" : "chevron-right"} />
+            </button>
+            <span className="line__name">{node.name}</span>
+          </li>,
+          ...(open ? rows(node.children, depth + 1) : []),
+        ];
+      }
+
+      const file = node.file;
+      const path = filePath(repo, file.relativePath);
+      const condition = conditionOf(file);
+      const gone = condition === "gone";
+
+      return [
+        <li key={`f:${path}`} className="line" data-condition={condition}>
+          <span className="line__bar" />
+          <span className="line__indent" style={{ width: indent }} />
+          <span className="line__twisty line__twisty--none" />
+
+          <button
+            type="button"
+            className="line__open"
+            aria-label={`Open ${file.relativePath}`}
+            disabled={gone}
+            aria-describedby={gone ? `why-${path}` : undefined}
+            onClick={() => onOpen(path)}
+          >
+            {node.name}
+          </button>
+
+          {gone ? (
+            <span className="line__why" id={`why-${path}`}>
+              Seal cannot open it — it is no longer at this path.
+            </span>
+          ) : null}
+
+          <span className="line__actions">
+            {condition === "broken" ? (
+              <BrokenSeal label={`Why ${file.relativePath} is marked`} />
+            ) : null}
+
+            {condition === "broken" || condition === "open" ? (
+              <button
+                type="button"
+                className="line__seal"
+                aria-label={`Seal ${file.relativePath}`}
+                onClick={() => void onSeal(path)}
+              >
+                <Icon name="lock" />
+                Seal
+              </button>
+            ) : null}
+          </span>
+
+          <span className="line__menu">
+            <Overflow label={`More actions for ${file.relativePath}`}>
+              {condition === "sealed" ? (
+                <button
+                  type="button"
+                  aria-label={`Unseal ${file.relativePath}`}
+                  onClick={() => onUnseal(path)}
+                >
+                  Unseal
+                </button>
+              ) : null}
+              <button
+                type="button"
+                className="overflow__danger"
+                onClick={() => onRelease(path)}
+              >
+                Stop managing this file
+              </button>
+            </Overflow>
+          </span>
+        </li>,
+      ];
+    });
+  }
 
   return (
-    <section className="surface">
-      <header className="repo-head">
-        <div className="repo-head__text">
-          <p className="repo-head__path">{repo.root}</p>
-        </div>
+    <section className="surface" data-surface="repository">
+      {load === "failed" ? <StaleNotice onRetry={onRetry} /> : null}
 
-        {count ? <span className="surface__count">{count}</span> : null}
+      {outcomes ? (
+        <div className="outcomes" role="status">
+          <p>
+            {outcomes.results.filter((result) => result.ok).length} of{" "}
+            {outcomes.results.length}{" "}
+            {outcomes.results.length === 1 ? "file is" : "files are"} now{" "}
+            {outcomes.did === "seal" ? "sealed" : "readable"}.
+          </p>
+          {outcomes.results.some((result) => !result.ok) ? (
+            <ul className="outcomes__failures">
+              {outcomes.results
+                .filter((result) => !result.ok)
+                .map((result) => (
+                  <li key={result.path}>
+                    <span className="outcomes__path">{fileName(result.path)}</span>
+                    <span className="outcomes__reason">
+                      {result.reason ? reason(result.reason) : "did not change"}
+                    </span>
+                  </li>
+                ))}
+            </ul>
+          ) : null}
+          <button type="button" onClick={onDismissOutcomes}>
+            Dismiss
+          </button>
+        </div>
+      ) : null}
+
+      <div className="toolbar toolbar--repo">
+        <p className="toolbar__path">{repo.root}</p>
 
         <Toggletip label="What Seal does with these files" place="left">
           Seal <strong>watches</strong> every file listed here, and{" "}
@@ -147,6 +231,25 @@ export function RepoDetail({
           Seal knows about the file — its contents are still readable by anything
           on this machine. Sealing is what makes it unreadable.
         </Toggletip>
+
+        <span className="toolbar__search toolbar__search--narrow">
+          <Icon name="search" className="toolbar__search-icon" />
+          <input
+            type="search"
+            aria-label="Search files"
+            placeholder="filter"
+            autoComplete="off"
+            autoCapitalize="off"
+            spellCheck={false}
+            value={filter}
+            onChange={(event) => setFilter(event.target.value)}
+          />
+        </span>
+
+        <button type="button" onClick={onRescan}>
+          <Icon name="plus" />
+          Add files
+        </button>
 
         <Overflow label={`More actions for ${repo.name}`}>
           {sealable(repo.files).length > 0 ? (
@@ -161,167 +264,20 @@ export function RepoDetail({
             Stop managing this repository
           </button>
         </Overflow>
-      </header>
+      </div>
 
-      {load === "failed" ? <StaleNotice onRetry={onRetry} /> : null}
-
-      <ExposureAlert exposures={exposures} onSeal={onSeal} />
-
-      {outcomes ? (
-        <div className="outcomes" role="status">
-          <p>
-            {outcomes.did === "unseal"
-              ? succeeded === 1
-                ? "1 file is now readable."
-                : `${succeeded} files are now readable.`
-              : succeeded === 1
-                ? "1 file is now sealed."
-                : `${succeeded} files are now sealed.`}
-            {failures.length > 0
-              ? outcomes.did === "unseal"
-                ? ` ${failures.length} could not be unsealed and ${
-                    failures.length === 1 ? "is" : "are"
-                  } still sealed:`
-                : ` ${failures.length} could not be sealed and ${
-                    failures.length === 1 ? "is" : "are"
-                  } still readable:`
-              : ""}
-          </p>
-          {failures.length > 0 ? (
-            <ul className="outcomes__failures">
-              {failures.map((failure) => (
-                <li key={failure.path}>
-                  <span className="outcomes__path">{fileName(failure.path)}</span>
-                  <span className="outcomes__reason">{reason(failure.reason)}</span>
-                </li>
-              ))}
-            </ul>
-          ) : null}
-          <button type="button" onClick={onDismissOutcomes}>
-            Done
+      {shown.length === 0 ? (
+        <div className="nomatch">
+          <span className="nomatch__lead">No file matches</span>
+          <span className="nomatch__needle">{filter}</span>
+          <span className="nomatch__spacer" />
+          <button type="button" onClick={() => setFilter("")}>
+            Clear
           </button>
         </div>
-      ) : null}
-
-      {chosen.length > 0 ? (
-        <div className="batch" role="group" aria-label="Actions for the selected files">
-          <span className="batch__count">
-            {chosen.length === 1 ? "1 selected" : `${chosen.length} selected`}
-          </span>
-
-          {sealed.length === 0 ? (
-            <button type="button" onClick={() => onSealMany(readablePaths)}>
-              {readablePaths.length === 1
-                ? "Seal 1 file"
-                : `Seal ${readablePaths.length} files`}
-            </button>
-          ) : null}
-
-          {readable.length === 0 ? (
-            <button type="button" onClick={() => onUnsealMany(sealedPaths)}>
-              {sealedPaths.length === 1
-                ? "Unseal 1 file"
-                : `Unseal ${sealedPaths.length} files`}
-            </button>
-          ) : null}
-
-          <button
-            type="button"
-            className="overflow__danger"
-            onClick={() => onReleaseMany(chosen)}
-          >
-            {chosen.length === 1
-              ? "Stop managing 1 file"
-              : `Stop managing ${chosen.length} files`}
-          </button>
-        </div>
-      ) : null}
-
-      <ul className="rows">
-        {files.map((file) => {
-          const path = filePath(repo, file.relativePath);
-          const canSeal = file.state !== "sealed" && file.state !== "missing";
-          const directory = directoryOf(file.relativePath);
-
-          const missing = file.state === "missing";
-          const whyId = missing ? `why-${path}` : undefined;
-
-          return (
-            <li key={path} className="row" data-alert={file.alert}>
-              {missing ? null : (
-                <input
-                  type="checkbox"
-                  className="row__check"
-                  checked={picked.has(path)}
-                  aria-label={`Select ${file.relativePath}`}
-                  onChange={() => toggle(path)}
-                />
-              )}
-
-              <button
-                type="button"
-                className="row__open"
-                aria-label={`Open ${file.relativePath}`}
-                disabled={missing}
-                aria-describedby={whyId}
-                onClick={() => onOpen(path)}
-              >
-                <span className="row__name">{fileName(file.relativePath)}</span>
-                {directory ? (
-                  <span className="row__path">{directory}/</span>
-                ) : null}
-                {missing ? (
-                  <span className="row__why" id={whyId}>
-                    Seal cannot open it — it is no longer at this path.
-                  </span>
-                ) : null}
-              </button>
-
-              {file.alert || LABELS[file.state] ? (
-                <span className="row__state" data-state={file.state}>
-                  {file.alert ? "Readable — should be sealed" : LABELS[file.state]}
-                </span>
-              ) : null}
-
-              {file.alert ? (
-                <BrokenSeal label={`Why ${file.relativePath} is marked`} />
-              ) : null}
-
-              <span className="row__actions">
-                {canSeal ? (
-                  <button
-                    type="button"
-                    aria-label={`Seal ${file.relativePath}`}
-                    onClick={() => onSeal(path)}
-                  >
-                    Seal
-                  </button>
-                ) : null}
-
-                {file.state === "sealed" ? (
-                  <button
-                    type="button"
-                    aria-label={`Unseal ${file.relativePath}`}
-                    onClick={() => onUnseal(path)}
-                  >
-                    Unseal
-                  </button>
-                ) : null}
-
-                <Overflow label={`More actions for ${file.relativePath}`}>
-                  <button
-                    type="button"
-                    className="overflow__danger"
-                    onClick={() => onRelease(path)}
-                  >
-                    Stop managing this file
-                  </button>
-                </Overflow>
-              </span>
-            </li>
-          );
-        })}
-      </ul>
+      ) : (
+        <ul className="lines">{rows(shown, 1)}</ul>
+      )}
     </section>
   );
 }

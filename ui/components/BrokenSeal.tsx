@@ -15,8 +15,12 @@ export function BrokenSeal({ label, count = 1, place = "left" }: Props) {
       <p>
         Seal encrypted {one ? "this file" : `${count} files here`}, and something
         later wrote plaintext over {one ? "it" : "them"} — usually an editor that
-        still had {one ? "it" : "them"} open. Sealing again closes it. The secret
-        has been readable on disk, so rotate it.
+        still had {one ? "it" : "them"} open.
+      </p>
+      <p>
+        Sealing again closes it, but sealing cannot undo an exposure that already
+        happened. The secret has been readable on disk. Rotate any credential
+        that was exposed.
       </p>
     </Toggletip>
   );

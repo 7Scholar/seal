@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 
 import { join } from "node:path";
 import { browser, $, expect } from "@wdio/globals";
+import { sealFromRow } from "./rows";
 import { enterPassphrase } from "./typing";
 
 const PASSWORD = "correct horse battery staple";
@@ -90,11 +91,11 @@ describe("first run: install, choose a password, protect a first file", () => {
 
     await expect($('nav[aria-label="Breadcrumb"]')).toBeDisplayed();
     await expect($('[aria-current="page"]')).toHaveText(repo.split("/").pop());
-    await expect($("span=.env")).toBeDisplayed();
+    await expect($('button[aria-label="Open .env"]')).toBeDisplayed();
   });
 
   it("seals only after the two irreversible facts are acknowledged, gated on typing", async () => {
-    await $('button[aria-label="Seal .env"]').click();
+    await sealFromRow(".env");
 
     await expect($('[role="dialog"]')).toBeDisplayed();
     await expect($("h2=Before Seal encrypts anything")).toBeDisplayed();
@@ -109,7 +110,7 @@ describe("first run: install, choose a password, protect a first file", () => {
     await expect(proceed).toBeEnabled();
     await proceed.click();
 
-    await expect($("span=Sealed")).toBeDisplayed();
+    await expect($('.line[data-condition="sealed"]')).toBeDisplayed();
   });
 
   it("left the file sealed in place, in the repository, as standard age", () => {
@@ -134,6 +135,6 @@ describe("first run: install, choose a password, protect a first file", () => {
     await enterPassphrase(PASSWORD);
     await expect($('[data-surface="repositories"]')).toBeDisplayed();
     await $(`button*=${repo.split("/").pop()}`).click();
-    await expect($("span=Sealed")).toBeDisplayed();
+    await expect($('.line[data-condition="sealed"]')).toBeDisplayed();
   });
 });

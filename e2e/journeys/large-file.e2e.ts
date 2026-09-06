@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { browser, $, $$ } from "@wdio/globals";
+import { sealFromRow } from "./rows";
 import { enterPassphrase } from "./typing";
 
 const PASSWORD = "correct horse battery staple";
@@ -53,9 +54,7 @@ describe("editing a file with hundreds of variables", () => {
     await $(".manage__actions button.button--primary").click();
     await openTheRepository();
 
-    const seal = $(`button[aria-label="Seal ${BIG}"]`);
-    await seal.waitForClickable({ timeout: 30000 });
-    await seal.click();
+    await sealFromRow(`${BIG}`);
     const gate = $('[role="dialog"] input');
     if (await gate.waitForDisplayed({ timeout: 6000 }).catch(() => false)) {
       await gate.setValue("I UNDERSTAND");
@@ -63,7 +62,7 @@ describe("editing a file with hundreds of variables", () => {
     }
     await browser.waitUntil(
       async () =>
-        (await $(`.row__state[data-state="sealed"]`)
+        (await $('.line[data-condition="sealed"]')
           .isDisplayed()
           .catch(() => false)),
       { timeout: 30000, timeoutMsg: `${BIG} never sealed` },

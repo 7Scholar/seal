@@ -1,6 +1,7 @@
 import { mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { browser, $, expect } from "@wdio/globals";
+import { sealFromRow } from "./rows";
 import { enterPassphrase } from "./typing";
 
 const PASSWORD = "correct horse battery staple";
@@ -13,9 +14,9 @@ const repoName = () => repo().split("/").pop() ?? "";
 const rowStates = () =>
   browser.execute(() => {
     const out: Record<string, string> = {};
-    for (const row of document.querySelectorAll(".row")) {
-      const name = row.querySelector(".row__name")?.textContent?.trim() ?? "";
-      out[name] = row.querySelector(".row__state")?.textContent?.trim() ?? "";
+    for (const row of document.querySelectorAll(".line")) {
+      const name = row.querySelector(".line__open")?.textContent?.trim() ?? "";
+      out[name] = row.getAttribute("data-condition") ?? "";
     }
     return out;
   });
@@ -71,9 +72,7 @@ describe("noticing the world change underneath an open window", () => {
     await openTheRepository();
 
     for (const name of FILES) {
-      const seal = $(`button[aria-label="Seal .env.${name}"]`);
-      await seal.waitForClickable({ timeout: 30000 });
-      await seal.click();
+      await sealFromRow(`.env.${name}`);
       const gate = $('[role="dialog"] input');
       if (await gate.waitForDisplayed({ timeout: 6000 }).catch(() => false)) {
         await gate.setValue("I UNDERSTAND");
@@ -91,7 +90,7 @@ describe("noticing the world change underneath an open window", () => {
     await openTheRepository();
 
     const before = await rowStates();
-    if (before[`.env.${FILES[0]}`] !== "Sealed") {
+    if (before[`.env.${FILES[0]}`] !== "sealed") {
       throw new Error(
         `the file did not start sealed: ${JSON.stringify(before)}`,
       );
@@ -102,7 +101,7 @@ describe("noticing the world change underneath an open window", () => {
     await browser.waitUntil(
       async () => {
         const states = await rowStates();
-        return (states[`.env.${FILES[0]}`] ?? "").startsWith("Readable");
+        return states[`.env.${FILES[0]}`] === "broken";
       },
       {
         timeout: 25000,
@@ -112,9 +111,13 @@ describe("noticing the world change underneath an open window", () => {
     );
   });
 
-  it("raises the exposure alert from the same observation", async () => {
-    await expect($(".exposure-alert")).toBeDisplayed();
-    await expect($(".exposure-alert").$(`span*=.env.${FILES[0]}`)).toBeDisplayed();
+  it("mats the row itself, and explains what a broken seal is", async () => {
+    const broken = $('.line[data-condition="broken"]');
+    await expect(broken).toBeDisplayed();
+    await expect(broken).toHaveText(expect.stringContaining(`.env.${FILES[0]}`));
+    await expect(
+      $(`button[aria-label="Why .env.${FILES[0]} is marked"]`),
+    ).toBeDisplayed();
   });
 
   it("notices a managed file deleted while the window sits open", async () => {
@@ -123,7 +126,7 @@ describe("noticing the world change underneath an open window", () => {
     await browser.waitUntil(
       async () => {
         const states = await rowStates();
-        return states[`.env.${FILES[1]}`] === "Not found";
+        return states[`.env.${FILES[1]}`] === "gone";
       },
       {
         timeout: 25000,
@@ -132,11 +135,11 @@ describe("noticing the world change underneath an open window", () => {
     );
 
     const openDisabled = await browser.execute((name: string) => {
-      const rows = [...document.querySelectorAll(".row")];
+      const rows = [...document.querySelectorAll(".line")];
       const match = rows.find((r) =>
-        (r.querySelector(".row__name")?.textContent ?? "").includes(name),
+        (r.querySelector(".line__open")?.textContent ?? "").includes(name),
       );
-      const open = match?.querySelector(".row__open") as HTMLButtonElement | null;
+      const open = match?.querySelector(".line__open") as HTMLButtonElement | null;
       return open ? open.disabled : null;
     }, `.env.${FILES[1]}`);
 
@@ -154,18 +157,19 @@ describe("noticing the world change underneath an open window", () => {
     }
   });
 
-  it("recovers silently when the file is sealed again underneath it", async () => {
-    await $(".exposure-alert").$("button=Seal now").click();
+  it("recovers silently when the file is sealed again from beside the problem", async () => {
+    await sealFromRow(`.env.${FILES[0]}`);
 
     await browser.waitUntil(
       async () =>
         readFileSync(join(repo(), `.env.${FILES[0]}`), "utf8").startsWith(ARMOR),
-      { timeout: 30000, timeoutMsg: "sealing from the alert never took" },
+      { timeout: 30000, timeoutMsg: "sealing from the row never took" },
     );
 
     await browser.waitUntil(
-      async () => !(await $(".exposure-alert").isDisplayed().catch(() => false)),
-      { timeout: 25000, timeoutMsg: "the alert never cleared" },
+      async () =>
+        !(await $('.line[data-condition="broken"]').isDisplayed().catch(() => false)),
+      { timeout: 25000, timeoutMsg: "the broken row never cleared" },
     );
   });
 });

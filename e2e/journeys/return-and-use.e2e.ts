@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { browser, $, expect } from "@wdio/globals";
+import { sealFromRow } from "./rows";
 import { enterPassphrase, typeInto } from "./typing";
 
 const PASSWORD = "correct horse battery staple";
@@ -59,8 +60,7 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
       await $("button=Manage 1 file").click();
       step("waiting for repo list");
       await openTheRepository();
-      await $('button[aria-label="Seal .env"]').waitForClickable();
-      await $('button[aria-label="Seal .env"]').click();
+      await sealFromRow(".env");
       step("seal clicked");
       const gate = $('[role="dialog"] input');
       if (await gate.waitForDisplayed({ timeout: 6000 }).catch(() => false)) {
@@ -72,11 +72,11 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
       }
       step("waiting for sealed tag");
       try {
-        await $("span=Sealed").waitForDisplayed();
+        await $('.line[data-condition="sealed"]').waitForDisplayed();
       } catch (error) {
         const page = await browser.execute(() => ({
           h1: document.querySelector("h1")?.textContent,
-          states: [...document.querySelectorAll(".row__state")].map((s) => s.textContent),
+          states: [...document.querySelectorAll(".line")].map((s) => s.getAttribute("data-condition")),
           alerts: [...document.querySelectorAll('[role="alert"]')].map((a) =>
             a.textContent?.slice(0, 200),
           ),
@@ -99,7 +99,7 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
     await enterPassphrase(PASSWORD);
     await expect($('[data-surface="repositories"]')).toBeDisplayed();
     await openTheRepository();
-    await expect($("span=Sealed")).toBeDisplayed();
+    await expect($('.line[data-condition="sealed"]')).toBeDisplayed();
   });
 
   it("opens the sealed file as masked structure, with no value in the page", async () => {
@@ -160,17 +160,25 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
     await expect($('[data-surface="repositories"]')).toBeDisplayed();
     await openTheRepository();
 
-    const alert = $(".exposure-alert");
-    await expect(alert).toBeDisplayed();
-    await expect($("h2*=readable on disk")).toBeDisplayed();
-    await expect(alert.$("p*=Rotate any credential that was exposed")).toBeDisplayed();
-    await expect(
-      alert.$("p*=sealing cannot undo an exposure that already happened"),
-    ).toBeDisplayed();
+    const broken = $('.line[data-condition="broken"]');
+    await expect(broken).toBeDisplayed();
+    await expect(broken).toHaveText(expect.stringContaining(".env"));
+
+    await $('button[aria-label="Why .env is marked"]').click();
+    const why = $(".toggletip__bubble");
+    await expect(why).toBeDisplayed();
+    await expect(why).toHaveText(expect.stringContaining("readable on disk"));
+    await expect(why).toHaveText(
+      expect.stringContaining("Rotate any credential that was exposed"),
+    );
+    await expect(why).toHaveText(
+      expect.stringContaining("sealing cannot undo an exposure that already happened"),
+    );
+    await browser.keys("Escape");
   });
 
-  it("warns before sealing a file that changed moments ago, then seals from the alert", async () => {
-    await $(".exposure-alert").$("button=Seal now").click();
+  it("seals from beside the problem, with nothing interposed", async () => {
+    await sealFromRow(".env");
 
     if (await $('[role="dialog"]').isDisplayed().catch(() => false)) {
       throw new Error(
@@ -178,7 +186,7 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
       );
     }
 
-    await expect($("span=Sealed")).toBeDisplayed();
+    await expect($('.line[data-condition="sealed"]')).toBeDisplayed();
     const contents = readFileSync(join(repo(), ".env"), "utf8");
     if (!contents.startsWith(ARMOR)) {
       throw new Error("sealing from the alert left the file readable");
@@ -211,6 +219,6 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
     await enterPassphrase(NEW_PASSWORD);
     await expect($('[data-surface="unlock"][data-mode="verify"]')).not.toBeDisplayed();
     await openTheRepository();
-    await expect($("span=Sealed")).toBeDisplayed();
+    await expect($('.line[data-condition="sealed"]')).toBeDisplayed();
   });
 });

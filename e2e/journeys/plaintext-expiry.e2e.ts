@@ -1,6 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { browser, $, expect } from "@wdio/globals";
+import { sealFromRow } from "./rows";
 import { enterPassphrase } from "./typing";
 
 const PASSWORD = "correct horse battery staple";
@@ -95,9 +96,7 @@ describe("stepping away: held plaintext expires on its own", () => {
 
     if (readFileSync(file, "utf8").startsWith(ARMOR)) return;
 
-    const seal = $('button[aria-label="Seal .env.production"]');
-    await seal.waitForClickable({ timeout: 30000 });
-    await seal.click();
+    await sealFromRow(".env.production");
     const gate = $('[role="dialog"] input');
     if (await gate.waitForDisplayed({ timeout: 6000 }).catch(() => false)) {
       await gate.setValue("I UNDERSTAND");

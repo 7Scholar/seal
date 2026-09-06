@@ -1,6 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { browser, $, expect } from "@wdio/globals";
+import { sealFromRow } from "./rows";
 import { enterPassphrase } from "./typing";
 
 const PASSWORD = "correct horse battery staple";
@@ -85,9 +86,7 @@ describe("settling in: a file with no editor, and coming back to add more", () =
     await openTheRepository(repoName());
 
     for (const name of [ENV_FILE, OPAQUE_FILE]) {
-      const seal = $(`button[aria-label="Seal ${name}"]`);
-      await seal.waitForClickable({ timeout: 30000 });
-      await seal.click();
+      await sealFromRow(`${name}`);
       const gate = $('[role="dialog"] input');
       if (await gate.waitForDisplayed({ timeout: 6000 }).catch(() => false)) {
         await gate.setValue("I UNDERSTAND");
@@ -261,7 +260,7 @@ describe("settling in: a file with no editor, and coming back to add more", () =
     await confirmManage();
     await openTheRepository(repoName());
 
-    await expect($(`span=${FORGOTTEN_FILE}`)).toBeDisplayed();
+    await expect($(`button[aria-label="Open ${FORGOTTEN_FILE}"]`)).toBeDisplayed();
 
     if (readFileSync(join(repo(), ENV_FILE), "utf8") !== beforeEnv) {
       throw new Error("rescanning changed an already-sealed file on disk");
@@ -272,22 +271,22 @@ describe("settling in: a file with no editor, and coming back to add more", () =
 
     const states = await browser.execute(() => {
       const out: Record<string, { state: string; offersSeal: boolean }> = {};
-      for (const row of document.querySelectorAll(".row")) {
-        const name = row.querySelector(".row__name")?.textContent?.trim() ?? "";
+      for (const row of document.querySelectorAll(".line")) {
+        const name = row.querySelector(".line__open")?.textContent?.trim() ?? "";
         out[name] = {
-          state: row.querySelector(".row__state")?.textContent?.trim() ?? "",
+          state: row.getAttribute("data-condition") ?? "",
           offersSeal: row.querySelector('button[aria-label^="Seal "]') !== null,
         };
       }
       return out;
     });
 
-    if (states[ENV_FILE]?.state !== "Sealed" || states[OPAQUE_FILE]?.state !== "Sealed") {
+    if (states[ENV_FILE]?.state !== "sealed" || states[OPAQUE_FILE]?.state !== "sealed") {
       throw new Error(
         `a rescan changed what the managed files report: ${JSON.stringify(states)}`,
       );
     }
-    if (!states[FORGOTTEN_FILE]?.offersSeal || states[FORGOTTEN_FILE]?.state !== "") {
+    if (!states[FORGOTTEN_FILE]?.offersSeal || states[FORGOTTEN_FILE]?.state !== "open") {
       throw new Error(
         `the newly added file should be watched but not sealed — its own Seal control is what says so, not a label: ${JSON.stringify(states[FORGOTTEN_FILE])}`,
       );

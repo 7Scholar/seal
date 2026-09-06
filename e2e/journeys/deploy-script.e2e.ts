@@ -3,6 +3,7 @@ import { execFileSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { browser, $, expect } from "@wdio/globals";
+import { sealFromRow } from "./rows";
 import { enterPassphrase } from "./typing";
 
 const PASSWORD = "correct horse battery staple";
@@ -126,9 +127,7 @@ describe("a deploy script reads a secret at the moment of use", () => {
     await tile.waitForClickable({ timeout: 30000 });
     await tile.click();
 
-    const seal = $(`button[aria-label="Seal ${SECRET_FILE}"]`);
-    await seal.waitForClickable({ timeout: 30000 });
-    await seal.click();
+    await sealFromRow(`${SECRET_FILE}`);
     const gate = $('[role="dialog"] input');
     if (await gate.waitForDisplayed({ timeout: 6000 }).catch(() => false)) {
       await gate.setValue("I UNDERSTAND");

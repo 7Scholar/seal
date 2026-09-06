@@ -19,8 +19,6 @@
     "ui/App.tsx": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
     "ui/components/Confirm.test.tsx": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b",
     "ui/components/Confirm.tsx": "37ed805072fcc406b92464aef3a3dd45f8a314a5",
-    "ui/components/ExposureAlert.test.tsx": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b",
-    "ui/components/ExposureAlert.tsx": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b",
     "ui/components/SealMark.tsx": "4ff8769cbfce1de9afd8f1ac4c58f90011784b89",
     "ui/components/SecretValue.test.tsx": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b",
     "ui/components/SecretValue.tsx": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b",

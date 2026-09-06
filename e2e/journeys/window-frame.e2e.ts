@@ -69,7 +69,7 @@ function assertFramed(where: string, measured: Frame) {
 
 describe("every surface sits in the window's frame", () => {
   it("carries the title bar on the locked screen, before anything is established", async () => {
-    await expect($("h1=Choose your master password")).toBeDisplayed();
+    await expect($('[data-surface="unlock"][data-mode="create"]')).toBeDisplayed();
     assertFramed("locked", await frame(".unlock"));
 
     const strip = await browser.execute(() => {
@@ -102,9 +102,7 @@ describe("every surface sits in the window's frame", () => {
 
   it("carries the title bar on the manage surface, which does not scroll as a document", async () => {
     await enterPassphrase(PASSWORD);
-    await expect($('[role="status"][aria-label="Unlock status"]')).toHaveText(
-      expect.stringContaining("confirm"),
-    );
+    await expect($("p*=once more to confirm")).toBeDisplayed();
     await enterPassphrase(PASSWORD);
     await expect($('[data-surface="repositories"]')).toBeDisplayed();
 

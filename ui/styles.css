@@ -81,6 +81,10 @@
   --hover: rgba(34, 38, 43, 0.04);
   --selected: rgba(47, 111, 99, 0.12);
   --sand-ground: #e7e0d2;
+  --sand-mark: #fbfbf9;
+  --sand-mark-detail: #b7a88b;
+  --sand-pressed: rgba(43, 34, 20, 0.45);
+  --sand-pressed-last: rgba(43, 34, 20, 0.62);
   --sand-text: rgba(43, 34, 20, 0.88);
   --sand-muted: rgba(74, 62, 43, 0.68);
   --sand-alarm: #9b1024;
@@ -104,6 +108,10 @@
   --hover: rgba(232, 233, 230, 0.06);
   --selected: rgba(78, 155, 139, 0.16);
   --sand-ground: #141318;
+  --sand-mark: #fbfbf9;
+  --sand-mark-detail: #4a4237;
+  --sand-pressed: rgba(236, 233, 226, 0.45);
+  --sand-pressed-last: rgba(236, 233, 226, 0.62);
   --sand-text: rgba(236, 233, 226, 0.82);
   --sand-muted: rgba(199, 195, 185, 0.6);
   --sand-alarm: #b4243c;
@@ -740,25 +748,44 @@ input:focus { border-color: var(--text); }
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.45rem;
-  padding: 0 1.5rem 11vh;
+  gap: 18px;
+  padding: 0 24px 74px;
   pointer-events: none;
   text-align: center;
 }
-.unlock__overlay h1 {
+
+.mark { width: 60px; height: 60px; flex: none; }
+.mark__body { fill: var(--sand-mark); stroke: var(--sand-mark); }
+.mark__detail { stroke: var(--sand-mark-detail); }
+.mark[data-alarmed="true"] .mark__body { fill: var(--sand-alarm); stroke: var(--sand-alarm); }
+.mark[data-alarmed="true"] .mark__detail { stroke: var(--sand-ground); }
+
+.unlock__words { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.unlock__wordmark {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: var(--text-base);
   font-weight: 500;
+  line-height: 18px;
   letter-spacing: 0.42em;
   text-indent: 0.42em;
-  text-transform: uppercase;
   color: var(--sand-text);
 }
-.unlock__hint { margin: 0; font-size: 0.85rem; color: var(--sand-muted); }
+.unlock__hint { margin: 0; font-size: var(--text-note); line-height: 16px; color: var(--sand-muted); }
+
+.unlock__dots { display: flex; align-items: center; gap: 9px; }
+.unlock__dot {
+  width: 7px; height: 7px; flex: none;
+  border-radius: 4px;
+  background: var(--sand-pressed);
+}
+.unlock__dot[data-last="true"] { background: var(--sand-pressed-last); }
+
 .unlock__status {
-  margin: 0.35rem 0 0;
-  min-height: 1.4rem;
-  font-size: 0.85rem;
+  margin: 0;
+  min-height: 21px;
+  max-width: 520px;
+  font-size: var(--text-note);
+  line-height: 21px;
   color: var(--sand-text);
 }
 .unlock__status[data-failed] { color: var(--sand-alarm); }

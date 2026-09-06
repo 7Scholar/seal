@@ -44,8 +44,8 @@ describe("the bad day: ceremony where it belongs, and nowhere else", () => {
       writeFileSync(join(repo(), `.env.${name}`), `SECRET_${name}=value-${name}\n`);
     }
 
-    const choose = $("h1=Choose your master password");
-    const locked = $("h1=Seal is locked");
+    const choose = $('[data-surface="unlock"][data-mode="create"]');
+    const locked = $('[data-surface="unlock"][data-mode="verify"]');
     const lock = $('button[aria-label="Lock Seal"]');
     if (await lock.isDisplayed().catch(() => false)) {
       await lock.click();
@@ -193,9 +193,9 @@ describe("the bad day: ceremony where it belongs, and nowhere else", () => {
         "locking asked for a confirmation — the one action that only ever makes things safer",
       );
     }
-    await expect($("h1=Seal is locked")).toBeDisplayed();
+    await expect($('[data-surface="unlock"][data-mode="verify"]')).toBeDisplayed();
     await enterPassphrase(PASSWORD);
-    await expect($("h1=Seal is locked")).not.toBeDisplayed();
+    await expect($('[data-surface="unlock"][data-mode="verify"]')).not.toBeDisplayed();
   });
 
   it("guards releasing a file, which puts a secret back in the clear", async () => {

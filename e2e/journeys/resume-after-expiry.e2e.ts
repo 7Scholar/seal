@@ -27,8 +27,8 @@ describe("coming back to a file whose plaintext expired while you were away", ()
     writeFileSync(file, `API_KEY=${SECRET}\nDATABASE_URL=postgres://host/db\n`);
     requireShortLifetime();
 
-    const choose = $("h1=Choose your master password");
-    const locked = $("h1=Seal is locked");
+    const choose = $('[data-surface="unlock"][data-mode="create"]');
+    const locked = $('[data-surface="unlock"][data-mode="verify"]');
     await browser.waitUntil(
       async () =>
         (await choose.isDisplayed().catch(() => false)) ||
@@ -77,7 +77,7 @@ describe("coming back to a file whose plaintext expired while you were away", ()
 
     await $('button[aria-label="Edit API_KEY"]').click();
 
-    await $("h1=Seal is locked").waitForDisplayed({ timeout: 30000 });
+    await $('[data-surface="unlock"][data-mode="verify"]').waitForDisplayed({ timeout: 30000 });
     const status = $('[aria-label="Unlock status"]');
     await status.waitForDisplayed({ timeout: 10000 });
     expect(await status.getText()).toContain("pick up where you left off");

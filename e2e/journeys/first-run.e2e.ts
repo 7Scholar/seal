@@ -13,14 +13,14 @@ let repo = "";
 
 describe("first run: install, choose a password, protect a first file", () => {
   it("opens to choosing a password, saying it is a choice and cannot be recovered", async () => {
-    await expect($("h1=Choose your master password")).toBeDisplayed();
+    await expect($('[data-surface="unlock"][data-mode="create"]')).toBeDisplayed();
     await expect($("p*=never be recovered")).toBeDisplayed();
-    await expect($("p*=choosing a password now, not entering one")).toBeDisplayed();
+    await expect($("p*=Choose a master password")).toBeDisplayed();
   });
 
   it("catches a mistyped confirmation and sets nothing", async () => {
     await enterPassphrase("first attempt");
-    await expect(status()).toHaveText(expect.stringContaining("confirm"));
+    await expect($("p*=once more to confirm")).toBeDisplayed();
 
     await enterPassphrase("different attempt");
     await expect(status()).toHaveText(expect.stringContaining("did not match"));
@@ -28,7 +28,7 @@ describe("first run: install, choose a password, protect a first file", () => {
 
   it("establishes the password when both entries match, and lands in the empty state", async () => {
     await enterPassphrase(PASSWORD);
-    await expect(status()).toHaveText(expect.stringContaining("confirm"));
+    await expect($("p*=once more to confirm")).toBeDisplayed();
 
     await enterPassphrase(PASSWORD);
 
@@ -131,13 +131,12 @@ describe("first run: install, choose a password, protect a first file", () => {
 
   it("locks on request, rejects a wrong password plainly, and reopens with the right one", async () => {
     await $('button[aria-label="Lock Seal"]').click();
-    await expect($("h1=Seal is locked")).toBeDisplayed();
+    await expect($('[data-surface="unlock"][data-mode="verify"]')).toBeDisplayed();
 
     await enterPassphrase("not the password");
     await expect(status()).toHaveText(
       expect.stringContaining("did not open your files"),
     );
-    await expect(status()).toHaveText(expect.stringContaining("Nothing was changed"));
 
     await enterPassphrase(PASSWORD);
     await expect($('[data-surface="repositories"]')).toBeDisplayed();

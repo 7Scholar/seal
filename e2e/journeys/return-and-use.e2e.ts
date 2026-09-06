@@ -27,8 +27,8 @@ async function openTheRepository() {
 
 describe("returning: unlock, use a secret, catch an exposure, rotate the password", () => {
   before(async () => {
-    const choose = $("h1=Choose your master password");
-    const locked = $("h1=Seal is locked");
+    const choose = $('[data-surface="unlock"][data-mode="create"]');
+    const locked = $('[data-surface="unlock"][data-mode="verify"]');
 
     const lock = $('button[aria-label="Lock Seal"]');
     if (await lock.isDisplayed().catch(() => false)) {
@@ -96,8 +96,8 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
   });
 
   it("greets a returning user with the locked shield, never the choosing one", async () => {
-    await expect($("h1=Seal is locked")).toBeDisplayed();
-    await expect($("h1=Choose your master password")).not.toBeDisplayed();
+    await expect($('[data-surface="unlock"][data-mode="verify"]')).toBeDisplayed();
+    await expect($('[data-surface="unlock"][data-mode="create"]')).not.toBeDisplayed();
   });
 
   it("unlocks into the repository view with the sealed file", async () => {
@@ -160,7 +160,7 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
     writeFileSync(join(repo(), ".env"), "API_KEY=leaked-in-the-clear\n");
 
     await $('button[aria-label="Lock Seal"]').click();
-    await expect($("h1=Seal is locked")).toBeDisplayed();
+    await expect($('[data-surface="unlock"][data-mode="verify"]')).toBeDisplayed();
     await enterPassphrase(PASSWORD);
     await expect($('[data-surface="repositories"]')).toBeDisplayed();
     await openTheRepository();
@@ -206,7 +206,7 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
     await expect($('button[aria-label="Lock Seal"]')).toBeDisplayed();
 
     await $('button[aria-label="Lock Seal"]').click();
-    await expect($("h1=Seal is locked")).toBeDisplayed();
+    await expect($('[data-surface="unlock"][data-mode="verify"]')).toBeDisplayed();
 
     await enterPassphrase(PASSWORD);
     await expect(status()).toHaveText(
@@ -214,7 +214,7 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
     );
 
     await enterPassphrase(NEW_PASSWORD);
-    await expect($("h1=Seal is locked")).not.toBeDisplayed();
+    await expect($('[data-surface="unlock"][data-mode="verify"]')).not.toBeDisplayed();
     await openTheRepository();
     await expect($("span=Sealed")).toBeDisplayed();
   });

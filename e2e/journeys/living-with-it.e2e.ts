@@ -85,8 +85,8 @@ describe("living with it: the glance, the errors, and the bad day", () => {
       );
     }
 
-    const choose = $("h1=Choose your master password");
-    const locked = $("h1=Seal is locked");
+    const choose = $('[data-surface="unlock"][data-mode="create"]');
+    const locked = $('[data-surface="unlock"][data-mode="verify"]');
     const lock = $('button[aria-label="Lock Seal"]');
     if (await lock.isDisplayed().catch(() => false)) {
       await lock.click();
@@ -140,7 +140,7 @@ describe("living with it: the glance, the errors, and the bad day", () => {
     writeFileSync(join(repo(), `.env.${FILES[0]}`), "SECRET_ALPHA=in-the-clear\n");
 
     await $('button[aria-label="Lock Seal"]').click();
-    await expect($("h1=Seal is locked")).toBeDisplayed();
+    await expect($('[data-surface="unlock"][data-mode="verify"]')).toBeDisplayed();
     await enterPassphrase(PASSWORD);
     await openTheRepository();
 
@@ -173,7 +173,7 @@ describe("living with it: the glance, the errors, and the bad day", () => {
     unlinkSync(join(repo(), `.env.${FILES[1]}`));
 
     await $('button[aria-label="Lock Seal"]').click();
-    await expect($("h1=Seal is locked")).toBeDisplayed();
+    await expect($('[data-surface="unlock"][data-mode="verify"]')).toBeDisplayed();
     await enterPassphrase(PASSWORD);
     await openTheRepository();
 
@@ -240,8 +240,8 @@ describe("living with it: the glance, the errors, and the bad day", () => {
     });
 
     await relaunch();
-    await expect($("h1=Seal is locked")).toBeDisplayed();
+    await expect($('[data-surface="unlock"][data-mode="verify"]')).toBeDisplayed();
     await enterPassphrase(PASSWORD);
-    await expect($("h1=Seal is locked")).not.toBeDisplayed();
+    await expect($('[data-surface="unlock"][data-mode="verify"]')).not.toBeDisplayed();
   });
 });

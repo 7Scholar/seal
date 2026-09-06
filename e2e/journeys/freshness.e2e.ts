@@ -41,8 +41,8 @@ describe("noticing the world change underneath an open window", () => {
       writeFileSync(join(repo(), `.env.${name}`), `SECRET_${name}=value-${name}\n`);
     }
 
-    const choose = $("h1=Choose your master password");
-    const locked = $("h1=Seal is locked");
+    const choose = $('[data-surface="unlock"][data-mode="create"]');
+    const locked = $('[data-surface="unlock"][data-mode="verify"]');
     const lock = $('button[aria-label="Lock Seal"]');
     if (await lock.isDisplayed().catch(() => false)) {
       await lock.click();

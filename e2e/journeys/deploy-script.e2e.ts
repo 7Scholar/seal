@@ -90,8 +90,8 @@ describe("a deploy script reads a secret at the moment of use", () => {
     writeFileSync(wrongPasswordFile(), "not the password at all\n");
     chmodSync(script, 0o755);
 
-    const choose = $("h1=Choose your master password");
-    const locked = $("h1=Seal is locked");
+    const choose = $('[data-surface="unlock"][data-mode="create"]');
+    const locked = $('[data-surface="unlock"][data-mode="verify"]');
     const lock = $('button[aria-label="Lock Seal"]');
     if (await lock.isDisplayed().catch(() => false)) {
       await lock.click();

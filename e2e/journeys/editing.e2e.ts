@@ -56,8 +56,8 @@ describe("managing environment variables in Seal", () => {
     mkdirSync(repo(), { recursive: true });
     writeFileSync(join(repo(), FILE), BODY);
 
-    const choose = $("h1=Choose your master password");
-    const locked = $("h1=Seal is locked");
+    const choose = $('[data-surface="unlock"][data-mode="create"]');
+    const locked = $('[data-surface="unlock"][data-mode="verify"]');
     await browser.waitUntil(
       async () =>
         (await choose.isDisplayed().catch(() => false)) ||

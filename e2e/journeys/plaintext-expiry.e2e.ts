@@ -43,8 +43,8 @@ describe("stepping away: held plaintext expires on its own", () => {
 
     requireShortLifetime();
 
-    const choose = $("h1=Choose your master password");
-    const locked = $("h1=Seal is locked");
+    const choose = $('[data-surface="unlock"][data-mode="create"]');
+    const locked = $('[data-surface="unlock"][data-mode="verify"]');
     const lock = $('button[aria-label="Lock Seal"]');
     if (await lock.isDisplayed().catch(() => false)) {
       await lock.click();
@@ -186,7 +186,7 @@ describe("stepping away: held plaintext expires on its own", () => {
     await expect(toggle).toHaveAttribute("aria-pressed", "false");
     await toggle.click();
 
-    await $("h1=Seal is locked").waitForDisplayed({ timeout: 15000 });
+    await $('[data-surface="unlock"][data-mode="verify"]').waitForDisplayed({ timeout: 15000 });
 
     const status = $('[aria-label="Unlock status"]');
     await status.waitForDisplayed({ timeout: 10000 });
@@ -206,9 +206,9 @@ describe("stepping away: held plaintext expires on its own", () => {
   });
 
   it("lets the user pick straight back up by opening it again", async () => {
-    if (await $("h1=Seal is locked").isDisplayed().catch(() => false)) {
+    if (await $('[data-surface="unlock"][data-mode="verify"]').isDisplayed().catch(() => false)) {
       await enterPassphrase(PASSWORD);
-      await $("h1=Seal is locked").waitForDisplayed({
+      await $('[data-surface="unlock"][data-mode="verify"]').waitForDisplayed({
         timeout: 30000,
         reverse: true,
       });

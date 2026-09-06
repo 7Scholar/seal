@@ -32,11 +32,13 @@ A password-change plan lists the sentinel as its **first** manifest entry, ahead
 
 ## The single surface
 
-The interface asks whether a password is established and renders the one unlock shield in one of two modes. **Verify** is the ordinary unlock. **Create** states that a password is being chosen rather than entered and that it can never be recovered, then demands the password twice: the first Enter stores the candidate and asks for confirmation, a matching second Enter establishes, and a mismatch sets nothing and starts over — a typo at this moment must be caught, because it would silently lock the user out of everything they later protect. A create-mode failure says nothing was changed. Until the established answer arrives, nothing is rendered, so the wrong mode can never flash.
+The interface asks whether a password is established and renders the one unlock shield in one of two modes. **Verify** is the ordinary unlock. **Create** says a password is being *chosen*, and states as a standing message — not as a consequence after the fact — that it can never be recovered and that losing it loses everything sealed with it. It then demands the password twice: the first Enter stores the candidate and asks for confirmation, a matching second Enter establishes, and a mismatch sets nothing and starts over — a typo at this moment must be caught, because it would silently lock the user out of everything they later protect. While the confirmation is outstanding the screen says so in both places at once: the hint asks for it, and the status states that **nothing is set until the two match**. A create-mode failure says nothing was changed. Until the established answer arrives, nothing is rendered, so the wrong mode can never flash.
+
+Which mode the screen is in is expressed in the markup as well as in the copy, so a driven scenario can name it without depending on a sentence. [screens.md](ui/screens.md) owns the overlay's shape.
 
 # What exists
 
-All of the above, with eight Rust tests covering the sentinel's lifecycle — establishment, refusal when established, verify accepting the right password and rejecting another, the not-established refusal, the self-healing half-written sentinel, the legacy-install password check, and a rekey moving the unlock password — and five interface tests covering the create mode's choosing language, the confirmation, the typo catch, and the failure copy.
+All of the above, with eight Rust tests covering the sentinel's lifecycle — establishment, refusal when established, verify accepting the right password and rejecting another, the not-established refusal, the self-healing half-written sentinel, the legacy-install password check, and a rekey moving the unlock password — and interface tests covering the create mode's choosing language, the standing irreversibility warning, the confirmation, the typo catch, and the failure copy.
 
 # What is missing
 

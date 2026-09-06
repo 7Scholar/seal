@@ -36,8 +36,8 @@ describe("managing readable files beside sealed ones", () => {
     writeFileSync(join(repo(), READABLE), "API_KEY=dev-key\nDEBUG=true\n");
     writeFileSync(join(repo(), SEALED), "API_KEY=live-key\n");
 
-    const choose = $("h1=Choose your master password");
-    const locked = $("h1=Seal is locked");
+    const choose = $('[data-surface="unlock"][data-mode="create"]');
+    const locked = $('[data-surface="unlock"][data-mode="verify"]');
     await browser.waitUntil(
       async () =>
         (await choose.isDisplayed().catch(() => false)) ||

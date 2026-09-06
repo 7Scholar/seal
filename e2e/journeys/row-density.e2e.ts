@@ -17,8 +17,8 @@ describe("the row's density in the real window", () => {
     for (let i = 0; i < COUNT - 1; i += 1) body += `VARIABLE_${i}=value-${i}\n`;
     writeFileSync(join(repo(), FILE), body);
 
-    const choose = $("h1=Choose your master password");
-    const locked = $("h1=Seal is locked");
+    const choose = $('[data-surface="unlock"][data-mode="create"]');
+    const locked = $('[data-surface="unlock"][data-mode="verify"]');
     await browser.waitUntil(async () =>
       (await choose.isDisplayed().catch(() => false)) ||
       (await locked.isDisplayed().catch(() => false)), { timeout: 30000 });

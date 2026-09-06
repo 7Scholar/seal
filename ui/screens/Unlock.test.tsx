@@ -4,12 +4,38 @@ import userEvent from "@testing-library/user-event";
 import { Unlock } from "./Unlock";
 
 describe("Unlock, entering", () => {
-  it("names the locked state and the way through it", () => {
+  it("names the product and the way through it, without naming the state twice", () => {
     render(<Unlock mode="verify" onSubmit={vi.fn()} />);
-    expect(screen.getByText("Seal is locked")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "SEAL" })).toBeInTheDocument();
     expect(
       screen.getByText("Type your master password, then press Enter."),
     ).toBeInTheDocument();
+    expect(screen.queryByText(/is locked/i)).toBeNull();
+  });
+
+  it("presses a dot into the sand for every character typed, so a keystroke is confirmed", async () => {
+    const user = userEvent.setup();
+    render(<Unlock mode="verify" onSubmit={vi.fn()} />);
+
+    expect(document.querySelectorAll(".unlock__dot")).toHaveLength(0);
+
+    await user.keyboard("abcd");
+    expect(document.querySelectorAll(".unlock__dot")).toHaveLength(4);
+    expect(document.querySelectorAll('.unlock__dot[data-last="true"]')).toHaveLength(1);
+  });
+
+  it("marks the seal when a password is refused, and leaves it alone otherwise", async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn(async () => {
+      throw new Error("wrong");
+    });
+    render(<Unlock mode="verify" onSubmit={onSubmit} />);
+
+    expect(document.querySelector('.mark[data-alarmed="true"]')).toBeNull();
+
+    await user.keyboard("nope{Enter}");
+    await screen.findByText(/did not open your files/i);
+    expect(document.querySelector('.mark[data-alarmed="true"]')).not.toBeNull();
   });
 
   it("focuses the password field so typing works immediately", () => {
@@ -56,7 +82,7 @@ describe("Unlock, entering", () => {
     await user.keyboard("secret{Enter}");
 
     expect(screen.getByRole("status", { name: "Unlock status" })).toHaveTextContent(
-      /takes a moment/i,
+      /deriving the key/i,
     );
     release();
   });
@@ -71,7 +97,7 @@ describe("Unlock, entering", () => {
     await user.keyboard("nope{Enter}");
 
     expect(
-      await screen.findByText(/did not open your files. Nothing was changed./i),
+      await screen.findByText("That password did not open your files."),
     ).toBeInTheDocument();
   });
 
@@ -110,11 +136,12 @@ describe("Unlock, entering", () => {
 describe("Unlock, establishing", () => {
   it("says a password is being chosen, not entered, and states unrecoverability", () => {
     render(<Unlock mode="create" onSubmit={vi.fn()} />);
-    expect(screen.getByText("Choose your master password")).toBeInTheDocument();
+    expect(screen.getByText(/^Choose a master password/)).toBeInTheDocument();
     expect(
-      screen.getByText(/choosing a password now, not entering one/i),
+      screen.getByText(
+        "It can never be recovered. Lose it and everything sealed with it is lost.",
+      ),
     ).toBeInTheDocument();
-    expect(screen.getByText(/never be recovered/i)).toBeInTheDocument();
   });
 
   it("asks for confirmation instead of setting on the first Enter", async () => {
@@ -126,8 +153,9 @@ describe("Unlock, establishing", () => {
 
     expect(onSubmit).not.toHaveBeenCalled();
     expect(screen.getByLabelText("Master password")).toHaveValue("");
+    expect(screen.getByText("Type it once more to confirm.")).toBeInTheDocument();
     expect(screen.getByRole("status", { name: "Unlock status" })).toHaveTextContent(
-      /nothing is set yet.*confirm/i,
+      "Nothing is set until the two match.",
     );
   });
 

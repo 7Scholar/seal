@@ -47,8 +47,8 @@ describe("the manage surface's two channels", () => {
     mkdirSync(join(repo(), "node_modules"), { recursive: true });
     writeFileSync(join(repo(), "node_modules", ".env"), "LEAK=1\n");
 
-    const choose = $("h1=Choose your master password");
-    const locked = $("h1=Seal is locked");
+    const choose = $('[data-surface="unlock"][data-mode="create"]');
+    const locked = $('[data-surface="unlock"][data-mode="verify"]');
     await browser.waitUntil(
       async () =>
         (await choose.isDisplayed().catch(() => false)) ||

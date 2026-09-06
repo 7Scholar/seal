@@ -4,7 +4,7 @@ import { enterPassphrase } from "./typing";
 const PASSWORD = "correct horse battery staple";
 
 async function unlockIntoTheShell() {
-  const choose = $("h1=Choose your master password");
+  const choose = $('[data-surface="unlock"][data-mode="create"]');
   if (await choose.isDisplayed().catch(() => false)) {
     await enterPassphrase(PASSWORD);
     await browser.pause(800);

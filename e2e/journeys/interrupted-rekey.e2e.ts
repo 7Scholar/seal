@@ -107,8 +107,8 @@ describe("an interrupted password change resumes and reports where every file st
       writeFileSync(join(repo(), `.env.${name}`), `SECRET_${name.toUpperCase()}=value-${name}\n`);
     }
 
-    const choose = $("h1=Choose your master password");
-    const locked = $("h1=Seal is locked");
+    const choose = $('[data-surface="unlock"][data-mode="create"]');
+    const locked = $('[data-surface="unlock"][data-mode="verify"]');
     const lock = $('button[aria-label="Lock Seal"]');
     if (await lock.isDisplayed().catch(() => false)) {
       await lock.click();
@@ -217,7 +217,7 @@ describe("an interrupted password change resumes and reports where every file st
   it("says so unprompted on reopening, without being asked to look", async () => {
     await relaunch();
 
-    await expect($("h1=Seal is locked")).toBeDisplayed();
+    await expect($('[data-surface="unlock"][data-mode="verify"]')).toBeDisplayed();
     await enterPassphrase(NEW_PASSWORD);
 
     const banner = $(".shell__rekey");
@@ -280,7 +280,7 @@ describe("an interrupted password change resumes and reports where every file st
 
   it("leaves every file on the new password, and the old one opens nothing", async () => {
     await $('button[aria-label="Lock Seal"]').click();
-    await expect($("h1=Seal is locked")).toBeDisplayed();
+    await expect($('[data-surface="unlock"][data-mode="verify"]')).toBeDisplayed();
 
     await enterPassphrase(PASSWORD);
     await expect($('[role="status"][aria-label="Unlock status"]')).toHaveText(
@@ -288,7 +288,7 @@ describe("an interrupted password change resumes and reports where every file st
     );
 
     await enterPassphrase(NEW_PASSWORD);
-    await expect($("h1=Seal is locked")).not.toBeDisplayed();
+    await expect($('[data-surface="unlock"][data-mode="verify"]')).not.toBeDisplayed();
 
     for (const name of FILES) {
       const contents = readFileSync(join(repo(), `.env.${name}`), "utf8");

@@ -46,8 +46,8 @@ describe("settling in: a file with no editor, and coming back to add more", () =
     mkdirSync(second(), { recursive: true });
     writeFileSync(join(second(), ".env.production"), "OTHER_KEY=other-value\n");
 
-    const choose = $("h1=Choose your master password");
-    const locked = $("h1=Seal is locked");
+    const choose = $('[data-surface="unlock"][data-mode="create"]');
+    const locked = $('[data-surface="unlock"][data-mode="verify"]');
     const lock = $('button[aria-label="Lock Seal"]');
     if (await lock.isDisplayed().catch(() => false)) {
       await lock.click();
@@ -342,7 +342,7 @@ describe("settling in: a file with no editor, and coming back to add more", () =
     await $('[data-surface="repositories"]').waitForDisplayed();
 
     await $('button[aria-label="Lock Seal"]').click();
-    await expect($("h1=Seal is locked")).toBeDisplayed();
+    await expect($('[data-surface="unlock"][data-mode="verify"]')).toBeDisplayed();
     await enterPassphrase(PASSWORD);
     await $('[data-surface="repositories"]').waitForDisplayed({ timeout: 30000 });
 

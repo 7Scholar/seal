@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import { SealMark } from "../components/SealMark";
 import { createSandShield, type SandShield } from "./sandShield";
+
+const DOT_CAP = 20;
 
 interface Props {
   mode: "verify" | "create";
@@ -68,31 +71,37 @@ export function Unlock({ mode, notice: outsideNotice, onSubmit }: Props) {
     }
   }
 
-  const heading = mode === "verify" ? "Seal is locked" : "Choose your master password";
   const hint =
     mode === "verify"
       ? "Type your master password, then press Enter."
-      : "You are choosing a password now, not entering one. It can never be recovered: lose it and everything sealed with it is lost. Type it, then press Enter.";
+      : chosen === null
+        ? "Choose a master password. Type it, then press Enter."
+        : "Type it once more to confirm.";
 
   const status = working
-    ? "Working. Deriving the key takes a moment."
-    : notice === "confirm"
-      ? "Nothing is set yet. Type the same password once more to confirm, then press Enter."
-      : notice === "mismatch"
-        ? "The two entries did not match. Nothing was set — choose the password again from the start."
-        : notice === "wrong"
-          ? "That password did not open your files. Nothing was changed. The attempt was cleared — type it again and press Enter."
-          : notice === "failed"
-            ? "The password could not be set. Nothing was changed — type it again and press Enter."
-            : passphrase.length === 0 && chosen === null
+    ? "Deriving the key…"
+    : notice === "mismatch"
+      ? "The two entries did not match. Nothing was set — choose the password again from the start."
+      : notice === "wrong"
+        ? "That password did not open your files."
+        : notice === "failed"
+          ? "The password could not be set. Nothing was changed."
+          : mode === "create"
+            ? chosen === null
+              ? "It can never be recovered. Lose it and everything sealed with it is lost."
+              : "Nothing is set until the two match."
+            : passphrase.length === 0
               ? (outsideNotice ?? "")
               : "";
 
   const alarmed = notice === "mismatch" || notice === "wrong" || notice === "failed";
+  const dots = Math.min(passphrase.length, DOT_CAP);
 
   return (
     <form
       className="unlock"
+      data-surface="unlock"
+      data-mode={mode}
       onSubmit={submit}
       onPointerMove={(event) => shieldRef.current?.pointerTo(event.clientX, event.clientY)}
       onPointerLeave={() => shieldRef.current?.pointerGone()}
@@ -128,8 +137,25 @@ export function Unlock({ mode, notice: outsideNotice, onSubmit }: Props) {
       />
 
       <div className="unlock__overlay">
-        <h1>{heading}</h1>
-        <p className="unlock__hint">{hint}</p>
+        <SealMark alarmed={alarmed} />
+
+        <div className="unlock__words">
+          <h1 className="unlock__wordmark">SEAL</h1>
+          {working ? null : <p className="unlock__hint">{hint}</p>}
+        </div>
+
+        {dots > 0 ? (
+          <span className="unlock__dots" aria-hidden="true">
+            {Array.from({ length: dots }, (_, index) => (
+              <span
+                key={index}
+                className="unlock__dot"
+                data-last={index === dots - 1 ? "true" : undefined}
+              />
+            ))}
+          </span>
+        ) : null}
+
         <p
           role="status"
           aria-label="Unlock status"

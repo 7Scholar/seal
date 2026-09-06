@@ -753,7 +753,7 @@ describe("an expired file met mid-task", () => {
     mocked.reveal.mockRejectedValue({ kind: "notOpen", path: null });
     await user.click(screen.getByRole("button", { name: "Edit API_KEY" }));
 
-    expect(await screen.findByRole("heading", { name: "Seal is locked" })).toBeInTheDocument();
+    expect(await screen.findByText("Type your master password, then press Enter.")).toBeInTheDocument();
     expect(screen.getByText(/pick up where you left off/)).toBeInTheDocument();
   });
 
@@ -763,7 +763,7 @@ describe("an expired file met mid-task", () => {
 
     mocked.reveal.mockRejectedValueOnce({ kind: "notOpen", path: null });
     await user.click(screen.getByRole("button", { name: "Edit API_KEY" }));
-    await screen.findByRole("heading", { name: "Seal is locked" });
+    await screen.findByText("Type your master password, then press Enter.");
 
     mocked.unlock.mockResolvedValue(undefined);
     mocked.reveal.mockResolvedValue(new TextEncoder().encode("sk-live"));
@@ -779,7 +779,7 @@ describe("an expired file met mid-task", () => {
     await openTheFile(user);
 
     await user.click(screen.getByRole("button", { name: "Lock Seal" }));
-    await screen.findByRole("heading", { name: "Seal is locked" });
+    await screen.findByText("Type your master password, then press Enter.");
 
     mocked.unlock.mockResolvedValue(undefined);
     await enterUnlockPassword(user);
@@ -951,7 +951,7 @@ describe("a relock arriving while a manage selection is live", () => {
     await user.click(screen.getByRole("button", { name: "Manage 2 files" }));
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: "Seal is locked" })).toBeInTheDocument();
+      expect(screen.getByText("Type your master password, then press Enter.")).toBeInTheDocument();
     });
     expect(
       screen.queryByRole("button", { name: "Manage 2 files" }),

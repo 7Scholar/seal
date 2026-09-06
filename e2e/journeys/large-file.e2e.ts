@@ -29,8 +29,8 @@ describe("editing a file with hundreds of variables", () => {
     }
     writeFileSync(join(repo(), BIG), body);
 
-    const choose = $("h1=Choose your master password");
-    const locked = $("h1=Seal is locked");
+    const choose = $('[data-surface="unlock"][data-mode="create"]');
+    const locked = $('[data-surface="unlock"][data-mode="verify"]');
     await browser.waitUntil(
       async () =>
         (await choose.isDisplayed().catch(() => false)) ||

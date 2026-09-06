@@ -114,8 +114,8 @@ export function App() {
   function relock(resume?: Resume) {
     setLockNote(
       resume
-        ? "Seal locked itself while you were away. Everything stayed sealed — unlock to pick up where you left off."
-        : "Seal locked itself while you were away. Everything stayed sealed — unlock to continue.",
+        ? "Seal locked itself while you were away. Unlock to pick up where you left off."
+        : "Seal locked itself while you were away.",
     );
     setResume(resume ?? null);
     setUnlocked(false);

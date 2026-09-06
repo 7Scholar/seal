@@ -1,4 +1,3 @@
-#[cfg(target_os = "macos")]
 pub const STRIP_HEIGHT: f64 = 46.0;
 
 #[cfg(target_os = "macos")]

@@ -50,6 +50,19 @@ jobs:
       - name: Build the command-line tool into the bundle
         run: ./scripts/build-sidecar.sh
 
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      # The desktop crate embeds the built interface at compile time, so
+      # `generate_context!` panics when `dist/` is absent — the crate cannot be linted
+      # or tested until the interface exists, and no cargo command builds it.
+      - name: Build the interface the desktop crate embeds
+        run: |
+          set -euo pipefail
+          bun install --frozen-lockfile
+          bun run build
+
       - name: Lints
         run: cargo clippy --all-targets --all-features -- -D warnings
 

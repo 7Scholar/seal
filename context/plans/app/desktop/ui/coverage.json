@@ -1,6 +1,7 @@
 {
   "errors.md": {
-    "ui/App.tsx": "75494f05c58e8772206909b06c3b1878b0d69088",
+    "ui/App.test.tsx": "17f23dd14a95cca2600108c10f9f8cf85a573109",
+    "ui/App.tsx": "17f23dd14a95cca2600108c10f9f8cf85a573109",
     "ui/components/Problem.test.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "ui/components/Problem.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "ui/errors.test.ts": "75494f05c58e8772206909b06c3b1878b0d69088",
@@ -13,7 +14,8 @@
     "ui/screens/PasswordChange.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e"
   },
   "screens.md": {
-    "ui/App.tsx": "75494f05c58e8772206909b06c3b1878b0d69088",
+    "ui/App.test.tsx": "17f23dd14a95cca2600108c10f9f8cf85a573109",
+    "ui/App.tsx": "17f23dd14a95cca2600108c10f9f8cf85a573109",
     "ui/components/Confirm.test.tsx": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b",
     "ui/components/Confirm.tsx": "37ed805072fcc406b92464aef3a3dd45f8a314a5",
     "ui/components/ExposureAlert.test.tsx": "4576bed4f9b280a421002dd6fa8ce5e44a7c9b9b",
@@ -31,19 +33,20 @@
     "ui/screens/Unlock.test.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "ui/screens/Unlock.tsx": "a0b3f33bc64a56a499060d82bb90794330e3227e",
     "ui/screens/sandShield.ts": "0638f113171543216eb41a881576a7284247e7a9",
-    "ui/styles.css": "c614e2bdbca3bfc742b65689ad5659a506a605c8",
+    "ui/state.ts": "17f23dd14a95cca2600108c10f9f8cf85a573109",
+    "ui/styles.css": "17f23dd14a95cca2600108c10f9f8cf85a573109",
     "ui/test-setup.ts": "2b72f4a1974077a8a59db94f8a5910edade8369b"
   },
   "shell-layout.md": {
-    "e2e/journeys/first-run.e2e.ts": "d14f1fa6c6e33529d0d098de586751ab686385f8",
-    "ui/App.test.tsx": "75494f05c58e8772206909b06c3b1878b0d69088",
-    "ui/App.tsx": "75494f05c58e8772206909b06c3b1878b0d69088",
+    "e2e/journeys/first-run.e2e.ts": "17f23dd14a95cca2600108c10f9f8cf85a573109",
+    "ui/App.test.tsx": "17f23dd14a95cca2600108c10f9f8cf85a573109",
+    "ui/App.tsx": "17f23dd14a95cca2600108c10f9f8cf85a573109",
     "ui/components/Overflow.tsx": "664ae562a15034f173ad013318a5c2221c24c63c",
     "ui/components/Toggletip.test.tsx": "db87c4406dff9b30e905080324f0986b2ec4b576",
     "ui/components/Toggletip.tsx": "37ed805072fcc406b92464aef3a3dd45f8a314a5",
     "ui/screens/RepoDetail.test.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
     "ui/screens/RepoDetail.tsx": "d1d3a678c02530f74c4845022358fa06066f9d35",
-    "ui/styles.css": "c614e2bdbca3bfc742b65689ad5659a506a605c8"
+    "ui/styles.css": "17f23dd14a95cca2600108c10f9f8cf85a573109"
   },
   "shell.md": {
     "package.json": "ecb6be27f4e7db65a0bfe68a697d428307ed6162",

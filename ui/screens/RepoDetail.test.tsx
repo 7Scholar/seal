@@ -27,6 +27,7 @@ function setup(
     onReleaseMany: vi.fn(),
     onReleaseRepo: vi.fn(),
     onRescan: vi.fn(),
+    onSealAll: vi.fn(),
     onUnseal: vi.fn(),
     onUnsealMany: vi.fn(),
     onDismissOutcomes: vi.fn(),
@@ -37,6 +38,27 @@ function setup(
 }
 
 describe("RepoDetail", () => {
+  it("offers Seal every file, and hides it once every file is sealed", async () => {
+    const user = userEvent.setup();
+    const handlers = setup();
+
+    await user.click(screen.getByRole("button", { name: "More actions for app" }));
+    await user.click(screen.getByRole("button", { name: "Seal every file" }));
+    expect(handlers.onSealAll).toHaveBeenCalled();
+
+    const sealed: RepoView = {
+      ...app,
+      files: app.files.map((file) => ({ ...file, state: "sealed" as const })),
+    };
+    setup(sealed);
+    await user.click(
+      screen.getAllByRole("button", { name: "More actions for app" })[1]!,
+    );
+    expect(
+      screen.queryByRole("button", { name: "Seal every file" }),
+    ).not.toBeInTheDocument();
+  });
+
   it("labels a sealed file, and says nothing where the Seal control is the answer", () => {
     setup();
     expect(screen.getByText("Sealed")).toBeInTheDocument();

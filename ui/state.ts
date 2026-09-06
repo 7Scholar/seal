@@ -18,6 +18,12 @@ export function conditionOf(file: FileView): Condition {
   return "open";
 }
 
+export function sealable(files: FileView[]): string[] {
+  return files
+    .filter((file) => file.state !== "sealed" && file.state !== "missing")
+    .map((file) => file.relativePath);
+}
+
 const TICK_CAP = 9;
 
 export function ticksFor(files: FileView[]): {

@@ -27,6 +27,7 @@ function show(load: Load, list: RepoView[] = repos, extra = {}) {
     onRescan: vi.fn(),
     onReleaseRepo: vi.fn(),
     onSealRepo: vi.fn(),
+    onSealAll: vi.fn(),
     ...extra,
   };
   render(<Repositories {...props} />);
@@ -133,6 +134,21 @@ describe("the repositories list's states", () => {
 
     await user.click(screen.getByRole("button", { name: "Seal" }));
     expect(props.onSealRepo).toHaveBeenCalledWith(repos[0]);
+  });
+
+  it("offers Seal every file where something is unsealed, and hides it where nothing is", async () => {
+    const user = userEvent.setup();
+    const props = show("ready");
+
+    await user.click(screen.getByRole("button", { name: "More actions for site" }));
+    const all = screen.getByRole("button", { name: "Seal every file" });
+    await user.click(all);
+    expect(props.onSealAll).toHaveBeenCalledWith(repos[0]);
+
+    await user.click(screen.getByRole("button", { name: "More actions for api" }));
+    expect(
+      screen.queryByRole("button", { name: "Seal every file" }),
+    ).not.toBeInTheDocument();
   });
 
   it("states what matched nothing, and clears it", async () => {

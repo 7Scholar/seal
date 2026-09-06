@@ -318,6 +318,39 @@ describe("managing readable files beside sealed ones", () => {
     );
   });
 
+  it("seals what is left in one press, and stops offering to once nothing is left", async () => {
+    await browser.keys("Escape");
+    if (!readFileSync(join(repo(), READABLE), "utf8").includes("API_KEY=dev-key")) {
+      throw new Error("the readable file is not readable, so this proves nothing");
+    }
+
+    const menu = $(`button[aria-label="More actions for ${repoName()}"]`);
+    await menu.waitForClickable({ timeout: 30000 });
+    await menu.click();
+
+    const all = $("button=Seal every file");
+    await all.waitForClickable({ timeout: 15000 });
+    await all.click();
+
+    for (const name of [READABLE, SEALED]) {
+      await browser.waitUntil(
+        async () => readFileSync(join(repo(), name), "utf8").startsWith(ARMOR),
+        {
+          timeout: 30000,
+          timeoutMsg: `${name} is still readable after one press meant to seal every file`,
+        },
+      );
+    }
+
+    await menu.click();
+    if (await $("button=Seal every file").isDisplayed().catch(() => false)) {
+      throw new Error(
+        "Seal every file is still offered with nothing left to seal",
+      );
+    }
+    await browser.keys("Escape");
+  });
+
   it("gives the breadcrumb's add entry a real height", async () => {
     await $('button[aria-label="Open a repository"]').click();
     const add = $(".switcher__add");

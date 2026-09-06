@@ -137,25 +137,38 @@ describe("an interrupted password change resumes and reports where every file st
 
     await openTheRepository();
 
-    await $(`button[aria-label="Seal .env.${FILES[0]}"]`).waitForClickable();
-    await $(`button[aria-label="Seal .env.${FILES[0]}"]`).click();
+    const menu = $(`button[aria-label="More actions for ${repoName()}"]`);
+    await menu.waitForClickable({ timeout: 30000 });
+    await menu.click();
+
+    const all = $("button=Seal every file");
+    await all.waitForClickable({ timeout: 15000 });
+    await all.click();
+
     const gate = $('[role="dialog"] input');
     if (await gate.waitForDisplayed({ timeout: 6000 }).catch(() => false)) {
       await gate.setValue("I UNDERSTAND");
       await $("button=I understand — start sealing").click();
     }
-    await $("span=Sealed").waitForDisplayed({ timeout: 30000 });
 
-    for (const name of FILES.slice(1)) {
-      const seal = $(`button[aria-label="Seal .env.${name}"]`);
-      await seal.waitForClickable({ timeout: 30000 });
-      await seal.click();
+    for (const name of FILES) {
       await browser.waitUntil(
         async () =>
           readFileSync(join(repo(), `.env.${name}`), "utf8").startsWith(ARMOR),
-        { timeout: 30000, timeoutMsg: `.env.${name} never sealed` },
+        {
+          timeout: 30000,
+          timeoutMsg: `.env.${name} never sealed — one press was meant to seal every file`,
+        },
       );
     }
+
+    await menu.click();
+    if (await $("button=Seal every file").isDisplayed().catch(() => false)) {
+      throw new Error(
+        "Seal every file is still offered with nothing left to seal, so the menu has to be opened to learn nothing",
+      );
+    }
+    await browser.keys("Escape");
   });
 
   it("is killed partway through the rotation, leaving a manifest that is genuinely partial", async () => {

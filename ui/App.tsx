@@ -16,6 +16,7 @@ import { Overflow } from "./components/Overflow";
 import { Icon } from "./components/Icon";
 import { ThemeControl } from "./components/ThemeControl";
 import { fileName } from "./format";
+import { sealable } from "./state";
 import * as theme from "./theme";
 
 const REOBSERVE_INTERVAL_MS = 5000;
@@ -312,6 +313,12 @@ export function App() {
     );
   }
 
+  function sealAll(repo: ipc.RepoView) {
+    void sealMany(
+      sealable(repo.files).map((relativePath) => filePath(repo, relativePath)),
+    );
+  }
+
   async function sealMany(paths: string[]) {
     if (paths.length === 0) return;
     await attempt(`seal ${paths.length} files`, () => sealManyNow(paths));
@@ -587,6 +594,7 @@ export function App() {
                   .map((file) => filePath(repo, file.relativePath)),
               )
             }
+            onSealAll={sealAll}
           />
         ) : null}
 
@@ -607,6 +615,7 @@ export function App() {
             onUnsealMany={(paths) => void unseal(paths)}
             onReleaseRepo={() => setReleasingRepo(currentRepo)}
             onRescan={() => void startRescan(currentRepo.root)}
+            onSealAll={() => sealAll(currentRepo)}
             outcomes={outcomes}
             onDismissOutcomes={() => setOutcomes(null)}
           />

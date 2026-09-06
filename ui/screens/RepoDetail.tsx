@@ -7,6 +7,7 @@ import type { RepoView, SealedState, SealOutcome } from "../ipc";
 import type { Load } from "./Repositories";
 import { reason } from "../errors";
 import { fileName } from "../format";
+import { sealable } from "../state";
 
 interface Props {
   repo: RepoView;
@@ -19,6 +20,7 @@ interface Props {
   onReleaseMany: (paths: string[]) => void;
   onReleaseRepo: () => void;
   onRescan: () => void;
+  onSealAll: () => void;
   onUnseal: (path: string) => void;
   onUnsealMany: (paths: string[]) => void;
   outcomes: Outcomes | null;
@@ -71,6 +73,7 @@ export function RepoDetail({
   onReleaseMany,
   onReleaseRepo,
   onRescan,
+  onSealAll,
   onUnseal,
   onUnsealMany,
   outcomes,
@@ -146,6 +149,11 @@ export function RepoDetail({
         </Toggletip>
 
         <Overflow label={`More actions for ${repo.name}`}>
+          {sealable(repo.files).length > 0 ? (
+            <button type="button" onClick={onSealAll}>
+              Seal every file
+            </button>
+          ) : null}
           <button type="button" onClick={onRescan}>
             Scan for more files
           </button>

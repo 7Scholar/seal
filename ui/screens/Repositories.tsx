@@ -3,6 +3,7 @@ import { Overflow } from "../components/Overflow";
 import { Icon } from "../components/Icon";
 import { Ticks } from "../components/Ticks";
 import { BrokenSeal } from "../components/BrokenSeal";
+import { sealable } from "../state";
 import type { RepoView } from "../ipc";
 
 export type Load = "loading" | "ready" | "failed";
@@ -16,6 +17,7 @@ interface Props {
   onRescan: (root: string) => void;
   onReleaseRepo: (repo: RepoView) => void;
   onSealRepo: (repo: RepoView) => void;
+  onSealAll: (repo: RepoView) => void;
 }
 
 function LoadingRows() {
@@ -49,6 +51,7 @@ export function Repositories({
   onRescan,
   onReleaseRepo,
   onSealRepo,
+  onSealAll,
 }: Props) {
   const [filter, setFilter] = useState("");
 
@@ -170,6 +173,11 @@ export function Repositories({
 
                 <span className="repo-row__menu">
                   <Overflow label={`More actions for ${repo.name}`}>
+                    {sealable(repo.files).length > 0 ? (
+                      <button type="button" onClick={() => onSealAll(repo)}>
+                        Seal every file
+                      </button>
+                    ) : null}
                     <button type="button" onClick={() => onRescan(repo.root)}>
                       Scan for more files
                     </button>

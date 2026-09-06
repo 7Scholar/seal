@@ -102,7 +102,7 @@ Three children, one per altitude, each owning its surface's layout and operation
 - [~] editing/ -> the full editing vocabulary for an env file: create, rename, delete, duplicate, reorder, and commented-out variables as a disabled state. **Six of eight children are complete, driven, and density-designed; `bulk-entry.md` and `value-as-button.md` are framed and unstarted.**
 - [x] ceremony.md -> which acts the interface stops to confirm, and which it simply performs. Six confirmations are four, and the rule that decides membership is stated so the set cannot drift back.
 - [ ] file-jump.md -> the breadcrumb menu as a two-level surface, so a file in any repository is reachable without landing on its repository first
-- [ ] seal-all.md -> sealing every unsealed file in a repository in one action, without selecting them first
+- [x] seal-all.md -> sealing every unsealed file in a repository in one action, without selecting them first. Built at both altitudes and driven; the repository tree it was gating is now unblocked.
 
 # Cursor
 

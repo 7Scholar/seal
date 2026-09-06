@@ -148,7 +148,7 @@ describe("an interrupted password change resumes and reports where every file st
     const gate = $('[role="dialog"] input');
     if (await gate.waitForDisplayed({ timeout: 6000 }).catch(() => false)) {
       await gate.setValue("I UNDERSTAND");
-      await $("button=I understand — start sealing").click();
+      await $("button=Start sealing").click();
     }
 
     for (const name of FILES) {
@@ -176,13 +176,13 @@ describe("an interrupted password change resumes and reports where every file st
 
     await $('button[aria-label="Seal settings"]').click();
     await $("button=Change master password").click();
-    await expect($("h1=Change your master password")).toBeDisplayed();
+    await expect($("h1=Change the master password")).toBeDisplayed();
 
     await typeInto("#current", PASSWORD);
     await typeInto("#replacement", NEW_PASSWORD);
     await typeInto("#confirmation", NEW_PASSWORD);
     await typeInto("#phrase", "CHANGE MY PASSWORD");
-    await $("button=Change the password").click();
+    await $("button*=Re-encrypt every file").click();
 
     await browser.waitUntil(async () => rewritten().length > 0, {
       timeout: 120000,
@@ -228,19 +228,21 @@ describe("an interrupted password change resumes and reports where every file st
     const banner = $(".shell__rekey");
     await expect(banner).toBeDisplayed();
     await expect(banner).toHaveText(
-      expect.stringContaining("A password change was not finished"),
+      expect.stringContaining("A password change stopped halfway"),
     );
-    await expect(banner).toHaveText(expect.stringContaining("keep both"));
+    await expect(banner).toHaveText(
+      expect.stringContaining("Some files are on the old password"),
+    );
   });
 
   it("names which files are still on the old password, not a bare count", async () => {
     await $(".shell__rekey").$("button=Finish it").click();
 
-    await expect($("h1=Change your master password")).toBeDisplayed();
+    await expect($("h1=Change the master password")).toBeDisplayed();
     const resume = $(".rekey__resume");
     await expect(resume).toBeDisplayed();
     await expect(resume).toHaveText(
-      expect.stringContaining("A password change was not finished"),
+      expect.stringContaining("Keep both until this finishes"),
     );
 
     const manifest = readManifest();
@@ -273,7 +275,7 @@ describe("an interrupted password change resumes and reports where every file st
     await typeInto("#confirmation", NEW_PASSWORD);
     await typeInto("#phrase", "CHANGE MY PASSWORD");
 
-    await $("button=Retry the rest").click();
+    await $("button*=Finish the remaining").click();
 
     await browser.waitUntil(async () => readManifest() === null, {
       timeout: 120000,

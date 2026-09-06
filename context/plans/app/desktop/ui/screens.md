@@ -20,6 +20,8 @@ Three shared components exist because their rules are easy to violate independen
 
 **The confirmation** labels its buttons with outcomes rather than Yes and No, and optionally demands a typed phrase. The typed phrase is what makes a confirmation something other than theatre: it cannot be satisfied by the reflex that opened the dialog.
 
+There are four of them and [navigation/ceremony.md](navigation/ceremony.md) owns which. They share one shape: a neutral outlined decline and a **red verb** for the act, the affected files named in mono beneath the sentence, and no filled button — except the acknowledgement, whose affirmative *is* the one filled button, because it is not a destructive act but the terms of the deal.
+
 ## Where each screen's weight sits
 
 **The cross-repo view** treats its empty state as the add action itself, since nothing else is possible until a repo exists. Its alert is derived from the per-file flag rather than from the file's state, which is what keeps the treatment reserved for the genuine regression — a file recorded sealed and found readable — and away from a missing file or one the user never sealed. Sealing is offered only where it applies, and stopping management is offered per file. That view is realized by the repositories list and the files surface, whose layout is [navigation/](navigation/README.md)'s and whose disclosure rules are [shell-layout.md](shell-layout.md)'s; the behavioural rules stated here hold wherever it is rendered. At the repositories altitude the alert is now the row's own matted wash with an explanation and a seal action beside it, rather than a tag inside a tile.

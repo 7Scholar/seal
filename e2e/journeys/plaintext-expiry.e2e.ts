@@ -100,7 +100,7 @@ describe("stepping away: held plaintext expires on its own", () => {
     const gate = $('[role="dialog"] input');
     if (await gate.waitForDisplayed({ timeout: 6000 }).catch(() => false)) {
       await gate.setValue("I UNDERSTAND");
-      await $("button=I understand — start sealing").click();
+      await $("button=Start sealing").click();
     }
     await browser.waitUntil(
       async () => readFileSync(file, "utf8").startsWith(ARMOR),

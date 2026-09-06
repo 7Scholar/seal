@@ -66,7 +66,7 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
       if (await gate.waitForDisplayed({ timeout: 6000 }).catch(() => false)) {
         step("acknowledgement shown");
         await gate.setValue("I UNDERSTAND");
-        await $("button=I understand — start sealing").click();
+        await $("button=Start sealing").click();
         await browser.pause(2500);
         step("proceeded");
       }
@@ -195,16 +195,16 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
   it("changes the master password under supervision, and the old one stops opening Seal", async () => {
     await $('button[aria-label="Seal settings"]').click();
     await $("button=Change master password").click();
-    await expect($("h1=Change your master password")).toBeDisplayed();
-    await expect($("p*=Both passwords must be remembered")).toBeDisplayed();
+    await expect($("h1=Change the master password")).toBeDisplayed();
+    await expect($("p*=Keep both passwords until it finishes")).toBeDisplayed();
 
     await typeInto("#current", PASSWORD);
     await typeInto("#replacement", NEW_PASSWORD);
     await typeInto("#confirmation", NEW_PASSWORD);
     await typeInto("#phrase", "CHANGE MY PASSWORD");
-    await $("button=Change the password").click();
+    await $("button*=Re-encrypt every file").click();
 
-    await expect($("h1=Change your master password")).not.toBeDisplayed();
+    await expect($("h1=Change the master password")).not.toBeDisplayed();
     await expect($('button[aria-label="Lock Seal"]')).toBeDisplayed();
 
     await $('button[aria-label="Lock Seal"]').click();

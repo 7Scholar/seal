@@ -14,7 +14,9 @@ Three constraints govern the design, and none is open for redesign.
 
 **The completion state answers what the user actually needs to know** — which files are on which password and what they must do now — never a bare count of failures. An unfinished run is remembered and resumable from the main surface, not only from a dialog that can be dismissed into oblivion.
 
-The flow is gated on a typed phrase, the second and last place in the application where that friction is spent.
+The flow is gated on a typed phrase, the second and last place in the application where that friction is spent. The v2 redesign kept that gate deliberately: [navigation/ceremony.md](navigation/ceremony.md) spends ceremony only on acts that cannot be undone, and this is one of the two.
+
+**Progress is drawn as one tick per file, read straight off the manifest.** The durable record is the source of truth for the display as well as for recovery, so what the user watches and what a crash would leave behind are the same thing — a count assembled in interface state could disagree with the disk, and the disagreement would only ever be visible after the crash that matters. The ticks carry the manifest's own three standings and are announced as a sentence for anyone not reading the row. This does not make the view live: it still refreshes when the manifest is re-read, which the open thread below still names.
 
 ## The manifest
 

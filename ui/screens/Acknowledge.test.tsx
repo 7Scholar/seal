@@ -25,7 +25,7 @@ describe("Acknowledge", () => {
     const onAcknowledge = vi.fn();
     render(<Acknowledge onAcknowledge={onAcknowledge} onCancel={vi.fn()} />);
 
-    const confirm = screen.getByRole("button", { name: /I understand/ });
+    const confirm = screen.getByRole("button", { name: "Start sealing" });
     expect(confirm).toBeDisabled();
     await user.click(confirm);
     expect(onAcknowledge).not.toHaveBeenCalled();
@@ -37,7 +37,7 @@ describe("Acknowledge", () => {
     render(<Acknowledge onAcknowledge={onAcknowledge} onCancel={vi.fn()} />);
 
     await user.type(screen.getByRole("textbox"), "I UNDERSTAND");
-    await user.click(screen.getByRole("button", { name: /I understand/ }));
+    await user.click(screen.getByRole("button", { name: "Start sealing" }));
     expect(onAcknowledge).toHaveBeenCalledOnce();
   });
 });

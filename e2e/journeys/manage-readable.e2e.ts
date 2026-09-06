@@ -71,7 +71,7 @@ describe("managing readable files beside sealed ones", () => {
     await sealFromRow(`${SEALED}`);
 
 
-    const proceed = $("button=I understand — start sealing");
+    const proceed = $("button=Start sealing");
     if (await proceed.isDisplayed().catch(() => false)) {
       await $('[role="dialog"]').$("input").setValue("I UNDERSTAND");
       await proceed.waitForEnabled({ timeout: 10000 });

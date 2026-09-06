@@ -2,6 +2,8 @@ import { useState } from "react";
 import type { Manifest } from "../ipc";
 import { explain } from "../errors";
 import { fileName } from "../format";
+import { Icon } from "../components/Icon";
+import { RunTicks } from "../components/RunTicks";
 
 interface Props {
   manifest: Manifest | null;
@@ -57,20 +59,24 @@ export function PasswordChange({
   return (
     <section className="rekey">
       <header>
-        <h1>Change your master password</h1>
-        <button type="button" onClick={onClose} disabled={working}>
-          Close
-        </button>
+        <h1>Change the master password</h1>
       </header>
 
       {inFlight ? (
         <div className="rekey__resume" role="alert">
-          <h2>A password change was not finished</h2>
-          <p>
-            {converted.length} of {manifest.entries.length} files are on the new
-            password. The remaining {outstanding.length} still need the old one.
-            <strong> Keep both passwords until this finishes.</strong>
-          </p>
+          <div className="rekey__resume-head">
+            <RunTicks entries={manifest.entries} />
+            <p className="rekey__resume-text">
+              {converted.length === 1
+                ? "One file is"
+                : `${converted.length} files are`}{" "}
+              on the new password.{" "}
+              {outstanding.length === 1
+                ? "One still needs"
+                : `${outstanding.length} still need`}{" "}
+              the old one. Keep both until this finishes.
+            </p>
+          </div>
           <ul>
             {outstanding.map((entry) => (
               <li key={entry.path}>
@@ -84,14 +90,23 @@ export function PasswordChange({
         </div>
       ) : (
         <p className="rekey__intro">
-          Every managed file is re-encrypted under the new password, one at a
-          time. Both passwords must be remembered until it finishes.{" "}
-          <strong>
-            If you forget the old one partway through, the files still on it
-            cannot be recovered.
-          </strong>
+          Every managed file is re-encrypted one at a time. Keep both passwords
+          until it finishes — whatever is still on the old one cannot be opened
+          without it.
         </p>
       )}
+
+      {working && manifest ? (
+        <div className="rekey__running" role="status">
+          <RunTicks entries={manifest.entries} />
+          <span className="rekey__running-path">
+            {outstanding[0] ? fileName(outstanding[0].path) : ""}
+          </span>
+          <span className="rekey__running-warning">
+            Do not quit until this finishes
+          </span>
+        </div>
+      ) : null}
 
       <div className="rekey__fields">
         <label htmlFor="current">
@@ -155,7 +170,11 @@ export function PasswordChange({
       ) : null}
 
       <footer className="rekey__actions">
-        <span role="status" aria-label="Password change progress">
+        <span
+          role="status"
+          aria-label="Password change progress"
+          className="rekey__progress"
+        >
           {working
             ? "Re-encrypting. Do not quit."
             : manifest
@@ -163,12 +182,29 @@ export function PasswordChange({
               : ""}
         </span>
         {inFlight ? (
-          <button type="button" onClick={() => onAbandon()} disabled={working}>
+          <button
+            type="button"
+            className="rekey__forget"
+            onClick={() => onAbandon()}
+            disabled={working}
+          >
             Forget this run
           </button>
-        ) : null}
-        <button type="button" disabled={!ready || working} onClick={run}>
-          {inFlight ? "Retry the rest" : "Change the password"}
+        ) : (
+          <button type="button" onClick={onClose} disabled={working}>
+            Cancel
+          </button>
+        )}
+        <button
+          type="button"
+          className="button--primary"
+          disabled={!ready || working}
+          onClick={run}
+        >
+          <Icon name="lock" />
+          {inFlight
+            ? `Finish the remaining ${outstanding.length}`
+            : "Re-encrypt every file"}
         </button>
       </footer>
     </section>

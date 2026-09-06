@@ -76,7 +76,7 @@ describe("noticing the world change underneath an open window", () => {
       const gate = $('[role="dialog"] input');
       if (await gate.waitForDisplayed({ timeout: 6000 }).catch(() => false)) {
         await gate.setValue("I UNDERSTAND");
-        await $("button=I understand — start sealing").click();
+        await $("button=Start sealing").click();
       }
       await browser.waitUntil(
         async () =>

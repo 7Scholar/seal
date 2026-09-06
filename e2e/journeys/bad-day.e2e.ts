@@ -89,7 +89,7 @@ describe("the bad day: ceremony where it belongs, and nowhere else", () => {
       );
     }
 
-    const proceed = $("button=I understand — start sealing");
+    const proceed = $("button=Start sealing");
     if (await proceed.isEnabled()) {
       throw new Error(
         "the acknowledgement could be confirmed without typing anything, so it is not a gate",

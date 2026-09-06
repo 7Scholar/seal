@@ -90,7 +90,7 @@ describe("settling in: a file with no editor, and coming back to add more", () =
       const gate = $('[role="dialog"] input');
       if (await gate.waitForDisplayed({ timeout: 6000 }).catch(() => false)) {
         await gate.setValue("I UNDERSTAND");
-        await $("button=I understand — start sealing").click();
+        await $("button=Start sealing").click();
       }
       await browser.waitUntil(
         async () => readFileSync(join(repo(), name), "utf8").startsWith(ARMOR),

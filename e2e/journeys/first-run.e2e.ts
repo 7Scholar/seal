@@ -103,7 +103,7 @@ describe("first run: install, choose a password, protect a first file", () => {
     await expect($("p*=It cannot reach backwards")).toBeDisplayed();
     await expect($("p*=rotate it")).toBeDisplayed();
 
-    const proceed = $("button=I understand — start sealing");
+    const proceed = $("button=Start sealing");
     await expect(proceed).toBeDisabled();
 
     await $('[role="dialog"]').$("input").setValue("I UNDERSTAND");

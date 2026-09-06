@@ -563,8 +563,8 @@ export function App() {
         {rekey !== null ? (
           <div className="shell__rekey" role="alert">
             <span>
-              A password change was not finished. Some files are on the old
-              password and some on the new — keep both until it completes.
+              A password change stopped halfway. Some files are on the old
+              password.
             </span>
             <button type="button" onClick={() => setOverlay({ name: "rekey" })}>
               Finish it

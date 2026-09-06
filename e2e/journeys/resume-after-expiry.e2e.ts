@@ -59,7 +59,7 @@ describe("coming back to a file whose plaintext expired while you were away", ()
     await rows.waitForDisplayed({ timeout: 30000 });
 
     await sealFromRow(".env.production");
-    const proceed = $("button=I understand — start sealing");
+    const proceed = $("button=Start sealing");
     if (await proceed.isDisplayed().catch(() => false)) {
       await $('[role="dialog"]').$("input").setValue("I UNDERSTAND");
       await proceed.waitForEnabled({ timeout: 10000 });

@@ -40,8 +40,8 @@
     "site/src/components/Repo.astro": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
     "site/src/components/Sidebar.astro": "d05432a3c3e92f0c3309ca80ccc929587016faf0",
     "site/src/components/Specimen.astro": "d05432a3c3e92f0c3309ca80ccc929587016faf0",
-    "site/src/components/ThemeProvider.astro": "0a71f9b78a458b960785bf4e9eba19112aaf6183",
-    "site/src/components/ThemeSelect.astro": "d05432a3c3e92f0c3309ca80ccc929587016faf0",
+    "site/src/components/ThemeProvider.astro": "617362251cbc17c591640b5ec96180122757f56a",
+    "site/src/components/ThemeSelect.astro": "617362251cbc17c591640b5ec96180122757f56a",
     "site/src/content/config.ts": "a06bd267dcc00e3fb1c267d0dacc1ca99f7bf962",
     "site/src/content/docs/404.md": "0a71f9b78a458b960785bf4e9eba19112aaf6183",
     "site/src/content/docs/get-started/first-sealed-file.md": "0a71f9b78a458b960785bf4e9eba19112aaf6183",
@@ -56,7 +56,7 @@
     "site/src/content/docs/understand/limits.md": "0a71f9b78a458b960785bf4e9eba19112aaf6183",
     "site/src/pages/[...slug].md.ts": "beb600ff85e1bec42dedba02469d4c64bca21b65",
     "site/src/pages/llms.txt.ts": "beb600ff85e1bec42dedba02469d4c64bca21b65",
-    "site/src/styles/seal.css": "d05432a3c3e92f0c3309ca80ccc929587016faf0"
+    "site/src/styles/seal.css": "617362251cbc17c591640b5ec96180122757f56a"
   },
   "tooling.md": {
     "package.json": "2a952d8a384ae8660ebf62554710f6fc3c3ba559",

@@ -18,18 +18,18 @@
     "ui/components/RowToolbar.tsx": "ecb6be27f4e7db65a0bfe68a697d428307ed6162",
     "ui/screens/EnvEditor.test.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
     "ui/screens/EnvEditor.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
-    "ui/styles.css": "c04effbde838939f561afcba2823f297fe7583dc"
+    "ui/styles.css": "2a952d8a384ae8660ebf62554710f6fc3c3ba559"
   },
   "surface.md": {
     "ui/screens/EnvEditor.test.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
     "ui/screens/EnvEditor.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4"
   },
   "value-as-button.md": {
-    "ui/App.tsx": "c04effbde838939f561afcba2823f297fe7583dc",
+    "ui/App.tsx": "2a952d8a384ae8660ebf62554710f6fc3c3ba559",
     "ui/components/SecretValue.test.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
     "ui/components/SecretValue.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
     "ui/screens/EnvEditor.test.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
     "ui/screens/EnvEditor.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
-    "ui/styles.css": "c04effbde838939f561afcba2823f297fe7583dc"
+    "ui/styles.css": "2a952d8a384ae8660ebf62554710f6fc3c3ba559"
   }
 }

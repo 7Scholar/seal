@@ -8,7 +8,7 @@ The interface's **navigation model**: how a user moves between the repositories 
 
 The product owner has replaced the shell's navigation. The two-column frame [shell-layout.md](../shell-layout.md) built — a persistent repository sidebar beside a detail surface — is withdrawn. In its place: a **breadcrumb trail in the title bar** as the only navigation chrome, over **three full-width surfaces**, one per altitude:
 
-- **Repositories** — every managed repository as a large tile in a grid, with a search field and an ellipsis menu per tile.
+- **Repositories** — every managed repository as a full-width row, with a filter field and an ellipsis menu per row.
 - **Files** — one repository's managed files as a list of large rows.
 - **File** — one file's contents, which for an env file is the per-variable editor.
 
@@ -32,11 +32,11 @@ Navigation is a **route** — `repositories`, `repository`, or `file` — held i
 
 The route is the single source of what the window shows. There is no selection model beside it and no mode: opening a repository *is* navigating to it. This is the substantive difference from the withdrawn sidebar, where selection and expansion were separate axes over one persistent frame.
 
-Navigating **up** discards the altitude below it: leaving a file closes it, which is the same explicit close the file surface already performs. Navigating **down** or **sideways** at the same altitude is one act — the breadcrumb popover switches repository without passing through the repositories grid.
+Navigating **up** discards the altitude below it: leaving a file closes it, which is the same explicit close the file surface already performs. Navigating **down** or **sideways** at the same altitude is one act — the breadcrumb popover switches repository without passing through the repositories list.
 
 ### The title bar carries the trail, and is the window's drag surface
 
-The title bar holds the breadcrumb trail at its leading edge, after the inset the platform's window controls occupy, and the session controls at its trailing edge — Lock, the theme control, and the overflow disclosing the master-password change. The product name is gone from the strip: the trail's first segment states where the user is, and a brand word beside it is chrome that says nothing.
+The title bar holds the breadcrumb trail at its leading edge, after the inset the platform's window controls occupy, and the session controls at its trailing edge, all icon-only — the theme control, Lock as a padlock, and the overflow disclosing the master-password change. The product name is gone from the strip: the trail's first segment states where the user is, and a brand word beside it is chrome that says nothing.
 
 The strip is also the window's **drag region**, which it was not before ([title-bar.md](title-bar.md) owns that behaviour and the interactive-child exclusion it needs).
 
@@ -66,11 +66,13 @@ Choosing a sibling navigates at the current altitude and leaves every altitude a
 
 ### Where the cross-repository alert lives now
 
-The sidebar was the carrier for an alert about a repository the user is not looking at, and it is gone. That carrier moves to the **title bar**: an exposure indicator sits in the strip whenever any repository holds an exposed file, states the count, and navigates to the first such repository. It is present at every altitude because the strip is, which is the property the sidebar was chosen for in the first place, and it renders nothing at all when the count is zero.
+An alert about a repository the user is not looking at is carried by the **title bar**: an exposure indicator sits in the strip whenever any repository holds an exposed file, states the count, and navigates to the first such repository. It renders nothing at all when the count is zero.
 
-This is not a relaxation of the rule it serves. [The exposure journey](../../../../../journeys/exposure.md) requires the product to raise an exposure *wherever the user happens to be* and forbids indicating it only somewhere they might not look; the strip is now the only element satisfying that. The per-repository alert on the files surface, with its inline seal action, is unchanged.
+**It is drawn at every altitude except the repositories list**, where the matted row already says it — louder, in place, with the fix beside it. Saying the same thing twice on one screen is the failure the redesign's second rule names, and the strip's copy is the weaker of the two statements. On the deeper altitudes the exposed row is not on screen, so the strip is the only thing that can say it, and it does.
 
-The alternatives were a full-width banner beneath the strip and an alert confined to the repositories grid. The banner was refused because a consequence that appears on every surface and displaces the content beneath it becomes wallpaper, which is the failure the product's proportionality rule exists to prevent; the grid-only form was refused because it tells a user working inside one repository nothing about another, which is the exact shape the journey forbids.
+This is not a relaxation of the rule it serves. [The exposure journey](../../../../../journeys/exposure.md) requires the product to raise an exposure *wherever the user happens to be* and forbids indicating it only somewhere they might not look. Every altitude still raises it; what changes is which element does the raising on the one screen that has a better one. The per-repository alert on the files surface, with its inline seal action, is unchanged.
+
+A full-width banner beneath the strip is refused: a consequence that appears on every surface and displaces the content beneath it becomes wallpaper, which is the failure the product's proportionality rule exists to prevent.
 
 ### What each surface owns
 
@@ -86,7 +88,7 @@ Three children, one per altitude, each owning its surface's layout and operation
 - [x] title-bar.md -> the title bar as a real window control surface: drag, double-click zoom, and the interactive-child exclusion
 - [x] theme.md -> light, dark and system themes, the switcher, and the persistence the memory-only webview cannot provide
 - [x] breadcrumbs.md -> the trail, the switcher popover, and the route. Every segment carries a switcher, including the root, whose empty form is what a fresh install meets.
-- [~] repositories.md -> the repositories grid: tiles, search, per-tile ellipsis, add. **States beyond populated are undesigned; the empty state is a different visual language.**
+- [~] repositories.md -> the repositories list: rows, the tick per managed file, filter, per-row ellipsis, add. Every state is designed, built and seen running. **One step open: an exposed repository sorting to the top of the list.**
 - [x] files.md -> one repository's files as large rows, with the repository's operations. Every state it can occupy is built and driven; the empty repository and loading are settled as not reachable.
 - [x] file.md -> the file altitude, and the env editor re-homed into it. Every state it can occupy is built and driven, including the frame that makes a file of any size editable.
 - [x] shape.md -> the shared visual language: the radius, the surfaces, and the tokens the themes resolve
@@ -199,4 +201,4 @@ All of it is **approved** — the owner settled it before the brief was written 
 
 # Open threads
 
-- The tile grid's breakpoints are set against the window's own minimum width rather than measured at the sizes people actually use. Worth revisiting once the application has been lived in at a few window sizes.
+- The row lanes on every list are set against this window's own width rather than measured at the sizes people actually use. Worth revisiting once the application has been lived in at a few window sizes.

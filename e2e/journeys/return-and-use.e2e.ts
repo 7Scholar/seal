@@ -30,7 +30,7 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
     const choose = $("h1=Choose your master password");
     const locked = $("h1=Seal is locked");
 
-    const lock = $("button=Lock");
+    const lock = $('button[aria-label="Lock Seal"]');
     if (await lock.isDisplayed().catch(() => false)) {
       await lock.click();
     }
@@ -52,8 +52,8 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
       await enterPassphrase(PASSWORD);
       await browser.pause(2500);
       step("waiting for empty state");
-      await $(".tile--add button").waitForClickable();
-      await $(".tile--add button").click();
+      await $(".surface__nothing button").waitForClickable();
+      await $(".surface__nothing button").click();
       step("waiting for the manage screen");
       await $("button=Manage 1 file").waitForClickable();
       await $("button=Manage 1 file").click();
@@ -90,7 +90,7 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
         console.log("FIXTURE STUCK →", JSON.stringify(page));
         throw error;
       }
-      await $("button=Lock").click();
+      await $('button[aria-label="Lock Seal"]').click();
       step("locked");
     }
   });
@@ -102,7 +102,7 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
 
   it("unlocks into the repository view with the sealed file", async () => {
     await enterPassphrase(PASSWORD);
-    await expect($("h1=Repositories")).toBeDisplayed();
+    await expect($('[data-surface="repositories"]')).toBeDisplayed();
     await openTheRepository();
     await expect($("span=Sealed")).toBeDisplayed();
   });
@@ -159,10 +159,10 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
   it("notices a sealed file replaced by readable text, and insists on it", async () => {
     writeFileSync(join(repo(), ".env"), "API_KEY=leaked-in-the-clear\n");
 
-    await $("button=Lock").click();
+    await $('button[aria-label="Lock Seal"]').click();
     await expect($("h1=Seal is locked")).toBeDisplayed();
     await enterPassphrase(PASSWORD);
-    await expect($("h1=Repositories")).toBeDisplayed();
+    await expect($('[data-surface="repositories"]')).toBeDisplayed();
     await openTheRepository();
 
     const alert = $(".exposure-alert");
@@ -203,9 +203,9 @@ describe("returning: unlock, use a secret, catch an exposure, rotate the passwor
     await $("button=Change the password").click();
 
     await expect($("h1=Change your master password")).not.toBeDisplayed();
-    await expect($("button=Lock")).toBeDisplayed();
+    await expect($('button[aria-label="Lock Seal"]')).toBeDisplayed();
 
-    await $("button=Lock").click();
+    await $('button[aria-label="Lock Seal"]').click();
     await expect($("h1=Seal is locked")).toBeDisplayed();
 
     await enterPassphrase(PASSWORD);

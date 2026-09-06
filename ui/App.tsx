@@ -13,6 +13,7 @@ import { Breadcrumbs, type Crumb } from "./components/Breadcrumbs";
 import { Confirm } from "./components/Confirm";
 import { Problem } from "./components/Problem";
 import { Overflow } from "./components/Overflow";
+import { Icon } from "./components/Icon";
 import { ThemeControl } from "./components/ThemeControl";
 import { fileName } from "./format";
 import * as theme from "./theme";
@@ -550,7 +551,7 @@ export function App() {
       trail={<Breadcrumbs crumbs={crumbs} />}
       controls={
         <>
-          {exposedRepos.length > 0 && exposedRepos[0] ? (
+          {route.at !== "repositories" && exposedRepos.length > 0 && exposedRepos[0] ? (
             <button
               type="button"
               className="exposure-pill"
@@ -566,7 +567,8 @@ export function App() {
 
           <button
             type="button"
-            className="shell__lock"
+            className="shell__icon"
+            aria-label="Lock Seal"
             onClick={() =>
               attempt("lock Seal", async () => {
                 await ipc.lock();
@@ -576,7 +578,7 @@ export function App() {
               })
             }
           >
-            Lock
+            <Icon name="lock" />
           </button>
 
           <Overflow label="Seal settings">
@@ -615,6 +617,13 @@ export function App() {
             onAdd={startAdd}
             onRescan={(root) => void startRescan(root)}
             onReleaseRepo={setReleasingRepo}
+            onSealRepo={(repo) =>
+              sealMany(
+                repo.files
+                  .filter((file) => file.alert)
+                  .map((file) => filePath(repo, file.relativePath)),
+              )
+            }
           />
         ) : null}
 

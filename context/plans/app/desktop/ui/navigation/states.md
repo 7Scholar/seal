@@ -19,28 +19,28 @@ Why it matters beyond tidiness: these are the states a user meets at exactly the
 
 # Approach
 
-**A surface's states are the same surface, not different screens.** A grid's empty state is a grid; a list's is a list. What changes is what the surface holds, never its layout or its language. This is the rule the three altitudes were built without, and it is what makes an empty state look like the product rather than like a placeholder.
+**A surface's states are the same surface, not different screens** — with one deliberate exception. A list's ordinary states are the list: loading is skeleton rows, excessive is more rows. What changes is what the surface holds, never its layout or its language. The exception is a state in which **there is no list to draw** — nothing managed yet, a read that failed, a filter that matched nothing. Those replace the list rather than sitting inside it, because a list of nothing is not a list, and a row-shaped placeholder standing in for an answer the surface does not have is the same lie this section's next rule forbids.
 
 **A surface never states a fact it does not have.** Absent, loading and failed are three different things, and collapsing them into one is how the grid came to tell a returning user they manage nothing. Every surface that awaits a call distinguishes them: it says it is working while it is, and says the call failed when it does — with the recovery from where the user is standing.
 
 **A count is a fact and belongs on the surface**, so what is below the fold is knowable without scrolling. A count of zero is not stated, because "0 repositories" is a worse way of saying what the empty state already says.
 
-**Nothing grows to fit its content.** Tiles and rows hold their size; text truncates and carries its full value in a `title`. A path truncates from its left, where the meaningful part is the tail.
+**Nothing grows to fit its content.** Rows hold their size; text truncates and carries its full value in a `title`. A path truncates at its end, since the repository's name is already stated on the line above it and reversing the text to save that one word costs the leading `/`.
 
-The repositories grid is built to this and is the reference for the rest: [repositories.md](repositories.md) records its states in detail.
+The repositories list is built to this and is the reference for the rest: [repositories.md](repositories.md) records its states in detail.
 
 **A surface that fills the window is a frame, not a document.** Where a surface's content can grow without bound — a repository's tree, a file's variables — the surface is the window's height with exactly one scrolling band inside it, so the operations at its foot stay reachable at every size. A surface that flows instead puts its own save control below its content, which is the shape in which "the state was never designed" becomes "the user cannot complete the task".
 
 # What exists
 
-**The repositories grid, completely** — empty, one, populated, excessive, loading, error and no-match, each seen running. The loading and error states are new, the empty state is now an add tile inside the grid, and tiles are a fixed height.
+**The repositories list, completely** — nothing-yet, one, populated, excessive, loading, error and no-match, each seen running in both themes. Nothing-yet, error and no-match replace the list; loading and excessive are the list in another shape.
 
 **The files list, except its empty state.** The silent disable is gone — a `missing` file now says why its open control is unavailable, tied to that control by `aria-describedby` — the surface states its managed-file count, and a failed re-read is stated above the list rather than passed off as current. [files.md](files.md) records each in detail.
 
 Two of that surface's states resolved to **not reachable** rather than to a treatment, and both are recorded rather than glossed:
 
 - **There is no empty repository.** A repository is a non-empty set of managed files: it is deleted when its last file is released, the manage flow refuses an empty selection, and a rescan only adds. The owner settled this directly — a repository exists only as a non-empty set, and a user who releases every file has stopped managing it. The unreached markup that drew an empty list is removed, so the surface no longer carries a state it cannot occupy.
-- **The files list has no loading state and does not need one.** Every launch lands on the grid, and both paths that could leave the route at this altitude with nothing loaded navigate back up to the grid instead — so the surface is only ever reached with its data already in hand. Building a skeleton for it would be guarding a state that cannot occur.
+- **The files list has no loading state and does not need one.** Every launch lands on the repositories list, and both paths that could leave the route at this altitude with nothing loaded navigate back up to it instead — so the surface is only ever reached with its data already in hand. Building a skeleton for it would be guarding a state that cannot occur.
 
 **Not every state on the enumeration is a thing to build.** These two are the first cases in this tree where the honest answer was that the state cannot happen, and the value of saying so is that the next agent does not rediscover it: an unreachable state left implemented reads as a live surface, and a plan claiming it exists sends someone to test what never renders.
 
@@ -54,6 +54,6 @@ That surface also turned up the one defect in this pass that belonged to no sing
 
 # Steps
 
-- [x] The repositories grid: every state designed, built and driven.
+- [x] The repositories list: every state designed, built and driven.
 - [x] The files list: the silent disable, the count and the stale notice built and driven; the empty repository and loading settled as not reachable, with the unreached markup removed.
 - [x] The file surface: the skeleton, the surface-level failure, the three-band frame and the count, each driven at 400 variables.

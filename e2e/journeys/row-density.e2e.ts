@@ -28,8 +28,8 @@ describe("the row's density in the real window", () => {
       await enterPassphrase(PASSWORD);
     } else { await enterPassphrase(PASSWORD); }
 
-    await $(".tile--add button").waitForClickable({ timeout: 30000 });
-    await $(".tile--add button").click();
+    await $(".surface__nothing button").waitForClickable({ timeout: 30000 });
+    await $(".surface__nothing button").click();
     await $(".manage__actions button.button--primary").waitForClickable({ timeout: 60000 });
     await $(".manage__actions button.button--primary").click();
     const home = $("button=Repositories");

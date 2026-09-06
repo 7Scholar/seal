@@ -46,7 +46,7 @@ describe("the bad day: ceremony where it belongs, and nowhere else", () => {
 
     const choose = $("h1=Choose your master password");
     const locked = $("h1=Seal is locked");
-    const lock = $("button=Lock");
+    const lock = $('button[aria-label="Lock Seal"]');
     if (await lock.isDisplayed().catch(() => false)) {
       await lock.click();
     }
@@ -65,8 +65,8 @@ describe("the bad day: ceremony where it belongs, and nowhere else", () => {
       await enterPassphrase(PASSWORD);
     }
 
-    await $(".tile--add button").waitForClickable({ timeout: 30000 });
-    await $(".tile--add button").click();
+    await $(".surface__nothing button").waitForClickable({ timeout: 30000 });
+    await $(".surface__nothing button").click();
     await $(".manage__actions button.button--primary").waitForClickable({
       timeout: 60000,
     });
@@ -182,11 +182,11 @@ describe("the bad day: ceremony where it belongs, and nowhere else", () => {
     if (await dialog()) {
       throw new Error("leaving a clean file view asked for a confirmation");
     }
-    await expect($("h1=Repositories")).toBeDisplayed();
+    await expect($('[data-surface="repositories"]')).toBeDisplayed();
   });
 
   it("locks without ceremony, because locking is the safe direction", async () => {
-    await $("button=Lock").click();
+    await $('button[aria-label="Lock Seal"]').click();
 
     if (await dialog()) {
       throw new Error(
@@ -260,10 +260,10 @@ describe("the bad day: ceremony where it belongs, and nowhere else", () => {
   it("leaves every routine action reachable without hunting", async () => {
     const reachable = await browser.execute(() => {
       const labels = [...document.querySelectorAll("button")].map((b) =>
-        (b.textContent ?? "").trim(),
+        (b.getAttribute("aria-label") ?? b.textContent ?? "").trim(),
       );
       return {
-        lock: labels.includes("Lock"),
+        lock: labels.includes("Lock Seal"),
         home: labels.some((l) => l.includes("Repositories")),
       };
     });

@@ -72,7 +72,7 @@ async function goHome() {
   if (await home.isDisplayed().catch(() => false)) {
     await home.click();
   }
-  await $("h1=Repositories").waitForDisplayed();
+  await $('[data-surface="repositories"]').waitForDisplayed();
 }
 
 describe("living with it: the glance, the errors, and the bad day", () => {
@@ -87,7 +87,7 @@ describe("living with it: the glance, the errors, and the bad day", () => {
 
     const choose = $("h1=Choose your master password");
     const locked = $("h1=Seal is locked");
-    const lock = $("button=Lock");
+    const lock = $('button[aria-label="Lock Seal"]');
     if (await lock.isDisplayed().catch(() => false)) {
       await lock.click();
     }
@@ -106,8 +106,8 @@ describe("living with it: the glance, the errors, and the bad day", () => {
       await enterPassphrase(PASSWORD);
     }
 
-    await $(".tile--add button").waitForClickable({ timeout: 30000 });
-    await $(".tile--add button").click();
+    await $(".surface__nothing button").waitForClickable({ timeout: 30000 });
+    await $(".surface__nothing button").click();
 
     const confirm = $(`button=Manage ${FILES.length} files`);
     await confirm.waitForClickable({ timeout: 60000 });
@@ -139,7 +139,7 @@ describe("living with it: the glance, the errors, and the bad day", () => {
   it("surfaces an exposure the moment something readable appears, and names it", async () => {
     writeFileSync(join(repo(), `.env.${FILES[0]}`), "SECRET_ALPHA=in-the-clear\n");
 
-    await $("button=Lock").click();
+    await $('button[aria-label="Lock Seal"]').click();
     await expect($("h1=Seal is locked")).toBeDisplayed();
     await enterPassphrase(PASSWORD);
     await openTheRepository();
@@ -172,7 +172,7 @@ describe("living with it: the glance, the errors, and the bad day", () => {
   it("reports a managed file deleted outside Seal as not found, not as still sealed", async () => {
     unlinkSync(join(repo(), `.env.${FILES[1]}`));
 
-    await $("button=Lock").click();
+    await $('button[aria-label="Lock Seal"]').click();
     await expect($("h1=Seal is locked")).toBeDisplayed();
     await enterPassphrase(PASSWORD);
     await openTheRepository();
@@ -227,7 +227,7 @@ describe("living with it: the glance, the errors, and the bad day", () => {
       const buttons = [...document.querySelectorAll("button")];
       return buttons.some((b) => (b.textContent ?? "").includes("Repositories"));
     });
-    if (!reachable && !(await $("h1=Repositories").isDisplayed().catch(() => false))) {
+    if (!reachable && !(await $('[data-surface="repositories"]').isDisplayed().catch(() => false))) {
       throw new Error("no way back to the repository list from this screen");
     }
   });

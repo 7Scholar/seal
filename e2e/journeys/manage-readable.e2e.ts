@@ -53,8 +53,8 @@ describe("managing readable files beside sealed ones", () => {
       await enterPassphrase(PASSWORD);
     }
 
-    await $(".tile--add button").waitForClickable({ timeout: 30000 });
-    await $(".tile--add button").click();
+    await $(".surface__nothing button").waitForClickable({ timeout: 30000 });
+    await $(".surface__nothing button").click();
     await $(".manage__region").waitForDisplayed({ timeout: 60000 });
 
     for (const name of [READABLE, SEALED]) {
@@ -219,8 +219,9 @@ describe("managing readable files beside sealed ones", () => {
 
   it("refuses a repository it already manages, in a dialog", async () => {
     await $("button=Repositories").click();
-    await $(".tile--add button").waitForClickable({ timeout: 30000 });
-    await $(".tile--add button").click();
+    const add = $(".toolbar button");
+    await add.waitForClickable({ timeout: 30000 });
+    await add.click();
 
     const dialog = $('[role="dialog"]');
     await dialog.waitForDisplayed({ timeout: 30000 });
@@ -234,26 +235,29 @@ describe("managing readable files beside sealed ones", () => {
     );
   });
 
-  it("puts the add tile's label and its plus on one row", async () => {
+  it("puts the add action's label and its plus on one row", async () => {
     await $("button=Repositories").click();
-    const tile = $(".tile--add button");
-    await tile.waitForDisplayed({ timeout: 30000 });
+    const add = $("button=Add repository");
+    await add.waitForDisplayed({ timeout: 30000 });
 
     const layout = await browser.execute(() => {
-      const button = document.querySelector(".tile--add button") as HTMLElement;
-      const icon = button.querySelector(".tile__add-icon") as HTMLElement;
-      const label = button.querySelector(".tile__name") as HTMLElement;
-      const style = getComputedStyle(button);
+      const button = [...document.querySelectorAll(".toolbar button")].find(
+        (candidate) => candidate.textContent?.includes("Add repository"),
+      ) as HTMLElement;
+      const icon = button.querySelector(".icon") as HTMLElement;
+      const box = button.getBoundingClientRect();
+      const iconBox = icon.getBoundingClientRect();
       return {
-        iconMid: icon.getBoundingClientRect().top + icon.getBoundingClientRect().height / 2,
-        labelMid:
-          label.getBoundingClientRect().top + label.getBoundingClientRect().height / 2,
-        borderStyle: style.borderTopStyle,
+        iconMid: iconBox.top + iconBox.height / 2,
+        buttonMid: box.top + box.height / 2,
+        lines: Math.round(box.height),
+        filled: getComputedStyle(button).backgroundColor,
       };
     });
 
-    expect(layout.borderStyle).toBe("dashed");
-    expect(Math.abs(layout.iconMid - layout.labelMid)).toBeLessThan(4);
+    expect(Math.abs(layout.iconMid - layout.buttonMid)).toBeLessThan(4);
+    expect(layout.lines).toBeLessThan(44);
+    expect(layout.filled).toBe("rgba(0, 0, 0, 0)");
   });
 
   it("unseals a sealed file back to readable, keeping it managed", async () => {

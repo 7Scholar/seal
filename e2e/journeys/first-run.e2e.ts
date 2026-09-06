@@ -32,9 +32,9 @@ describe("first run: install, choose a password, protect a first file", () => {
 
     await enterPassphrase(PASSWORD);
 
-    await expect($("h1=Repositories")).toBeDisplayed();
-    await expect($(".tile--add")).toBeDisplayed();
-    await expect($(".tile--add button")).toHaveText(
+    await expect($('[data-surface="repositories"]')).toBeDisplayed();
+    await expect($(".surface__nothing")).toBeDisplayed();
+    await expect($(".surface__nothing button")).toHaveText(
       expect.stringContaining("Add repository"),
     );
   });
@@ -74,7 +74,7 @@ describe("first run: install, choose a password, protect a first file", () => {
     writeFileSync(join(repo, ".env"), "API_KEY=sk-live-1234567890abcdef\n");
     writeFileSync(join(repo, ".env.example"), "API_KEY=\n");
 
-    await $(".tile--add button").click();
+    await $(".surface__nothing button").click();
 
     await expect($(`h1*=Seal in`)).toBeDisplayed();
 
@@ -130,7 +130,7 @@ describe("first run: install, choose a password, protect a first file", () => {
   });
 
   it("locks on request, rejects a wrong password plainly, and reopens with the right one", async () => {
-    await $("button=Lock").click();
+    await $('button[aria-label="Lock Seal"]').click();
     await expect($("h1=Seal is locked")).toBeDisplayed();
 
     await enterPassphrase("not the password");
@@ -140,7 +140,7 @@ describe("first run: install, choose a password, protect a first file", () => {
     await expect(status()).toHaveText(expect.stringContaining("Nothing was changed"));
 
     await enterPassphrase(PASSWORD);
-    await expect($("h1=Repositories")).toBeDisplayed();
+    await expect($('[data-surface="repositories"]')).toBeDisplayed();
     await $(`button*=${repo.split("/").pop()}`).click();
     await expect($("span=Sealed")).toBeDisplayed();
   });

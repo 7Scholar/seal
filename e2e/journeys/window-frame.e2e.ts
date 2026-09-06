@@ -106,7 +106,7 @@ describe("every surface sits in the window's frame", () => {
       expect.stringContaining("confirm"),
     );
     await enterPassphrase(PASSWORD);
-    await expect($("h1=Repositories")).toBeDisplayed();
+    await expect($('[data-surface="repositories"]')).toBeDisplayed();
 
     const repo = process.env.SEAL_E2E_PICK_FOLDER ?? "";
     for (let service = 0; service < 12; service += 1) {
@@ -119,7 +119,7 @@ describe("every surface sits in the window's frame", () => {
     }
     writeFileSync(join(repo, ".env"), "API_KEY=sk-live-1234567890abcdef\n");
 
-    await $(".tile--add button").click();
+    await $(".surface__nothing button").click();
     await expect($("h1*=Seal in")).toBeDisplayed();
 
     const measured = await frame(".manage");
@@ -186,7 +186,7 @@ describe("every surface sits in the window's frame", () => {
 
   it("carries the title bar on the password-change surface", async () => {
     await $("button=Cancel").click();
-    await expect($("h1=Repositories")).toBeDisplayed();
+    await expect($('[data-surface="repositories"]')).toBeDisplayed();
 
     await $('button[aria-label="Seal settings"]').click();
     await $("button=Change master password").click();

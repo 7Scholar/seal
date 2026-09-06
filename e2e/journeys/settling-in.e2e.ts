@@ -48,7 +48,7 @@ describe("settling in: a file with no editor, and coming back to add more", () =
 
     const choose = $("h1=Choose your master password");
     const locked = $("h1=Seal is locked");
-    const lock = $("button=Lock");
+    const lock = $('button[aria-label="Lock Seal"]');
     if (await lock.isDisplayed().catch(() => false)) {
       await lock.click();
     }
@@ -67,8 +67,8 @@ describe("settling in: a file with no editor, and coming back to add more", () =
       await enterPassphrase(PASSWORD);
     }
 
-    await $(".tile--add button").waitForClickable({ timeout: 30000 });
-    await $(".tile--add button").click();
+    await $(".surface__nothing button").waitForClickable({ timeout: 30000 });
+    await $(".surface__nothing button").click();
 
     const tree = $(".manage__region");
     await tree.waitForDisplayed({ timeout: 60000 });
@@ -339,28 +339,28 @@ describe("settling in: a file with no editor, and coming back to add more", () =
     if (await home.isDisplayed().catch(() => false)) {
       await home.click();
     }
-    await $("h1=Repositories").waitForDisplayed();
+    await $('[data-surface="repositories"]').waitForDisplayed();
 
-    await $("button=Lock").click();
+    await $('button[aria-label="Lock Seal"]').click();
     await expect($("h1=Seal is locked")).toBeDisplayed();
     await enterPassphrase(PASSWORD);
-    await $("h1=Repositories").waitForDisplayed({ timeout: 30000 });
+    await $('[data-surface="repositories"]').waitForDisplayed({ timeout: 30000 });
 
     await browser.waitUntil(
       async () => {
-        const tiles = await browser.execute(() =>
-          [...document.querySelectorAll(".tile")].map(
-            (t) => t.textContent ?? "",
+        const rows = await browser.execute(() =>
+          [...document.querySelectorAll(".repo-row")].map(
+            (row) => row.textContent ?? "",
           ),
         );
         return (
-          tiles.some((t) => t.includes(repoName())) &&
-          tiles.some((t) => t.includes(secondName()))
+          rows.some((row) => row.includes(repoName())) &&
+          rows.some((row) => row.includes(secondName()))
         );
       },
       {
         timeout: 20000,
-        timeoutMsg: "both repositories never appeared side by side",
+        timeoutMsg: "both repositories never appeared in the one list",
       },
     );
   });

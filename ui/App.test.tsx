@@ -67,7 +67,7 @@ beforeEach(() => {
 
 async function openApp() {
   render(<App />);
-  await screen.findByRole("heading", { name: "Repositories" });
+  await screen.findByLabelText("Search repositories");
   await waitFor(() =>
     expect(screen.queryByLabelText("Loading repositories")).not.toBeInTheDocument(),
   );
@@ -79,35 +79,47 @@ async function openRepository(user: ReturnType<typeof userEvent.setup>, name: st
 }
 
 describe("the application shell", () => {
-  it("lands on the repositories grid, with no sidebar anywhere", async () => {
+  it("lands on the repositories list, with no sidebar anywhere", async () => {
     await openApp();
-    expect(screen.getByRole("heading", { name: "Repositories" })).toBeInTheDocument();
+    expect(document.querySelector(".repos")).toBeInTheDocument();
     expect(screen.queryByRole("tree")).not.toBeInTheDocument();
   });
 
-  it("shows every repository as a tile carrying its path and file count", async () => {
+  it("names the screen only in the trail, never again on the surface", async () => {
+    await openApp();
+    expect(screen.queryByRole("heading", { name: "Repositories" })).toBeNull();
+    expect(screen.queryByText(/^\d+ repositor(y|ies)$/)).toBeNull();
+  });
+
+  it("shows every repository as a row carrying its path and a tick per file", async () => {
     await openApp();
     expect(screen.getByText("/code/app")).toBeInTheDocument();
-    expect(screen.getByText("2 managed files")).toBeInTheDocument();
-    expect(screen.getByText("1 managed file")).toBeInTheDocument();
-  });
-
-  it("states an exposure on the tile, and says nothing on a healthy repository", async () => {
-    await openApp();
     expect(
-      screen.getByText("1 file readable — should be sealed"),
+      screen.getByLabelText("2 managed files: 1 sealed, 1 not sealed"),
     ).toBeInTheDocument();
-    expect(screen.getAllByText(/readable — should be sealed/)).toHaveLength(1);
+    expect(
+      screen.getByLabelText("1 managed file: 1 with a broken seal"),
+    ).toBeInTheDocument();
   });
 
-  it("carries the cross-repository exposure into the title bar, from every altitude", async () => {
+  it("mats the row whose seal broke, and leaves a healthy one plain", async () => {
+    await openApp();
+    const broken = document.querySelectorAll('.repo-row[data-broken="true"]');
+    expect(broken).toHaveLength(1);
+    expect(broken[0]).toHaveTextContent("site");
+    expect(
+      screen.getByRole("button", { name: "Why site is marked" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Seal" })).toBeInTheDocument();
+  });
+
+  it("keeps the exposure out of the title bar where the matted row already says it", async () => {
     const user = userEvent.setup();
     await openApp();
 
-    const pill = screen.getByRole("button", {
-      name: "1 repository has a readable secret",
-    });
-    expect(pill).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "1 repository has a readable secret" }),
+    ).not.toBeInTheDocument();
 
     await openRepository(user, "app");
     expect(
@@ -116,8 +128,11 @@ describe("the application shell", () => {
   });
 
   it("shows no exposure indicator when nothing is exposed", async () => {
+    const user = userEvent.setup();
     mocked.overview.mockResolvedValue([repos[0]!]);
     await openApp();
+    expect(document.querySelector('.repo-row[data-broken="true"]')).toBeNull();
+    await openRepository(user, "app");
     expect(
       screen.queryByRole("button", { name: /readable secret/ }),
     ).not.toBeInTheDocument();
@@ -154,9 +169,7 @@ describe("the application shell", () => {
 
     await user.click(screen.getByRole("button", { name: "Repositories" }));
 
-    expect(
-      await screen.findByRole("heading", { name: "Repositories" }),
-    ).toBeInTheDocument();
+    expect(await screen.findByLabelText("Search repositories")).toBeInTheDocument();
   });
 
   it("switches repository from the breadcrumb without passing through the grid", async () => {
@@ -170,9 +183,7 @@ describe("the application shell", () => {
     await waitFor(() => {
       expect(screen.getByText("/code/site")).toBeInTheDocument();
     });
-    expect(
-      screen.queryByRole("heading", { name: "Repositories" }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Search repositories")).not.toBeInTheDocument();
   });
 
   it("filters the switcher by what is typed, and marks the current repository", async () => {
@@ -253,7 +264,7 @@ describe("the application shell", () => {
     mocked.lock.mockResolvedValue(undefined);
     await openApp();
 
-    await user.click(screen.getByRole("button", { name: "Lock" }));
+    await user.click(screen.getByRole("button", { name: "Lock Seal" }));
     expect(mocked.lock).toHaveBeenCalledOnce();
   });
 
@@ -366,7 +377,7 @@ describe("the application shell", () => {
     await user.click(screen.getByRole("button", { name: "Seal 1 file" }));
 
     expect(
-      await screen.findByRole("heading", { name: "Repositories" }),
+      await screen.findByLabelText("Search repositories"),
     ).toBeInTheDocument();
   });
 });
@@ -429,7 +440,7 @@ describe("the theme control", () => {
     render(<App />);
     await screen.findByLabelText("Loading repositories");
 
-    expect(document.querySelector(".tile--add")).not.toBeInTheDocument();
+    expect(document.querySelector(".surface__nothing")).not.toBeInTheDocument();
 
     settle(repos);
     await waitFor(() =>
@@ -448,7 +459,7 @@ describe("the theme control", () => {
         "Seal could not read what it manages",
       ),
     );
-    expect(document.querySelector(".tile--add")).not.toBeInTheDocument();
+    expect(document.querySelector(".surface__nothing")).not.toBeInTheDocument();
   });
 
   it("says the files list is stale rather than passing off a failed re-read as current", async () => {
@@ -531,9 +542,7 @@ describe("the theme control", () => {
     await waitFor(() => {
       expect(screen.getByText("/code/site")).toBeInTheDocument();
     });
-    expect(
-      screen.queryByRole("heading", { name: "Repositories" }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Search repositories")).not.toBeInTheDocument();
   });
 
   it("marks no repository as current at the root, because the root is not one of them", async () => {
@@ -769,14 +778,14 @@ describe("an expired file met mid-task", () => {
     const user = userEvent.setup();
     await openTheFile(user);
 
-    await user.click(screen.getByRole("button", { name: "Lock" }));
+    await user.click(screen.getByRole("button", { name: "Lock Seal" }));
     await screen.findByRole("heading", { name: "Seal is locked" });
 
     mocked.unlock.mockResolvedValue(undefined);
     await enterUnlockPassword(user);
 
     expect(
-      await screen.findByRole("heading", { name: "Repositories" }),
+      await screen.findByLabelText("Search repositories"),
     ).toBeInTheDocument();
   });
 });

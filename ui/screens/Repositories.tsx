@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Overflow } from "../components/Overflow";
 import { Icon } from "../components/Icon";
+import { Ticks } from "../components/Ticks";
+import { Toggletip } from "../components/Toggletip";
 import type { RepoView } from "../ipc";
 
 export type Load = "loading" | "ready" | "failed";
@@ -13,16 +15,28 @@ interface Props {
   onAdd: () => void;
   onRescan: (root: string) => void;
   onReleaseRepo: (repo: RepoView) => void;
+  onSealRepo: (repo: RepoView) => void;
 }
 
-function AddTile({ onAdd }: { onAdd: () => void }) {
+function LoadingRows() {
   return (
-    <li className="tile tile--add">
-      <button type="button" className="tile__button tile__add" onClick={onAdd}>
-        <Icon name="plus" className="tile__add-icon" />
-        <span className="tile__name">Add repository</span>
-      </button>
-    </li>
+    <ul className="repos" aria-busy="true" aria-label="Loading repositories">
+      {[0, 1, 2].map((slot) => (
+        <li key={slot} className="repo-row repo-row--loading" aria-hidden="true">
+          <span className="repo-row__text">
+            <span className="skeleton skeleton--name" />
+            <span className="skeleton skeleton--path" />
+          </span>
+          <span className="ticks">
+            <span className="skeleton skeleton--tick" />
+            <span className="skeleton skeleton--tick" />
+            <span className="skeleton skeleton--tick" />
+          </span>
+          <span className="repo-row__actions" />
+          <span className="repo-row__menu" />
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -34,6 +48,7 @@ export function Repositories({
   onAdd,
   onRescan,
   onReleaseRepo,
+  onSealRepo,
 }: Props) {
   const [filter, setFilter] = useState("");
 
@@ -44,118 +59,129 @@ export function Repositories({
       repo.root.toLowerCase().includes(needle),
   );
 
-  const count =
-    load !== "ready" || repos.length === 0
-      ? null
-      : repos.length === 1
-        ? "1 repository"
-        : `${repos.length} repositories`;
+  if (load === "failed") {
+    return (
+      <section className="surface" data-surface="repositories">
+        <div className="surface__replaced" role="alert">
+          <div className="surface__replaced-text">
+            <p className="surface__replaced-title">
+              Seal could not read what it manages
+            </p>
+            <p className="surface__replaced-note">
+              Nothing on disk was touched. Every sealed file is still sealed.
+            </p>
+          </div>
+          <button type="button" className="button--primary" onClick={onRetry}>
+            Try again
+          </button>
+        </div>
+      </section>
+    );
+  }
+
+  if (load === "ready" && repos.length === 0) {
+    return (
+      <section className="surface" data-surface="repositories">
+        <div className="surface__nothing">
+          <p className="surface__nothing-text">Nothing is under Seal yet.</p>
+          <button type="button" className="button--primary" onClick={onAdd}>
+            <Icon name="plus" />
+            Add repository
+          </button>
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <section className="surface">
-      <header className="surface__head">
-        <h1>Repositories</h1>
-        {count ? <span className="surface__count">{count}</span> : null}
-      </header>
-
+    <section className="surface" data-surface="repositories">
       <div className="toolbar">
         <span className="toolbar__search">
           <Icon name="search" className="toolbar__search-icon" />
           <input
             type="search"
             aria-label="Search repositories"
-            placeholder="Search for a repository"
+            placeholder="filter"
             autoComplete="off"
             autoCapitalize="off"
             spellCheck={false}
-            disabled={load !== "ready" || repos.length === 0}
+            disabled={load !== "ready"}
             value={filter}
             onChange={(event) => setFilter(event.target.value)}
           />
         </span>
         <span className="toolbar__spacer" />
-        <button
-          type="button"
-          className="button--primary"
-          disabled={load === "loading"}
-          onClick={onAdd}
-        >
+        <button type="button" disabled={load === "loading"} onClick={onAdd}>
           <Icon name="plus" />
           Add repository
         </button>
       </div>
 
       {load === "loading" ? (
-        <ul className="grid" aria-busy="true" aria-label="Loading repositories">
-          {[0, 1, 2].map((slot) => (
-            <li key={slot} className="tile tile--placeholder" aria-hidden="true">
-              <span className="tile__button tile__skeleton">
-                <span className="skeleton skeleton--name" />
-                <span className="skeleton skeleton--path" />
-                <span className="skeleton skeleton--count" />
-              </span>
-            </li>
-          ))}
-        </ul>
-      ) : load === "failed" ? (
-        <div className="grid">
-          <div className="tile tile--wide">
-            <div className="tile__button tile__failed" role="alert">
-              <span className="tile__name">Seal could not read what it manages</span>
-              <span className="tile__failed-note">
-                Your repositories are untouched and still sealed.
-              </span>
-              <button type="button" onClick={onRetry}>
-                Try again
-              </button>
-            </div>
-          </div>
+        <LoadingRows />
+      ) : matches.length === 0 ? (
+        <div className="nomatch">
+          <span className="nomatch__lead">No repository matches</span>
+          <span className="nomatch__needle">{filter}</span>
+          <span className="nomatch__spacer" />
+          <button type="button" onClick={() => setFilter("")}>
+            Clear
+          </button>
         </div>
-      ) : matches.length === 0 && needle !== "" ? (
-        <ul className="grid">
-          <li className="tile tile--wide">
-            <p className="tile__nomatch">
-              No repository matches “{filter}”.{" "}
-              <button type="button" onClick={() => setFilter("")}>
-                Clear the search
-              </button>
-            </p>
-          </li>
-        </ul>
       ) : (
-        <ul className="grid">
+        <ul className="repos">
           {matches.map((repo) => {
-            const exposed = repo.files.filter((file) => file.alert).length;
+            const broken = repo.files.filter((file) => file.alert);
             return (
-              <li key={repo.root} className="tile">
-                <button
-                  type="button"
-                  className="tile__button"
-                  onClick={() => onOpen(repo.root)}
-                >
-                  <span className="tile__name" title={repo.name}>
+              <li
+                key={repo.root}
+                className="repo-row"
+                data-broken={broken.length > 0}
+              >
+                <span className="repo-row__text">
+                  <button
+                    type="button"
+                    className="repo-row__open"
+                    onClick={() => onOpen(repo.root)}
+                  >
                     {repo.name}
-                  </span>
-                  <span className="tile__path" title={repo.root}>
+                  </button>
+                  <span className="repo-row__path" title={repo.root}>
                     {repo.root}
                   </span>
-                  <span className="tile__foot">
-                    {exposed > 0 ? (
-                      <span className="tile__exposed">
-                        {exposed === 1
-                          ? "1 file readable — should be sealed"
-                          : `${exposed} files readable — should be sealed`}
-                      </span>
-                    ) : null}
-                    <span className="tile__count">
-                      {repo.files.length === 1
-                        ? "1 managed file"
-                        : `${repo.files.length} managed files`}
-                    </span>
-                  </span>
-                </button>
+                </span>
 
-                <span className="tile__menu">
+                <Ticks files={repo.files} />
+
+                <span className="repo-row__actions">
+                  {broken.length > 0 ? (
+                    <>
+                      <Toggletip
+                        label={`Why ${repo.name} is marked`}
+                        place="left"
+                      >
+                        <strong>The seal broke</strong>
+                        <p>
+                          Seal encrypted{" "}
+                          {broken.length === 1
+                            ? "a file here"
+                            : `${broken.length} files here`}
+                          , and something later wrote plaintext over{" "}
+                          {broken.length === 1 ? "it" : "them"} — usually an
+                          editor that still had the file open. Sealing again
+                          closes it. The secret has been readable on disk, so
+                          rotate it.
+                        </p>
+                      </Toggletip>
+                      <button type="button" onClick={() => onSealRepo(repo)}>
+                        <Icon name="lock" />
+                        Seal
+                      </button>
+                    </>
+                  ) : null}
+                </span>
+
+                <span className="repo-row__menu">
                   <Overflow label={`More actions for ${repo.name}`}>
                     <button type="button" onClick={() => onRescan(repo.root)}>
                       Scan for more files
@@ -172,7 +198,6 @@ export function Repositories({
               </li>
             );
           })}
-          <AddTile onAdd={onAdd} />
         </ul>
       )}
     </section>

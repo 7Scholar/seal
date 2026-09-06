@@ -26,19 +26,19 @@ function show(load: Load, list: RepoView[] = repos, extra = {}) {
     onAdd: vi.fn(),
     onRescan: vi.fn(),
     onReleaseRepo: vi.fn(),
+    onSealRepo: vi.fn(),
     ...extra,
   };
   render(<Repositories {...props} />);
   return props;
 }
 
-describe("the repositories grid's states", () => {
+describe("the repositories list's states", () => {
   it("says it is loading rather than reporting an empty product", () => {
     show("loading", []);
 
     expect(screen.getByLabelText("Loading repositories")).toBeInTheDocument();
-    expect(document.querySelector(".tile--add")).not.toBeInTheDocument();
-    expect(screen.queryByText(/repositories$/)).not.toBeInTheDocument();
+    expect(document.querySelector(".surface__nothing")).not.toBeInTheDocument();
   });
 
   it("states a failure to read, and offers a retry, rather than claiming nothing is managed", async () => {
@@ -53,51 +53,97 @@ describe("the repositories grid's states", () => {
     expect(props.onRetry).toHaveBeenCalled();
   });
 
-  it("offers the add tile inside the grid when empty, in the grid's own language", async () => {
+  it("replaces the list with the one action there is, when nothing is managed yet", async () => {
     const user = userEvent.setup();
     const props = show("ready", []);
 
-    const tile = document.querySelector(".tile--add");
-    expect(tile).toBeInTheDocument();
-    expect(screen.getByRole("list")).toContainElement(tile as HTMLElement);
+    expect(screen.getByText("Nothing is under Seal yet.")).toBeInTheDocument();
+    expect(document.querySelector(".repos")).not.toBeInTheDocument();
 
-    await user.click(tile!.querySelector("button")!);
+    const add = screen.getByRole("button", { name: "Add repository" });
+    expect(add).toHaveClass("button--primary");
+    await user.click(add);
     expect(props.onAdd).toHaveBeenCalled();
   });
 
-  it("keeps the add tile in the grid once repositories exist", () => {
+  it("leaves the add action unfilled once the list is the point of the screen", () => {
     show("ready");
 
     expect(screen.getByRole("button", { name: /^site/ })).toBeInTheDocument();
-    expect(document.querySelector(".tile--add")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Add repository" }),
+    ).not.toHaveClass("button--primary");
   });
 
-  it("states how many repositories there are", () => {
+  it("never states a repository count, because the rows are the count", () => {
     show("ready");
-    expect(screen.getByText("2 repositories")).toBeInTheDocument();
+    expect(screen.queryByText(/^\d+ repositor(y|ies)$/)).not.toBeInTheDocument();
   });
 
-  it("counts nothing when there is nothing, rather than saying zero", () => {
-    show("ready", []);
-    expect(screen.queryByText(/repositories$/)).not.toBeInTheDocument();
-    expect(screen.queryByText("0 repositories")).not.toBeInTheDocument();
+  it("draws one tick per managed file, and names them for a reader who cannot see", () => {
+    show("ready");
+
+    const site = screen.getByLabelText("1 managed file: 1 with a broken seal");
+    expect(
+      site.querySelector('.ticks__tick[data-condition="broken"]'),
+    ).toBeInTheDocument();
+
+    const api = screen.getByLabelText("1 managed file: 1 sealed");
+    expect(
+      api.querySelector('.ticks__tick[data-condition="sealed"]'),
+    ).toBeInTheDocument();
   });
 
-  it("carries the full name and path for a tile that has to truncate them", () => {
+  it("caps the ticks at nine and counts the rest, keeping every broken one visible", () => {
+    const files = Array.from({ length: 30 }, (_, index) => ({
+      relativePath: `.env.${index}`,
+      state: "sealed" as const,
+      alert: index === 20,
+    }));
+    show("ready", [{ root: "/code/big", name: "big", files }]);
+
+    expect(document.querySelectorAll(".ticks__tick")).toHaveLength(9);
+    expect(screen.getByText("+21")).toBeInTheDocument();
+    expect(
+      document.querySelectorAll('.ticks__tick[data-condition="broken"]'),
+    ).toHaveLength(1);
+  });
+
+  it("carries the full path for a row that has to truncate it", () => {
     const long = "a".repeat(160);
-    show("ready", [
-      { root: `/code/${long}`, name: long, files: [] },
-    ]);
+    show("ready", [{ root: `/code/${long}`, name: long, files: [] }]);
 
-    expect(screen.getByTitle(long)).toBeInTheDocument();
     expect(screen.getByTitle(`/code/${long}`)).toBeInTheDocument();
   });
 
-  it("states an exposure on the tile and stays quiet on a healthy one", () => {
+  it("mats the row whose seal broke and offers the fix at rest, leaving a healthy row plain", async () => {
+    const user = userEvent.setup();
+    const props = show("ready");
+
+    const broken = document.querySelectorAll('.repo-row[data-broken="true"]');
+    expect(broken).toHaveLength(1);
+    expect(broken[0]).toHaveTextContent("site");
+    expect(
+      document.querySelector('.repo-row[data-broken="false"]'),
+    ).toHaveTextContent("api");
+
+    expect(
+      screen.getByRole("button", { name: "Why site is marked" }),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Seal" }));
+    expect(props.onSealRepo).toHaveBeenCalledWith(repos[0]);
+  });
+
+  it("states what matched nothing, and clears it", async () => {
+    const user = userEvent.setup();
     show("ready");
 
-    expect(screen.getByText("1 file readable — should be sealed")).toBeInTheDocument();
-    const healthy = screen.getByRole("button", { name: /^api/ });
-    expect(healthy).not.toHaveTextContent("readable");
+    await user.type(screen.getByLabelText("Search repositories"), "vault");
+    expect(screen.getByText("No repository matches")).toBeInTheDocument();
+    expect(screen.getByText("vault")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Clear" }));
+    expect(document.querySelectorAll(".repo-row")).toHaveLength(2);
   });
 });

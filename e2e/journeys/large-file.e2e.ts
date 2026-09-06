@@ -45,8 +45,8 @@ describe("editing a file with hundreds of variables", () => {
       await enterPassphrase(PASSWORD);
     }
 
-    await $(".tile--add button").waitForClickable({ timeout: 30000 });
-    await $(".tile--add button").click();
+    await $(".surface__nothing button").waitForClickable({ timeout: 30000 });
+    await $(".surface__nothing button").click();
     await $(".manage__actions button.button--primary").waitForClickable({
       timeout: 60000,
     });

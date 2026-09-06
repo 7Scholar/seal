@@ -109,7 +109,7 @@ describe("an interrupted password change resumes and reports where every file st
 
     const choose = $("h1=Choose your master password");
     const locked = $("h1=Seal is locked");
-    const lock = $("button=Lock");
+    const lock = $('button[aria-label="Lock Seal"]');
     if (await lock.isDisplayed().catch(() => false)) {
       await lock.click();
     }
@@ -128,8 +128,8 @@ describe("an interrupted password change resumes and reports where every file st
       await enterPassphrase(PASSWORD);
     }
 
-    await $(".tile--add button").waitForClickable({ timeout: 30000 });
-    await $(".tile--add button").click();
+    await $(".surface__nothing button").waitForClickable({ timeout: 30000 });
+    await $(".surface__nothing button").click();
 
     const confirm = $(`button=Manage ${FILES.length} files`);
     await confirm.waitForClickable({ timeout: 60000 });
@@ -279,7 +279,7 @@ describe("an interrupted password change resumes and reports where every file st
   });
 
   it("leaves every file on the new password, and the old one opens nothing", async () => {
-    await $("button=Lock").click();
+    await $('button[aria-label="Lock Seal"]').click();
     await expect($("h1=Seal is locked")).toBeDisplayed();
 
     await enterPassphrase(PASSWORD);

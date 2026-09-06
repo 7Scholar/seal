@@ -92,7 +92,7 @@ describe("a deploy script reads a secret at the moment of use", () => {
 
     const choose = $("h1=Choose your master password");
     const locked = $("h1=Seal is locked");
-    const lock = $("button=Lock");
+    const lock = $('button[aria-label="Lock Seal"]');
     if (await lock.isDisplayed().catch(() => false)) {
       await lock.click();
     }
@@ -111,8 +111,8 @@ describe("a deploy script reads a secret at the moment of use", () => {
       await enterPassphrase(PASSWORD);
     }
 
-    await $(".tile--add button").waitForClickable({ timeout: 30000 });
-    await $(".tile--add button").click();
+    await $(".surface__nothing button").waitForClickable({ timeout: 30000 });
+    await $(".surface__nothing button").click();
     await $(".manage__actions button.button--primary").waitForClickable({
       timeout: 60000,
     });

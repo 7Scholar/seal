@@ -225,20 +225,23 @@ describe("ManageFlow", () => {
     setup();
     const pruned = row("node_modules");
     expect(pruned).not.toHaveAttribute("aria-expanded");
-    expect(within(pruned).getByText("not looked in")).toBeInTheDocument();
+    expect(within(pruned).getByText("not searched")).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /Expand node_modules/ }),
     ).not.toBeInTheDocument();
   });
 
-  it("says on the surface that the picture is partial, naming what was skipped", () => {
+  it("says on the row itself that a folder was not searched", () => {
     setup();
-    expect(document.querySelector(".manage__partial")).toHaveTextContent(
-      "node_modules not searched",
+    const row = [...document.querySelectorAll(".tree__row")].find((candidate) =>
+      candidate.textContent?.includes("node_modules"),
     );
+    expect(row).toBeDefined();
+    expect(row).toHaveAttribute("data-unwalked", "true");
+    expect(row).toHaveTextContent("not searched");
   });
 
-  it("counts the skipped folders rather than naming them all, once there are several", () => {
+  it("says it of every folder it skipped, not only the first", () => {
     setup({
       tree: [
         directory("node_modules", [], false),
@@ -246,9 +249,7 @@ describe("ManageFlow", () => {
         directory("src", [file("src/.env", { confidence: "secret" })]),
       ],
     });
-    expect(document.querySelector(".manage__partial")).toHaveTextContent(
-      "2 folders not searched",
-    );
+    expect(document.querySelectorAll('.tree__row[data-unwalked="true"]')).toHaveLength(2);
   });
 
   it("says nothing about a partial scan when nothing was skipped", () => {
@@ -423,14 +424,15 @@ describe("ManageFlow", () => {
     expect(
       screen.getByRole("heading", { name: /More files in app/ }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Already managed")).toBeInTheDocument();
   });
 
   it("does not claim a first add is already managed", () => {
     setup();
 
-    expect(screen.getByRole("heading", { name: /Seal in app/ })).toBeInTheDocument();
-    expect(screen.queryByText("Already managed")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /Add files in app/ }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /More files/ })).toBeNull();
   });
 
   it("accounts for the files a rescan will leave alone", () => {
@@ -451,7 +453,7 @@ describe("ManageFlow", () => {
       ],
     });
 
-    expect(screen.getByText(/1 already managed, left as it is/)).toBeInTheDocument();
+    expect(screen.getByText(/1 already managed, left alone/)).toBeInTheDocument();
   });
 
   it("cannot confirm an empty selection", async () => {
@@ -516,7 +518,7 @@ describe("ManageFlow", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { name: "Seal in app" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Add files in app" })).toBeInTheDocument();
     expect(screen.getByText("/repos/app")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Manage 0 files/ })).toBeDisabled();
     expect(screen.queryByRole("tree")).not.toBeInTheDocument();
@@ -539,7 +541,7 @@ describe("ManageFlow", () => {
     expect(screen.getByRole("alert")).toHaveTextContent(
       "Seal could not read that folder.",
     );
-    expect(screen.getByRole("heading", { name: "Seal in app" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Add files in app" })).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Try again" }));
     expect(onRetry).toHaveBeenCalled();

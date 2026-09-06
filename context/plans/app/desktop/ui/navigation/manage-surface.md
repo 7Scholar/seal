@@ -114,6 +114,16 @@ The selection is lost in exactly one case, and it is the case where keeping it w
 
 Nothing in the layout. The assurances — that confirming encrypts nothing, that files stay where they are, that a rescan changes nothing already managed — stay behind the toggletip the user chooses to open, per [the parent's prose rule](../README.md).
 
+## What the redesign changed here
+
+The surface keeps every rule this plan established and restates two of them in the design's shape.
+
+**A row is `40px` with four lanes** — indent, twisty, checkbox, name — and a reason lane at its trailing edge. The lanes are fixed widths, which is what keeps the names of directories, files, already-managed files and unsearched folders on one vertical line whatever each row happens to carry.
+
+**An already-managed row draws the copper bar in the checkbox's lane**, on the sealed wash, instead of a disabled checkbox. It says the same thing the file line says one altitude up, in the same vocabulary, and it says it where the checkbox would have been so nothing shifts. The lane is padded back to the checkbox's own width for exactly that reason: the bar is `3px` and the checkbox `15px`, and without the padding every already-managed name sat `12px` to the left of its neighbours.
+
+**The header states the surface and nothing else** — *Add files in <repo>*, or *More files in <repo>* on a rescan, with the `ⓘ` and the path beneath. The item count and the *Already managed* badge are gone: the heading already says which of the two flows this is, and the partial-scan fact is now said on the **row** of each folder that was skipped, which is where a user meets it.
+
 # What exists
 
 All of the Approach, at [ManageFlow.tsx](../../../../../../ui/screens/ManageFlow.tsx) over the tree primitive at [FileTree.tsx](../../../../../../ui/components/FileTree.tsx). The tree's contract is untouched.

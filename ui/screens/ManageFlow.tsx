@@ -21,14 +21,6 @@ interface Props {
   onCancel: () => void;
 }
 
-function countRows(nodes: ScanView["tree"]): number {
-  let total = 0;
-  for (const node of nodes) {
-    total += 1;
-    if (node.kind === "directory") total += countRows(node.children);
-  }
-  return total;
-}
 
 function unwalkedNames(nodes: ScanView["tree"]): string[] {
   const found: string[] = [];
@@ -73,7 +65,6 @@ export function ManageFlow({
     () => (scan ? managedPaths(scan.tree) : new Set<string>()),
     [scan],
   );
-  const rows = useMemo(() => (scan ? countRows(scan.tree) : 0), [scan]);
   const unwalked = useMemo(
     () => (scan ? [...new Set(unwalkedNames(scan.tree))].sort() : []),
     [scan],
@@ -175,11 +166,8 @@ export function ManageFlow({
         <h1 id="manage-heading">
           {scan?.alreadyRegistered
             ? `More files in ${fileName(root)}`
-            : `Seal in ${fileName(root)}`}
+            : `Add files in ${fileName(root)}`}
         </h1>
-        {scan?.alreadyRegistered ? (
-          <span className="manage__already">Already managed</span>
-        ) : null}
         <Toggletip label="What managing these files does">
           Seal records which files it manages here. It does not encrypt
           anything — sealing stays a separate, deliberate action. Your files
@@ -191,18 +179,6 @@ export function ManageFlow({
             ? ` Seal did not search ${unwalked.join(", ")}, because build output and installed dependencies are not where your own secrets live. Anything inside them is not listed.`
             : ""}
         </Toggletip>
-        {scan ? (
-          <span className="manage__count">
-            {rows === 1 ? "1 item" : `${rows} items`}
-            {unwalked.length > 0 ? (
-              <span className="manage__partial">
-                {unwalked.length === 1
-                  ? ` · ${unwalked[0]} not searched`
-                  : ` · ${unwalked.length} folders not searched`}
-              </span>
-            ) : null}
-          </span>
-        ) : null}
         <p className="manage__root">{root}</p>
         {scan ? (
           <span className="manage__search">
@@ -210,7 +186,7 @@ export function ManageFlow({
             <input
               type="search"
               aria-label="Filter files"
-              placeholder="Filter by name or folder"
+              placeholder="filter"
               autoComplete="off"
               autoCapitalize="off"
               spellCheck={false}
@@ -268,8 +244,8 @@ export function ManageFlow({
           {managed.size > 0 && !scanning && !failure ? (
             <span className="manage__untouched">
               {managed.size === 1
-                ? " · 1 already managed, left as it is"
-                : ` · ${managed.size} already managed, left as they are`}
+                ? " · 1 already managed, left alone"
+                : ` · ${managed.size} already managed, left alone`}
             </span>
           ) : null}
         </span>

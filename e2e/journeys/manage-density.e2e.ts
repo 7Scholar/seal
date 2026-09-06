@@ -99,8 +99,10 @@ describe("the manage surface's two channels", () => {
     for (const [depth, xs] of byDepth) {
       const spread = Math.max(...xs) - Math.min(...xs);
       if (spread > 0.5) {
-        throw new Error(
-          `at depth ${depth} the names start across ${spread.toFixed(2)}px, so the kinds misalign`,
+          throw new Error(
+          `at depth ${depth} the names start across ${spread.toFixed(2)}px, so the kinds misalign: ${JSON.stringify(
+            rows.filter((r) => r.depth === depth).map((r) => [r.name, r.kind, r.nameX]),
+          )}`,
         );
       }
     }
@@ -140,11 +142,15 @@ describe("the manage surface's two channels", () => {
     }
   });
 
-  it("says on its face that it did not search everywhere", async () => {
-    const partial = await $(".manage__partial").getText();
-    if (!/node_modules not searched/.test(partial)) {
+  it("says on the row itself that it did not search everywhere", async () => {
+    const skipped = await browser.execute(() =>
+      [...document.querySelectorAll('.tree__row[data-unwalked="true"]')].map(
+        (row) => row.textContent ?? "",
+      ),
+    );
+    if (!skipped.some((row) => /node_modules/.test(row) && /not searched/.test(row))) {
       throw new Error(
-        `the surface does not state the partial scan: "${partial}"`,
+        `the surface does not state the partial scan: ${JSON.stringify(skipped)}`,
       );
     }
   });

@@ -118,7 +118,7 @@ describe("every surface sits in the window's frame", () => {
     writeFileSync(join(repo, ".env"), "API_KEY=sk-live-1234567890abcdef\n");
 
     await $(".surface__nothing button").click();
-    await expect($("h1*=Seal in")).toBeDisplayed();
+    await expect($("h1*=Add files in")).toBeDisplayed();
 
     const measured = await frame(".manage");
     const measuredRegionFirst = await region();

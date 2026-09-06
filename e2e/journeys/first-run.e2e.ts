@@ -77,7 +77,7 @@ describe("first run: install, choose a password, protect a first file", () => {
 
     await $(".surface__nothing button").click();
 
-    await expect($(`h1*=Seal in`)).toBeDisplayed();
+    await expect($("h1*=Add files in")).toBeDisplayed();
 
     const secret = $('[role="treeitem"][aria-label=".env"]');
     const template = $('[role="treeitem"][aria-label=".env.example"]');

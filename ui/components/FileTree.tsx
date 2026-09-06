@@ -322,8 +322,9 @@ function Row({
         data-kind={node.kind}
         data-quiet={node.kind === "file" && node.confidence === null}
         data-unwalked={isDirectory && !node.walked}
+        data-managed={(node.kind === "file" && node.alreadyManaged) || undefined}
         data-inert={(isDirectory ? !selectable && !openable : isDisabled) || undefined}
-        style={{ paddingLeft: `${depth * 1.1 + 0.3}rem` }}
+        style={{ paddingLeft: `${depth * 20}px` }}
         onFocus={() => setFocused(path)}
         onKeyDown={onKeyDown}
         onClick={activate}
@@ -345,7 +346,11 @@ function Row({
           <span className="tree__twisty tree__twisty--none" aria-hidden="true" />
         )}
 
-        {selectable ? (
+        {node.kind === "file" && node.alreadyManaged ? (
+          <span className="tree__slot" aria-hidden="true">
+            <span className="tree__bar" />
+          </span>
+        ) : selectable ? (
           <input
             type="checkbox"
             className="tree__check"
@@ -369,10 +374,10 @@ function Row({
           <span className="tree__reason">{node.reason}</span>
         ) : null}
         {node.kind === "file" && node.alreadyManaged ? (
-          <span className="tree__note tree__note--managed">already managed</span>
+          <span className="tree__note">already managed</span>
         ) : null}
         {isDirectory && !node.walked ? (
-          <span className="tree__note">not looked in</span>
+          <span className="tree__note">not searched</span>
         ) : null}
       </div>
 

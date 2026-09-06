@@ -221,13 +221,12 @@ describe("settling in: a file with no editor, and coming back to add more", () =
   it("says on the visible surface that this is a rescan, not a first add", async () => {
     const visible = await browser.execute(() => ({
       heading: document.querySelector("#manage-heading")?.textContent ?? "",
-      badge: document.querySelector(".manage__already")?.textContent ?? "",
       tally: document.querySelector(".manage__tally")?.textContent ?? "",
     }));
 
-    if (!/more files/i.test(visible.heading) && !/already managed/i.test(visible.badge)) {
+    if (!/more files/i.test(visible.heading)) {
       throw new Error(
-        `a rescan is drawn exactly like a first add — heading "${visible.heading}", no badge — so nothing tells the user which one they are looking at`,
+        `a rescan is drawn exactly like a first add — heading "${visible.heading}" — so nothing tells the user which one they are looking at`,
       );
     }
     if (!/already managed/i.test(visible.tally)) {

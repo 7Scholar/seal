@@ -24,13 +24,15 @@ The reference the product owner supplied shows a real chevron-up-down icon in th
 
 # Approach
 
-One component, `Icon`, holding a **path table keyed by name** and rendering a single `<svg>` on a fixed `0 0 20 20` grid with `currentColor` and a fixed stroke. Nothing else in the interface draws a glyph.
+One component, `Icon`, holding a **path table keyed by name** and rendering one `<svg>` on a fixed `0 0 20 20` grid with `currentColor` at a `1.8` stroke, `16px` on screen. An entry is a **list** of paths, because several glyphs are two or three strokes rather than one — a padlock is a body and a shackle. Nothing else in the interface draws a glyph.
 
-Hand-rolled rather than vendored. The set is small and closed — chevron-up-down, chevron-down, chevron-right, vertical ellipsis, check, plus, search, sun, moon, monitor — and a dependency for ten paths would cost more in bundle and supply chain than it saves. Inline SVG also satisfies [the CSP](../shell.md) without a build step: nothing is fetched.
+Hand-rolled rather than vendored. The set is small and closed — chevron-up-down, chevron-down, chevron-right, vertical ellipsis, check, plus, search, sun, moon, monitor, lock, unlock, info, eye — and a dependency for fourteen entries would cost more in bundle and supply chain than it saves. Inline SVG also satisfies [the CSP](../shell.md) without a build step: nothing is fetched.
+
+**The padlock pair is load-bearing.** Seal always carries the closed padlock and Unseal always the open one, on every control, in every menu, at every altitude. The two glyphs differ only in the shackle, so a user who has learned one has learned the other, and a control that took the wrong one would say the opposite of what it does.
 
 The glyphs are `aria-hidden` and `focusable="false"` throughout. Every one sits inside a control that already carries its own accessible name, so an icon that announced itself would double it.
 
-The names are **what the icon is**, not what it does — `chevron-up-down`, not `switcher` — so one path serves every caller that needs that shape.
+The names are **what the icon is**, not what it does — `chevron-up-down`, not `switcher` — so one path serves every caller that needs that shape. `lock` and `unlock` are the one place the name is also the verb, and that is the point of the pair.
 
 # What exists
 
@@ -41,3 +43,4 @@ All of the Approach. Every text character previously standing in for a glyph is 
 - [x] The `Icon` component and its path table.
 - [x] Replace every text glyph in the interface.
 - [x] The reference's icons that were absent entirely: the search magnifier and the add `+`.
+- [x] Multi-path entries, and the four glyphs the state language needs: `lock`, `unlock`, `info`, `eye`.

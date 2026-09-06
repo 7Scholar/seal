@@ -155,7 +155,7 @@ describe("stepping away: held plaintext expires on its own", () => {
         | undefined;
       if (typeof internals?.invoke !== "function") return { bridge: false };
       try {
-        await internals.invoke("reveal", { path, key: "API_KEY" });
+        await internals.invoke("reveal", { path, row: 0 });
         return { bridge: true, refused: false, kind: null };
       } catch (error) {
         const kind = (error as { kind?: string } | null)?.kind ?? String(error);

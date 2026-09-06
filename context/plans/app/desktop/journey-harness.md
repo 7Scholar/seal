@@ -106,4 +106,5 @@ A green run of the workflow on the hosted runner.
 
 # Open threads
 
+- **A scenario that reaches past the screen and invokes a command directly is coupled to that command's argument shape, and nothing type-checks it.** The expiry scenario probes `reveal` over the raw bridge to prove Rust refuses an expired secret; the command's arguments changed from a key to a row id when the editing vocabulary landed, and the probe kept sending a key, so it failed on an argument error rather than proving anything about the deadline. It failed loudly rather than passing vacuously, which is the better of the two, but the expiry guarantee had no working proof in the meantime. The probe is a string on both sides by construction — it runs inside `browser.execute`, so the page's own typed `ipc.ts` wrapper is not in scope. Whether these direct probes should route through a shared, typed helper is worth deciding before there are more of them.
 - Whether the embedded provider also runs on the Linux runner, which would widen the gate beyond macOS.

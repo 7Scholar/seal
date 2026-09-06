@@ -22,71 +22,77 @@ Why it matters beyond appearance: this is the same judgement that produced [the 
 
 # Approach
 
-Built from [_docs/palette-research.md](_docs/palette-research.md), which surveys Radix Colors, Material 3, GitHub Primer, Vercel Geist, Shopify Polaris, Linear and Apple's HIG, and reads WCAG 2.1 normatively rather than from memory. That document is the design input; this Approach states what follows from it.
+The values are the product owner's, designed outside this repository and specified exactly; [_docs/palette-research.md](_docs/palette-research.md) — a survey of Radix Colors, Material 3, GitHub Primer, Vercel Geist, Shopify Polaris, Linear and Apple's HIG, reading WCAG 2.1 normatively — is what this Approach reasons with rather than what supplies them.
 
-Three constraints bound it and are settled: **minimal is the specification**, so the direction is toward fewer deliberate values and every token must argue for itself; **both themes are authored**, never one derived from the other; and **contrast minimums are a filter applied to candidates**, so a value failing them is rejected rather than nudged afterward.
+Two constraints bound it and are settled: **minimal is the specification**, so every token must argue for itself; and **both themes are authored**, never one derived from the other. Contrast is measured against every pair rather than assumed, and where the specified palette misses a floor the miss is stated under **What is missing** rather than quietly corrected.
 
-## Accent and primary are two roles over one hue
+## Copper means sealed, and the primary is ink
 
-The owner named accent and primary as two things, and the distinction is real: Material 3 calls primary, secondary and tertiary collectively the *accent roles*, so accent is the category and primary the most prominent member; Radix splits the same hue into step 9, the solid fill, and step 11, the interactive text.
+**`--accent` is oxidized copper, and it carries exactly one meaning: this file is sealed.** It appears as the state bar on a sealed row, as the wash under one (`--accent-surface`), and as a sealed tick in a repository's row of ticks. Nothing else in the interface may take it — not focus, not hover, not selection, not the primary action, not interactive text.
 
-**`--primary` is the solid fill of the single most important action on a view. `--accent` is the interactive-and-selected signal everywhere else** — focus rings, selection tints, the switcher tick, the checked file's name, interactive text. Two tokens, one blue, not two colours.
+**`--primary` is ink**, the same value as `--text`, and it fills the single most important action on a view with `--on-primary` on top of it. The most prominent button in the product is therefore neutral, which is what leaves the one saturated colour free to mean one thing.
 
-The argument is mechanical rather than stylistic, which is why it is not a matter of taste: a fill is a **background that ink sits on**, an accent is a **foreground that sits on the page**, and those are opposite contrast obligations. No single value satisfies both — the blue deep enough to carry white ink as a fill is too dark to read as text on the same page. This is the defect the split repairs: one value carrying six roles means the primary action, hover, focus and selection are all the same colour, so nothing stands out because everything does.
+The reasoning is the reservation rather than the hue. A security product has exactly one signal a user must never misread, and a colour that also marks the focused field, the hovered row and the Save button is a colour that says nothing. Narrowing the accent to a single condition is what makes the row of ticks readable at a glance from across the desk, which is the question this product exists to answer.
 
-A second *hue* is refused. It would give the product two identities, and in a security product a second saturated colour competes with the one signal that must never be missed.
+**Red is reserved in the same way.** `--danger` appears on the broken-seal condition — the bar, the wash `--danger-surface`, and the fix action beside it — and on verbs that destroy. It is never the ordinary unsealed state: a file the developer chose to leave readable is a resting state, and painting it red makes a normal condition look like an emergency.
+
+**A third neutral, `--faint`, carries absence.** Ghosted things: a file gone from disk, a disabled control, and the tick of a file that is simply not sealed. It is the visual opposite of copper rather than a warning.
 
 ## The role rule
 
-The palette drifts apart the moment a new surface picks by eye, which is how the present state arose. A surface picks by answering, in order:
+A surface picks by answering, in order:
 
-1. **The single most important action on this view?** → `--primary` fill with `--on-primary` ink. At most one per view; if a view seems to need two, one of them is not primary.
-2. **Interactive, selected, focused, or currently active?** → `--accent`, as text, ring, or `--selected` tint. Never as a large fill.
-3. **Reports danger, exposure, or destruction?** → `--danger` text or `--danger-surface` tint; `--danger` as fill only for a confirmed destructive act. Always with an icon and a label.
-4. **Reports success, or a sealed state?** → `--ok`, as text or icon only.
-5. **Structural — a surface, boundary, or label?** → the neutral ramp.
-6. **None of these?** → it is neutral. Colour is not the default.
+1. **Is this file sealed?** → `--accent` as the bar, `--accent-surface` as the wash. Nothing else, anywhere, for any other reason.
+2. **Did the seal break, or does this verb destroy?** → `--danger` text, bar or border; `--danger-surface` as the wash. Always with an icon or a label beside it.
+3. **The single most important action on this view?** → `--primary` fill with `--on-primary` ink. At most one per view.
+4. **Absent, disabled, or gone?** → `--faint`.
+5. **Interactive, focused, or hovered?** → the neutral ramp: a `--text` ring for focus, a `--hover` overlay for hover.
+6. **Structural — a surface, boundary, or label?** → the neutral ramp.
+7. **None of these?** → it is neutral. Colour is not the default.
 
 ## Two boundary tokens, because 1.4.11 asks for two things
 
-The live `--line` is **1.34:1 against the page on dark and 1.23:1 on light**, against the 3:1 that WCAG 2.1 SC 1.4.11 requires of a boundary identifying a control. Lifting one shared token to clear it would turn every divider into a heavy grey rule and destroy the calm the owner asked for.
-
-The token therefore splits by obligation, which is what 1.4.11 actually requires rather than a waiver of it: a boundary must clear 3:1 **only when it is the sole means of identifying a control**. A divider between two rows identifies nothing — the rows are identified by their own text — so `--line` stays subtle and is exempt. A text input's border is the only thing saying *you may type here*, so it is `--line-strong` and clears 3:1.
+A boundary must clear 3:1 **only when it is the sole means of identifying a control**. A divider between two rows identifies nothing — the rows are identified by their own text — so `--line` stays subtle and is exempt. A text input's border is the only thing saying *you may type here*, so it is `--line-strong` and is the token that has to clear the floor.
 
 ## The tokens
 
-Fifteen become fourteen. `--panel` and `--field` collapse into `--raised` — all three already resolve to an identical `#ffffff` in light, so they were never distinct decisions, and [shape.md](shape.md) specifies two elevation levels, not four fills. `--on-accent` becomes `--on-primary` and `--danger-bg` becomes `--danger-surface`, each name following its role. `--primary` and `--line-strong` are added. `--selected` is retained and, for the first time, actually used.
+Sixteen per theme. `--faint` and `--accent-surface` are the two the state language needs and the previous palette had no way to say: absence, and the wash under a sealed row.
 
-Of the owner's four named decisions, `--bg` is the shade of black-or-white, `--text` its opposite, and `--accent` and `--primary` the two blues. The remaining ten are the states and structure the interface cannot draw without.
+**Hover is a neutral overlay, selection is an accent tint, focus is a neutral ring.** Three mechanisms, so the three states are never confused — and none of them borrows the sealed signal.
 
-**Hover is a neutral overlay, selection is an accent tint, focus is a ring.** Three mechanisms, so the three states are never confused — which is the other half of the "nothing stands out" defect.
+**Colour is never the sole carrier of meaning.** Every state also carries a shape: the bar's height distinguishes sealed from not-sealed from broken, a file gone from disk is struck through, and the broken-seal row carries an explanation and an action.
 
-Every value clears its floor in both themes, verified by computation rather than by eye: all thirteen text pairs at 4.5:1 and all three non-text pairs at 3:1. The tightest is the light `--ok` at 5.03:1.
+## Dark is a palette swap and nothing else
 
-**Colour is never the sole carrier of meaning.** Every state colour distinguishes also carries text, an icon, or a shape — an accessibility invariant, and in a security product a safety one.
+Every role keeps its meaning after dark, every layout and metric is identical, and the state language reads the same way. Only the values differ: copper and oxblood are both lifted so they hold on the dark ground, and `--primary` inverts to light-on-dark because the filled button is the ink of its theme.
 
 # What exists
 
 All of the Approach, in the stylesheet's token block and applied through it.
 
-The fourteen tokens resolve in both themes, and every rule reaches one of them — no rule names a hex value and none of the retired names survives anywhere in the interface. The primary button is the only filled accent-coloured element in the product; hover is a neutral overlay everywhere it appears, so hover, selection and focus are three visibly different things rather than one blue.
+The sixteen tokens resolve in both themes and every rule reaches one of them. The reservation holds: a search of the stylesheet finds `--accent` on exactly two kinds of rule — the sealed condition, and the already-managed marker that means the same thing — and nowhere else. Focus rings, hover borders and the checked file's name all moved to the neutral ramp when the reservation was applied, which is what the two open threads the previous palette left had been asking about.
 
-Every contrast pair was verified by computing WCAG 2.1 relative luminance rather than by eye: thirteen text pairs against 4.5:1 and three non-text pairs against 3:1, all passing in both themes, with the light `--ok` tightest at 5.03:1.
+Prose is Geist and everything the machine owns is Geist Mono, both vendored as `woff2` into `ui/fonts/` with the SIL Open Font License text beside them, since the application is offline and [the CSP](../../shell.md) forbids fetching either.
 
-The change was seen in the real application, which is the check this kind of change actually answers to: a release build launched against a scratch profile renders every surface, and a harness run on the same build drove the interface from an empty install through establishing a password, adding a repository, sealing a file, and verifying the sealed file on disk as standard age.
+Seen in the real application in both themes, on every surface, against a scratch profile.
 
 # What is missing
 
-Nothing on this plan.
+**Three contrast pairs no longer clear their floor, and the plan states them rather than implying the palette passes.** Computed against WCAG 2.1 relative luminance:
+
+- **`--muted` on `--bg` in light is 4.44:1**, against the 4.5:1 SC 1.4.3 requires. `--muted` carries repository paths and machine-owned labels at 11.5px, so the large-text exemption does not apply. On the two washes it is worse — 4.16:1 on `--accent-surface` and 3.75:1 on `--danger-surface`.
+- **`--line-strong` is 1.78:1 on light and 2.13:1 on dark**, against the 3:1 SC 1.4.11 requires of a boundary that identifies a control. A field's fill is 1.08:1 against the page, so the border is the sole identifier and cannot be exempt.
+- **`--faint` is 1.50:1 on light**. Where it marks a disabled control that is exempt, and where it marks a not-sealed tick the bar's height carries the distinction — but it also draws the **filename of a file gone from disk**, which is text a user has to read.
+
+These are the design as specified, not a misapplication of it, so they are recorded here and put to the product owner rather than nudged. Until they are answered the palette's earlier guarantee — that every value clears its floor — does not hold, and no plan should be read as saying it does.
 
 # Steps
 
 - [x] Survey established minimal palettes and the accent/primary distinction as the leaders in the field draw it, per [docs/UX_RESEARCH.md](../../../../../../docs/UX_RESEARCH.md).
 - [x] Audit the fifteen live tokens against both themes and against the stated four-decision intent, separating load-bearing values from accumulation.
 - [x] Solution the Approach from the research, and apply it across the stylesheet.
+- [x] Replace the palette with the one the product owner designed, narrow `--accent` to the sealed condition alone, and vendor the two typefaces the design specifies.
 
 # Open threads
 
-- **Whether `--accent` and `--primary` should stay the same value in light.** Both roles land on `#0b5cad` there because the two contrast obligations converge on a white page. The tokens are separate regardless, since the role rule must not change per theme — but whether the primary action reads as sufficiently distinct from interactive text on light wants looking at once more surfaces exist in it.
-- **Whether the checked file's name in the tree should carry `--accent` at all.** An accent repeated fifty times stops signalling, which is the excessive state's argument; a check icon with neutral text may be the better treatment. Best judged against a real tree, so it belongs to [manage-surface.md](manage-surface.md)'s build rather than here.
-- The light `--ok` at 5.03:1 has the least headroom of any text pair in the palette and wants re-checking if the light background is ever darkened.
+- The three failing pairs above are with the product owner. Nothing else in the interface depends on their answer, so the rest of the redesign proceeds around them.

@@ -14,6 +14,14 @@ It also has to say what "all" means when the action partly fails. Per-file outco
 
 **Approved by the product owner as a real capability, not a mock.**
 
+## Two things wait on this node
+
+**The repository altitude's redesign is blocked behind it.** The design turns that surface into a tree with **no checkbox on any row** — the file line is drawn in four states and none of them carries one — and puts *Seal every file* in the repository's `⋯` instead. So the tree cannot be built first: doing that removes the only way to seal several files at once, before the thing that replaces it exists. It would also silently retire the surface's whole selection model, which [files.md](files.md) states and which [the bad-day scenario](../../../../../journeys/living-with-it.md) drives — the batch route is exactly where that scenario found a file being sealed without the recency warning the single-file route gives.
+
+**And this node waits on [ceremony.md](ceremony.md).** What *Seal every file* does about a file an editor may be holding cannot be answered before ceremony.md settles whether the recency warning survives at all. Answering it here first would decide ceremony.md's question from the wrong end.
+
+The order is therefore ceremony.md, then this, then the tree.
+
 # Approach
 
 TBD

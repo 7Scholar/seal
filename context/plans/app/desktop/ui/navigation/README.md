@@ -199,6 +199,8 @@ The owner's other decisions shaped the surface as much as the model: `# FOO=bar`
 
 All of it is **approved** — the owner settled it before the brief was written — so these are decided work rather than open questions. They are framed anyway because two of them delete confirmations from a security tool, and one of those reverses a fix the journeys axis made after driving the hazard it covers. A tree that carried that only as a diff would leave the next agent reading the removal as a regression.
 
+**The framing found an ordering the design does not state, and it gates the repository altitude.** That surface becomes a tree with no checkbox on any row, so its multi-file sealing moves into *Seal every file* — [seal-all.md](seal-all.md). Building the tree first would take the capability away before its replacement exists, and seal-all itself cannot be solutioned until [ceremony.md](ceremony.md) settles whether the recency warning survives. **ceremony.md, then seal-all.md, then the tree.** The two surfaces already carried through the redesign — the foundations and the repositories list — had no such dependency, which is why they are done.
+
 # Open threads
 
 - The row lanes on every list are set against this window's own width rather than measured at the sizes people actually use. Worth revisiting once the application has been lived in at a few window sizes.

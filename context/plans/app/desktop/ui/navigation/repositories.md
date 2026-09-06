@@ -83,6 +83,7 @@ Guards confirmed non-vacuous by reintroducing the defect each prevents:
 - [x] The empty state as an add tile inside the grid.
 - [x] Every other state: loading, error, excessive, no-match.
 - [x] Tests, with each load-bearing rule confirmed non-vacuous.
+- [ ] A repository whose seal broke sorts to the top of the list. The product owner has approved it, and it is a deliberate exception to the rule above that this surface filters rather than reorders — that rule exists so a tile never moves under the pointer, and an exposure is the one event worth moving a row for. What has to be settled is when the reorder is allowed to happen relative to the pointer being over the list.
 
 # Open threads
 

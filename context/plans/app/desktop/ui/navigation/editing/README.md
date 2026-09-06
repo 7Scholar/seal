@@ -88,6 +88,7 @@ The placement is the whole of the argument. Ceremony sits exactly where the dest
 - [x] destructive-save.md -> the batch inspection and the one confirmation standing in front of a save that removes variables
 - [x] row-density.md -> how the row presents its vocabulary: three controls and one overflow menu, one tab stop per row, and the geometry that keeps it to a single line
 - [ ] bulk-entry.md -> pasting a block of `KEY=value` lines, the path by which a user actually stops hand-writing these files
+- [ ] value-as-button.md -> the value itself as the row's control: one click reveals, a second edits, and the Reveal and Edit controls come off every row
 
 # Cursor
 

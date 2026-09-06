@@ -86,6 +86,7 @@ The expiry semantics, the sweep, the reconciliation algorithm, and the exposure 
 - [x] Re-read the registry rather than the in-memory mirror, so an added repository is noticed.
 - [x] Re-mask a revealed value when its plaintext expires, and say why.
 - [x] Drive all of it against the real application, including the case that motivated the concern: a file exposed while the window sits open.
+- [ ] A repository whose re-read failed shows an **unknown** state rather than the states it last saw. The surface currently keeps the rows it was given and says above them that they are what Seal last observed; the product owner has decided that is not enough, because the row itself still reads `Sealed`. Asserting that a file is sealed when Seal cannot currently verify it is the one error this product must never make, and the fix is to say nothing per row instead. What has to be settled is what a row shows in place of a state, and whether the actions a row offers survive a state nobody can vouch for.
 
 # What exists
 

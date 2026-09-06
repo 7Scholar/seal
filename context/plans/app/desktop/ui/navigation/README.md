@@ -96,8 +96,11 @@ Three children, one per altitude, each owning its surface's layout and operation
 - [x] disclosure-primitive.md -> one implementation of the disclosure contract, as a hook the four collapsed controls call. The switcher's divergence is closed.
 - [x] manage-surface.md -> the manage surface carried to the grid's depth. **Every audit finding is built, and the last one — the relock that discards a live selection — was pursued to a reproduction and found not to be a defect.**
 - [x] palette.md -> the chosen palette — a white, a black, an accent and a primary — and the role rule governing where each appears
-- [x] freshness.md -> when the product re-observes disk, and how it answers "is everything protected?" at a glance. Built and driven; the owner's answer to the positive statement was *nothing*, so none is drawn.
-- [~] editing/ -> the full editing vocabulary for an env file: create, rename, delete, duplicate, reorder, and commented-out variables as a disabled state. **Six of seven children are complete, driven, and density-designed; `bulk-entry.md` is framed and unstarted.**
+- [~] freshness.md -> when the product re-observes disk, and how it answers "is everything protected?" at a glance. Built and driven; the owner's answer to the positive statement was *nothing*, so none is drawn. **Reopened for one step: a repository whose re-read failed must show an unknown state rather than the states it last saw.**
+- [~] editing/ -> the full editing vocabulary for an env file: create, rename, delete, duplicate, reorder, and commented-out variables as a disabled state. **Six of eight children are complete, driven, and density-designed; `bulk-entry.md` and `value-as-button.md` are framed and unstarted.**
+- [ ] ceremony.md -> which acts the interface stops to confirm, and which it simply performs. The owner has removed the seal-while-editing and unseal confirmations and the already-managed dialog; what this owes is the rule that keeps the set from drifting back.
+- [ ] file-jump.md -> the breadcrumb menu as a two-level surface, so a file in any repository is reachable without landing on its repository first
+- [ ] seal-all.md -> sealing every unsealed file in a repository in one action, without selecting them first
 
 # Cursor
 
@@ -190,7 +193,10 @@ The owner's other decisions shaped the surface as much as the model: `# FOO=bar`
 
 **Three findings are worth carrying at this altitude.** A latent defect was closed on the way past: `reveal` addressed values by key, so in a file defining a key twice — the case the interface already warns about — the second row handed back the first row's secret. Every created row shared one accessible name, found because a test could not tell two apart, which is the same defect a screen-reader user would have met. And a guard that read as load-bearing proved **unreachable**, established by three attempts to break it and removed rather than left reading as a live check — the same lesson this node already carries about the difference between a guard and a test of a guard.
 
+**The product owner has supplied a finished visual design for the whole application, and its behavioural half is framed here.** The design itself is specified outside this repository and its cosmetic realization rides [UI_IMPROVEMENTS.md](../../../../../../docs/plans/UI_IMPROVEMENTS.md); what could not ride that session is the part that changes what the application *does*, and it is now five framed nodes rather than a styling change: [ceremony.md](ceremony.md), [file-jump.md](file-jump.md) and [seal-all.md](seal-all.md) as new children, [editing/value-as-button.md](editing/value-as-button.md) under the editing folder, and one reopened step each on [repositories.md](repositories.md) and [freshness.md](freshness.md).
+
+All of it is **approved** — the owner settled it before the brief was written — so these are decided work rather than open questions. They are framed anyway because two of them delete confirmations from a security tool, and one of those reverses a fix the journeys axis made after driving the hazard it covers. A tree that carried that only as a diff would leave the next agent reading the removal as a regression.
+
 # Open threads
 
 - The tile grid's breakpoints are set against the window's own minimum width rather than measured at the sizes people actually use. Worth revisiting once the application has been lived in at a few window sizes.
-- Whether the file-level switcher should list files across *all* repositories rather than only the current repository's. The current shape mirrors Supabase's, where a branch switcher lists one project's branches; the cross-repo variant is a different affordance and wants a reason before it is built.

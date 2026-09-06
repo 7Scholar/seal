@@ -107,7 +107,7 @@
   },
   "title-bar.md": {
     "e2e/journeys/title-bar.e2e.ts": "4ff8769cbfce1de9afd8f1ac4c58f90011784b89",
-    "src-tauri/src/titlebar.rs": "17f23dd14a95cca2600108c10f9f8cf85a573109",
+    "src-tauri/src/titlebar.rs": "c9033e5d6eea6b65c92e73166767131c770bda9a",
     "ui/App.test.tsx": "2a952d8a384ae8660ebf62554710f6fc3c3ba559",
     "ui/App.tsx": "2a952d8a384ae8660ebf62554710f6fc3c3ba559",
     "ui/styles.css": "2a952d8a384ae8660ebf62554710f6fc3c3ba559"

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { App } from "./App";
 import * as ipc from "./ipc";
@@ -177,8 +177,10 @@ describe("the application shell", () => {
     await openApp();
     await openRepository(user, "app");
 
-    await user.click(screen.getByRole("button", { name: "Switch repository" }));
-    await user.click(screen.getByRole("option", { name: /site/ }));
+    await user.click(
+      screen.getByRole("button", { name: "Jump to a repository or file" }),
+    );
+    await user.click(screen.getByRole("menuitem", { name: "site" }));
 
     await waitFor(() => {
       expect(screen.getByText("/code/site")).toBeInTheDocument();
@@ -186,32 +188,65 @@ describe("the application shell", () => {
     expect(screen.queryByLabelText("Search repositories")).not.toBeInTheDocument();
   });
 
-  it("filters the switcher by what is typed, and marks the current repository", async () => {
+  it("reaches a file in a repository the user is not standing in, by the keyboard", async () => {
     const user = userEvent.setup();
     await openApp();
     await openRepository(user, "app");
 
-    await user.click(screen.getByRole("button", { name: "Switch repository" }));
-    expect(screen.getByRole("option", { name: /app/ })).toHaveAttribute(
-      "aria-selected",
-      "true",
+    await user.click(
+      screen.getByRole("button", { name: "Jump to a repository or file" }),
+    );
+    expect(screen.getByRole("menuitem", { name: "site" })).toHaveFocus();
+
+    await user.keyboard("{ArrowRight}");
+    await user.click(
+      within(screen.getByRole("menu", { name: "Files in site" })).getByRole(
+        "menuitem",
+        { name: ".env" },
+      ),
     );
 
-    await user.type(screen.getByRole("combobox"), "site");
-    expect(screen.queryByRole("option", { name: /^app/ })).not.toBeInTheDocument();
-    expect(screen.getByRole("option", { name: /site/ })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(mocked.openFile).toHaveBeenCalledWith("/code/site/.env");
+    });
   });
 
-  it("dismisses the switcher on Escape without navigating", async () => {
+  it("marks the repository the user is standing in, and orders the broken one first", async () => {
     const user = userEvent.setup();
     await openApp();
     await openRepository(user, "app");
 
-    await user.click(screen.getByRole("button", { name: "Switch repository" }));
-    expect(screen.getByRole("combobox")).toBeInTheDocument();
+    await user.click(
+      screen.getByRole("button", { name: "Jump to a repository or file" }),
+    );
+
+    const rows = screen.getAllByRole("menuitem").slice(0, 2);
+    expect(rows.map((row) => row.textContent)).toEqual(["site", "app"]);
+    expect(screen.getByRole("menuitem", { name: "app" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(screen.getByRole("menuitem", { name: "site" })).not.toHaveAttribute(
+      "aria-current",
+    );
+  });
+
+  it("dismisses the jump menu on Escape without navigating", async () => {
+    const user = userEvent.setup();
+    await openApp();
+    await openRepository(user, "app");
+
+    await user.click(
+      screen.getByRole("button", { name: "Jump to a repository or file" }),
+    );
+    expect(
+      screen.getByRole("menu", { name: "Jump to a repository or file" }),
+    ).toBeInTheDocument();
 
     await user.keyboard("{Escape}");
-    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("menu", { name: "Jump to a repository or file" }),
+    ).not.toBeInTheDocument();
     expect(screen.getByText("/code/app")).toBeInTheDocument();
   });
 
@@ -515,25 +550,29 @@ describe("the theme control", () => {
     );
   });
 
-  it("carries a switcher on the root segment, on the one screen a new user sees", async () => {
+  it("carries the jump menu on the root segment, on the one screen a new user sees", async () => {
     const user = userEvent.setup();
     await openApp();
 
-    await user.click(screen.getByRole("button", { name: "Open a repository" }));
-
-    expect(screen.getByRole("option", { name: /^app/ })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: /site/ })).toBeInTheDocument();
-    expect(document.querySelector(".switcher__add")).toHaveTextContent(
-      "Add repository",
+    await user.click(
+      screen.getByRole("button", { name: "Jump to a repository or file" }),
     );
+
+    expect(screen.getByRole("menuitem", { name: "app" })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: "site" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("menuitem", { name: "Add repository" }),
+    ).toBeInTheDocument();
   });
 
-  it("opens a repository from the root switcher, without touching a tile", async () => {
+  it("opens a repository from the root menu, without touching a row", async () => {
     const user = userEvent.setup();
     await openApp();
 
-    await user.click(screen.getByRole("button", { name: "Open a repository" }));
-    await user.click(screen.getByRole("option", { name: /site/ }));
+    await user.click(
+      screen.getByRole("button", { name: "Jump to a repository or file" }),
+    );
+    await user.click(screen.getByRole("menuitem", { name: "site" }));
 
     await waitFor(() => {
       expect(screen.getByText("/code/site")).toBeInTheDocument();
@@ -545,23 +584,26 @@ describe("the theme control", () => {
     const user = userEvent.setup();
     await openApp();
 
-    await user.click(screen.getByRole("button", { name: "Open a repository" }));
+    await user.click(
+      screen.getByRole("button", { name: "Jump to a repository or file" }),
+    );
 
-    for (const option of screen.getAllByRole("option")) {
-      expect(option).toHaveAttribute("aria-selected", "false");
+    for (const row of document.querySelectorAll(".jump__repo")) {
+      expect(row).not.toHaveAttribute("aria-current");
     }
   });
 
-  it("reaches the add action from the trail when there is nothing to switch between", async () => {
+  it("reaches the add action from the trail when there is nothing to jump to", async () => {
     const user = userEvent.setup();
     mocked.overview.mockResolvedValue([]);
     await openApp();
 
-    await user.click(screen.getByRole("button", { name: "Open a repository" }));
+    await user.click(
+      screen.getByRole("button", { name: "Jump to a repository or file" }),
+    );
 
     expect(screen.getByText("No repositories yet.")).toBeInTheDocument();
-    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
-    expect(document.querySelector(".switcher__add")).toHaveFocus();
+    expect(screen.getByRole("menuitem", { name: "Add repository" })).toHaveFocus();
   });
 
   it("draws the file surface while the open is in flight, rather than nothing at all", async () => {

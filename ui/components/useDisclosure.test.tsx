@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Overflow } from "./Overflow";
 import { Toggletip } from "./Toggletip";
-import { Switcher } from "./Switcher";
+import { JumpMenu } from "./JumpMenu";
 
 function open(name: string) {
   return screen.getByRole("button", { name });
@@ -35,23 +35,28 @@ const disclosures = [
     shown: () => screen.queryByText("Seal watches these files."),
   },
   {
-    what: "the switcher",
-    trigger: "Switch repository",
+    what: "the jump menu",
+    trigger: "Jump to a repository or file",
     render: () => (
       <>
         <button type="button">elsewhere</button>
-        <Switcher
-          label="Switch repository"
-          searchLabel="Find repository..."
-          addLabel="Add repository"
-          current="/code/app"
-          options={[{ id: "/code/app", name: "app" }]}
-          onChoose={vi.fn()}
+        <JumpMenu
+          repos={[
+            {
+              root: "/code/app",
+              name: "app",
+              files: [{ relativePath: ".env", state: "sealed", alert: false }],
+            },
+          ]}
+          currentRoot="/code/app"
+          currentPath={null}
+          onOpenRepository={vi.fn()}
+          onOpenFile={vi.fn()}
           onAdd={vi.fn()}
         />
       </>
     ),
-    shown: () => screen.queryByRole("combobox"),
+    shown: () => screen.queryByRole("menu", { name: "Jump to a repository or file" }),
   },
 ];
 

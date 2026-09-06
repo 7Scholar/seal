@@ -2,11 +2,11 @@ Part of [the navigation plan](README.md).
 
 # Scope
 
-The **route**, the **breadcrumb trail** that expresses it, and the **switcher popover** that moves sideways within an altitude. Out of scope: what any altitude's surface shows, and the strip's other occupants ([theme.md](theme.md), [title-bar.md](title-bar.md)).
+The **route** and the **breadcrumb trail** that expresses it, and where on the trail its menu hangs. Out of scope: the menu itself ([file-jump.md](file-jump.md)), what any altitude's surface shows, and the strip's other occupants ([theme.md](theme.md), [title-bar.md](title-bar.md)).
 
 # What & why
 
-The navigation model the redesign is built on. Three altitudes deep, with the trail as the only navigation chrome and the switcher as the accelerator that keeps a three-level hierarchy from costing three clicks to cross.
+The navigation model the redesign is built on. Three altitudes deep, with the trail as the only navigation chrome and its menu as the accelerator that keeps a three-level hierarchy from costing three clicks to cross.
 
 # Approach
 
@@ -32,23 +32,13 @@ Segments truncate their own text rather than being dropped. A dropped segment is
 
 The trail is a `nav` landmark with an ordered list inside it, and the current segment carries `aria-current="page"` — the shape assistive technology already knows, rather than a bespoke one.
 
-## The switcher
+## The menu the trail carries
 
-**Every segment carries a chevron-up-down button**, including the `Repositories` root, immediately after the segment's text.
+**The trail carries one chevron-up-down button, on its last segment**, and what it opens is [file-jump.md](file-jump.md)'s two-level menu rather than a flat list of siblings. That node owns the menu's shape, its keyboard contract and the state language it carries; what belongs here is why the trail hands it a single anchor instead of one per segment.
 
-The root's popover is the one that most has to exist, which is the opposite of how it reads at first: its list is the repositories themselves, so on a fresh install the list is empty — and the popover carries **+ Add repository**, which on that screen is the only thing a user can do. A control over an empty set would indeed lie about having options if options were all it held; this one holds the action that creates them. At the root nothing is marked current, because the root is not one of its own options: it is the altitude above them.
+A per-segment switcher expressed *sideways at this altitude*, so three segments meant three lists and the file list could only ever hold the current repository's files. The two-level menu reaches sideways and down at once, which makes the altitude of the segment it hangs from irrelevant: the content is the same from every altitude, and only the marking of *current* changes. One anchor is then the honest shape — three chevrons opening three identical menus would say there are three different things to open.
 
-The popover holds three parts in a fixed order: a **search field**, focused on open; the **filtered sibling list**, with the current item marked by a checkmark rather than only by styling; and a single **add action** pinned at the foot, visually separated from the list — `+ Add repository` at the repository level, `+ Add file` at the file level.
-
-**With nothing to switch between, the popover drops the parts that would be false.** The search field is not drawn over an empty set — a field that can filter nothing is the same empty promise the chevron would have been — the list is replaced by a plain statement that there are no repositories yet, and focus goes to the add action, which is both the only control in the popover and the only thing the user came for.
-
-Filtering is a case-insensitive substring match over the item's displayed name. Not fuzzy: the sets are small, the user usually knows the name, and predictable matching beats clever ranking when both are instant.
-
-**It is a combobox-family control, not a menu.** A `menu` may not contain a text field, and building it as one captures the arrow keys and strands the search field for keyboard and screen-reader users. The trigger carries `aria-expanded` and `aria-haspopup`; the field owns the list through `aria-controls` with `aria-activedescendant` tracking the highlighted option; the list is a `listbox` of `option`s.
-
-The keyboard contract: typing filters; Down and Up move the active option; Enter chooses it; Escape dismisses and returns focus to the trigger; an outside click dismisses. Tab from the field reaches the add action, so the whole popover is traversable without a pointer.
-
-Choosing a sibling navigates at that altitude. Choosing the add action starts the same flow the altitude's own surface offers — one add path per altitude, whatever opened it.
+The root's chevron is the one that most has to exist, which is the opposite of how it reads at first: on a fresh install the repository list is empty, and the menu carries **+ Add repository**, which on that screen is the only thing a user can do. A control over an empty set would indeed lie about having options if options were all it held; this one holds the action that creates them. At the root nothing is marked current, because the root is not one of its own options: it is the altitude above them.
 
 ## Where the exposure indicator sits
 
@@ -56,30 +46,27 @@ In the strip's trailing group, before Lock. It states the number of repositories
 
 # What exists
 
-All of the Approach: the route with its fallbacks, the trail with its inert current segment, the switcher with its combobox semantics and keyboard contract, and the exposure indicator.
+All of the Approach: the route with its fallbacks, the trail with its inert current segment, the single menu anchor, and the exposure indicator.
 
-Interface tests cover the trail's navigation, the current segment's inertness, the switcher's filter, its keyboard contract, its dismissal, the root switcher's list and its empty form, and the route's fallback when a repository or file disappears underneath it.
+Interface tests cover the trail's navigation, the current segment's inertness, the menu's dismissal, its list and its empty form at the root, and the route's fallback when a repository or file disappears underneath it. The menu's own tests belong to [file-jump.md](file-jump.md).
 
-Driven against the real application in `first-run`, on the empty screen where the absence mattered: the root's popover opens, states that there are no repositories yet, offers the add action, and dismisses on Escape.
+Driven against the real application in `first-run`, on the empty screen where the absence mattered: the root's menu opens, states that there are no repositories yet, offers the add action, and dismisses on Escape.
 
 Load-bearing guards confirmed non-vacuous by reintroducing the defect each prevents:
 
-- building the popover as a `menu` containing the search field — the shape that strands keyboard users — fails the two tests naming the roles
 - making the current segment navigate fails 1
 - dropping a segment to fit rather than truncating its text fails 1
 - leaving the route pointing at a removed repository instead of falling back fails 2
-- removing the root switcher fails 4 unit checks and the driven first-run step
-- drawing the search field over an empty set fails 1
+- removing the trail's menu fails 4 unit checks and the driven first-run step
 
 # Steps
 
 - [x] The route, with navigation up, down and sideways, and its fallbacks.
 - [x] The trail, with the inert current segment and per-segment truncation.
-- [x] The switcher popover with its combobox semantics, filter, and keyboard contract.
-- [x] The root segment's switcher, and the empty form the fresh install meets.
+- [x] The trail's single menu anchor, and the empty form the fresh install meets.
 - [x] The exposure indicator in the strip.
 - [x] Tests, with each load-bearing rule confirmed non-vacuous.
 
 # Open threads
 
-- Whether the file segment should list every repository's files rather than the current repository's. Mirrors an unresolved question in the prior art; wants a reason before it is built.
+None. The one this node carried — whether the file segment should list every repository's files rather than the current repository's — is **settled and built**: it lists every repository's, by reaching through the repository panel rather than by flattening two lists into one. [file-jump.md](file-jump.md) records the reason the prior art was missing.

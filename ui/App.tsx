@@ -10,6 +10,7 @@ import { Repositories, type Load } from "./screens/Repositories";
 import { Unlock } from "./screens/Unlock";
 import { PasswordChange } from "./screens/PasswordChange";
 import { Breadcrumbs, type Crumb } from "./components/Breadcrumbs";
+import { JumpMenu } from "./components/JumpMenu";
 import { Confirm } from "./components/Confirm";
 import { Problem } from "./components/Problem";
 import { Overflow } from "./components/Overflow";
@@ -449,20 +450,6 @@ export function App() {
       key: "repositories",
       label: "Repositories",
       onNavigate: () => void goToRepositories(),
-      switcher: {
-        label: "Open a repository",
-        searchLabel: "Find repository...",
-        addLabel: "Add repository",
-        emptyNote: "No repositories yet.",
-        current: null,
-        options: repos.map((repo) => ({
-          id: repo.root,
-          name: repo.name,
-          detail: repo.root,
-        })),
-        onChoose: (root) => void goToRepository(root),
-        onAdd: () => void startAdd(),
-      },
     },
   ];
 
@@ -471,39 +458,11 @@ export function App() {
       key: currentRepo.root,
       label: currentRepo.name,
       onNavigate: () => void goToRepository(currentRepo.root),
-      switcher: {
-        label: "Switch repository",
-        searchLabel: "Find repository...",
-        addLabel: "Add repository",
-        current: currentRepo.root,
-        options: repos.map((repo) => ({
-          id: repo.root,
-          name: repo.name,
-          detail: repo.root,
-        })),
-        onChoose: (root) => void goToRepository(root),
-        onAdd: () => void startAdd(),
-      },
     });
   }
 
   if (route.at === "file" && currentRepo) {
-    crumbs.push({
-      key: route.path,
-      label: fileName(route.path),
-      switcher: {
-        label: "Switch file",
-        searchLabel: "Find file...",
-        addLabel: "Add file",
-        current: route.path,
-        options: currentRepo.files.map((file) => ({
-          id: filePath(currentRepo, file.relativePath),
-          name: file.relativePath,
-        })),
-        onChoose: (path) => void goToFile(currentRepo.root, path),
-        onAdd: () => void startRescan(currentRepo.root),
-      },
-    });
+    crumbs.push({ key: route.path, label: fileName(route.path) });
   }
 
   const openedRelativePath =
@@ -519,7 +478,27 @@ export function App() {
 
   return (
     <Frame
-      trail={<Breadcrumbs crumbs={crumbs} />}
+      trail={
+        <Breadcrumbs
+          crumbs={crumbs}
+          jump={
+            <JumpMenu
+              repos={repos}
+              currentRoot={currentRepo?.root ?? null}
+              currentPath={
+                route.at === "file" && currentRepo
+                  ? route.path.slice(currentRepo.root.length + 1)
+                  : null
+              }
+              onOpenRepository={(root) => void goToRepository(root)}
+              onOpenFile={(repo, relativePath) =>
+                void goToFile(repo.root, filePath(repo, relativePath))
+              }
+              onAdd={() => void startAdd()}
+            />
+          }
+        />
+      }
       controls={
         <>
           {route.at !== "repositories" && exposedRepos.length > 0 && exposedRepos[0] ? (

@@ -87,3 +87,33 @@ export function filterTree(nodes: TreeNode[], query: string): TreeNode[] {
 
   return nodes.map(keep).filter((node) => node !== null);
 }
+
+export interface Group {
+  directory: string;
+  files: FileView[];
+}
+
+export function groupByDirectory(files: FileView[]): Group[] {
+  const groups = new Map<string, FileView[]>();
+
+  for (const file of files) {
+    const cut = file.relativePath.lastIndexOf("/");
+    const directory = cut === -1 ? "" : file.relativePath.slice(0, cut);
+    const bucket = groups.get(directory);
+    if (bucket) bucket.push(file);
+    else groups.set(directory, [file]);
+  }
+
+  return [...groups.entries()]
+    .sort(([a], [b]) => {
+      if (a === "") return 1;
+      if (b === "") return -1;
+      return a.localeCompare(b);
+    })
+    .map(([directory, held]) => ({
+      directory,
+      files: [...held].sort((a, b) =>
+        a.relativePath.localeCompare(b.relativePath),
+      ),
+    }));
+}

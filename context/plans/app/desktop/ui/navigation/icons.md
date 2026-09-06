@@ -10,10 +10,10 @@ There is no icon system in the product. Every glyph in the interface is a **text
 
 | Glyph | Where | Should be |
 | --- | --- | --- |
-| `⌃⌄` | `Switcher` trigger | chevron-up-down |
+| `⌃⌄` | the trail's menu trigger | chevron-up-down |
 | `···` | `Overflow` trigger | horizontal ellipsis / kebab |
 | `◐` | `ThemeControl` trigger | the current mode's icon: monitor, sun, or moon |
-| `✓` | `Switcher`, `ThemeControl` | check |
+| `✓` | `ThemeControl` | check |
 | `▾` / `▸` | `FileTree` twisty | caret |
 
 These are typographic characters standing in for icons. They inherit font metrics rather than sitting on a fixed optical grid, so they sit off the centre of their buttons; they render differently across fonts and platforms; and they cannot be sized or stroked to match the surface they sit on. The audit records this as a **systemic** cause of the amateur impression and one that is larger than any single control — the `⌃⌄` in the breadcrumb is the most visible instance, not the whole problem.
@@ -36,7 +36,7 @@ The names are **what the icon is**, not what it does — `chevron-up-down`, not 
 
 # What exists
 
-All of the Approach. Every text character previously standing in for a glyph is replaced: the switcher's chevron, the overflow's ellipsis (now **vertical**, as the reference draws it, where it had been horizontal), the theme control's disc, both ticks, and the file tree's twisty. The search fields in the toolbar and the switcher popover gained the magnifier the reference carries, and the add actions gained a `+` — which let the literal `+` come out of their labels.
+All of the Approach. Every text character previously standing in for a glyph is replaced: the trail menu's chevron, the overflow's ellipsis (now **vertical**, as the reference draws it, where it had been horizontal), the theme control's disc, both ticks, and the file tree's twisty. The toolbar's search field gained the magnifier the reference carries, and the add actions gained a `+` — which let the literal `+` come out of their labels. The trail's menu carries no search field of its own; [file-jump.md](file-jump.md) records why.
 
 # Steps
 

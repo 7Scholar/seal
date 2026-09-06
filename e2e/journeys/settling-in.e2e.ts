@@ -358,4 +358,85 @@ describe("settling in: a file with no editor, and coming back to add more", () =
       },
     );
   });
+
+  it("reaches a file in the other repository from the trail, by the keyboard, without landing there first", async () => {
+    await openTheRepository(repoName());
+    await expect($('[data-surface="repository"]')).toBeDisplayed();
+
+    await $('button[aria-label="Jump to a repository or file"]').click();
+    await $(".jump__panel--repos").waitForDisplayed({ timeout: 10000 });
+
+    const onTheOther = () =>
+      browser.execute(
+        (want: string) =>
+          (document.activeElement as HTMLElement | null)?.dataset.root === want,
+        second(),
+      );
+
+    let landed = await onTheOther();
+    for (let press = 0; press < 12 && !landed; press += 1) {
+      await browser.keys("ArrowDown");
+      landed = await onTheOther();
+    }
+    if (!landed) {
+      throw new Error("the other repository was never reachable by the arrow keys");
+    }
+
+    await browser.keys("ArrowRight");
+    await $(".jump__panel--files").waitForDisplayed({ timeout: 10000 });
+
+    const shown = await browser.execute(() =>
+      [...document.querySelectorAll(".jump__panel--files .jump__file")].map(
+        (row) => ({
+          name: row.textContent ?? "",
+          condition: row.getAttribute("data-condition"),
+        }),
+      ),
+    );
+    if (!shown.some((row) => row.name.includes(ENV_FILE))) {
+      throw new Error(
+        `the other repository's files were not offered: ${JSON.stringify(shown)}`,
+      );
+    }
+
+    const focused = await browser.execute(
+      () => (document.activeElement as HTMLElement | null)?.textContent ?? "",
+    );
+    if (!focused.includes(ENV_FILE)) {
+      throw new Error(
+        `ArrowRight did not move into the second panel — focus sat on ${JSON.stringify(focused)}`,
+      );
+    }
+
+    await browser.keys("Enter");
+
+    await $(".env-editor .env-editor__rows").waitForDisplayed({ timeout: 20000 });
+
+    const trail = await browser.execute(() =>
+      [...document.querySelectorAll(".crumbs__item")].map(
+        (item) => item.textContent ?? "",
+      ),
+    );
+    if (!trail.some((crumb) => crumb.includes(secondName()))) {
+      throw new Error(
+        `the trail does not say the file came from the other repository: ${JSON.stringify(trail)}`,
+      );
+    }
+    if (!trail[trail.length - 1]?.includes(ENV_FILE)) {
+      throw new Error(
+        `the trail does not end at the opened file: ${JSON.stringify(trail)}`,
+      );
+    }
+
+    const keys = await browser.execute(() =>
+      [...document.querySelectorAll(".env-editor__key")].map(
+        (key) => (key as HTMLInputElement).value || key.textContent || "",
+      ),
+    );
+    if (!keys.some((key) => key.includes("OTHER_KEY"))) {
+      throw new Error(
+        `the file that opened is not the one in the other repository: ${JSON.stringify(keys)}`,
+      );
+    }
+  });
 });

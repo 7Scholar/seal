@@ -355,14 +355,29 @@ describe("managing readable files beside sealed ones", () => {
     await browser.keys("Escape");
   });
 
-  it("gives the breadcrumb's add entry a real height", async () => {
-    await $('button[aria-label="Open a repository"]').click();
-    const add = $(".switcher__add");
-    await add.waitForDisplayed({ timeout: 10000 });
+  it("gives every row of the breadcrumb's menu a real height, in both panels", async () => {
+    await $('button[aria-label="Jump to a repository or file"]').click();
+    await $(".jump__add").waitForDisplayed({ timeout: 10000 });
 
-    const height = await browser.execute(
-      () => (document.querySelector(".switcher__add") as HTMLElement).getBoundingClientRect().height,
+    await browser.keys("ArrowRight");
+    await $(".jump__panel--files").waitForDisplayed({ timeout: 10000 });
+
+    const rows = await browser.execute(() =>
+      [...document.querySelectorAll(".jump__panel button")].map((row) => ({
+        what: row.className,
+        height: row.getBoundingClientRect().height,
+      })),
     );
-    expect(height).toBeGreaterThanOrEqual(36);
+
+    if (rows.length < 3) {
+      throw new Error(`the menu drew almost nothing: ${JSON.stringify(rows)}`);
+    }
+
+    const squashed = rows.filter((row) => row.height < 30);
+    if (squashed.length > 0) {
+      throw new Error(
+        `rows of the trail's menu are too short to hit: ${JSON.stringify(squashed)}`,
+      );
+    }
   });
 });

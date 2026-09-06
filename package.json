@@ -26,7 +26,9 @@
     "e2e:largefile": "wdio run e2e/wdio.largefile.conf.ts",
     "e2e:density": "wdio run e2e/wdio.density.conf.ts",
     "e2e:editing": "wdio run e2e/wdio.editing.conf.ts",
-    "e2e:density-row": "wdio run e2e/wdio.rowdensity.conf.ts"
+    "e2e:density-row": "wdio run e2e/wdio.rowdensity.conf.ts",
+    "e2e:readable": "wdio run e2e/wdio.readable.conf.ts",
+    "e2e:resume": "wdio run e2e/wdio.resume.conf.ts"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",

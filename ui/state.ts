@@ -49,3 +49,10 @@ export function ticksFor(files: FileView[]): {
   const shown = [...broken, ...rest].slice(0, TICK_CAP);
   return { shown, remainder: conditions.length - TICK_CAP };
 }
+
+export function repoCondition(files: FileView[]): Condition {
+  if (files.some((file) => file.alert)) return "broken";
+  if (files.some((file) => file.state === "sealed")) return "sealed";
+  if (unreadable(files)) return "unknown";
+  return "open";
+}

@@ -2,7 +2,7 @@ Part of [the navigation plan](README.md).
 
 # Scope
 
-The **shared disclosure behaviour** behind `Overflow`, `Switcher`, `ThemeControl` and `Toggletip`: opening, dismissing on Escape and on an outside click, and returning focus to the trigger. Out of scope: what any of them discloses.
+The **shared disclosure behaviour** behind `Overflow`, the trail's jump menu, `ThemeControl` and `Toggletip`: opening, dismissing on Escape and on an outside click, and returning focus to the trigger. Out of scope: what any of them discloses.
 
 # What & why
 
@@ -45,7 +45,9 @@ Capture rather than bubble, and stopping propagation, is what keeps a disclosure
 
 ## What the hook does not own
 
-Opening, and everything specific to what is disclosed: focus into the popover, filtering, the keyboard model over a listbox, and whether the trigger toggles or only opens. The switcher keeps its own `onKeyDown` for arrows and Enter, which is a model of its list rather than of disclosure.
+Opening, and everything specific to what is disclosed: focus into the popover, the keyboard model over whatever it holds, and whether the trigger toggles or only opens. The trail's menu keeps its own `onKeyDown` for arrows and activation, which is a model of its two panels rather than of disclosure.
+
+The fourth member was the flat `Switcher`, which [file-jump.md](file-jump.md) replaced with the two-level jump menu. The contract carried over unchanged and the historical account below is left as written, because what it records is a fixed divergence rather than a component.
 
 # What exists
 
@@ -65,5 +67,5 @@ Guards confirmed non-vacuous by reintroducing the defect each prevents:
 
 - [x] Research solution directions: the shared part is behaviour rather than markup, so the primitive is a hook.
 - [x] The hook, with the contract the research fixes.
-- [x] All four components on it, closing the switcher's divergence.
+- [x] All four components on it, closing the switcher's divergence. The jump menu that replaced the switcher is on the same hook.
 - [x] Tests, with each rule confirmed non-vacuous.

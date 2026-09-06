@@ -1,26 +1,17 @@
-import { Switcher, type Option } from "./Switcher";
+import type { ReactNode } from "react";
 
 export interface Crumb {
   key: string;
   label: string;
   onNavigate?: () => void;
-  switcher?: {
-    label: string;
-    searchLabel: string;
-    addLabel: string;
-    emptyNote?: string;
-    options: Option[];
-    current: string | null;
-    onChoose: (id: string) => void;
-    onAdd: () => void;
-  };
 }
 
 interface Props {
   crumbs: Crumb[];
+  jump?: ReactNode;
 }
 
-export function Breadcrumbs({ crumbs }: Props) {
+export function Breadcrumbs({ crumbs, jump }: Props) {
   return (
     <nav className="crumbs" aria-label="Breadcrumb">
       <ol className="crumbs__list">
@@ -48,18 +39,7 @@ export function Breadcrumbs({ crumbs }: Props) {
                 </button>
               )}
 
-              {crumb.switcher ? (
-                <Switcher
-                  label={crumb.switcher.label}
-                  searchLabel={crumb.switcher.searchLabel}
-                  addLabel={crumb.switcher.addLabel}
-                  emptyNote={crumb.switcher.emptyNote}
-                  options={crumb.switcher.options}
-                  current={crumb.switcher.current}
-                  onChoose={crumb.switcher.onChoose}
-                  onAdd={crumb.switcher.onAdd}
-                />
-              ) : null}
+              {isCurrent ? jump : null}
             </li>
           );
         })}

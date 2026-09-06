@@ -121,7 +121,7 @@ The check fails rather than skips when `site/dist` is absent, exiting non-zero w
 
 # What is missing
 
-- **Screenshots.** The site launches with none, and the sequencing that justified deferring them is now spent: [palette.md](../desktop/ui/navigation/palette.md) and [manage-surface.md](../desktop/ui/navigation/manage-surface.md) have both landed, so images taken now would no longer be stale on arrival. This is the next thing the site wants, and [docs.md](docs.md)'s standing open thread is the same gap.
+- **Screenshots.** The site launches with none. The sequencing that justified deferring them is spent twice over: the palette and the manage surface landed, and then the v2 redesign replaced every surface again — so any image taken before that redesign would have been stale on arrival, and images taken now would not be. This is the next thing the site wants, and [docs.md](docs.md)'s standing open thread is the same gap. The landing page's before-and-after specimen is **not** a substitute: it is drawn markup showing what happens to a file, not a photograph of the application.
 - **The site has never been seen deployed.** The repository now has an origin, and the workflow ran on the first push: the build job passed and the **deploy job failed**, because GitHub Pages refuses a **private** repository on the organisation's plan — *"Your current plan does not support GitHub Pages for this repository"*. The owner has settled the direction: the repository **goes public**, which makes Pages free on every plan and matches the root intent's aim of an open-source project. What remains is the owner's own visibility change, then enabling Pages with **Source: GitHub Actions**, and a first deployment observed rather than assumed.
 
 # Steps

@@ -4,7 +4,7 @@
     "ui/App.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
     "ui/components/Breadcrumbs.tsx": "d14f1fa6c6e33529d0d098de586751ab686385f8",
     "ui/components/Switcher.tsx": "664ae562a15034f173ad013318a5c2221c24c63c",
-    "ui/styles.css": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4"
+    "ui/styles.css": "0b49e94af979d82caedc70c1f871047f1b08468c"
   },
   "ceremony.md": {
     "e2e/journeys/bad-day.e2e.ts": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
@@ -23,7 +23,7 @@
     "ui/screens/EnvEditor.test.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
     "ui/screens/EnvEditor.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
     "ui/screens/FileStates.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
-    "ui/styles.css": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4"
+    "ui/styles.css": "0b49e94af979d82caedc70c1f871047f1b08468c"
   },
   "files.md": {
     "e2e/journeys/rows.ts": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
@@ -33,7 +33,7 @@
     "ui/managedTree.ts": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
     "ui/screens/RepoDetail.test.tsx": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
     "ui/screens/RepoDetail.tsx": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
-    "ui/styles.css": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4"
+    "ui/styles.css": "0b49e94af979d82caedc70c1f871047f1b08468c"
   },
   "freshness.md": {
     "crates/seal-session/src/lib.rs": "d94b0fe6754a2d59df78858772e4dddf19c81cad",
@@ -45,23 +45,24 @@
     "ui/screens/Repositories.test.tsx": "7a1a2f69b2a4043df273df93269c5eac34bf66f2",
     "ui/screens/Repositories.tsx": "7a1a2f69b2a4043df273df93269c5eac34bf66f2",
     "ui/state.ts": "7a1a2f69b2a4043df273df93269c5eac34bf66f2",
-    "ui/styles.css": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4"
+    "ui/styles.css": "0b49e94af979d82caedc70c1f871047f1b08468c"
   },
   "icons.md": {
     "ui/components/Icon.tsx": "c614e2bdbca3bfc742b65689ad5659a506a605c8"
   },
   "manage-surface.md": {
+    "e2e/journeys/manage-density.e2e.ts": "0b49e94af979d82caedc70c1f871047f1b08468c",
     "ui/App.test.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
     "ui/App.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
-    "ui/components/FileTree.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
-    "ui/screens/ManageFlow.test.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
-    "ui/screens/ManageFlow.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
-    "ui/styles.css": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4"
+    "ui/components/FileTree.tsx": "0b49e94af979d82caedc70c1f871047f1b08468c",
+    "ui/screens/ManageFlow.test.tsx": "0b49e94af979d82caedc70c1f871047f1b08468c",
+    "ui/screens/ManageFlow.tsx": "0b49e94af979d82caedc70c1f871047f1b08468c",
+    "ui/styles.css": "0b49e94af979d82caedc70c1f871047f1b08468c"
   },
   "palette.md": {
     "ui/App.test.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
     "ui/App.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
-    "ui/styles.css": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4"
+    "ui/styles.css": "0b49e94af979d82caedc70c1f871047f1b08468c"
   },
   "repositories.md": {
     "ui/App.test.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
@@ -70,7 +71,7 @@
     "ui/screens/Repositories.test.tsx": "7a1a2f69b2a4043df273df93269c5eac34bf66f2",
     "ui/screens/Repositories.tsx": "7a1a2f69b2a4043df273df93269c5eac34bf66f2",
     "ui/state.ts": "7a1a2f69b2a4043df273df93269c5eac34bf66f2",
-    "ui/styles.css": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4"
+    "ui/styles.css": "0b49e94af979d82caedc70c1f871047f1b08468c"
   },
   "seal-all.md": {
     "e2e/journeys/interrupted-rekey.e2e.ts": "ff39992efab340ffd46d610df457493da25f18ee",
@@ -90,7 +91,7 @@
     "ui/fonts/geist-latin.woff2": "c614e2bdbca3bfc742b65689ad5659a506a605c8",
     "ui/fonts/geist-mono-latin-ext.woff2": "c614e2bdbca3bfc742b65689ad5659a506a605c8",
     "ui/fonts/geist-mono-latin.woff2": "c614e2bdbca3bfc742b65689ad5659a506a605c8",
-    "ui/styles.css": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4"
+    "ui/styles.css": "0b49e94af979d82caedc70c1f871047f1b08468c"
   },
   "theme.md": {
     "src-tauri/src/commands.rs": "75494f05c58e8772206909b06c3b1878b0d69088",
@@ -106,6 +107,6 @@
     "src-tauri/src/titlebar.rs": "17f23dd14a95cca2600108c10f9f8cf85a573109",
     "ui/App.test.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
     "ui/App.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
-    "ui/styles.css": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4"
+    "ui/styles.css": "0b49e94af979d82caedc70c1f871047f1b08468c"
   }
 }

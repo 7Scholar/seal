@@ -1,20 +1,20 @@
 {
   "adopting.md": {
-    "e2e/journeys/first-run.e2e.ts": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
+    "e2e/journeys/first-run.e2e.ts": "0b49e94af979d82caedc70c1f871047f1b08468c",
     "ui/App.test.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
     "ui/App.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
     "ui/components/FileTree.test.tsx": "396f54c89636e9917866cb2254d109ac65e7088b",
-    "ui/components/FileTree.tsx": "74e74580318ac479852ba0c52f563e656df63e0b",
-    "ui/screens/ManageFlow.test.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
-    "ui/screens/ManageFlow.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
-    "ui/styles.css": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4"
+    "ui/components/FileTree.tsx": "0b49e94af979d82caedc70c1f871047f1b08468c",
+    "ui/screens/ManageFlow.test.tsx": "0b49e94af979d82caedc70c1f871047f1b08468c",
+    "ui/screens/ManageFlow.tsx": "0b49e94af979d82caedc70c1f871047f1b08468c",
+    "ui/styles.css": "0b49e94af979d82caedc70c1f871047f1b08468c"
   },
   "managed-view.md": {
     "ui/App.test.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
     "ui/App.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
     "ui/screens/RepoDetail.test.tsx": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
     "ui/screens/RepoDetail.tsx": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
-    "ui/styles.css": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4"
+    "ui/styles.css": "0b49e94af979d82caedc70c1f871047f1b08468c"
   },
   "scan-shape.md": {
     "crates/seal-registry/src/scan.rs": "8b079b85339621deaa93c046211fdefb6ddd2ced",
@@ -24,7 +24,7 @@
     "ui/ipc.ts": "75494f05c58e8772206909b06c3b1878b0d69088"
   },
   "vocabulary.md": {
-    "e2e/journeys/first-run.e2e.ts": "c3dd34063b70f62e0969664db8dcf77f96fa5c9e",
+    "e2e/journeys/first-run.e2e.ts": "0b49e94af979d82caedc70c1f871047f1b08468c",
     "e2e/journeys/return-and-use.e2e.ts": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
     "src-tauri/src/commands.rs": "75494f05c58e8772206909b06c3b1878b0d69088",
     "src-tauri/src/lib.rs": "d1d3a678c02530f74c4845022358fa06066f9d35",
@@ -33,8 +33,8 @@
     "ui/App.test.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
     "ui/App.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
     "ui/ipc.ts": "75494f05c58e8772206909b06c3b1878b0d69088",
-    "ui/screens/ManageFlow.test.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
-    "ui/screens/ManageFlow.tsx": "e99a7fbf6cdab4293dd0b99987e286104451408d",
-    "ui/styles.css": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4"
+    "ui/screens/ManageFlow.test.tsx": "0b49e94af979d82caedc70c1f871047f1b08468c",
+    "ui/screens/ManageFlow.tsx": "0b49e94af979d82caedc70c1f871047f1b08468c",
+    "ui/styles.css": "0b49e94af979d82caedc70c1f871047f1b08468c"
   }
 }

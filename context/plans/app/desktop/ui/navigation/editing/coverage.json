@@ -18,7 +18,7 @@
     "ui/components/RowToolbar.tsx": "ecb6be27f4e7db65a0bfe68a697d428307ed6162",
     "ui/screens/EnvEditor.test.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
     "ui/screens/EnvEditor.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
-    "ui/styles.css": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4"
+    "ui/styles.css": "0b49e94af979d82caedc70c1f871047f1b08468c"
   },
   "surface.md": {
     "ui/screens/EnvEditor.test.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
@@ -30,6 +30,6 @@
     "ui/components/SecretValue.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
     "ui/screens/EnvEditor.test.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
     "ui/screens/EnvEditor.tsx": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4",
-    "ui/styles.css": "d17eb9ef372a7c12ac25e372b13eaa33ebd8f0e4"
+    "ui/styles.css": "0b49e94af979d82caedc70c1f871047f1b08468c"
   }
 }

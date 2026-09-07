@@ -9,7 +9,7 @@
     "LICENSE-MIT": "82a179cb55c8522f8a05dc3055d4a35546502551",
     "README.md": "bfa0bf55dc32b814c88ec3d71a4c2f071b486c16",
     "SECURITY.md": "82a179cb55c8522f8a05dc3055d4a35546502551",
-    "docs/RELEASING.md": "bfa0bf55dc32b814c88ec3d71a4c2f071b486c16"
+    "docs/RELEASING.md": "0e818784dd3ab8ef6fc8374d5995f99a88aba0ed"
   },
   "packaging.md": {
     ".github/workflows/release.yml": "bfa0bf55dc32b814c88ec3d71a4c2f071b486c16",

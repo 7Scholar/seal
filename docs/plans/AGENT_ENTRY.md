@@ -19,7 +19,7 @@ Read the best-practices docs for the area you are about to touch — before the 
 However small the change — a one-line rename counts — work on plan-covered code is finished only when this close-out has run. Skipping it leaves the plan system silently drifted, the one failure it cannot tolerate:
 
 1. Run the targeted check for the touched area (typecheck, unit tests).
-2. Commit the code and plan-prose changes locally. Never push — the landing rules in [INSTRUCTIONS.md](INSTRUCTIONS.md) own that boundary.
+2. Commit the code and plan-prose changes locally on your task branch. Never push and never open a pull request — the landing rules in [INSTRUCTIONS.md](INSTRUCTIONS.md) own that boundary.
 3. Stamp coverage, strictly after step 2's commit: from `context/_scripts/`, find each changed file's covering plans with `uv run find_plans <changed-file-path>` (read-only; a file may be covered by more than one plan — stamp under each), run `uv run add_to_coverage <plan.md> <path...>` per covering plan, then commit the `coverage.json` changes as the final commit. The order is enforced, not stylistic: the stamp records `HEAD`, so `add_to_coverage` refuses any file whose changes are uncommitted.
 4. Confirm clean: `uv run run_coverage --all --verbose` reports no drift and `context/plans/app/DRIFT.md` is absent. Drift in files you touched is always yours to clear. Drift in files you never touched is **unrelated drift**: don't resolve it silently, don't blind-stamp it, and don't ignore it — ask the user **in the chat** whether this session should also take it on. (That is a session-scope question, not a plan question, so it is asked live rather than in `QUESTIONS.md`.)
 

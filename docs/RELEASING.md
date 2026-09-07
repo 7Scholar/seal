@@ -24,7 +24,9 @@ gh repo create 7scholar/homebrew-tap --public \
   --description "Homebrew formulae for Seal"
 ```
 
-**A token that may write to it.** The release workflow pushes the rendered formula to that repository, which the default `GITHUB_TOKEN` cannot reach because it is scoped to this repository alone. Create a fine-grained personal access token with **contents: write** on `homebrew-tap` only, and add it to this repository as the secret `SEAL_TAP_TOKEN`.
+**A token that may write to it.** The release workflow pushes the rendered formula to that repository, which the default `GITHUB_TOKEN` cannot reach because it is scoped to this repository alone. Create a fine-grained personal access token with **contents: write** on `homebrew-tap` only, and add it to this repository as the secret `SEAL_TAP_TOKEN`. Its resource owner must be the **organisation** that holds the tap, not a personal account; scoped to a personal account it cannot see the repository at all.
+
+**`SEAL_TAP_TOKEN` expires on 2027-09-07.** Renewing it is the whole of the maintenance: mint a replacement the same way and `gh secret set SEAL_TAP_TOKEN --repo 7scholar/seal`. An expired token does not fail the release — the tap step reports that it was not pushed and exits successfully, exactly as it does for a fork — so the symptom is `brew install` serving an old version indefinitely while every release looks green. Check the tap step's output when a release does not reach Homebrew.
 
 Without the secret the release still succeeds: the formula is rendered and printed, and the tap step reports that it was not pushed. That is deliberate, so a fork's release does not fail on a secret it was never going to have.
 

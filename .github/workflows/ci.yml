@@ -144,6 +144,25 @@ jobs:
             sleep 1
           done
 
+      - name: A delivered tarball must extract to a signed binary carrying no quarantine
+        # The install routes are curl and Homebrew, neither of which marks the download.
+        # Quarantine propagates through tar extraction from macOS 26.6 on, so what the
+        # routes rely on is the archive never carrying it — see packaging.md.
+        if: runner.os == 'macOS'
+        run: |
+          set -euo pipefail
+          triple="$(rustc -vV | sed -n 's/^host: //p')"
+          work="$(mktemp -d)"
+          curl -fsSL -o "$work/seal.tar.gz" "http://127.0.0.1:8799/seal-$triple.tar.gz"
+          cd "$work"
+          tar xzf seal.tar.gz
+          if xattr seal 2>/dev/null | grep -q com.apple.quarantine; then
+            echo "A curl-delivered tarball extracted to a quarantined binary."
+            exit 1
+          fi
+          codesign --verify seal
+          ./seal --version
+
       - name: The installer must install a working binary
         run: |
           set -euo pipefail

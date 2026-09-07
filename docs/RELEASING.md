@@ -28,11 +28,13 @@ gh repo create 7scholar/homebrew-tap --public \
 
 Without the secret the release still succeeds: the formula is rendered and printed, and the tap step reports that it was not pushed. That is deliberate, so a fork's release does not fail on a secret it was never going to have.
 
+For this project both now exist: the tap is [7Scholar/homebrew-tap](https://github.com/7Scholar/homebrew-tap) and the secret is set. A fork needs its own.
+
 ## What the release actually verifies
 
 Continuous integration proves the install route on every change rather than at tag time, because a release is a bad moment to discover the installer is broken. It stands up a real served release, runs the installer against it, asserts the installed binary works, and asserts a **tampered download is refused**. It renders the formula and runs `brew audit` over it.
 
-The macOS build additionally asserts that a quarantined tarball extracts to a binary carrying no quarantine — the property the whole unsigned distribution depends on.
+The macOS build additionally asserts that a delivered tarball extracts to an ad-hoc-signed binary carrying no quarantine. That is the property the unsigned distribution depends on: quarantine propagates through `tar` extraction from macOS 26.6, so what the routes rely on is `curl` and Homebrew never marking the download in the first place.
 
 ## Signing
 

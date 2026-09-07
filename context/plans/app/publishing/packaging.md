@@ -8,13 +8,13 @@ Turning the built application into something a stranger can install: bundling, s
 
 The command-line tool installs in one command — `brew install 7scholar/tap/seal`, or an installer script piped to a shell — from a GitHub release the workflow publishes on a tag. Bundling works and was verified rather than assumed: `tauri build` produces `Seal.app` and a 4 MB `Seal_0.1.0_aarch64.dmg` on macOS from a clean tree, with the interface built and embedded.
 
-The install route was measured end to end rather than reasoned about: an unsigned, ad-hoc-signed `seal`, packaged as a tarball, quarantined to simulate a browser download, and installed through a real Homebrew formula, arrives carrying only `com.apple.provenance` — no quarantine — and runs. The installer script was driven against a served release, installed a working binary, and **refused a tarball whose bytes had been altered after its checksum was published**.
+The install route was measured end to end rather than reasoned about: an unsigned, ad-hoc-signed `seal`, packaged as a tarball and installed through a real Homebrew formula, arrives carrying only `com.apple.provenance` — no quarantine — and runs. The installer script was driven against a served release, installed a working binary, and **refused a tarball whose bytes had been altered after its checksum was published**.
 
 ## How Seal is distributed, and why
 
 The signing question is settled: **no paid signing identity for now.** That decision shapes distribution rather than merely deferring it, because measurement showed the obvious fallbacks do not work.
 
-An unsigned artefact on macOS is not merely warned about — it is **killed**, behind a dialog reading "Apple could not verify this app is free of malware" whose only buttons are Done and Move to Bin. There is no override affordance. Measured across three shapes: a bare downloaded binary is killed, a binary extracted from a quarantined `.zip` is killed, and a binary extracted from a quarantined `.tar.gz` **runs normally**, because quarantine propagates through zip extraction but not through tar.
+An unsigned artefact on macOS is not merely warned about — it is **killed**, behind a dialog reading "Apple could not verify this app is free of malware" whose only buttons are Done and Move to Bin. There is no override affordance. Measured across three shapes: a bare downloaded binary is killed, and so is one extracted from a quarantined archive of either format — from macOS 26.6, quarantine propagates through `tar` extraction as it has always done through zip. What makes the install routes work is that the archive they deliver is never marked in the first place, so there is nothing to propagate.
 
 So distribution is:
 
@@ -25,7 +25,7 @@ This is honest about the project's state rather than shipping something that die
 
 ## The install routes, and what each guarantees
 
-**Four targets are built**: macOS on Apple Silicon and Intel, Linux on x86-64 and arm64. An installer that fails on a colleague's Intel Mac is not an install story, so the matrix covers what a user plausibly has rather than what the release runner happens to be.
+**Four targets are built**: macOS on Apple Silicon and Intel, Linux on x86-64 and arm64. The Intel macOS artefact is cross-compiled on an Apple Silicon runner, because GitHub has retired the Intel macOS images. An installer that fails on a colleague's Intel Mac is not an install story, so the matrix covers what a user plausibly has rather than what the release runner happens to be.
 
 **Every released binary is ad-hoc signed.** This is not notarisation and is not security theatre: Apple Silicon refuses to execute arm64 code carrying no signature at all, so an unsigned binary is killed regardless of how it arrived. Ad-hoc signing satisfies that gate and costs nothing.
 
@@ -33,17 +33,17 @@ This is honest about the project's state rather than shipping something that die
 
 **The installer script verifies before it installs.** It picks the platform's tarball, downloads the published checksum file, and refuses to install anything that does not match. It installs to a writable directory it chooses (or one the user names), and tells the user when that directory is not on their path — a silent install to somewhere unreachable is indistinguishable from a broken one.
 
-**The whole route is proven on every change, not at tag time.** Continuous integration stands up a real served release, runs the installer against it, asserts the installed binary runs and carries the `open` subcommand, and asserts that a **tampered download is refused**. It renders the formula and runs `brew audit` over it. A release is the wrong moment to discover the installer is broken.
+**The whole route is proven on every change, not at tag time.** Continuous integration stands up a real served release, runs the installer against it, asserts the installed binary runs and carries the `open` subcommand, and asserts that a **tampered download is refused**. On macOS it also asserts that a curl-delivered tarball extracts to an ad-hoc-signed binary carrying no quarantine, which is the property the routes actually depend on. It renders the formula and runs `brew audit` over it. A release is the wrong moment to discover the installer is broken.
 
 ## What installation the two gates actually allow
 
-macOS applies two independent gates, and only one of them costs money. The **execution gate** on Apple Silicon refuses arm64 code carrying no signature at all, and a free ad-hoc signature satisfies it. The **Gatekeeper gate** fires only on files carrying `com.apple.quarantine`, and only a paid Developer ID with notarisation passes it. Since quarantine is applied by the delivery mechanism rather than by the artefact — browsers set it, `curl` and `tar` do not, and Homebrew never adds it — an unsigned command-line tool installs and runs cleanly through a tap or an installer script. Measured end to end rather than assumed: an unsigned `seal` tarred, quarantined to simulate a download, and installed through a real formula arrives carrying only `com.apple.provenance`, and runs.
+macOS applies two independent gates, and only one of them costs money. The **execution gate** on Apple Silicon refuses arm64 code carrying no signature at all, and a free ad-hoc signature satisfies it. The **Gatekeeper gate** fires only on files carrying `com.apple.quarantine`, and only a paid Developer ID with notarisation passes it. Since quarantine is applied by the delivery mechanism rather than by the artefact — browsers set it, `curl` does not, and Homebrew never adds it — an unsigned command-line tool installs and runs cleanly through a tap or an installer script. Measured end to end rather than assumed: an unsigned `seal` tarred and installed through a real formula arrives carrying only `com.apple.provenance`, and runs.
 
 That same reasoning does **not** extend to the desktop application, which is why it is not distributed as a cask; `MEMORY.md` holds the constraint and its expiry date.
 
 # What is missing
 
-Two things live outside this repository and cannot be created from inside it: the `homebrew-tap` repository itself, and the `SEAL_TAP_TOKEN` secret that lets the release push to it. Both are recorded in [docs/RELEASING.md](../../../../docs/RELEASING.md). Until they exist, a tagged release publishes correctly and reports that the tap was not updated.
+The `homebrew-tap` repository and the `SEAL_TAP_TOKEN` secret that lets the release push to it both live outside this repository, and both now exist; [docs/RELEASING.md](../../../../docs/RELEASING.md) records how they are set up. Where they are absent — a fork, most obviously — a tagged release publishes correctly and reports that the tap was not updated.
 
 Windows is unaddressed: no target is built and no install route exists.
 

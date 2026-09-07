@@ -18,7 +18,7 @@ jobs:
         include:
           - os: macos-latest
             triple: aarch64-apple-darwin
-          - os: macos-13
+          - os: macos-latest
             triple: x86_64-apple-darwin
           - os: ubuntu-22.04
             triple: x86_64-unknown-linux-gnu
@@ -30,6 +30,9 @@ jobs:
 
       - name: Install the pinned toolchain
         run: rustup show
+
+      - name: Add the target this artefact is built for
+        run: rustup target add ${{ matrix.triple }}
 
       - uses: Swatinem/rust-cache@v2
 
@@ -52,7 +55,7 @@ jobs:
           shasum -a 256 "seal-$triple.tar.gz" > "seal-$triple.tar.gz.sha256"
           cat "seal-$triple.tar.gz.sha256"
 
-      - name: The tarball must actually run after a simulated download
+      - name: The tarball must extract to a signed binary carrying no quarantine
         if: runner.os == 'macOS'
         run: |
           set -euo pipefail
@@ -60,14 +63,20 @@ jobs:
           work="$(mktemp -d)"
           cp "artefacts/seal-$triple.tar.gz" "$work/"
           cd "$work"
-          xattr -w com.apple.quarantine "0083;00000000;Safari;" "seal-$triple.tar.gz"
           tar xzf "seal-$triple.tar.gz"
-          if xattr seal | grep -q com.apple.quarantine; then
-            echo "The extracted binary carries quarantine and macOS will refuse to run it."
+          if xattr seal 2>/dev/null | grep -q com.apple.quarantine; then
+            echo "The delivered tarball extracted to a quarantined binary."
             exit 1
           fi
           codesign --verify seal
-          ./seal --version
+          host="$(rustc -vV | sed -n 's/^host: //p')"
+          if [ "$triple" = "$host" ]; then
+            ./seal --version
+          elif arch -x86_64 /usr/bin/true >/dev/null 2>&1; then
+            arch -x86_64 ./seal --version
+          else
+            echo "Cross-built for $triple with no Rosetta present, so it is not executed here."
+          fi
 
       - name: It must run on Linux too
         if: runner.os == 'Linux'
@@ -199,7 +208,7 @@ jobs:
 
           Verify a download against \`SHA256SUMS\`. The desktop application is built from source — see the README.
 
-          The command-line binaries are ad-hoc signed rather than notarised, so macOS runs them when they arrive by Homebrew, the installer script or \`tar\`, but refuses them if a browser downloads them." \
+          The command-line binaries are ad-hoc signed rather than notarised, so macOS runs them when they arrive by Homebrew or the installer script, but refuses anything a browser downloads." \
             release/*.tar.gz release/SHA256SUMS
 
   tap:

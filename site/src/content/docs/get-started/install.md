@@ -47,7 +47,7 @@ If you also build the command-line tool from the same checkout — `cargo build 
 
 Seal has no Apple Developer identity, and that has one specific consequence worth stating plainly rather than burying.
 
-macOS refuses to run software that arrives carrying the quarantine flag unless it is signed and notarised. That flag is set by *how* a file reaches your disk: a **browser download sets it**, while `curl`, `tar` and Homebrew do not. So the install routes above work — the binaries are ad-hoc signed, which is what Apple Silicon requires to execute code at all — while downloading a release tarball by clicking a link in a browser produces a binary macOS will kill, behind a dialog that reads as a malware accusation.
+macOS refuses to run software that arrives carrying the quarantine flag unless it is signed and notarised. That flag is set by *how* a file reaches your disk: a **browser download sets it**, while `curl` and Homebrew do not. So the install routes above work — the binaries are ad-hoc signed, which is what Apple Silicon requires to execute code at all — while downloading a release tarball by clicking a link in a browser produces a binary macOS will kill, behind a dialog that reads as a malware accusation. Extracting that download with `tar` does not launder the flag: from macOS 26.6 it propagates to the extracted binary.
 
 Unsigned application bundles are produced on each tag so a contributor can check a build. They are **not** for general use and will not open by double-clicking.
 

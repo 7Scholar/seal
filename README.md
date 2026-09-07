@@ -58,7 +58,7 @@ bun run build
 cargo build --release --manifest-path src-tauri/Cargo.toml --features custom-protocol
 ```
 
-Seal is **not code-signed**, which is why these are the install routes: `curl`, `tar` and Homebrew do not set macOS's quarantine flag, and a browser download does. Seal deliberately does not teach the `xattr` override. [Install](https://7scholar.github.io/seal/get-started/install/) explains the consequence in full, without softening it.
+Seal is **not code-signed**, which is why these are the install routes: `curl` and Homebrew do not set macOS's quarantine flag, and a browser download does. Seal deliberately does not teach the `xattr` override. [Install](https://7scholar.github.io/seal/get-started/install/) explains the consequence in full, without softening it.
 
 > [!WARNING]
 > **Sealing protects from that moment on; it cannot reach backwards.** A credential that has already sat unprotected on disk, in a backup, or in a snapshot should be **rotated**, not merely sealed.
